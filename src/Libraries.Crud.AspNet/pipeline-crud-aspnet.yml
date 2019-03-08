@@ -8,6 +8,5 @@ resources:
 jobs:
 - template: 'devops/pipeline-templates/nuget-netstandard-v2.yml@templates'
   parameters:
-    nugetProjectsPath: 'src/Libraries.Azure.Storage/*.csproj'
-    # Skip tests. Currently no implementation of locking, so 3 tests fail.
+    nugetProjectsPath: '**/Libraries.Crud.AspNet/*.csproj'
     testProjectsPath: ''

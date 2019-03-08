@@ -8,8 +8,8 @@ resources:
 jobs:
 - template: 'devops/pipeline-templates/nuget-netstandard-v2.yml@templates'
   parameters:
-    nugetProjectsPath: '**/Nexus.Link.Libraries.Web/*.csproj'
-    testProjectsPath: '**/Nexus.Link.Libraries.Web.Tests/*.csproj'
+    nugetProjectsPath: 'src/Nexus.Link.Libraries.Web/*.csproj'
+    testProjectsPath: 'test/Nexus.Link.Libraries.Web.Tests/*.csproj'
 
 
 

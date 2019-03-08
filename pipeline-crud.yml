@@ -8,11 +8,11 @@ resources:
 jobs:
 - template: 'devops/pipeline-templates/nuget-netstandard-v2.yml@templates'
   parameters:
-    nugetProjectsPath: '**/Nexus.Link.Libraries.Crud/*.csproj'
-    testProjectsPath: '**/Nexus.Link.Libraries.Crud.Test/*.csproj'
+    nugetProjectsPath: 'src/Libraries.Crud/*.csproj'
+    testProjectsPath: 'test/Nexus.Link.Libraries.Crud.Test/*.csproj'
     jobName: 'Crud'    
 - template: 'devops/pipeline-templates/nuget-netstandard-v2.yml@templates'
   parameters:
-    nugetProjectsPath: '**/Nexus.Link.Libraries.Crud.UnitTests/*.csproj'
-    testProjectsPath: '**/Nexus.Link.Libraries.Crud.Test/*.csproj'
+    nugetProjectsPath: 'test/Nexus.Link.Libraries.Crud.UnitTests/*.csproj'
+    testProjectsPath: 'test/Nexus.Link.Libraries.Crud.Test/*.csproj'
     jobName: 'CrudUnitTests'    
