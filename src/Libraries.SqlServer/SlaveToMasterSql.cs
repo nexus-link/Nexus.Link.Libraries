@@ -130,7 +130,7 @@ namespace Nexus.Link.Libraries.SqlServer
         /// <inheritdoc />
         public Task DeleteChildrenAsync(Guid parentId, CancellationToken token = default(CancellationToken))
         {
-            return DeleteWhereAsync("[{ParentColumnName}] = @ParentId", new { ParentId = parentId }, token);
+			return DeleteWhereAsync($"[{ParentColumnName}] = @ParentId", new { ParentId = parentId }, token);
         }
 
         /// <inheritdoc />
