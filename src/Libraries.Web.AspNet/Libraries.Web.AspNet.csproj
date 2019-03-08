@@ -24,7 +24,7 @@
 
   <PropertyGroup>
     <PackageId>Nexus.Link.Libraries.Web.AspNet</PackageId>
-    <PackageVersion>1.4.1</PackageVersion>
+    <PackageVersion>1.4.2</PackageVersion>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <PackageTags>nexus;link;fulcrum;lever</PackageTags>
     <Authors>XLENT Link</Authors>
@@ -34,6 +34,7 @@
     <Copyright>Copyright ©2019 Xlent Link AB</Copyright>
     <IncludeSymbols>true</IncludeSymbols>
     <PackageReleaseNotes>
+      1.4.2 Bumped version. New solution and build pipeline.
       1.4.1 Safer logging of request-response.
       1.4.0 Introduced UrlLinkHelper with LinkWithEnforcedHttps method
       1.3.1 Bumped nugets.

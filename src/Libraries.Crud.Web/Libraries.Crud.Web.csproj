@@ -9,7 +9,7 @@
 
   <PropertyGroup>
     <PackageId>Nexus.Link.Libraries.Crud.Web</PackageId>
-    <PackageVersion>1.1.7</PackageVersion>
+    <PackageVersion>1.1.8</PackageVersion>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <PackageTags>nexus;link;fulcrum;lever</PackageTags>
     <Authors>XLENT Link</Authors>
@@ -19,6 +19,8 @@
     <Copyright>Copyright ©2019 Xlent Link AB</Copyright>
     <IncludeSymbols>true</IncludeSymbols>
     <PackageReleaseNotes>
+      1.1.8 Bumped version. New solution and build pipeline.
+      1.1.8 Bumped version. New solution and build pipeline.
       1.1.7 Updated dependencies
       1.1.2 Added missing constructors
       1.1.1 Bumped dependencies

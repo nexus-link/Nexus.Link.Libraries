@@ -16,7 +16,7 @@
 
   <PropertyGroup>
     <PackageId>Nexus.Link.Libraries.Azure</PackageId>
-    <PackageVersion>1.0.5</PackageVersion>
+    <PackageVersion>1.0.6</PackageVersion>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <PackageTags>nexus;link;fulcrum;lever</PackageTags>
     <Authors>XLENT Link</Authors>
@@ -26,10 +26,11 @@
     <Copyright>Copyright ©2019 Xlent Link AB</Copyright>
     <IncludeSymbols>true</IncludeSymbols>
     <PackageReleaseNotes>
-	    1.0.5 Updated dependencies
+      1.0.6 Bumped version. New solution and build pipeline.
+      1.0.5 Updated dependencies
       1.0.0 Core lib with support for .net standard
       0.1.0 Release candidate with support for .net standard
-</PackageReleaseNotes>
+    </PackageReleaseNotes>
     <RootNamespace>Nexus.Link.Libraries.Azure.Storage</RootNamespace>
     <AssemblyName>Nexus.Link.Libraries.Azure.Storage</AssemblyName>
   </PropertyGroup>
