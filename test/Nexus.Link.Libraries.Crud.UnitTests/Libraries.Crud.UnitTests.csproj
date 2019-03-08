@@ -1,0 +1,37 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFrameworks>netstandard2.0;net461</TargetFrameworks>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="MSTest.TestFramework" Version="1.2.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Properties\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\Libraries.Crud\Libraries.Crud.csproj" />
+  </ItemGroup>
+
+  <PropertyGroup>
+    <PackageId>Nexus.Link.Libraries.Crud.UnitTests</PackageId>
+    <PackageVersion>1.0.2</PackageVersion>
+    <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
+    <PackageTags>nexus;link;fulcrum;lever</PackageTags>
+    <Authors>XLENT Link</Authors>
+    <PackageProjectUrl>https://github.com/nexus-link/Nexus.Link.Libraries.Crud.UnitTests</PackageProjectUrl>
+    <PackageLanguage>en-US</PackageLanguage>
+    <Description>Test support for CRUD implementations.</Description>
+    <Copyright>Copyright ©2019 Xlent Link AB</Copyright>
+    <IncludeSymbols>true</IncludeSymbols>
+    <PackageReleaseNotes>
+      1.0.2 Updated dependencies
+      1.0.0 Initial release
+    </PackageReleaseNotes>
+    <AssemblyName>Nexus.Link.Libraries.Crud.UnitTests</AssemblyName>
+    <RootNamespace>Nexus.Link.Libraries.Crud.UnitTests</RootNamespace>
+  </PropertyGroup>
+
+</Project>

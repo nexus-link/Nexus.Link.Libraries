@@ -1,0 +1,13 @@
+resources:
+  repositories:
+  - repository: templates
+    type: github
+    endpoint: 'xlent-link-admin'
+    name: 'nexus-link/nexus-developer-tools'
+    ref: 'refs/heads/master'
+jobs:
+- template: 'devops/pipeline-templates/nuget-netstandard-v2.yml@templates'
+  parameters:
+    nugetProjectsPath: '**/Libraries.SqlServer/*.csproj'
+    # We can't run the tests, because they require a database.
+    testProjectsPath: ''

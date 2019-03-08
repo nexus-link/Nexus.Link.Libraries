@@ -1,0 +1,35 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFrameworks>netstandard2.0;net461</TargetFrameworks>
+  </PropertyGroup>
+  <ItemGroup Condition="'$(TargetFramework)'=='netstandard2.0'">
+    <PackageReference Include="Microsoft.Extensions.Caching.Abstractions" Version="2.1.2" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Libraries.Core\Libraries.Core.csproj" />
+  </ItemGroup>
+
+  <PropertyGroup>
+    <PackageId>Nexus.Link.Libraries.Crud</PackageId>
+    <PackageVersion>1.0.5</PackageVersion>
+    <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
+    <PackageTags>nexus;link;fulcrum;lever</PackageTags>
+    <Authors>XLENT Link</Authors>
+    <PackageProjectUrl>https://github.com/nexus-link/Nexus.Link.Libraries.Crud</PackageProjectUrl>
+    <PackageLanguage>en-US</PackageLanguage>
+    <Description>CRUD interfaces and memory implementations</Description>
+    <Copyright>Copyright ©2019 Xlent Link AB</Copyright>
+    <IncludeSymbols>true</IncludeSymbols>
+    <PackageReleaseNotes>
+      1.0.5 Updated dependencies
+      1.0.2 Bug: CrudClientTranslator.Create() did not translate the resulting id.
+      1.0.1 Updated dependencies
+      1.0.0 First release
+      0.2.2 Bump
+      0.1.0 Release candidate with support for .net standard
+    </PackageReleaseNotes>
+    <RootNamespace>Nexus.Link.Libraries.Crud</RootNamespace>
+    <AssemblyName>Nexus.Link.Libraries.Crud</AssemblyName>
+  </PropertyGroup>
+
+</Project>

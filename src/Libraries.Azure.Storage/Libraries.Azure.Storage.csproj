@@ -1,0 +1,37 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFrameworks>netstandard2.0;net461</TargetFrameworks>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="WindowsAzure.Storage" Version="9.1.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Libraries.Azure.Core\Libraries.Azure.Core.csproj" />
+    <ProjectReference Include="..\Libraries.Core\Libraries.Core.csproj" />
+    <ProjectReference Include="..\Libraries.Crud\Libraries.Crud.csproj" />
+  </ItemGroup>
+
+  <PropertyGroup>
+    <PackageId>Nexus.Link.Libraries.Azure</PackageId>
+    <PackageVersion>1.0.5</PackageVersion>
+    <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
+    <PackageTags>nexus;link;fulcrum;lever</PackageTags>
+    <Authors>XLENT Link</Authors>
+    <PackageProjectUrl>https://github.com/nexus-link/Nexus.Link.Libraries.Azure</PackageProjectUrl>
+    <PackageLanguage>en-US</PackageLanguage>
+    <Description>Nexus Azure library based on .NET Standard</Description>
+    <Copyright>Copyright ©2019 Xlent Link AB</Copyright>
+    <IncludeSymbols>true</IncludeSymbols>
+    <PackageReleaseNotes>
+	    1.0.5 Updated dependencies
+      1.0.0 Core lib with support for .net standard
+      0.1.0 Release candidate with support for .net standard
+</PackageReleaseNotes>
+    <RootNamespace>Nexus.Link.Libraries.Azure.Storage</RootNamespace>
+    <AssemblyName>Nexus.Link.Libraries.Azure.Storage</AssemblyName>
+  </PropertyGroup>
+
+</Project>

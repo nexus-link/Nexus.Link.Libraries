@@ -1,0 +1,46 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFrameworks>netcoreapp2.1;net461</TargetFrameworks>
+    <RootNamespace>Nexus.Link.Libraries.Crud.AspNet</RootNamespace>
+    <AssemblyName>Nexus.Link.Libraries.Crud.AspNet</AssemblyName>
+  </PropertyGroup>
+
+  <ItemGroup Condition="'$(TargetFramework)'=='netcoreapp2.1'">
+    <PackageReference Include="Microsoft.AspNetCore.Mvc" Version="2.1.3" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Libraries.Crud.Web\Libraries.Crud.Web.csproj" />
+    <ProjectReference Include="..\Libraries.Web.AspNet\Libraries.Web.AspNet.csproj" />
+  </ItemGroup>
+
+  <PropertyGroup>
+    <PackageId>Nexus.Link.Libraries.Crud.AspNet</PackageId>
+    <PackageVersion>1.3.1</PackageVersion>
+    <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
+    <PackageTags>nexus;link;fulcrum;lever</PackageTags>
+    <Authors>XLENT Link</Authors>
+    <PackageProjectUrl>https://github.com/nexus-link/Nexus.Link.Libraries.Crud.AspNet</PackageProjectUrl>
+    <PackageLanguage>en-US</PackageLanguage>
+    <Description>Nexus Crud.AspNetlibrary based on ASP.NET and ASP.NET Core</Description>
+    <Copyright>Copyright ©2019 Xlent Link AB</Copyright>
+    <IncludeSymbols>true</IncludeSymbols>
+    <PackageReleaseNotes>
+      1.3.1 Removed query string from route
+      1.3.0 Removed Locks from default controllers
+      1.2.8 Updated dependencies
+      1.2.7 Corrected route for Lock.
+      1.2.6 Updated dependencies
+      1.2.1 Introduced ControllerHelpers to support .NET Core.
+      1.1.4 Lowered dependency requirement for Microsoft.AspNetCore.Mvc
+      1.1.3 Removed bad dependency for .NETFramework
+      1.1.2 Removed bad dependency for .NETFramework
+      1.1.1 Bumped dependencies
+      1.1.0 Changed target frameworks to ASP.NET/ASP.NET Core
+      1.0.2 Updated nugets
+      1.0.0 First release
+      0.1.0 Release candidate
+    </PackageReleaseNotes>
+  </PropertyGroup>
+</Project>

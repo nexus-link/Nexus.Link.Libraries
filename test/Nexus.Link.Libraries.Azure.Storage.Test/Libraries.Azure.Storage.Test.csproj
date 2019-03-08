@@ -1,0 +1,24 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFrameworks>netcoreapp2.1;net461</TargetFrameworks>
+
+    <IsPackable>false</IsPackable>
+
+    <RootNamespace>Nexus.Link.Libraries.Azure.Storage.Test</RootNamespace>
+
+    <AssemblyName>Nexus.Link.Libraries.Azure.Storage.Test</AssemblyName>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.9.0" />
+    <PackageReference Include="MSTest.TestAdapter" Version="1.4.0" />
+    <PackageReference Include="MSTest.TestFramework" Version="1.4.0" />
+    <PackageReference Include="Nexus.Link.Libraries.Crud.UnitTests" Version="1.0.2" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\Libraries.Azure.Storage\Libraries.Azure.Storage.csproj" />
+  </ItemGroup>
+
+</Project>

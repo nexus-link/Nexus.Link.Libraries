@@ -1,0 +1,35 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFrameworks>netstandard2.0;net461</TargetFrameworks>
+    <AssemblyName>Nexus.Link.Libraries.SqlServer</AssemblyName>
+    <RootNamespace>Nexus.Link.Libraries.SqlServer</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Dapper" Version="1.50.5" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Libraries.Core\Libraries.Core.csproj" />
+    <ProjectReference Include="..\Libraries.Crud\Libraries.Crud.csproj" />
+  </ItemGroup>
+
+  <PropertyGroup>
+    <PackageId>Nexus.Link.Libraries.SqlServer</PackageId>
+    <PackageVersion>1.0.5</PackageVersion>
+    <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
+    <PackageTags>nexus;link;fulcrum;lever</PackageTags>
+    <Authors>XLENT Link</Authors>
+    <PackageProjectUrl>https://github.com/nexus-link/Nexus.Link.Libraries.SqlServer</PackageProjectUrl>
+    <PackageLanguage>en-US</PackageLanguage>
+    <Description>Nexus SQL Server library based on .NET Standard</Description>
+    <Copyright>Copyright ©2019 Xlent Link AB</Copyright>
+    <IncludeSymbols>true</IncludeSymbols>
+    <PackageReleaseNotes>
+	  1.0.5 Updated dependencies
+    1.0.0 Core lib with support for .net standard
+    0.1.0 Release candidate with support for .net standard
+</PackageReleaseNotes>
+  </PropertyGroup>
+
+</Project>

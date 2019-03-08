@@ -1,0 +1,62 @@
+﻿using System.Threading;
+using System.Threading.Tasks;
+using Nexus.Link.Libraries.Core.Storage.Model;
+using Nexus.Link.Libraries.Crud.AspNet.Controllers;
+using Nexus.Link.Libraries.Crud.Interfaces;
+#if NETCOREAPP
+using Microsoft.AspNetCore.Mvc;
+#else
+using System.Web.Http;
+#endif
+
+namespace Nexus.Link.Libraries.Crud.AspNet.DefaultControllers
+{
+    /// <summary>
+    /// ApiController with CRUD-support
+    /// </summary>
+    public abstract class CrudManyToOneDefaultController<TModel> :
+        CrudManyToOneDefaultController<TModel, TModel>,
+        ICrudManyToOne<TModel, string>
+    {
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        protected CrudManyToOneDefaultController(ICrudable<TModel, string> logic)
+            : base(logic)
+        {
+        }
+    }
+
+    /// <summary>
+    /// ApiController with CRUD-support
+    /// </summary>
+    public abstract class CrudManyToOneDefaultController<TModelCreate, TModel> :
+        CrudManyToOneController<TModelCreate, TModel>,
+        ICrudManyToOne<TModelCreate, TModel, string>
+        where TModel : TModelCreate
+    {
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        protected CrudManyToOneDefaultController(ICrudable<TModel, string> logic)
+            : base(logic)
+        {
+        }
+
+        /// <inheritdoc />
+        [HttpGet]
+        [Route("")]
+        public override Task<PageEnvelope<TModel>> ReadChildrenWithPagingAsync(string parentId, int offset, int? limit = null, CancellationToken token = default(CancellationToken))
+        {
+            return base.ReadChildrenWithPagingAsync(parentId, offset, limit, token);
+        }
+
+        /// <inheritdoc />
+        [HttpDelete]
+        [Route("")]
+        public override Task DeleteChildrenAsync(string parentId, CancellationToken token = new CancellationToken())
+        {
+            return base.DeleteChildrenAsync(parentId, token);
+        }
+    }
+}

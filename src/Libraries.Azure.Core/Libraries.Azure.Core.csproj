@@ -1,0 +1,13 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFrameworks>netstandard2.0;net461</TargetFrameworks>
+    <AssemblyName>Nexus.Link.Libraries.Azure.Core</AssemblyName>
+    <RootNamespace>Nexus.Link.Libraries.Azure.Core</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Libraries.Core\Libraries.Core.csproj" />
+  </ItemGroup>
+
+</Project>

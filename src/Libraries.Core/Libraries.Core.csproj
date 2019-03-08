@@ -1,0 +1,69 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFrameworks>netstandard2.0;net461</TargetFrameworks>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Newtonsoft.Json" Version="11.0.2" />
+    <PackageReference Include="Microsoft.CSharp" Version="4.5.0" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(TargetFramework)'=='net461'">
+    <Reference Include="System.Configuration" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(TargetFramework)'=='netstandard2.0'">
+    <PackageReference Include="System.Configuration.ConfigurationManager" Version="4.4.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Platform\Configurations\" />
+  </ItemGroup>
+
+  <PropertyGroup>
+    <DefineConstants>TRACE;DEBUG</DefineConstants>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <DebugType>full</DebugType>
+    <DebugSymbols>true</DebugSymbols>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <PackageId>Nexus.Link.Libraries.Core</PackageId>
+    <PackageVersion>3.4.0</PackageVersion>
+    <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
+    <PackageTags>nexus;link;fulcrum;lever</PackageTags>
+    <Authors>XLENT Link</Authors>
+    <PackageProjectUrl>https://github.com/nexus-link/Nexus.Link.Libraries.Core</PackageProjectUrl>
+    <PackageLanguage>en-US</PackageLanguage>
+    <Description>Nexus core library based on .NET Standard</Description>
+    <Copyright>Copyright ©2019 Xlent Link AB</Copyright>
+    <IncludeSymbols>true</IncludeSymbols>
+    <PackageReleaseNotes>
+      3.4.0 Support in ConfigurationManagerAppSettings for reading local.settings.json and use for app settings.
+      3.3.0 Log methods now accepts an additional data parameter that will be part of the LogRecord.
+      3.2.5 BUG: Incorrect messages for FulcrumValidate.IsGreaterThan() and FulcrumValidate.IsGreaterThanOrEqualTo()
+      3.2.4 BUG: BatchLogger was only logging logs below the threshold if outside a batch.
+      3.2.3 LogSeverityLevelThreshold is now obsolete.
+      3.2.2 LogRecord no longer handles SavedContext. It is now hidden in QueueToAsyncLogger.
+      3.2.1 BUG: ThreadHandler.FireAndForgetResetContext() also resets context on top level.
+      3.2.0 Added UserPrincipal and ClientPrincipal to FulcrumApplication.Context.
+      3.1.0 FulcrumApplication.Context now consolidates our context classes, such as CorrelationIdValueProvider, into one class.
+      3.0.1 Refactored Logger, Context and Threads.
+      2.0.0 Renamed context Tenant to ClientTenant. Now doesn't set it to the value of the application tenant when client tenant is null.
+      1.2.0 Refactored the value providers to better support .NET Core.
+      1.1.3 Safer logging within MemoryQueue and ThreadHelper.
+      1.1.2 Bug: FireAndForget thread could end before async job had ended.
+      1.1.1 Renamed IQueueStatistics to IQueueMetrics
+      1.1.0 Refactored the MemoryQueue. Added IQueueStatistics.
+      1.0.4 Bumped
+      1.0.1 Moved cache related code to Crud
+      1.0.0 Core lib with support for .net standard
+      0.1.0 Release candidate with support for .net standard
+    </PackageReleaseNotes>
+    <RootNamespace>Nexus.Link.Libraries.Core</RootNamespace>
+    <AssemblyName>Nexus.Link.Libraries.Core</AssemblyName>
+  </PropertyGroup>
+</Project>

@@ -1,0 +1,42 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFrameworks>net461;netstandard2.0</TargetFrameworks>
+    <RootNamespace>Nexus.Link.Libraries.Crud.Web</RootNamespace>
+    <AssemblyName>Nexus.Link.Libraries.Crud.Web</AssemblyName>
+    <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <PackageId>Nexus.Link.Libraries.Crud.Web</PackageId>
+    <PackageVersion>1.1.7</PackageVersion>
+    <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
+    <PackageTags>nexus;link;fulcrum;lever</PackageTags>
+    <Authors>XLENT Link</Authors>
+    <PackageProjectUrl>https://github.com/xlent-link/Nexus.Link.Libraries.Crud.Web</PackageProjectUrl>
+    <PackageLanguage>en-US</PackageLanguage>
+    <Description>Nexus Crud Web support for .NETStandard</Description>
+    <Copyright>Copyright ©2019 Xlent Link AB</Copyright>
+    <IncludeSymbols>true</IncludeSymbols>
+    <PackageReleaseNotes>
+      1.1.7 Updated dependencies
+      1.1.2 Added missing constructors
+      1.1.1 Bumped dependencies
+      1.1.0 Removed everything with dependencies on ASP.NET and ASP.NET Core and added new constructors for CrudRestClients
+      1.0.0 First release
+    </PackageReleaseNotes>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Rest.ClientRuntime" Version="3.0.3" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Libraries.Crud\Libraries.Crud.csproj" />
+    <ProjectReference Include="..\Libraries.Web\Libraries.Web.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="System.Net.Http" />
+  </ItemGroup>
+</Project>

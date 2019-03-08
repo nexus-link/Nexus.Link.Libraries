@@ -1,0 +1,22 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFrameworks>netcoreapp2.1;net472</TargetFrameworks>
+    <IsPackable>false</IsPackable>
+    <RootNamespace>Nexus.Link.Libraries.Crud.Test</RootNamespace>
+    <AssemblyName>Nexus.Link.Libraries.Crud.Test</AssemblyName>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.9.0" />
+    <PackageReference Include="Moq" Version="4.10.0" />
+    <PackageReference Include="MSTest.TestAdapter" Version="1.4.0" />
+    <PackageReference Include="MSTest.TestFramework" Version="1.2.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\Libraries.Crud\Libraries.Crud.csproj" />
+    <ProjectReference Include="..\Nexus.Link.Libraries.Crud.UnitTests\Libraries.Crud.UnitTests.csproj" />
+  </ItemGroup>
+
+</Project>
