@@ -1,4 +1,6 @@
-﻿namespace Nexus.Link.Libraries.Web.ServiceAuthentication
+﻿using System.Collections.Generic;
+
+namespace Nexus.Link.Libraries.Web.ServiceAuthentication
 {
     /// <summary>
     /// Authorization settings for calling a client.
@@ -69,6 +71,22 @@
         /// E.g. "AccessToken" or "data.token".
         /// </summary>
         public string ResponseTokenJsonPath { get; set; }
+
+        /// <summary>
+        /// Used for "shared-client-authentications" array, where the same credentials are used for many clients.
+        ///
+        /// "shared-client-authentications": [
+        ///   {
+        ///     Type: "Basic", Username: "x", Password: "y",
+        ///     UseForClients: [ "client-1", "client-2" ]
+        ///   },
+        ///   {
+        ///     Type: "BearerToken", Token: "...",
+        ///     UseForClients: [ "client-3", "client-4", "client-5" ]
+        ///   }
+        /// ]
+        /// </summary>
+        public IEnumerable<string> UseForClients { get; set; }
 
         public override string ToString()
         {

@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Net.Http;
 using System.Runtime.Caching;
 using System.Text;
@@ -52,12 +54,26 @@ namespace Nexus.Link.Libraries.Web.ServiceAuthentication
                     // Note: We can't just use configuration.Value<ClientAuthorizationSettings>($"{client}-authentication")
                     // because we get exception "Cannot cast Newtonsoft.Json.Linq.JObject to Newtonsoft.Json.Linq.JToken".
                     // See ServiceAuthenticationHelperTest.ShowWhyWeHaveToMakeWorkaroundInServiceAuthenticationHelper
-                    var tenantClientSetting = configuration?.Value<JObject>($"{client}-authentication") ??
-                                              JObject.FromObject(new ClientAuthorizationSettings { AuthorizationType = ClientAuthorizationSettings.AuthorizationTypeEnum.None });
+                    var tenantClientSetting = configuration?.Value<JObject>($"{client}-authentication");
+                    if (tenantClientSetting == null)
+                    {
+                        var shared = configuration?.Value<JArray>("shared-client-authentications");
+                        if (shared != null)
+                        {
+                            var sharedSettings = JsonConvert.DeserializeObject<List<ClientAuthorizationSettings>>(shared.ToString());
+                            var setting = sharedSettings?.FirstOrDefault(x => x.UseForClients.Contains(client));
+                            if (setting != null) tenantClientSetting = JObject.FromObject(setting);
+                        }
+                    }
+                    if (tenantClientSetting == null)
+                    {
+                        tenantClientSetting = JObject.FromObject(new ClientAuthorizationSettings { AuthorizationType = ClientAuthorizationSettings.AuthorizationTypeEnum.None });
+                    }
+
                     authSettings = JsonConvert.DeserializeObject<ClientAuthorizationSettings>(tenantClientSetting.ToString());
                     FulcrumAssert.IsNotNull(authSettings, null, "Expected non-null auth settings");
                     FulcrumAssert.IsNotNull(authSettings.AuthorizationType, null, "Expected AuthorizationType");
- 
+
                     string token, tokenType;
                     switch (authSettings.AuthorizationType)
                     {

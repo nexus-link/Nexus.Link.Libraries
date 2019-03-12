@@ -16,7 +16,7 @@
 
   <PropertyGroup>
     <PackageId>Nexus.Link.Libraries.Web</PackageId>
-    <PackageVersion>1.6.5</PackageVersion>
+    <PackageVersion>1.7.0</PackageVersion>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <PackageTags>nexus;link;fulcrum;lever</PackageTags>
     <Authors>XLENT Link</Authors>
@@ -26,6 +26,7 @@
     <Copyright>Copyright ©2019 Xlent Link AB</Copyright>
     <IncludeSymbols>true</IncludeSymbols>
     <PackageReleaseNotes>
+      1.7.0 Support for shared client authentication in ServiceAuthenticationHelper
       1.6.5 Bumped version. New solution and build pipeline.
       1.6.4 Bumped nugets
       1.6.3 Added ServiceAuthenticationHelper to help with authorization on outgoing requests, based on credentials for each client

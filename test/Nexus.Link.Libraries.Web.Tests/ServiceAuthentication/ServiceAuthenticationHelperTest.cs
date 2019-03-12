@@ -58,14 +58,14 @@ namespace Nexus.Link.Libraries.Web.Tests.ServiceAuthentication
             //     throw new InvalidCastException("Cannot cast {0} to {1}.".FormatWith((IFormatProvider)CultureInfo.InvariantCulture, (object)token.GetType(), (object)typeof(T)));
 
             var jobject = JObject.Parse(JObject.FromObject(new
+            {
+                x = new ClientAuthorizationSettings
                 {
-                    x = new ClientAuthorizationSettings
-                    {
-                        AuthorizationType = ClientAuthorizationSettings.AuthorizationTypeEnum.Basic,
-                        Username = "boom",
-                        Password = "beat"
-                    }
+                    AuthorizationType = ClientAuthorizationSettings.AuthorizationTypeEnum.Basic,
+                    Username = "boom",
+                    Password = "beat"
                 }
+            }
             ).ToString());
             Console.WriteLine("1: " + jobject);
             Console.WriteLine("2: " + jobject.Value<dynamic>("x")); // Ok
@@ -318,6 +318,50 @@ namespace Nexus.Link.Libraries.Web.Tests.ServiceAuthentication
                 Username = "-"
             });
             await _authenticationHelper.GetAuthorizationForClientAsync(Tenant, LeverConfiguration, ClientName);
+        }
+
+        [TestMethod]
+        public async Task TestSharedSettings()
+        {
+            var shared = new[]
+            {
+                new ClientAuthorizationSettings
+                {
+                    AuthorizationType = ClientAuthorizationSettings.AuthorizationTypeEnum.Basic,
+                    Username = "x", Password = "y",
+                    UseForClients = new []{ "another-client", "yet-another-client" }
+                },
+                new ClientAuthorizationSettings
+                {
+                    AuthorizationType = ClientAuthorizationSettings.AuthorizationTypeEnum.BearerToken,
+                    Token = "token",
+                    UseForClients = new []{ "client-2", "client-3" }
+                }
+            };
+            var conf = new JObject
+            {
+                { "shared-client-authentications", JArray.FromObject(shared) },
+                { $"{ClientName}-authentication", JObject.FromObject(new ClientAuthorizationSettings { AuthorizationType = ClientAuthorizationSettings.AuthorizationTypeEnum.Basic, Username = "foo", Password = "bar" }) }
+            };
+            LeverConfiguration = new MockLeverConfiguration(conf);
+
+            var result = await _authenticationHelper.GetAuthorizationForClientAsync(Tenant, LeverConfiguration, ClientName);
+            Assert.AreEqual("basic", result.Type.ToLowerInvariant());
+            Assert.AreEqual("foo:bar", Base64Decode(result.Token));
+            result = await _authenticationHelper.GetAuthorizationForClientAsync(Tenant, LeverConfiguration, "another-client");
+            Assert.AreEqual("basic", result.Type.ToLowerInvariant());
+            Assert.AreEqual("x:y", Base64Decode(result.Token));
+            result = await _authenticationHelper.GetAuthorizationForClientAsync(Tenant, LeverConfiguration, "yet-another-client");
+            Assert.AreEqual("basic", result.Type.ToLowerInvariant());
+            Assert.AreEqual("x:y", Base64Decode(result.Token));
+            result = await _authenticationHelper.GetAuthorizationForClientAsync(Tenant, LeverConfiguration, "client-2");
+            Assert.AreEqual("bearer", result.Type.ToLowerInvariant());
+            Assert.AreEqual("token", result.Token);
+            result = await _authenticationHelper.GetAuthorizationForClientAsync(Tenant, LeverConfiguration, "client-3");
+            Assert.AreEqual("bearer", result.Type.ToLowerInvariant());
+            Assert.AreEqual("token", result.Token);
+            result = await _authenticationHelper.GetAuthorizationForClientAsync(Tenant, LeverConfiguration, "unknown-client");
+            Assert.IsNull(result);
         }
     }
 
