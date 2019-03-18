@@ -2,6 +2,7 @@
 using System.Diagnostics;
 using System.Linq;
 using Newtonsoft.Json;
+using Nexus.Link.Libraries.Core.Application;
 using Nexus.Link.Libraries.Core.Assert;
 using Nexus.Link.Libraries.Core.Error.Model;
 using Nexus.Link.Libraries.Core.Logging;
@@ -90,7 +91,7 @@ namespace Nexus.Link.Libraries.Core.Error.Logic
             MoreInfoUrl = error.MoreInfoUrl;
             RecommendedWaitTimeInSeconds = error.RecommendedWaitTimeInSeconds;
             InstanceId = error.InstanceId;
-            CorrelationId = error.CorrelationId;
+            CorrelationId = error.CorrelationId ?? FulcrumApplication.Context.CorrelationId;
             ServerTechnicalName = _serverTechnicalName;
         }
 

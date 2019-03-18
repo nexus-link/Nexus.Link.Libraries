@@ -32,7 +32,7 @@
 
   <PropertyGroup>
     <PackageId>Nexus.Link.Libraries.Core</PackageId>
-    <PackageVersion>3.4.1</PackageVersion>
+    <PackageVersion>3.4.2</PackageVersion>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <PackageTags>nexus;link;fulcrum;lever</PackageTags>
     <Authors>XLENT Link</Authors>
@@ -42,6 +42,7 @@
     <Copyright>Copyright ©2019 Xlent Link AB</Copyright>
     <IncludeSymbols>true</IncludeSymbols>
     <PackageReleaseNotes>
+      3.4.2 FulcrumException now sets CorrelationId from context if error is null
       3.4.1 Bumped version. New solution and build pipeline.
       3.4.0 Support in ConfigurationManagerAppSettings for reading local.settings.json and use for app settings.
       3.3.0 Log methods now accepts an additional data parameter that will be part of the LogRecord.
