@@ -85,8 +85,10 @@ namespace Nexus.Link.Libraries.Core.Error.Logic
             if (!(innerException is FulcrumException error))
             {
                 InstanceId = Guid.NewGuid().ToString();
+                CorrelationId = FulcrumApplication.Context.CorrelationId;
                 return;
             }
+
             FriendlyMessage = error.FriendlyMessage;
             MoreInfoUrl = error.MoreInfoUrl;
             RecommendedWaitTimeInSeconds = error.RecommendedWaitTimeInSeconds;
