@@ -117,6 +117,7 @@ namespace Nexus.Link.Libraries.Web.ServiceAuthentication
 
         private async Task<string> FetchJwtFromUrl(ClientAuthorizationSettings authSettings)
         {
+            InternalContract.RequireNotNull(authSettings, nameof(authSettings));
             FulcrumAssert.IsNotNullOrWhiteSpace(authSettings.PostUrl, null, "Expected a Url to Post to");
             FulcrumAssert.IsNotNullOrWhiteSpace(authSettings.PostBody, null, "Expected a Body to post to the url");
             FulcrumAssert.IsNotNullOrWhiteSpace(authSettings.ResponseTokenJsonPath, null, "Expected a Json path to the token in the response");
@@ -132,21 +133,24 @@ namespace Nexus.Link.Libraries.Web.ServiceAuthentication
             try
             {
                 var httpResponse = await HttpClient.SendAsync(httpRequest, CancellationToken.None);
-                response = await httpResponse.Content.ReadAsStringAsync();
                 if (!httpResponse.IsSuccessStatusCode)
                 {
-                    Log.LogError($"Response not successful. Code {httpResponse.StatusCode}");
+                    Log.LogError(
+                        $"Error fetching token from '{authSettings.PostUrl}' with json path '{authSettings.ResponseTokenJsonPath}'. Status code: {httpResponse.StatusCode}'.");
                     return null;
                 }
-
+                FulcrumAssert.IsNotNull(httpResponse.Content);
+                response = await httpResponse.Content.ReadAsStringAsync();
                 var result = JToken.Parse(response);
-                var jwtToken = result.SelectToken(authSettings.ResponseTokenJsonPath).ToObject<string>();
+                FulcrumAssert.IsNotNull(result);
+                var jwtToken = result.SelectToken(authSettings.ResponseTokenJsonPath)?.ToObject<string>();
+                FulcrumAssert.IsNotNull(jwtToken);
                 return jwtToken;
             }
             catch (Exception e)
             {
                 Log.LogError(
-                    $"Error fetching token from '{authSettings.PostUrl}' with json path '{authSettings.ResponseTokenJsonPath} on response '{response}'. Error message: {e.Message}", e);
+                    $"Error fetching token from '{authSettings.PostUrl}' with json path '{authSettings.ResponseTokenJsonPath}' on response '{response}'. Error message: {e.Message}", e);
                 return null;
             }
         }
