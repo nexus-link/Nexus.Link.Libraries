@@ -96,6 +96,17 @@ namespace Nexus.Link.Libraries.Web.Tests.ServiceAuthentication
         }
 
         [TestMethod]
+        [ExpectedException(typeof(FulcrumAssertionFailedException))]
+        public async Task ExpectArray()
+        {
+            const string conf = "{\"shared-client-authentications\": {}}";
+            var jObject = JObject.Parse(conf);
+            LeverConfiguration = new MockLeverConfiguration(jObject);
+            await _authenticationHelper.GetAuthorizationForClientAsync(Tenant, LeverConfiguration, "advantage");
+            Assert.Fail("Expected an exception");
+        }
+
+        [TestMethod]
         public async Task BearerTokenSuccess()
         {
             SetupConfigMock(new ClientAuthorizationSettings

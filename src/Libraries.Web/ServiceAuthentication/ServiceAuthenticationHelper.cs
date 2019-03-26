@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Nexus.Link.Libraries.Core.Assert;
+using Nexus.Link.Libraries.Core.Error.Logic;
 using Nexus.Link.Libraries.Core.Logging;
 using Nexus.Link.Libraries.Core.MultiTenant.Model;
 using Nexus.Link.Libraries.Core.Platform.Configurations;
@@ -57,9 +58,15 @@ namespace Nexus.Link.Libraries.Web.ServiceAuthentication
                     var tenantClientSetting = configuration?.Value<JObject>($"{client}-authentication");
                     if (tenantClientSetting == null)
                     {
-                        var shared = configuration?.Value<JArray>("shared-client-authentications");
+                        var shared = configuration?.Value<JToken>("shared-client-authentications");
                         if (shared != null)
                         {
+                            if (shared.Type != JTokenType.Array) {
+                                var message = $"Configuration error. The value for 'shared-client-authentications' must be an array.";
+                                Log.LogCritical(message);
+                                throw new FulcrumAssertionFailedException(message);
+                            }
+                            
                             var sharedSettings = JsonConvert.DeserializeObject<List<ClientAuthorizationSettings>>(shared.ToString());
                             var setting = sharedSettings?.FirstOrDefault(x => x.UseForClients.Contains(client));
                             if (setting != null) tenantClientSetting = JObject.FromObject(setting);
@@ -133,10 +140,10 @@ namespace Nexus.Link.Libraries.Web.ServiceAuthentication
             try
             {
                 var httpResponse = await HttpClient.SendAsync(httpRequest, CancellationToken.None);
-                if (!httpResponse.IsSuccessStatusCode)
+                if (httpResponse == null || !httpResponse.IsSuccessStatusCode)
                 {
                     Log.LogError(
-                        $"Error fetching token from '{authSettings.PostUrl}' with json path '{authSettings.ResponseTokenJsonPath}'. Status code: {httpResponse.StatusCode}'.");
+                        $"Error fetching token from '{authSettings.PostUrl}' with json path '{authSettings.ResponseTokenJsonPath}'. Status code: '{httpResponse?.StatusCode}'.");
                     return null;
                 }
                 FulcrumAssert.IsNotNull(httpResponse.Content);

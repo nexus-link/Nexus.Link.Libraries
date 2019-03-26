@@ -16,7 +16,7 @@
 
   <PropertyGroup>
     <PackageId>Nexus.Link.Libraries.Web</PackageId>
-    <PackageVersion>1.7.2</PackageVersion>
+    <PackageVersion>1.7.3</PackageVersion>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <PackageTags>nexus;link;fulcrum;lever</PackageTags>
     <Authors>XLENT Link</Authors>
@@ -26,7 +26,7 @@
     <Copyright>Copyright ©2019 Xlent Link AB</Copyright>
     <IncludeSymbols>true</IncludeSymbols>
     <PackageReleaseNotes>
-      1.7.2 More logging for authentication.
+      1.7.3 More logging for authentication.
       1.7.1 Fixed a mistake where the assembly was named Libraries.Web instead of Nexus.Link.Libraries.Web
       1.7.0 Support for shared client authentication in ServiceAuthenticationHelper
       1.6.5 Bumped version. New solution and build pipeline.
