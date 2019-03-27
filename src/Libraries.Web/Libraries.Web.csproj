@@ -16,7 +16,7 @@
 
   <PropertyGroup>
     <PackageId>Nexus.Link.Libraries.Web</PackageId>
-    <PackageVersion>1.7.4</PackageVersion>
+    <PackageVersion>1.7.5</PackageVersion>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <PackageTags>nexus;link;fulcrum;lever</PackageTags>
     <Authors>XLENT Link</Authors>
@@ -26,15 +26,16 @@
     <Copyright>Copyright ©2019 Xlent Link AB</Copyright>
     <IncludeSymbols>true</IncludeSymbols>
     <PackageReleaseNotes>
-      1.7.4 Removed authentication details from log message.
-      1.7.3 More logging for authentication.
+      1.7.5 Now considers failure in getting a client token as a critical error
+      1.7.4 Removed authentication details from log message
+      1.7.3 More logging for authentication
       1.7.1 Fixed a mistake where the assembly was named Libraries.Web instead of Nexus.Link.Libraries.Web
       1.7.0 Support for shared client authentication in ServiceAuthenticationHelper
-      1.6.5 Bumped version. New solution and build pipeline.
+      1.6.5 Bumped version. New solution and build pipeline
       1.6.4 Bumped nugets
       1.6.3 Added ServiceAuthenticationHelper to help with authorization on outgoing requests, based on credentials for each client
-      1.5.0 Now can convert non-fulcrum exceptions into FulcrumError, i.e. fulcrum exceptions with a non-fulcrum inner exception will result in information also about the inner exception.
-      1.4.6 Updated nexus nugets.
+      1.5.0 Now can convert non-fulcrum exceptions into FulcrumError, i.e. fulcrum exceptions with a non-fulcrum inner exception will result in information also about the inner exception
+      1.4.6 Updated nexus nugets
       1.4.1 Bumped
       1.4.0 RestClient now supports HttpClient argument.
       1.3.1 Bumped
