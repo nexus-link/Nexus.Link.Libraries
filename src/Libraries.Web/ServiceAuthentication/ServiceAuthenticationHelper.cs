@@ -114,7 +114,7 @@ namespace Nexus.Link.Libraries.Web.ServiceAuthentication
                 }
                 catch (Exception e)
                 {
-                    Log.LogError($"Could not handle Authentication for client '{client}' in tenant '{tenant}'. Settings: '{authSettings}'", e);
+                    Log.LogError($"Could not handle Authentication for client '{client}' in tenant '{tenant}'.", e);
                     throw;
                 }
             }
