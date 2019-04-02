@@ -92,10 +92,9 @@ namespace Nexus.Link.Libraries.Core.Logging
             var exceptionLine = "";
             var stackTraceLine = "";
             if (Exception != null) exceptionLine = $"\r{Exception.ToLogString(hideStackTrace)}";
-            // TODO: Lars&Erik: Ska vi verkligen logga en StackTrace för själva loggen?
-            if (!hideStackTrace && StackTrace != null && (Exception != null || IsGreaterThanOrEqualTo(LogSeverityLevel.Error)))
+            if (!hideStackTrace && StackTrace != null)
             {
-                stackTraceLine = $"\r{StackTrace}";
+                stackTraceLine = $"\rStacktrace for the log call:\r{StackTrace}";
             }
             return $"{detailsLine}\r{Message}{exceptionLine}{stackTraceLine}";
         }
