@@ -57,8 +57,7 @@ namespace Nexus.Link.Libraries.Core.Error.Logic
             "A programmer's code calls another part of the program in a bad way. An end user is never supposed to see this error as it should be converted on the way."
             + "\rPlease report the following:"
             + $"\rCorrelationId: {CorrelationId}"
-            + $"\rInstanceId: {InstanceId}"
-            + $"\rErrorLocation: {ErrorLocation ?? StackTrace}";
+            + $"\rInstanceId: {InstanceId}";
 
         private void SetProperties()
         {

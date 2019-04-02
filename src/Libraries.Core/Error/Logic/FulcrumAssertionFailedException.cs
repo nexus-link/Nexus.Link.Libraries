@@ -63,8 +63,7 @@ namespace Nexus.Link.Libraries.Core.Error.Logic
             "An assertion made by the programmer proved to be wrong and the request couldn't be properly fulfilled."
             + "\rPlease report the following:"
             + $"\rCorrelationId: {CorrelationId}"
-            + $"\rInstanceId: {InstanceId}"
-            + $"\rErrorLocation: {ErrorLocation ?? StackTrace}";
+            + $"\rInstanceId: {InstanceId}";
 
         private void SetProperties()
         {

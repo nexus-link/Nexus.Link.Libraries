@@ -1,4 +1,5 @@
 ﻿using Nexus.Link.Libraries.Core.Assert;
+using Nexus.Link.Libraries.Core.Logging;
 
 namespace Nexus.Link.Libraries.Core.Error.Model
 {
@@ -10,7 +11,7 @@ namespace Nexus.Link.Libraries.Core.Error.Model
     /// http://blog.restcase.com/rest-api-error-codes-101/
     /// https://stormpath.com/blog/spring-mvc-rest-exception-handling-best-practices-part-1
     /// </remarks>
-    public class FulcrumError : IFulcrumError
+    public class FulcrumError : IFulcrumError, ILoggable
     {
         /// <inheritdoc />
         public string TechnicalMessage { get; set; }
@@ -71,6 +72,13 @@ namespace Nexus.Link.Libraries.Core.Error.Model
         public override string ToString()
         {
             return TechnicalMessage;
+        }
+
+        /// <inheritdoc />
+        public string ToLogString()
+        {
+            return
+                $"InstanceId: {InstanceId}, CorrelationId: {CorrelationId}, Type: {Type}, Message: {TechnicalMessage}";
         }
 
         /// <inheritdoc />
