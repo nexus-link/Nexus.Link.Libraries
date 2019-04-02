@@ -96,11 +96,20 @@ namespace Nexus.Link.Libraries.Web.Tests
         {
             const string exceptionMessage = "This is the exception message";
             var exception = new Exception(exceptionMessage);
-            var error = ExceptionConverter.ToFulcrumError(exception);
-            Assert.IsNull(error);
-            error = ExceptionConverter.ToFulcrumError(exception, true);
-            Assert.IsNotNull(error);
-            Assert.AreEqual(exceptionMessage, error.TechnicalMessage);
+            try
+            {
+                throw exception;
+            }
+            catch (Exception e)
+            {
+                Assert.IsNotNull(e.StackTrace);
+                var error = ExceptionConverter.ToFulcrumError(e);
+                Assert.IsNull(error);
+                error = ExceptionConverter.ToFulcrumError(exception, true);
+                Assert.IsNotNull(error);
+                Assert.AreEqual(exceptionMessage, error.TechnicalMessage);
+                Assert.IsNull(error.ErrorLocation, $"Error location was expected to be null, but contained the following: {error.ErrorLocation}");
+            }
         }
     }
 }
