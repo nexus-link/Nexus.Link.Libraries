@@ -327,7 +327,7 @@ namespace Nexus.Link.Libraries.Core.Logging
             Exception exception,
             string memberName = "",
             string filePath = "",
-            [CallerLineNumber] int lineNumber = 0)
+            int lineNumber = 0)
         {
             var logInstanceInformation = new LogRecord
             {
@@ -339,7 +339,7 @@ namespace Nexus.Link.Libraries.Core.Logging
                 Exception = exception
             };
 
-            if (logInstanceInformation.IsGreaterThanOrEqualTo(LogSeverityLevel.Error))
+            if (logInstanceInformation.IsGreaterThanOrEqualTo(LogSeverityLevel.Error) && exception == null)
             {
                 logInstanceInformation.StackTrace = Environment.StackTrace;
             }

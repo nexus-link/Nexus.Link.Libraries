@@ -10,7 +10,7 @@ namespace Nexus.Link.Libraries.Core.Logging
     /// <summary>
     /// Adds additional information to a log record
     /// </summary>
-    public class LogQueueEnvelope : ILoggable
+    public class LogQueueEnvelope
     {
         /// <summary>
         /// The log record
@@ -24,8 +24,5 @@ namespace Nexus.Link.Libraries.Core.Logging
 
         /// <inheritdoc />
         public override string ToString() => LogRecord.ToString();
-
-        /// <inheritdoc />
-        public string ToLogString() => LogRecord.ToLogString();
     }
 }
