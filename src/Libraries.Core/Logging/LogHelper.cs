@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Runtime.CompilerServices;
 using System.Threading;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using Nexus.Link.Libraries.Core.Application;
 using Nexus.Link.Libraries.Core.Context;
 
@@ -17,7 +19,8 @@ namespace Nexus.Link.Libraries.Core.Logging
         /// <param name="memberName">Method or property name of the caller</param>
         /// <param name="filePath">Full path of the source file that contains the caller. This is the file path at compile time.</param>
         /// <param name="lineNumber">Line number in the source file at which the method is called</param>
-        internal static void FallbackToSimpleLoggingFailSafe(string message, LogRecord logRecord, Exception exception = null,
+        internal static void FallbackToSimpleLoggingFailSafe(string message, LogRecord logRecord,
+            Exception exception = null,
             [CallerMemberName] string memberName = "",
             [CallerFilePath] string filePath = "",
             [CallerLineNumber] int lineNumber = 0)
@@ -32,8 +35,19 @@ namespace Nexus.Link.Libraries.Core.Logging
                 }
 
                 // If a message of warning or higher ends up here means it is critical, since this log will not end up in the normal log.
-                var severityLevel = logRecord.IsGreaterThanOrEqualTo(LogSeverityLevel.Warning) ? LogSeverityLevel.Critical : LogSeverityLevel.Warning;
-                    totalMessage += $"\r{logRecord.ToLogString()}";
+                var severityLevel = logRecord.IsGreaterThanOrEqualTo(LogSeverityLevel.Warning)
+                    ? LogSeverityLevel.Critical
+                    : LogSeverityLevel.Warning;
+                string logRecordAsString;
+                try
+                {
+                    logRecordAsString = JsonConvert.SerializeObject(logRecord);
+                }
+                catch (Exception)
+                {
+                    logRecordAsString = logRecord.ToLogString();
+                }
+                totalMessage += $"\r{logRecordAsString}";
                 // ReSharper disable ExplicitCallerInfoArgument
                 FallbackSafeLog(severityLevel, totalMessage, exception, memberName, filePath, lineNumber);
                 // ReSharper restore ExplicitCallerInfoArgument

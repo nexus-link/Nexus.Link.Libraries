@@ -69,7 +69,7 @@ namespace Nexus.Link.Libraries.Core.Logging
                 FulcrumAssert.IsValidated(logRecord);
                 FulcrumApplication.Context.ValueProvider.RestoreContext(envelope.SavedContext);
                 var task = LogWithConfiguredLoggerFailSafeAsync(logRecord);
-                AlsoLogWithTraceSourceInDevelopment(logRecord.SeverityLevel, logRecord.ToLogString());
+                AlsoLogWithTraceSourceInDevelopment(logRecord.SeverityLevel, logRecord);
                 await task;
             }
             catch (Exception e)
@@ -93,11 +93,12 @@ namespace Nexus.Link.Libraries.Core.Logging
             }
         }
 
-        private static void AlsoLogWithTraceSourceInDevelopment(LogSeverityLevel severityLevel, string formattedMessage)
+        private static void AlsoLogWithTraceSourceInDevelopment(LogSeverityLevel severityLevel, LogRecord logRecord)
         {
             if (FulcrumApplication.Setup.SynchronousFastLogger?.GetType() == typeof(TraceSourceLogger)) return;
             if (!FulcrumApplication.IsInDevelopment) return;
-            new TraceSourceLogger().SafeLog(severityLevel, formattedMessage);
+            
+            new TraceSourceLogger().SafeLog(severityLevel, logRecord.ToLogString(true));
         }
 
         private async Task LogWithConfiguredLoggerFailSafeAsync(LogRecord logRecord)
