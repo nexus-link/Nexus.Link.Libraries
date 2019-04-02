@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using Nexus.Link.Libraries.Core.Application;
 using Nexus.Link.Libraries.Core.Error.Logic;
 using Nexus.Link.Libraries.Core.Error.Model;
 using Nexus.Link.Libraries.Web.Error.Logic;
@@ -15,6 +16,11 @@ namespace Nexus.Link.Libraries.Web.Tests
     [TestClass]
     public class ConverterTests
     {
+        [TestInitialize]
+        public void RunBeforeEachTestMethod()
+        {
+            FulcrumApplicationHelper.UnitTestSetup(typeof(ConverterTests).FullName);
+        }
 
         [TestMethod]
         public async Task ConvertNormal()
@@ -88,13 +94,22 @@ namespace Nexus.Link.Libraries.Web.Tests
         [TestMethod]
         public void ConvertStandardExceptionToFulcrumError()
         {
-            const string exceptionMessage = "ExceptionMessage";
+            const string exceptionMessage = "This is the exception message";
             var exception = new Exception(exceptionMessage);
-            var error = ExceptionConverter.ToFulcrumError(exception);
-            Assert.IsNull(error);
-            error = ExceptionConverter.ToFulcrumError(exception, true);
-            Assert.IsNotNull(error);
-            Assert.AreEqual(exceptionMessage, error.TechnicalMessage);
+            try
+            {
+                throw exception;
+            }
+            catch (Exception e)
+            {
+                Assert.IsNotNull(e.StackTrace);
+                var error = ExceptionConverter.ToFulcrumError(e);
+                Assert.IsNull(error);
+                error = ExceptionConverter.ToFulcrumError(exception, true);
+                Assert.IsNotNull(error);
+                Assert.AreEqual(exceptionMessage, error.TechnicalMessage);
+                Assert.IsNull(error.ErrorLocation, $"Error location was expected to be null, but contained the following: {error.ErrorLocation}");
+            }
         }
     }
 }
