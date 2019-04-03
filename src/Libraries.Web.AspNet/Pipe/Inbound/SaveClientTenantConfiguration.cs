@@ -46,7 +46,7 @@ namespace Nexus.Link.Libraries.Web.AspNet.Pipe.Inbound
             InternalContract.Require(SaveClientTenant.HasStarted,
                 $"{nameof(SaveClientTenantConfiguration)} must be preceded by {nameof(SaveClientTenant)}.");
             InternalContract.Require(!SaveCorrelationId.HasStarted,
-                $"{nameof(SaveCorrelationId)} must not precede {nameof(SaveClientTenant)}");
+                $"{nameof(SaveCorrelationId)} must not precede {nameof(SaveClientTenantConfiguration)}");
             HasStarted = true;
             if (FulcrumApplication.Context.ClientTenant != null)
             {
