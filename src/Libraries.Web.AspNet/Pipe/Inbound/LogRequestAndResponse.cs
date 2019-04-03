@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
 using System.Threading.Tasks;
+using Nexus.Link.Libraries.Core.Assert;
 using Nexus.Link.Libraries.Core.Logging;
 
 #if NETCOREAPP
@@ -42,6 +43,8 @@ namespace Nexus.Link.Libraries.Web.AspNet.Pipe.Inbound
 #endif
         protected override async Task InvokeAsync(CompabilityInvocationContext context)
         {
+            InternalContract.Require(!ExceptionToResponse.HasStarted,
+                $"{nameof(ExceptionToResponse)} must not precede {nameof(LogRequestAndResponse)}");
             DelegateState.HasStarted = true;
             var stopWatch = new Stopwatch();
             stopWatch.Start();
