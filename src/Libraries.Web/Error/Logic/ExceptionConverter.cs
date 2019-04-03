@@ -11,6 +11,7 @@ using Nexus.Link.Libraries.Core.Application;
 using Nexus.Link.Libraries.Core.Assert;
 using Nexus.Link.Libraries.Core.Error.Logic;
 using Nexus.Link.Libraries.Core.Error.Model;
+using Nexus.Link.Libraries.Core.Logging;
 
 namespace Nexus.Link.Libraries.Web.Error.Logic
 {
@@ -112,17 +113,18 @@ namespace Nexus.Link.Libraries.Web.Error.Logic
             if (!(e is FulcrumException fulcrumException))
             {
                 if (!alsoNonFulcrumExceptions) return null;
-                return new FulcrumError
+                var fulcrumError = new FulcrumError
                 {
                     TechnicalMessage = e.Message,
                     FriendlyMessage =
                         "The request couldn't be properly fulfilled."
                         + "\rPlease report the following:"
                         + $"\rCorrelationId: {FulcrumApplication.Context.CorrelationId}",
-                    ErrorLocation = e.StackTrace,
                     InstanceId = Guid.NewGuid().ToString(),
                     Type = e.GetType().FullName
                 };
+                Log.LogWarning($"Converted an exception that was not an {typeof(FulcrumException).Name} exception, the result was the following {typeof(FulcrumError).Name}: {fulcrumError.ToLogString()}");
+                return fulcrumError;
             }
 
             var error = new FulcrumError();

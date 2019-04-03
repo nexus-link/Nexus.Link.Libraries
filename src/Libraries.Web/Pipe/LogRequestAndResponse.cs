@@ -78,7 +78,7 @@ namespace Nexus.Link.Libraries.Web.Pipe
 
         private void LogException(HttpRequestMessage request, Exception exception, TimeSpan elapsedTime)
         {
-            Log.LogError($"{_direction} request-exception {request.ToLogString(elapsedTime)} | {exception.ToLogString(true)}");
+            Log.LogError($"{_direction} request-exception {request.ToLogString(elapsedTime)} | {exception.Message}", exception);
         }
     }
 }

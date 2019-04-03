@@ -78,7 +78,7 @@ namespace Nexus.Link.Libraries.Web.AspNet.Pipe.Inbound
 #else
             var request = context.RequestMessage;
 #endif
-            Log.LogError($"INBOUND request-exception {request.ToLogString(elapsedTime)} | {exception.ToLogString(true)}");
+            Log.LogError($"INBOUND request-exception {request.ToLogString(elapsedTime)} | {exception.Message}", exception);
         }
     }
 #if NETCOREAPP

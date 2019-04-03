@@ -43,6 +43,8 @@
     <IncludeSymbols>true</IncludeSymbols>
     <PackageReleaseNotes>
       3.5.0 Support refactored Authentication
+      3.4.5 BUG: StackTrace was used in obsolete situations when logging
+      3.4.4 BUG: ErrorLocation must not be set to StackTrace
       3.4.3 FulcrumException now sets CorrelationId from context if error exists but correlationid is null
       3.4.2 FulcrumException now sets CorrelationId from context if error is null
       3.4.1 Bumped version. New solution and build pipeline.

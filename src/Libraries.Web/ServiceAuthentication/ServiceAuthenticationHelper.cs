@@ -47,76 +47,84 @@ namespace Nexus.Link.Libraries.Web.ServiceAuthentication
         {
             var cacheKey = $"{tenant}/{client}";
             var authorization = _authCache[cacheKey] as AuthorizationToken;
-            if (authorization == null)
+            if (authorization != null) return authorization;
+
+            try
             {
-                ClientAuthorizationSettings authSettings = null;
-                try
+                // Note: We can't just use configuration.Value<ClientAuthorizationSettings>($"{client}-authentication")
+                // because we get exception "Cannot cast Newtonsoft.Json.Linq.JObject to Newtonsoft.Json.Linq.JToken".
+                // See ServiceAuthenticationHelperTest.ShowWhyWeHaveToMakeWorkaroundInServiceAuthenticationHelper
+                var tenantClientSetting = configuration?.Value<JObject>($"{client}-authentication");
+                if (tenantClientSetting == null)
                 {
-                    // Note: We can't just use configuration.Value<ClientAuthorizationSettings>($"{client}-authentication")
-                    // because we get exception "Cannot cast Newtonsoft.Json.Linq.JObject to Newtonsoft.Json.Linq.JToken".
-                    // See ServiceAuthenticationHelperTest.ShowWhyWeHaveToMakeWorkaroundInServiceAuthenticationHelper
-                    var tenantClientSetting = configuration?.Value<JObject>($"{client}-authentication");
-                    if (tenantClientSetting == null)
+                    var shared = configuration?.Value<JToken>("shared-client-authentications");
+                    if (shared != null)
                     {
-                        var shared = configuration?.Value<JToken>("shared-client-authentications");
-                        if (shared != null)
+                        if (shared.Type != JTokenType.Array)
                         {
-                            if (shared.Type != JTokenType.Array) {
-                                var message = $"Configuration error. The value for 'shared-client-authentications' must be an array.";
-                                Log.LogCritical(message);
-                                throw new FulcrumAssertionFailedException(message);
-                            }
-                            
-                            var sharedSettings = JsonConvert.DeserializeObject<List<ClientAuthorizationSettings>>(shared.ToString());
-                            var setting = sharedSettings?.FirstOrDefault(x => x.UseForClients.Contains(client));
-                            if (setting != null) tenantClientSetting = JObject.FromObject(setting);
+                            var message =
+                                $"Configuration error. The value for 'shared-client-authentications' must be an array.";
+                            Log.LogCritical(message);
+                            throw new FulcrumAssertionFailedException(message);
                         }
-                    }
-                    if (tenantClientSetting == null)
-                    {
-                        tenantClientSetting = JObject.FromObject(new ClientAuthorizationSettings { AuthorizationType = ClientAuthorizationSettings.AuthorizationTypeEnum.None });
-                    }
 
-                    authSettings = JsonConvert.DeserializeObject<ClientAuthorizationSettings>(tenantClientSetting.ToString());
-                    FulcrumAssert.IsNotNull(authSettings, null, "Expected non-null auth settings");
-                    FulcrumAssert.IsNotNull(authSettings.AuthorizationType, null, "Expected AuthorizationType");
-
-                    string token, tokenType;
-                    switch (authSettings.AuthorizationType)
-                    {
-                        case ClientAuthorizationSettings.AuthorizationTypeEnum.None:
-                            return null;
-                        case ClientAuthorizationSettings.AuthorizationTypeEnum.Basic:
-                            FulcrumAssert.IsNotNullOrWhiteSpace(authSettings.Username, null,
-                                "Expected a Basic Auth Username");
-                            FulcrumAssert.IsNotNull(authSettings.Password, null, "Expected a Basic Auth Password");
-                            token = Base64Encode($"{authSettings.Username}:{authSettings.Password}");
-                            tokenType = "Basic";
-                            break;
-                        case ClientAuthorizationSettings.AuthorizationTypeEnum.BearerToken:
-                            FulcrumAssert.IsNotNullOrWhiteSpace(authSettings.Token, "Expected a Bearer token");
-                            token = authSettings.Token;
-                            tokenType = "Bearer";
-                            break;
-                        case ClientAuthorizationSettings.AuthorizationTypeEnum.JwtFromUrl:
-                            token = await FetchJwtFromUrl(authSettings);
-                            tokenType = "Bearer";
-                            break;
-                        default:
-                            throw new ArgumentException($"Unknown Authorization Type: '{authSettings.AuthorizationType}'");
-                    }
-
-                    authorization = new AuthorizationToken { Type = tokenType, Token = token };
-                    if (token != null)
-                    {
-                        _authCache.Set(cacheKey, authorization, DateTimeOffset.Now.AddMinutes(authSettings.TokenCacheInMinutes));
+                        var sharedSettings =
+                            JsonConvert.DeserializeObject<List<ClientAuthorizationSettings>>(shared.ToString());
+                        var setting = sharedSettings?.FirstOrDefault(x => x.UseForClients.Contains(client));
+                        if (setting != null) tenantClientSetting = JObject.FromObject(setting);
                     }
                 }
-                catch (Exception e)
+
+                if (tenantClientSetting == null)
                 {
-                    Log.LogError($"Could not handle Authentication for client '{client}' in tenant '{tenant}'.", e);
-                    throw;
+                    tenantClientSetting = JObject.FromObject(new ClientAuthorizationSettings
+                        {AuthorizationType = ClientAuthorizationSettings.AuthorizationTypeEnum.None});
                 }
+
+                var authSettings =
+                    JsonConvert.DeserializeObject<ClientAuthorizationSettings>(tenantClientSetting.ToString());
+                FulcrumAssert.IsNotNull(authSettings, null, "Expected non-null auth settings");
+                FulcrumAssert.IsNotNull(authSettings.AuthorizationType, null, "Expected AuthorizationType");
+
+                string token, tokenType;
+                switch (authSettings.AuthorizationType)
+                {
+                    case ClientAuthorizationSettings.AuthorizationTypeEnum.None:
+                        return null;
+                    case ClientAuthorizationSettings.AuthorizationTypeEnum.Basic:
+                        FulcrumAssert.IsNotNullOrWhiteSpace(authSettings.Username, null,
+                            "Expected a Basic Auth Username");
+                        FulcrumAssert.IsNotNull(authSettings.Password, null, "Expected a Basic Auth Password");
+                        token = Base64Encode($"{authSettings.Username}:{authSettings.Password}");
+                        tokenType = "Basic";
+                        break;
+                    case ClientAuthorizationSettings.AuthorizationTypeEnum.BearerToken:
+                        FulcrumAssert.IsNotNullOrWhiteSpace(authSettings.Token, "Expected a Bearer token");
+                        token = authSettings.Token;
+                        tokenType = "Bearer";
+                        break;
+                    case ClientAuthorizationSettings.AuthorizationTypeEnum.JwtFromUrl:
+                        token = await FetchJwtFromUrl(authSettings);
+                        tokenType = "Bearer";
+                        break;
+                    default:
+                        throw new ArgumentException($"Unknown Authorization Type: '{authSettings.AuthorizationType}'");
+                }
+
+                if (string.IsNullOrWhiteSpace(token))
+                {
+                    throw new FulcrumAssertionFailedException(
+                        $"Client authorization of type '{authSettings.AuthorizationType}' resulted in an empty token.");
+                }
+
+                authorization = new AuthorizationToken {Type = tokenType, Token = token};
+                _authCache.Set(cacheKey, authorization,
+                    DateTimeOffset.Now.AddMinutes(authSettings.TokenCacheInMinutes));
+            }
+            catch (Exception e)
+            {
+                Log.LogCritical($"Could not handle Authentication for client '{client}' in tenant '{tenant}'.", e);
+                throw;
             }
 
             return authorization;

@@ -15,7 +15,7 @@ namespace Nexus.Link.Libraries.Core.Assert
         public static void ThrowException(string message, string errorLocation = null)
         {
             var exception = (TException)Activator.CreateInstance(typeof(TException), message);
-            exception.ErrorLocation = errorLocation ?? Environment.StackTrace;
+            exception.ErrorLocation = errorLocation;
             if (exception is FulcrumAssertionFailedException ||
                 exception is FulcrumContractException)
             {

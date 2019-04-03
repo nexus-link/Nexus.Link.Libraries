@@ -201,8 +201,15 @@ namespace Nexus.Link.Libraries.Web.Tests.ServiceAuthentication
                 .Setup(x => x.SendAsync(It.IsAny<HttpRequestMessage>(), It.IsAny<CancellationToken>()))
                 .ThrowsAsync(new Exception());
 
-            var result = await _authenticationHelper.GetAuthorizationForClientAsync(Tenant, LeverConfiguration, ClientName);
-            Assert.IsNull(result.Token, result.Token); // Expect response, not exception
+            try
+            {
+                await _authenticationHelper.GetAuthorizationForClientAsync(Tenant, LeverConfiguration, ClientName);
+                Assert.Fail("Expected an exception");
+            }
+            catch (Exception e)
+            {
+                Assert.IsNotNull(e is FulcrumAssertionFailedException, $"Unexpected exception: {e.GetType().FullName}");
+            }
         }
 
         [TestMethod]
@@ -220,8 +227,15 @@ namespace Nexus.Link.Libraries.Web.Tests.ServiceAuthentication
                 .Setup(x => x.SendAsync(It.IsAny<HttpRequestMessage>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(new HttpResponseMessage(HttpStatusCode.BadRequest));
 
-            var result = await _authenticationHelper.GetAuthorizationForClientAsync(Tenant, LeverConfiguration, ClientName);
-            Assert.IsNull(result.Token, result.Token); // Expect response with null token, not exception
+            try
+            {
+                await _authenticationHelper.GetAuthorizationForClientAsync(Tenant, LeverConfiguration, ClientName);
+                Assert.Fail("Expected an exception");
+            }
+            catch (Exception e)
+            {
+                Assert.IsNotNull(e is FulcrumAssertionFailedException, $"Unexpected exception: {e.GetType().FullName}");
+            }
         }
 
         [TestMethod]
@@ -242,8 +256,15 @@ namespace Nexus.Link.Libraries.Web.Tests.ServiceAuthentication
                     Content = new StringContent("not json") // This will cause exception when parsed
                 });
 
-            var result = await _authenticationHelper.GetAuthorizationForClientAsync(Tenant, LeverConfiguration, ClientName);
-            Assert.IsNull(result.Token, result.Token); // Expect response with null token, not exception
+            try
+            {
+                await _authenticationHelper.GetAuthorizationForClientAsync(Tenant, LeverConfiguration, ClientName);
+                Assert.Fail("Expected an exception");
+            }
+            catch (Exception e)
+            {
+                Assert.IsNotNull(e is FulcrumAssertionFailedException, $"Unexpected exception: {e.GetType().FullName}");
+            }
         }
 
         [TestMethod]
@@ -261,8 +282,15 @@ namespace Nexus.Link.Libraries.Web.Tests.ServiceAuthentication
                 .Setup(x => x.SendAsync(It.IsAny<HttpRequestMessage>(), It.IsAny<CancellationToken>()))
                 .ThrowsAsync(new Exception());
 
-            var result = await _authenticationHelper.GetAuthorizationForClientAsync(Tenant, LeverConfiguration, ClientName);
-            Assert.IsNull(result.Token);
+            try
+            {
+                await _authenticationHelper.GetAuthorizationForClientAsync(Tenant, LeverConfiguration, ClientName);
+                Assert.Fail("Expected an exception");
+            }
+            catch (Exception e)
+            {
+                Assert.IsNotNull(e is FulcrumAssertionFailedException, $"Unexpected exception: {e.GetType().FullName}");
+            }
 
             // Now, setup a successful response and make sure the bad response is not cached
             _httpClientMock
@@ -278,7 +306,7 @@ namespace Nexus.Link.Libraries.Web.Tests.ServiceAuthentication
                     }).ToString())
                 });
 
-            result = await _authenticationHelper.GetAuthorizationForClientAsync(Tenant, LeverConfiguration, ClientName);
+            var result = await _authenticationHelper.GetAuthorizationForClientAsync(Tenant, LeverConfiguration, ClientName);
             Assert.AreEqual("bearer", result.Type.ToLowerInvariant());
             Assert.AreEqual(Jwt, result.Token);
         }
