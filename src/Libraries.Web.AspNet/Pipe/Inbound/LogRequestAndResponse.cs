@@ -56,6 +56,7 @@ namespace Nexus.Link.Libraries.Web.AspNet.Pipe.Inbound
             }
             catch (Exception exception)
             {
+                // Since we introduced ExceptionToResponse, we should never end up her
                 stopWatch.Stop();
                 LogException(context, exception, stopWatch.Elapsed);
                 throw;
