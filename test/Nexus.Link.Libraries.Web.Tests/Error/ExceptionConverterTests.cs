@@ -11,15 +11,15 @@ using Nexus.Link.Libraries.Core.Error.Logic;
 using Nexus.Link.Libraries.Core.Error.Model;
 using Nexus.Link.Libraries.Web.Error.Logic;
 
-namespace Nexus.Link.Libraries.Web.Tests
+namespace Nexus.Link.Libraries.Web.Tests.Error
 {
     [TestClass]
-    public class ConverterTests
+    public class ExceptionConverterTests
     {
         [TestInitialize]
         public void RunBeforeEachTestMethod()
         {
-            FulcrumApplicationHelper.UnitTestSetup(typeof(ConverterTests).FullName);
+            FulcrumApplicationHelper.UnitTestSetup(typeof(ExceptionConverterTests).FullName);
         }
 
         [TestMethod]
