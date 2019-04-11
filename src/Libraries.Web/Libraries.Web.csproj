@@ -16,7 +16,7 @@
 
   <PropertyGroup>
     <PackageId>Nexus.Link.Libraries.Web</PackageId>
-    <PackageVersion>1.8.0</PackageVersion>
+    <PackageVersion>1.8.1</PackageVersion>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <PackageTags>nexus;link;fulcrum;lever</PackageTags>
     <Authors>XLENT Link</Authors>
@@ -26,6 +26,7 @@
     <Copyright>Copyright ©2019 Xlent Link AB</Copyright>
     <IncludeSymbols>true</IncludeSymbols>
     <PackageReleaseNotes>
+      1.8.1 More consistent logging in the out pipe error to exception conversion.
       1.8.0 Refactored conversion between FulcrumError and FulcrumException.
       1.7.9 Better exception handling in handler ThrowFulcrumExceptionOnFail.
       1.7.7 Smaller log message when logging request exceptions
