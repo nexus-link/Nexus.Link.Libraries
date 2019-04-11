@@ -35,43 +35,45 @@ namespace Nexus.Link.Libraries.Web.Pipe.Outbound
         /// <inheritdoc />
         protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
         {
+            string requestDescription = $"OUT request {request.ToLogString()}";
+            string fulcrumExceptionMessage = $"{requestDescription} resulted in a {nameof(FulcrumException)}";
             try
             {
                 HttpResponseMessage response;
-                if (UnitTest_SendAsyncDependencyInjection == null)
+                if (UnitTest_SendAsyncDependencyInjection == null || !FulcrumApplication.IsInDevelopment)
                 {
                     response = await base.SendAsync(request, cancellationToken);
                 }
                 else
                 {
                     // This is for unit testing
-                    FulcrumAssert.IsTrue(FulcrumApplication.IsInDevelopment);
                     response = await UnitTest_SendAsyncDependencyInjection(request, cancellationToken);
                 }
 
+                requestDescription = $"OUT request-response {response.ToLogString()}";
+
                 var fulcrumException = await ExceptionConverter.ToFulcrumExceptionAsync(response);
                 if (fulcrumException == null) return response;
-                Log.LogInformation(
-                    $"OUT request-response {response.ToLogString()} was converted to a FulcrumException:\r{fulcrumException.ToLogString()}");
+                fulcrumExceptionMessage = $"{requestDescription} was converted to a FulcrumException";
                 throw fulcrumException;
             }
-            catch (FulcrumException)
+            catch (FulcrumException fulcrumException)
             {
+                Log.LogError($"{fulcrumExceptionMessage} {fulcrumException}", fulcrumException);
                 throw;
             }
             catch (TaskCanceledException e)
             {
-                var message = $"HTTP request {request.ToLogString()} was cancelled.";
+                var message = $"{requestDescription} was cancelled.";
                 Log.LogWarning(message, e);
                 throw new FulcrumTryAgainException(message, e);
             }
             catch (Exception e)
             {
                 // If we end up here, we probably need to add another catch statement for that exception type.
-                var message = $"Request {request.ToLogString()} failed with exception of type {e.GetType()}. Please report that the outbound pipe handler {nameof(ThrowFulcrumExceptionOnFail)} should catch this exception type explicitly.";
+                var message = $"{requestDescription} failed with an exception of type {e.GetType().FullName}. Please report that the outbound pipe handler {nameof(ThrowFulcrumExceptionOnFail)} should catch this exception type explicitly.";
                 Log.LogError(message, e);
-                throw new FulcrumAssertionFailedException(
-                    message, e);
+                throw new FulcrumAssertionFailedException(message, e);
             }
         }
     }

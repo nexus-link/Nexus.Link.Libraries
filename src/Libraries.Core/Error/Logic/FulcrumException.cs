@@ -149,6 +149,12 @@ namespace Nexus.Link.Libraries.Core.Error.Logic
         }
 
         /// <inheritdoc />
+        public override string ToString()
+        {
+            return $"{GetType().Name} {TechnicalMessage}";
+        }
+
+        /// <inheritdoc />
         public string ToLogString()
         {
             return JsonConvert.SerializeObject(this, Formatting.Indented);
