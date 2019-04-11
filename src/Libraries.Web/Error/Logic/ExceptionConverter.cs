@@ -12,6 +12,7 @@ using Nexus.Link.Libraries.Core.Assert;
 using Nexus.Link.Libraries.Core.Error.Logic;
 using Nexus.Link.Libraries.Core.Error.Model;
 using Nexus.Link.Libraries.Core.Logging;
+using Nexus.Link.Libraries.Web.Logging;
 
 namespace Nexus.Link.Libraries.Web.Error.Logic
 {
@@ -79,18 +80,122 @@ namespace Nexus.Link.Libraries.Web.Error.Logic
         public static async Task<FulcrumException> ToFulcrumExceptionAsync(HttpResponseMessage response)
         {
             InternalContract.RequireNotNull(response, nameof(response));
+            var fulcrumError = await ToFulcrumErrorAsync(response);
+            ValidateStatusCode(response.StatusCode, fulcrumError);
+            var fulcrumException = ToFulcrumException(fulcrumError);
+            FulcrumAssert.IsNotNull(fulcrumException, $"Could not convert the following {nameof(FulcrumError)} to a {nameof(FulcrumException)}:\r {ToJsonString(fulcrumError, Formatting.Indented)}");
+            return fulcrumException;
+        }
+
+        public static async Task<FulcrumError> ToFulcrumErrorAsync(HttpResponseMessage response)
+        {
+            InternalContract.RequireNotNull(response, nameof(response));
             if (response.IsSuccessStatusCode) return null;
-            if (response.Content == null) return null;
-            await response.Content?.LoadIntoBufferAsync();
-            var contentAsString = await response.Content?.ReadAsStringAsync();
-            if (string.IsNullOrWhiteSpace(contentAsString)) return null;
-            var error = Parse<FulcrumError>(contentAsString);
-            if (error?.Type == null) return null;
-            ValidateStatusCode(response.StatusCode, error);
-            var fulcrumException = ToFulcrumException(error);
-            if (fulcrumException != null) return fulcrumException;
-            var message = $"The Type ({error.Type}) was not recognized: {ToJsonString(error, Formatting.Indented)}";
-            return new FulcrumAssertionFailedException(message, ToFulcrumException(error.InnerError));
+
+            if (response.Content != null)
+            {
+                await response.Content?.LoadIntoBufferAsync();
+                var contentAsString = await response.Content?.ReadAsStringAsync();
+                var fulcrumError = Parse<FulcrumError>(contentAsString);
+                if (fulcrumError?.Type == null)
+                {
+                    return ToFulcrumError(response.StatusCode, contentAsString, response);
+                }
+            }
+
+            return ToFulcrumError(response.StatusCode, "", response);
+        }
+
+        private static FulcrumError ToFulcrumError(HttpStatusCode statusCode, string contentAsString,
+            HttpResponseMessage response)
+        {
+            var shortContent = contentAsString;
+            if (shortContent.Length > 160)
+            {
+                Log.LogInformation($"Truncating failed response content to 160 characters. This was the original content:\r{contentAsString}");
+                shortContent = $"Truncated content: {contentAsString.Substring(0, 160)}";
+            }
+            var fulcrumError = new FulcrumError
+            {
+                CorrelationId = FulcrumApplication.Context.CorrelationId,
+                FriendlyMessage =
+                    $"A call to a remote service did not succeed and the service did not return a FulcrumError message. It returned status code {statusCode.ToLogString()}.",
+                InstanceId = Guid.NewGuid().ToString(),
+                IsRetryMeaningful = false,
+                ServerTechnicalName = response?.RequestMessage?.RequestUri?.Host,
+                TechnicalMessage = $"{response.ToLogString()}: {shortContent}"
+            };
+
+            var statusCodeAsInt = (int)statusCode;
+            if (statusCodeAsInt >= 500)
+            {
+                switch (statusCode)
+                {
+                    case HttpStatusCode.InternalServerError:
+                        fulcrumError.Type = FulcrumAssertionFailedException.ExceptionType;
+                        break;
+                    case HttpStatusCode.NotImplemented:
+                    case HttpStatusCode.HttpVersionNotSupported:
+                        fulcrumError.Type = FulcrumNotImplementedException.ExceptionType;
+                        break;
+                    case HttpStatusCode.BadGateway:
+                        fulcrumError.Type = FulcrumResourceErrorException.ExceptionType;
+                        break;
+                    case HttpStatusCode.ServiceUnavailable:
+                    case HttpStatusCode.GatewayTimeout:
+                        fulcrumError.Type = FulcrumTryAgainException.ExceptionType;
+                        fulcrumError.IsRetryMeaningful = true;
+                        break;
+                    default:
+                        fulcrumError.Type = FulcrumAssertionFailedException.ExceptionType;
+                        break;
+                }
+            }
+            else if (statusCodeAsInt >= 400)
+            {
+                switch (statusCode)
+                {
+                    case HttpStatusCode.BadRequest:
+                    case HttpStatusCode.PaymentRequired:
+                    case HttpStatusCode.MethodNotAllowed:
+                    case HttpStatusCode.NotAcceptable:
+                        fulcrumError.Type = FulcrumServiceContractException.ExceptionType;
+                        break;
+                    case HttpStatusCode.Unauthorized:
+                    case HttpStatusCode.ProxyAuthenticationRequired:
+                        fulcrumError.Type = FulcrumUnauthorizedException.ExceptionType;
+                        break;
+                    case HttpStatusCode.Forbidden:
+                        fulcrumError.Type = FulcrumForbiddenAccessException.ExceptionType;
+                        break;
+                    case HttpStatusCode.NotFound:
+                        fulcrumError.Type = FulcrumNotImplementedException.ExceptionType;
+                        break;
+                    case HttpStatusCode.RequestTimeout:
+                        fulcrumError.Type = FulcrumTryAgainException.ExceptionType;
+                        fulcrumError.IsRetryMeaningful = true;
+                        break;
+                    case HttpStatusCode.Conflict:
+                        fulcrumError.Type = FulcrumConflictException.ExceptionType;
+                        break;
+                    case HttpStatusCode.Gone:
+                        fulcrumError.Type = FulcrumNotFoundException.ExceptionType;
+                        break;
+                    default:
+                        fulcrumError.Type = FulcrumServiceContractException.ExceptionType;
+                        break;
+                }
+            }
+            else if (statusCodeAsInt >= 300)
+            {
+                fulcrumError.Type = FulcrumServiceContractException.ExceptionType;
+            }
+            else
+            {
+                FulcrumAssert.Fail($"Could not convert HTTP status code {statusCode.ToLogString()} into a FulcrumError.");
+            }
+
+            return fulcrumError;
         }
 
         /// <summary>
