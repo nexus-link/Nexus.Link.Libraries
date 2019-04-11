@@ -23,6 +23,18 @@ namespace Nexus.Link.Libraries.Web.Tests.Error
         }
 
         [TestMethod]
+        public void ConvertUnknownType()
+        {
+            var fulcrumError = new FulcrumError
+            {
+                Type = "UnknownErrorType"
+            };
+            var fulcrumException = ExceptionConverter.ToFulcrumException(fulcrumError);
+            Assert.IsNotNull(fulcrumException);
+            Assert.AreEqual(FulcrumAssertionFailedException.ExceptionType, fulcrumException.Type);
+        }
+
+        [TestMethod]
         public void ConvertToSameType()
         {
             Verify(FulcrumBusinessRuleException.ExceptionType);
