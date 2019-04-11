@@ -114,20 +114,16 @@ namespace Nexus.Link.Libraries.Web.Error.Logic
             InternalContract.RequireNotNull(response, nameof(response));
             if (response.IsSuccessStatusCode) return null;
 
+            var contentAsString = "";
             if (response.Content != null)
             {
                 await response.Content?.LoadIntoBufferAsync();
-                var contentAsString = await response.Content?.ReadAsStringAsync();
+                contentAsString = await response.Content?.ReadAsStringAsync();
                 var fulcrumError = Parse<FulcrumError>(contentAsString);
-                if (fulcrumError?.Type == null)
-                {
-                    return ToFulcrumError(response.StatusCode, contentAsString, response);
-                }
-
-                return fulcrumError;
+                if (fulcrumError?.Type != null) return fulcrumError;
             }
 
-            return ToFulcrumError(response.StatusCode, "", response);
+            return ToFulcrumError(response.StatusCode, contentAsString, response);
         }
 
         private static FulcrumError ToFulcrumError(HttpStatusCode statusCode, string contentAsString,
