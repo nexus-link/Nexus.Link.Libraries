@@ -11,15 +11,15 @@ using Nexus.Link.Libraries.Core.Error.Logic;
 using Nexus.Link.Libraries.Core.Error.Model;
 using Nexus.Link.Libraries.Web.Error.Logic;
 
-namespace Nexus.Link.Libraries.Web.Tests
+namespace Nexus.Link.Libraries.Web.Tests.Error
 {
     [TestClass]
-    public class ConverterTests
+    public class ExceptionConverterTests
     {
         [TestInitialize]
         public void RunBeforeEachTestMethod()
         {
-            FulcrumApplicationHelper.UnitTestSetup(typeof(ConverterTests).FullName);
+            FulcrumApplicationHelper.UnitTestSetup(typeof(ExceptionConverterTests).FullName);
         }
 
         [TestMethod]
@@ -36,11 +36,7 @@ namespace Nexus.Link.Libraries.Web.Tests
                 Content = new StringContent(content, Encoding.UTF8)
             };
             var result = await ExceptionConverter.ToFulcrumExceptionAsync(responseMessage);
-            fulcrumError = new FulcrumError();
-            fulcrumError.CopyFrom(result);
-            json = JObject.FromObject(fulcrumError);
-            var resultAsString = json.ToString(Formatting.Indented);
-            Assert.AreEqual(content, resultAsString);
+            Assert.AreEqual(fulcrumException.TechnicalMessage, result.TechnicalMessage);
         }
 
         [TestMethod]
@@ -51,7 +47,8 @@ namespace Nexus.Link.Libraries.Web.Tests
                 Content = null
             };
             var result = await ExceptionConverter.ToFulcrumExceptionAsync(responseMessage);
-            Assert.IsNull(result);
+            Assert.IsNotNull(result);
+            Assert.AreEqual(FulcrumContractException.ExceptionType, result.Type);
         }
 
         [TestMethod]
@@ -62,7 +59,8 @@ namespace Nexus.Link.Libraries.Web.Tests
                 Content = new StringContent("", Encoding.UTF8)
             };
             var result = await ExceptionConverter.ToFulcrumExceptionAsync(responseMessage);
-            Assert.IsNull(result);
+            Assert.IsNotNull(result);
+            Assert.AreEqual(FulcrumContractException.ExceptionType, result.Type);
         }
 
         [TestMethod]
@@ -74,7 +72,8 @@ namespace Nexus.Link.Libraries.Web.Tests
                 Content = new StringContent(content, Encoding.UTF8)
             };
             var result = await ExceptionConverter.ToFulcrumExceptionAsync(responseMessage);
-            Assert.IsNull(result);
+            Assert.IsNotNull(result);
+            Assert.AreEqual(FulcrumContractException.ExceptionType, result.Type);
         }
 
         [TestMethod]
@@ -86,7 +85,8 @@ namespace Nexus.Link.Libraries.Web.Tests
                 Content = new StringContent(content, Encoding.UTF8)
             };
             var result = await ExceptionConverter.ToFulcrumExceptionAsync(responseMessage);
-            Assert.IsNull(result);
+            Assert.IsNotNull(result);
+            Assert.AreEqual(FulcrumContractException.ExceptionType, result.Type);
             var contentAfter = await responseMessage.Content.ReadAsStringAsync();
             Assert.AreEqual(content, contentAfter);
         }
