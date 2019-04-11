@@ -43,7 +43,7 @@ namespace Nexus.Link.Libraries.Web.Tests.Error
             await Verify(HttpStatusCode.Unauthorized, FulcrumUnauthorizedException.ExceptionType);
             await Verify(HttpStatusCode.PaymentRequired, FulcrumServiceContractException.ExceptionType);
             await Verify(HttpStatusCode.Forbidden, FulcrumForbiddenAccessException.ExceptionType);
-            await Verify(HttpStatusCode.NotFound, FulcrumNotImplementedException.ExceptionType);
+            await Verify(HttpStatusCode.NotFound, FulcrumServiceContractException.ExceptionType);
             await Verify(HttpStatusCode.MethodNotAllowed, FulcrumServiceContractException.ExceptionType);
             await Verify(HttpStatusCode.NotAcceptable, FulcrumServiceContractException.ExceptionType);
             await Verify(HttpStatusCode.ProxyAuthenticationRequired, FulcrumUnauthorizedException.ExceptionType);
