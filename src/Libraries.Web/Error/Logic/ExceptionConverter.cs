@@ -59,7 +59,7 @@ namespace Nexus.Link.Libraries.Web.Error.Logic
         {
             // Core
             AddFulcrumException(typeof(FulcrumAssertionFailedException), HttpStatusCode.InternalServerError);
-            AddFulcrumException(typeof(FulcrumResourceContractException), HttpStatusCode.InternalServerError);
+            AddFulcrumException(typeof(FulcrumResourceErrorException), HttpStatusCode.InternalServerError);
             AddFulcrumException(typeof(FulcrumContractException), HttpStatusCode.InternalServerError);
             AddFulcrumException(typeof(FulcrumNotImplementedException), HttpStatusCode.InternalServerError);
             AddFulcrumException(typeof(FulcrumTryAgainException), HttpStatusCode.InternalServerError);
