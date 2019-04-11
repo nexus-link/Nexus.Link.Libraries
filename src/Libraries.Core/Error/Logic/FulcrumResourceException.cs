@@ -11,35 +11,35 @@ namespace Nexus.Link.Libraries.Core.Error.Logic
     /// <remarks>
     /// This exception is a way to blame someone else for a problem that has occurred in your code.
     /// </remarks>
-    public class FulcrumResourceErrorException : FulcrumException
+    public class FulcrumResourceException : FulcrumException
     {
         /// <summary>
         /// Factory method
         /// </summary>
         public static FulcrumException Create(string message, Exception innerException = null)
         {
-            return new FulcrumResourceErrorException(message, innerException);
+            return new FulcrumResourceException(message, innerException);
         }
 
         /// <summary>
         /// The type for this <see cref="FulcrumException"/>
         /// </summary>
-        public const string ExceptionType = "Xlent.Fulcrum.ResourceError";
+        public const string ExceptionType = "Xlent.Fulcrum.Resource";
 
         /// <summary>
         /// Constructor
         /// </summary>
-        public FulcrumResourceErrorException() : this(null, null) { }
+        public FulcrumResourceException() : this(null, null) { }
 
         /// <summary>
         /// Constructor
         /// </summary>
-        public FulcrumResourceErrorException(string message) : this(message, null) { }
+        public FulcrumResourceException(string message) : this(message, null) { }
 
         /// <summary>
         /// Constructor
         /// </summary>
-        public FulcrumResourceErrorException(string message, Exception innerException) : base(message, innerException)
+        public FulcrumResourceException(string message, Exception innerException) : base(message, innerException)
         {
             SetProperties();
         }

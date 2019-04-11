@@ -24,54 +24,75 @@ namespace Nexus.Link.Libraries.Web.Error.Logic
     public static class ExceptionConverter
     {
         private static readonly Dictionary<string, Func<string, Exception, FulcrumException>> FactoryMethodsCache = new Dictionary<string, Func<string, Exception, FulcrumException>>();
+        private static readonly Dictionary<string, string> FulcrumErrorTargetExceptionType = new Dictionary<string, string>();
         private static readonly Dictionary<string, HttpStatusCode> HttpStatusCodesCache = new Dictionary<string, HttpStatusCode>();
 
         /// <summary>
         /// Use this method to add a new <see cref="FulcrumException"/>. This means that it will be included in converting.
         /// </summary>
-        /// <param name="fulcrumExceptionType">The type of the exception.</param>
-        /// <param name="statusCode">The status code that it should be converted to if we convert it to an HTTP response.</param>
-        public static void AddFulcrumException(Type fulcrumExceptionType, HttpStatusCode? statusCode = null)
+        /// <param name="exceptionType">The type of the exception.</param>
+        /// <param name="inboundStatusCode">The status code that it should be converted to if we convert it to an HTTP response.</param>
+        /// <param name="outboundExceptionType">Fulcrum errors of type <paramref name="exceptionType"/> should be converted to this type of exception.</param>
+        public static void AddFulcrumException(Type exceptionType, HttpStatusCode inboundStatusCode, string outboundExceptionType)
         {
-            InternalContract.RequireNotNull(fulcrumExceptionType, nameof(fulcrumExceptionType));
-            var methodInfo = fulcrumExceptionType.GetMethod("Create");
-            FulcrumAssert.IsNotNull(methodInfo);
-            Func<string, Exception, FulcrumException> createInstanceDelegate;
+            InternalContract.RequireNotNull(exceptionType, nameof(exceptionType));
+            InternalContract.RequireNotNullOrWhiteSpace(outboundExceptionType, nameof(outboundExceptionType));
+            var createDelegate = GetInstanceDelegate(exceptionType);
+            var sourceException = createDelegate("test", (Exception)null);
+            FactoryMethodsCache.Add(sourceException.Type, createDelegate);
+            HttpStatusCodesCache.Add(sourceException.Type, inboundStatusCode);
+            FulcrumErrorTargetExceptionType.Add(sourceException.Type, outboundExceptionType);
+        }
+
+        private static Func<string, Exception, FulcrumException> GetInstanceDelegate(Type exceptionType)
+        {
             try
             {
-                createInstanceDelegate =
-                    (Func<string, Exception, FulcrumException>)Delegate.CreateDelegate(
+                var methodInfo = exceptionType.GetMethod("Create");
+                FulcrumAssert.IsNotNull(methodInfo);
+                return (Func<string, Exception, FulcrumException>) Delegate.CreateDelegate(
                         typeof(Func<string, Exception, FulcrumException>), methodInfo);
             }
             catch (Exception e)
             {
                 throw new FulcrumContractException(
-                    $"The type {fulcrumExceptionType.FullName} must have a factory method Create(string message, Exception innerException).",
+                    $"The type {exceptionType.FullName} must have a factory method Create(string message, Exception innerException).",
                     e);
             }
-            // ReSharper disable once PossibleNullReferenceException
-            // ReSharper disable once RedundantCast
-            var exception = createInstanceDelegate("test", (Exception)null);
-            FactoryMethodsCache.Add(exception.Type, createInstanceDelegate);
-            if (statusCode != null) HttpStatusCodesCache.Add(exception.Type, statusCode.Value);
+        }
+
+        /// <summary>
+        /// Use this method to add a new <see cref="FulcrumException"/>. This means that it will be included in converting.
+        /// </summary>
+        /// <param name="exceptionType">The type of the exception.</param>
+        /// <param name="statusCode">The status code that it should be converted to if we convert it to an HTTP response.</param>
+        [Obsolete("Use the overload with three arguments", true)]
+        public static void AddFulcrumException(Type exceptionType, HttpStatusCode? statusCode = null)
+        {
+            InternalContract.RequireNotNull(exceptionType, nameof(exceptionType));
+            InternalContract.RequireNotNull(statusCode, nameof(statusCode));
+            var createDelegate = GetInstanceDelegate(exceptionType);
+            var exception = createDelegate("test", (Exception) null);
+            // ReSharper disable once PossibleInvalidOperationException
+            AddFulcrumException(exceptionType, statusCode.Value, exception.Type);
         }
 
         static ExceptionConverter()
         {
             // Core
-            AddFulcrumException(typeof(FulcrumAssertionFailedException), HttpStatusCode.InternalServerError);
-            AddFulcrumException(typeof(FulcrumResourceErrorException), HttpStatusCode.InternalServerError);
-            AddFulcrumException(typeof(FulcrumContractException), HttpStatusCode.InternalServerError);
-            AddFulcrumException(typeof(FulcrumNotImplementedException), HttpStatusCode.InternalServerError);
-            AddFulcrumException(typeof(FulcrumTryAgainException), HttpStatusCode.InternalServerError);
-            AddFulcrumException(typeof(FulcrumBusinessRuleException), HttpStatusCode.BadRequest);
-            AddFulcrumException(typeof(FulcrumConflictException), HttpStatusCode.BadRequest);
-            AddFulcrumException(typeof(FulcrumNotFoundException), HttpStatusCode.BadRequest);
+            AddFulcrumException(typeof(FulcrumAssertionFailedException), HttpStatusCode.InternalServerError, FulcrumResourceException.ExceptionType);
+            AddFulcrumException(typeof(FulcrumResourceException), HttpStatusCode.InternalServerError, FulcrumResourceException.ExceptionType);
+            AddFulcrumException(typeof(FulcrumContractException), HttpStatusCode.InternalServerError, FulcrumResourceException.ExceptionType);
+            AddFulcrumException(typeof(FulcrumNotImplementedException), HttpStatusCode.InternalServerError, FulcrumResourceException.ExceptionType);
+            AddFulcrumException(typeof(FulcrumTryAgainException), HttpStatusCode.InternalServerError, FulcrumTryAgainException.ExceptionType);
+            AddFulcrumException(typeof(FulcrumBusinessRuleException), HttpStatusCode.BadRequest, FulcrumBusinessRuleException.ExceptionType);
+            AddFulcrumException(typeof(FulcrumConflictException), HttpStatusCode.BadRequest, FulcrumConflictException.ExceptionType);
+            AddFulcrumException(typeof(FulcrumNotFoundException), HttpStatusCode.BadRequest, FulcrumNotFoundException.ExceptionType);
 
             // WebApi
-            AddFulcrumException(typeof(FulcrumServiceContractException), HttpStatusCode.BadRequest);
-            AddFulcrumException(typeof(FulcrumUnauthorizedException), HttpStatusCode.BadRequest);
-            AddFulcrumException(typeof(FulcrumForbiddenAccessException), HttpStatusCode.BadRequest);
+            AddFulcrumException(typeof(FulcrumServiceContractException), HttpStatusCode.BadRequest, FulcrumContractException.ExceptionType);
+            AddFulcrumException(typeof(FulcrumUnauthorizedException), HttpStatusCode.BadRequest, FulcrumContractException.ExceptionType);
+            AddFulcrumException(typeof(FulcrumForbiddenAccessException), HttpStatusCode.BadRequest, FulcrumContractException.ExceptionType);
         }
 
         /// <summary>
@@ -101,6 +122,8 @@ namespace Nexus.Link.Libraries.Web.Error.Logic
                 {
                     return ToFulcrumError(response.StatusCode, contentAsString, response);
                 }
+
+                return fulcrumError;
             }
 
             return ToFulcrumError(response.StatusCode, "", response);
@@ -139,7 +162,7 @@ namespace Nexus.Link.Libraries.Web.Error.Logic
                         fulcrumError.Type = FulcrumNotImplementedException.ExceptionType;
                         break;
                     case HttpStatusCode.BadGateway:
-                        fulcrumError.Type = FulcrumResourceErrorException.ExceptionType;
+                        fulcrumError.Type = FulcrumResourceException.ExceptionType;
                         break;
                     case HttpStatusCode.ServiceUnavailable:
                     case HttpStatusCode.GatewayTimeout:
@@ -159,6 +182,7 @@ namespace Nexus.Link.Libraries.Web.Error.Logic
                     case HttpStatusCode.PaymentRequired:
                     case HttpStatusCode.MethodNotAllowed:
                     case HttpStatusCode.NotAcceptable:
+                    case HttpStatusCode.NotFound:
                         fulcrumError.Type = FulcrumServiceContractException.ExceptionType;
                         break;
                     case HttpStatusCode.Unauthorized:
@@ -167,9 +191,6 @@ namespace Nexus.Link.Libraries.Web.Error.Logic
                         break;
                     case HttpStatusCode.Forbidden:
                         fulcrumError.Type = FulcrumForbiddenAccessException.ExceptionType;
-                        break;
-                    case HttpStatusCode.NotFound:
-                        fulcrumError.Type = FulcrumNotImplementedException.ExceptionType;
                         break;
                     case HttpStatusCode.RequestTimeout:
                         fulcrumError.Type = FulcrumTryAgainException.ExceptionType;
@@ -280,13 +301,21 @@ namespace Nexus.Link.Libraries.Web.Error.Logic
 
         private static FulcrumException CreateFulcrumException(FulcrumError error, bool okIfNotExists = false)
         {
-            if (!FactoryMethodsCache.ContainsKey(error.Type))
+            if (!FulcrumErrorTargetExceptionType.ContainsKey(error.Type))
             {
                 if (okIfNotExists) return null;
                 var message = $"The error type ({error.Type}) was not recognized: {ToJsonString(error, Formatting.Indented)}. Add it to {typeof(ExceptionConverter).FullName} if you want it to be converted.";
                 return new FulcrumAssertionFailedException(message, ToFulcrumException(error.InnerError));
             }
-            var factoryMethod = FactoryMethodsCache[error.Type];
+
+            var targetType = FulcrumErrorTargetExceptionType[error.Type];
+            if (!FactoryMethodsCache.ContainsKey(targetType))
+            {
+                if (okIfNotExists) return null;
+                var message = $"The error type ({targetType}) was not recognized. Add it to {typeof(ExceptionConverter).FullName} if you want it to be converted.";
+                return new FulcrumAssertionFailedException(message, ToFulcrumException(error.InnerError));
+            }
+            var factoryMethod = FactoryMethodsCache[targetType];
             var fulcrumException = factoryMethod(error.TechnicalMessage, ToFulcrumException(error.InnerError));
             return fulcrumException;
         }

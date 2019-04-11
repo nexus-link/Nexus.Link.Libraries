@@ -359,7 +359,7 @@ namespace Nexus.Link.Libraries.Web.RestClientHelper
             {
                 if (response.StatusCode != HttpStatusCode.OK)
                 {
-                    throw new FulcrumResourceErrorException($"The response to request {request.ToLogString()} was expected to have HttpStatusCode {HttpStatusCode.OK}, but had {response.StatusCode.ToLogString()}.");
+                    throw new FulcrumResourceException($"The response to request {request.ToLogString()} was expected to have HttpStatusCode {HttpStatusCode.OK}, but had {response.StatusCode.ToLogString()}.");
                 }
                 var responseContent = await TryGetContentAsString(response.Content, false);
                 if (responseContent == null) return result;
@@ -371,7 +371,7 @@ namespace Nexus.Link.Libraries.Web.RestClientHelper
                 }
                 catch (Exception e)
                 {
-                    throw new FulcrumResourceErrorException($"The response to request {request.ToLogString()} could not be deserialized to the type {typeof(TResponse).FullName}. The content was:\r{responseContent}.", e);
+                    throw new FulcrumResourceException($"The response to request {request.ToLogString()} could not be deserialized to the type {typeof(TResponse).FullName}. The content was:\r{responseContent}.", e);
                 }
             }
             return result;

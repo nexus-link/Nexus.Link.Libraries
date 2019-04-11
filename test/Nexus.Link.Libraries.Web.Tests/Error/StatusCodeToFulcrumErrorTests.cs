@@ -23,7 +23,14 @@ namespace Nexus.Link.Libraries.Web.Tests.Error
         }
 
         [TestMethod]
-        public async Task StatusCode3xx()
+        public async Task StatusCode200()
+        {
+            // Represents 3xx
+            await Verify(HttpStatusCode.OK, null);
+        }
+
+        [TestMethod]
+        public async Task StatusCode300()
         {
             // Represents 3xx
             await Verify(HttpStatusCode.Ambiguous, FulcrumServiceContractException.ExceptionType);
@@ -37,7 +44,7 @@ namespace Nexus.Link.Libraries.Web.Tests.Error
         }
 
         [TestMethod]
-        public async Task StatusCode4xx()
+        public async Task StatusCode400()
         {
             await Verify(HttpStatusCode.BadRequest, FulcrumServiceContractException.ExceptionType);
             await Verify(HttpStatusCode.Unauthorized, FulcrumUnauthorizedException.ExceptionType);
@@ -55,11 +62,11 @@ namespace Nexus.Link.Libraries.Web.Tests.Error
         }
 
         [TestMethod]
-        public async Task StatusCode5xx()
+        public async Task StatusCode500()
         {
             await Verify(HttpStatusCode.InternalServerError, FulcrumAssertionFailedException.ExceptionType);
             await Verify(HttpStatusCode.NotImplemented, FulcrumNotImplementedException.ExceptionType);
-            await Verify(HttpStatusCode.BadGateway, FulcrumResourceErrorException.ExceptionType);
+            await Verify(HttpStatusCode.BadGateway, FulcrumResourceException.ExceptionType);
             await Verify(HttpStatusCode.ServiceUnavailable, FulcrumTryAgainException.ExceptionType);
             await Verify(HttpStatusCode.GatewayTimeout, FulcrumTryAgainException.ExceptionType);
             // This will represent 5xx
@@ -102,8 +109,15 @@ namespace Nexus.Link.Libraries.Web.Tests.Error
                 Content = new StringContent("Response body content", Encoding.UTF8)
             };
             var fulcrumError = await ExceptionConverter.ToFulcrumErrorAsync(responseMessage);
-            Assert.IsNotNull(fulcrumError);
-            Assert.AreEqual(expectedType, fulcrumError.Type);
+            if (expectedType == null)
+            {
+                Assert.IsNull(fulcrumError);
+            }
+            else
+            {
+                Assert.IsNotNull(fulcrumError);
+                Assert.AreEqual(expectedType, fulcrumError.Type);
+            }
         }
     }
 }

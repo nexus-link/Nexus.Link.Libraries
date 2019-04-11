@@ -36,11 +36,7 @@ namespace Nexus.Link.Libraries.Web.Tests.Error
                 Content = new StringContent(content, Encoding.UTF8)
             };
             var result = await ExceptionConverter.ToFulcrumExceptionAsync(responseMessage);
-            fulcrumError = new FulcrumError();
-            fulcrumError.CopyFrom(result);
-            json = JObject.FromObject(fulcrumError);
-            var resultAsString = json.ToString(Formatting.Indented);
-            Assert.AreEqual(content, resultAsString);
+            Assert.AreEqual(fulcrumException.TechnicalMessage, result.TechnicalMessage);
         }
 
         [TestMethod]
@@ -51,7 +47,8 @@ namespace Nexus.Link.Libraries.Web.Tests.Error
                 Content = null
             };
             var result = await ExceptionConverter.ToFulcrumExceptionAsync(responseMessage);
-            Assert.IsNull(result);
+            Assert.IsNotNull(result);
+            Assert.AreEqual(FulcrumContractException.ExceptionType, result.Type);
         }
 
         [TestMethod]
@@ -62,7 +59,8 @@ namespace Nexus.Link.Libraries.Web.Tests.Error
                 Content = new StringContent("", Encoding.UTF8)
             };
             var result = await ExceptionConverter.ToFulcrumExceptionAsync(responseMessage);
-            Assert.IsNull(result);
+            Assert.IsNotNull(result);
+            Assert.AreEqual(FulcrumContractException.ExceptionType, result.Type);
         }
 
         [TestMethod]
@@ -74,7 +72,8 @@ namespace Nexus.Link.Libraries.Web.Tests.Error
                 Content = new StringContent(content, Encoding.UTF8)
             };
             var result = await ExceptionConverter.ToFulcrumExceptionAsync(responseMessage);
-            Assert.IsNull(result);
+            Assert.IsNotNull(result);
+            Assert.AreEqual(FulcrumContractException.ExceptionType, result.Type);
         }
 
         [TestMethod]
@@ -86,7 +85,8 @@ namespace Nexus.Link.Libraries.Web.Tests.Error
                 Content = new StringContent(content, Encoding.UTF8)
             };
             var result = await ExceptionConverter.ToFulcrumExceptionAsync(responseMessage);
-            Assert.IsNull(result);
+            Assert.IsNotNull(result);
+            Assert.AreEqual(FulcrumContractException.ExceptionType, result.Type);
             var contentAfter = await responseMessage.Content.ReadAsStringAsync();
             Assert.AreEqual(content, contentAfter);
         }
