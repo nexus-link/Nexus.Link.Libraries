@@ -44,7 +44,7 @@ namespace Nexus.Link.Libraries.Web.Tests.Error
         }
 
         [TestMethod]
-        public void ConvertToOtherTypeType()
+        public void ConvertToOtherType()
         {
             Verify(
                 FulcrumAssertionFailedException.ExceptionType,
@@ -65,6 +65,88 @@ namespace Nexus.Link.Libraries.Web.Tests.Error
                 FulcrumUnauthorizedException.ExceptionType,
                 FulcrumContractException.ExceptionType);
 
+        }
+
+        [TestMethod]
+        public void ConvertedType()
+        {
+            var fulcrumError = new FulcrumError
+            {
+                Type = FulcrumAssertionFailedException.ExceptionType,
+                TechnicalMessage = Guid.NewGuid().ToString(),
+                FriendlyMessage = Guid.NewGuid().ToString(),
+                InstanceId = Guid.NewGuid().ToString(),
+                CorrelationId = Guid.NewGuid().ToString(),
+                Code = Guid.NewGuid().ToString(),
+                ErrorLocation = Guid.NewGuid().ToString(),
+                IsRetryMeaningful = true,
+                MoreInfoUrl = Guid.NewGuid().ToString(),
+                RecommendedWaitTimeInSeconds = 100.0,
+                ServerTechnicalName = Guid.NewGuid().ToString()
+            };
+            var fulcrumException = ExceptionConverter.ToFulcrumException(fulcrumError);
+
+            // Equal
+            Assert.IsNotNull(fulcrumException);
+            Assert.AreEqual(fulcrumError.TechnicalMessage, fulcrumException.TechnicalMessage);
+            Assert.AreEqual(fulcrumError.TechnicalMessage, fulcrumException.Message);
+            Assert.AreEqual(fulcrumError.CorrelationId, fulcrumException.CorrelationId);
+            Assert.AreEqual(fulcrumError.RecommendedWaitTimeInSeconds, fulcrumException.RecommendedWaitTimeInSeconds);
+
+            // NOT equal
+            Assert.AreNotEqual(fulcrumError.ServerTechnicalName, fulcrumException.ServerTechnicalName);
+            Assert.AreNotEqual(fulcrumError.Code, fulcrumException.Code);
+            Assert.AreNotEqual(fulcrumError.IsRetryMeaningful, fulcrumException.IsRetryMeaningful);
+            Assert.AreNotEqual(fulcrumError.FriendlyMessage, fulcrumException.FriendlyMessage);
+            Assert.AreNotEqual(fulcrumError.Type, fulcrumException.Type);
+            Assert.AreEqual(FulcrumResourceException.ExceptionType, fulcrumException.Type);
+            Assert.AreNotEqual(fulcrumError.InstanceId, fulcrumException.InstanceId);
+            Assert.AreNotEqual(fulcrumError.MoreInfoUrl, fulcrumException.MoreInfoUrl);
+            Assert.IsNull(fulcrumException.ErrorLocation);
+
+            // Other tests
+            Assert.IsNull(fulcrumException.InnerException);
+
+        }
+
+        [TestMethod]
+        public void SameType()
+        {
+            var fulcrumError = new FulcrumError
+            {
+                Type = FulcrumConflictException.ExceptionType,
+                TechnicalMessage = Guid.NewGuid().ToString(),
+                FriendlyMessage = Guid.NewGuid().ToString(),
+                InstanceId = Guid.NewGuid().ToString(),
+                CorrelationId = Guid.NewGuid().ToString(),
+                Code = Guid.NewGuid().ToString(),
+                ErrorLocation = Guid.NewGuid().ToString(),
+                IsRetryMeaningful = true,
+                MoreInfoUrl = Guid.NewGuid().ToString(),
+                RecommendedWaitTimeInSeconds = 100.0,
+                ServerTechnicalName = Guid.NewGuid().ToString()
+            };
+            var fulcrumException = ExceptionConverter.ToFulcrumException(fulcrumError);
+
+            // Equal
+            Assert.IsNotNull(fulcrumException);
+            Assert.AreEqual(fulcrumError.TechnicalMessage, fulcrumException.TechnicalMessage);
+            Assert.AreEqual(fulcrumError.TechnicalMessage, fulcrumException.Message);
+            Assert.AreEqual(fulcrumError.CorrelationId, fulcrumException.CorrelationId);
+            Assert.AreEqual(fulcrumError.Code, fulcrumException.Code);
+            Assert.AreEqual(fulcrumError.RecommendedWaitTimeInSeconds, fulcrumException.RecommendedWaitTimeInSeconds);
+            Assert.AreEqual(fulcrumError.ServerTechnicalName, fulcrumException.ServerTechnicalName);
+            Assert.AreEqual(fulcrumError.FriendlyMessage, fulcrumException.FriendlyMessage);
+            Assert.AreEqual(fulcrumError.Type, fulcrumException.Type);
+            Assert.AreEqual(fulcrumError.MoreInfoUrl, fulcrumException.MoreInfoUrl);
+
+            // NOT equal
+            Assert.AreNotEqual(fulcrumError.InstanceId, fulcrumException.InstanceId);
+            Assert.AreNotEqual(fulcrumError.IsRetryMeaningful, fulcrumException.IsRetryMeaningful);
+            Assert.IsNull(fulcrumException.ErrorLocation);
+
+            // Other tests
+            Assert.IsNull(fulcrumException.InnerException);
         }
 
         private void Verify(string type)
