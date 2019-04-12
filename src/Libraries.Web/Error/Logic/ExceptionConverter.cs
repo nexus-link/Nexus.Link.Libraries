@@ -114,20 +114,16 @@ namespace Nexus.Link.Libraries.Web.Error.Logic
             InternalContract.RequireNotNull(response, nameof(response));
             if (response.IsSuccessStatusCode) return null;
 
+            var contentAsString = "";
             if (response.Content != null)
             {
                 await response.Content?.LoadIntoBufferAsync();
-                var contentAsString = await response.Content?.ReadAsStringAsync();
+                contentAsString = await response.Content?.ReadAsStringAsync();
                 var fulcrumError = Parse<FulcrumError>(contentAsString);
-                if (fulcrumError?.Type == null)
-                {
-                    return ToFulcrumError(response.StatusCode, contentAsString, response);
-                }
-
-                return fulcrumError;
+                if (fulcrumError?.Type != null) return fulcrumError;
             }
 
-            return ToFulcrumError(response.StatusCode, "", response);
+            return ToFulcrumError(response.StatusCode, contentAsString, response);
         }
 
         private static FulcrumError ToFulcrumError(HttpStatusCode statusCode, string contentAsString,
@@ -225,8 +221,38 @@ namespace Nexus.Link.Libraries.Web.Error.Logic
         /// </summary>
         public static FulcrumException ToFulcrumException(FulcrumError error)
         {
+            return ToFulcrumException(error, true);
+        }
+
+        /// <summary>
+        /// Convert a <see cref="FulcrumError"/> (<paramref name="error"/>) into a <see cref="FulcrumException"/>.
+        /// </summary>
+        private static FulcrumException ToFulcrumException(FulcrumError error, bool convertType)
+        {
             if (error == null) return null;
-            var fulcrumException = CreateFulcrumException(error);
+            var targetType = error.Type;
+            if (convertType)
+            {
+                if (!FulcrumErrorTargetExceptionType.ContainsKey(error.Type))
+                {
+                    var message =
+                        $"The error type ({error.Type}) was not recognized: {ToJsonString(error, Formatting.Indented)}. Add it to {typeof(ExceptionConverter).FullName} if you want it to be converted.";
+                    return new FulcrumAssertionFailedException(message);
+                }
+
+                targetType = FulcrumErrorTargetExceptionType[error.Type];
+            }
+
+            var typeHasChanged = targetType != error.Type;
+
+            if (!FactoryMethodsCache.ContainsKey(targetType))
+            {
+                var message = $"The error type ({targetType}) was not recognized. Add it to {typeof(ExceptionConverter).FullName} if you want it to be converted.";
+                return new FulcrumAssertionFailedException(message);
+            }
+            var factoryMethod = FactoryMethodsCache[targetType];
+
+            var fulcrumException = factoryMethod(error.TechnicalMessage, null);
             fulcrumException.CopyFrom(error);
             return fulcrumException;
         }
@@ -298,27 +324,6 @@ namespace Nexus.Link.Libraries.Web.Error.Logic
                 throw new FulcrumAssertionFailedException(
                     $"The HTTP error response had status code {statusCode}, but was expected to have {expectedStatusCode.Value}, due to the Type in the content: \"{ToJsonString(error, Formatting.Indented)}");
             }
-        }
-
-        private static FulcrumException CreateFulcrumException(FulcrumError error, bool okIfNotExists = false)
-        {
-            if (!FulcrumErrorTargetExceptionType.ContainsKey(error.Type))
-            {
-                if (okIfNotExists) return null;
-                var message = $"The error type ({error.Type}) was not recognized: {ToJsonString(error, Formatting.Indented)}. Add it to {typeof(ExceptionConverter).FullName} if you want it to be converted.";
-                return new FulcrumAssertionFailedException(message, ToFulcrumException(error.InnerError));
-            }
-
-            var targetType = FulcrumErrorTargetExceptionType[error.Type];
-            if (!FactoryMethodsCache.ContainsKey(targetType))
-            {
-                if (okIfNotExists) return null;
-                var message = $"The error type ({targetType}) was not recognized. Add it to {typeof(ExceptionConverter).FullName} if you want it to be converted.";
-                return new FulcrumAssertionFailedException(message, ToFulcrumException(error.InnerError));
-            }
-            var factoryMethod = FactoryMethodsCache[targetType];
-            var fulcrumException = factoryMethod(error.TechnicalMessage, ToFulcrumException(error.InnerError));
-            return fulcrumException;
         }
 
         /// <summary>
