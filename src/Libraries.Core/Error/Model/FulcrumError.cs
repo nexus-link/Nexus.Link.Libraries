@@ -35,6 +35,9 @@ namespace Nexus.Link.Libraries.Core.Error.Model
         public string InstanceId { get; set; }
 
         /// <inheritdoc />
+        public string ParentInstanceId { get; set; }
+
+        /// <inheritdoc />
         public string ErrorLocation { get; set; }
 
         /// <inheritdoc />

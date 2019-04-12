@@ -90,11 +90,11 @@ namespace Nexus.Link.Libraries.Web.Tests.Error
             Assert.IsNotNull(fulcrumException);
             Assert.AreEqual(fulcrumError.TechnicalMessage, fulcrumException.TechnicalMessage);
             Assert.AreEqual(fulcrumError.TechnicalMessage, fulcrumException.Message);
-            Assert.AreEqual(fulcrumError.CorrelationId, fulcrumException.CorrelationId);
             Assert.AreEqual(fulcrumError.RecommendedWaitTimeInSeconds, fulcrumException.RecommendedWaitTimeInSeconds);
 
             // NOT equal
             Assert.AreNotEqual(fulcrumError.ServerTechnicalName, fulcrumException.ServerTechnicalName);
+            Assert.AreNotEqual(fulcrumError.CorrelationId, fulcrumException.CorrelationId);
             Assert.AreNotEqual(fulcrumError.Code, fulcrumException.Code);
             Assert.AreNotEqual(fulcrumError.IsRetryMeaningful, fulcrumException.IsRetryMeaningful);
             Assert.AreNotEqual(fulcrumError.FriendlyMessage, fulcrumException.FriendlyMessage);
@@ -106,6 +106,7 @@ namespace Nexus.Link.Libraries.Web.Tests.Error
 
             // Other tests
             Assert.IsNull(fulcrumException.InnerException);
+            Assert.AreEqual(fulcrumError.InstanceId, fulcrumException.ParentInstanceId);
 
         }
 
@@ -132,7 +133,6 @@ namespace Nexus.Link.Libraries.Web.Tests.Error
             Assert.IsNotNull(fulcrumException);
             Assert.AreEqual(fulcrumError.TechnicalMessage, fulcrumException.TechnicalMessage);
             Assert.AreEqual(fulcrumError.TechnicalMessage, fulcrumException.Message);
-            Assert.AreEqual(fulcrumError.CorrelationId, fulcrumException.CorrelationId);
             Assert.AreEqual(fulcrumError.Code, fulcrumException.Code);
             Assert.AreEqual(fulcrumError.RecommendedWaitTimeInSeconds, fulcrumException.RecommendedWaitTimeInSeconds);
             Assert.AreEqual(fulcrumError.ServerTechnicalName, fulcrumException.ServerTechnicalName);
@@ -141,12 +141,14 @@ namespace Nexus.Link.Libraries.Web.Tests.Error
             Assert.AreEqual(fulcrumError.MoreInfoUrl, fulcrumException.MoreInfoUrl);
 
             // NOT equal
+            Assert.AreNotEqual(fulcrumError.CorrelationId, fulcrumException.CorrelationId);
             Assert.AreNotEqual(fulcrumError.InstanceId, fulcrumException.InstanceId);
             Assert.AreNotEqual(fulcrumError.IsRetryMeaningful, fulcrumException.IsRetryMeaningful);
             Assert.IsNull(fulcrumException.ErrorLocation);
 
             // Other tests
             Assert.IsNull(fulcrumException.InnerException);
+            Assert.AreEqual(fulcrumError.InstanceId, fulcrumException.ParentInstanceId);
         }
 
         private void Verify(string type)

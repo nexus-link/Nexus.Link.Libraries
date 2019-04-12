@@ -253,14 +253,7 @@ namespace Nexus.Link.Libraries.Web.Error.Logic
             var factoryMethod = FactoryMethodsCache[targetType];
 
             var fulcrumException = factoryMethod(error.TechnicalMessage, null);
-            fulcrumException.CorrelationId = error.CorrelationId;
-            fulcrumException.RecommendedWaitTimeInSeconds = error.RecommendedWaitTimeInSeconds;
-            if (typeHasChanged) return fulcrumException;
-
-            fulcrumException.ServerTechnicalName = error.ServerTechnicalName;
-            fulcrumException.FriendlyMessage = error.FriendlyMessage;
-            fulcrumException.Code = error.Code;
-            fulcrumException.MoreInfoUrl = error.MoreInfoUrl;
+            fulcrumException.CopyFrom(error);
             return fulcrumException;
         }
 
