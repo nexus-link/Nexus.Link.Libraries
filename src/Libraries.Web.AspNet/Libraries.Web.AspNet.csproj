@@ -24,7 +24,7 @@
 
   <PropertyGroup>
     <PackageId>Nexus.Link.Libraries.Web.AspNet</PackageId>
-    <PackageVersion>1.4.6</PackageVersion>
+    <PackageVersion>1.4.7</PackageVersion>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <PackageTags>nexus;link;fulcrum;lever</PackageTags>
     <Authors>XLENT Link</Authors>
@@ -34,7 +34,7 @@
     <Copyright>Copyright ©2019 Xlent Link AB</Copyright>
     <IncludeSymbols>true</IncludeSymbols>
     <PackageReleaseNotes>
-      1.4.6 When an URL is changed from http to https, port 80 is changed to port 443.
+      1.4.7 When an URL is changed from http to https, port 80 is changed to port 443.
       1.4.4 Smaller log message when logging request exceptions
       1.4.3 Bumped version due to mistake in Libraries.Web
       1.4.2 Bumped version. New solution and build pipeline.
