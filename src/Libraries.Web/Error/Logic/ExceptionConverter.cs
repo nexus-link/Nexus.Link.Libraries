@@ -92,8 +92,8 @@ namespace Nexus.Link.Libraries.Web.Error.Logic
 
             // WebApi
             AddFulcrumException(typeof(FulcrumServiceContractException), HttpStatusCode.BadRequest, FulcrumContractException.ExceptionType);
-            AddFulcrumException(typeof(FulcrumUnauthorizedException), HttpStatusCode.BadRequest, FulcrumContractException.ExceptionType);
-            AddFulcrumException(typeof(FulcrumForbiddenAccessException), HttpStatusCode.BadRequest, FulcrumContractException.ExceptionType);
+            AddFulcrumException(typeof(FulcrumUnauthorizedException), HttpStatusCode.BadRequest, FulcrumUnauthorizedException.ExceptionType);
+            AddFulcrumException(typeof(FulcrumForbiddenAccessException), HttpStatusCode.BadRequest, FulcrumForbiddenAccessException.ExceptionType);
         }
 
         /// <summary>

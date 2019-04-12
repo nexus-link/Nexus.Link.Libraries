@@ -39,8 +39,10 @@ namespace Nexus.Link.Libraries.Web.Tests.Error
         {
             Verify(FulcrumBusinessRuleException.ExceptionType);
             Verify(FulcrumConflictException.ExceptionType);
+            Verify(FulcrumForbiddenAccessException.ExceptionType);
             Verify(FulcrumNotFoundException.ExceptionType);
             Verify(FulcrumTryAgainException.ExceptionType);
+            Verify(FulcrumUnauthorizedException.ExceptionType);
         }
 
         [TestMethod]
@@ -53,16 +55,10 @@ namespace Nexus.Link.Libraries.Web.Tests.Error
                 FulcrumContractException.ExceptionType,
                 FulcrumResourceException.ExceptionType);
             Verify(
-                FulcrumForbiddenAccessException.ExceptionType,
-                FulcrumContractException.ExceptionType);
-            Verify(
                 FulcrumNotImplementedException.ExceptionType,
                 FulcrumResourceException.ExceptionType);
             Verify(
                 FulcrumServiceContractException.ExceptionType,
-                FulcrumContractException.ExceptionType);
-            Verify(
-                FulcrumUnauthorizedException.ExceptionType,
                 FulcrumContractException.ExceptionType);
 
         }

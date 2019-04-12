@@ -16,7 +16,7 @@
 
   <PropertyGroup>
     <PackageId>Nexus.Link.Libraries.Web</PackageId>
-    <PackageVersion>1.8.5</PackageVersion>
+    <PackageVersion>1.8.6</PackageVersion>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <PackageTags>nexus;link;fulcrum;lever</PackageTags>
     <Authors>XLENT Link</Authors>
@@ -26,6 +26,7 @@
     <Copyright>Copyright ©2019 Xlent Link AB</Copyright>
     <IncludeSymbols>true</IncludeSymbols>
     <PackageReleaseNotes>
+      1.8.6 The errors FulcrumForbiddenAccess and FulcrumUnauthorized now converts to the corresponding FulcrumExceptions
       1.8.5 BUG: ThrowFulcrumExceptionOnFail failed for successful messages
       1.8.4 Refactored field copy strategy for FulcrumError to FulcrumException
       1.8.2 More consistent logging in the out pipe error to exception conversion
