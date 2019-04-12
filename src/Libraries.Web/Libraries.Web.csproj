@@ -16,7 +16,7 @@
 
   <PropertyGroup>
     <PackageId>Nexus.Link.Libraries.Web</PackageId>
-    <PackageVersion>1.8.4</PackageVersion>
+    <PackageVersion>1.8.5</PackageVersion>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <PackageTags>nexus;link;fulcrum;lever</PackageTags>
     <Authors>XLENT Link</Authors>
@@ -26,10 +26,11 @@
     <Copyright>Copyright ©2019 Xlent Link AB</Copyright>
     <IncludeSymbols>true</IncludeSymbols>
     <PackageReleaseNotes>
+      1.8.5 BUG: ThrowFulcrumExceptionOnFail failed for successful messages
       1.8.4 Refactored field copy strategy for FulcrumError to FulcrumException
-      1.8.2 More consistent logging in the out pipe error to exception conversion.
-      1.8.0 Refactored conversion between FulcrumError and FulcrumException.
-      1.7.9 Better exception handling in handler ThrowFulcrumExceptionOnFail.
+      1.8.2 More consistent logging in the out pipe error to exception conversion
+      1.8.0 Refactored conversion between FulcrumError and FulcrumException
+      1.7.9 Better exception handling in handler ThrowFulcrumExceptionOnFail
       1.7.7 Smaller log message when logging request exceptions
       1.7.6 FulcrumError now doesn't carry a StackTrace over app boundaries, i.e. we will not return stack trace in the HTTP response body.
       1.7.5 Now considers failure in getting a client token as a critical error

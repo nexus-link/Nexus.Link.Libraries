@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Net;
 using System.Net.Http;
 using System.Text;
 using System.Threading;
@@ -38,10 +39,29 @@ namespace Nexus.Link.Libraries.Web.Tests
             }
         }
 
+        [TestMethod]
+        public async Task Success()
+        {
+            var handler =
+                new ThrowFulcrumExceptionOnFail { UnitTest_SendAsyncDependencyInjection = SendAsyncSuccess };
+            var request = new HttpRequestMessage(HttpMethod.Post, "http://example.com/exception");
+            await handler.SendAsync(request);
+        }
+
         private static Task<HttpResponseMessage> SendAsyncTaskCanceledException(HttpRequestMessage request,
             CancellationToken cancellationToken)
         {
             throw new TaskCanceledException();
+        }
+
+        private static Task<HttpResponseMessage> SendAsyncSuccess(HttpRequestMessage request,
+            CancellationToken cancellationToken)
+        {
+            var response = new HttpResponseMessage(HttpStatusCode.OK)
+            {
+                Content = new StringContent("Random content message", Encoding.UTF8)
+            };
+            return Task.FromResult(response);
         }
     }
 }

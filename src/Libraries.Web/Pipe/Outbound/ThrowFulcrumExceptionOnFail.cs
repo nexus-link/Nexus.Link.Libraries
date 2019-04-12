@@ -54,7 +54,7 @@ namespace Nexus.Link.Libraries.Web.Pipe.Outbound
 
                 var fulcrumException = await ExceptionConverter.ToFulcrumExceptionAsync(response);
                 if (fulcrumException == null) return response;
-                fulcrumExceptionMessage = $"{requestDescription} was converted to a FulcrumException";
+                fulcrumExceptionMessage = $"{requestDescription} was converted to a FulcrumException ({fulcrumException})";
                 throw fulcrumException;
             }
             catch (FulcrumException fulcrumException)
