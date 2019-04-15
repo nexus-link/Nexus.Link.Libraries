@@ -11,36 +11,35 @@ namespace Nexus.Link.Libraries.Core.Error.Logic
     /// <remarks>
     /// This exception is a way to blame someone else for a problem that has occurred in your code.
     /// </remarks>
-    [Obsolete("Use FulcrumResourceException.")]
-    public class FulcrumResourceContractException : FulcrumException
+    public class FulcrumResourceException : FulcrumException
     {
         /// <summary>
         /// Factory method
         /// </summary>
         public static FulcrumException Create(string message, Exception innerException = null)
         {
-            return new FulcrumResourceContractException(message, innerException);
+            return new FulcrumResourceException(message, innerException);
         }
 
         /// <summary>
         /// The type for this <see cref="FulcrumException"/>
         /// </summary>
-        public const string ExceptionType = "Xlent.Fulcrum.ResourceContract";
+        public const string ExceptionType = "Xlent.Fulcrum.Resource";
 
         /// <summary>
         /// Constructor
         /// </summary>
-        public FulcrumResourceContractException() : this(null, null) { }
+        public FulcrumResourceException() : this(null, null) { }
 
         /// <summary>
         /// Constructor
         /// </summary>
-        public FulcrumResourceContractException(string message) : this(message, null) { }
+        public FulcrumResourceException(string message) : this(message, null) { }
 
         /// <summary>
         /// Constructor
         /// </summary>
-        public FulcrumResourceContractException(string message, Exception innerException) : base(message, innerException)
+        public FulcrumResourceException(string message, Exception innerException) : base(message, innerException)
         {
             SetProperties();
         }
@@ -53,7 +52,7 @@ namespace Nexus.Link.Libraries.Core.Error.Logic
 
         /// <inheritdoc />
         public override string FriendlyMessage =>
-            "A resource used by the application did not seem to behave according to the contract that has been set up."
+            "A resource used by the application had an internal error."
             + "\rPlease report the following:"
             + $"\rCorrelationId: {CorrelationId}"
             + $"\rInstanceId: {InstanceId}";

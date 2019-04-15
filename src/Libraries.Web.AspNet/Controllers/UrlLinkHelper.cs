@@ -1,5 +1,6 @@
 ﻿using System;
 #if NETCOREAPP
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc.Routing;
 #else
@@ -19,6 +20,7 @@ namespace Nexus.Link.Libraries.Web.AspNet.Controllers
             if (!new Uri(request.GetDisplayUrl()).IsLoopback && !urlHelper.ActionContext.HttpContext.Request.IsHttps)
             {
                 request.Scheme = Uri.UriSchemeHttps;
+                if (request.Host.Port.HasValue && request.Host.Port == 80) request.Host = new HostString(request.Host.Host, 443);
             }
 
 #else
@@ -27,7 +29,11 @@ namespace Nexus.Link.Libraries.Web.AspNet.Controllers
 
             if (!urlHelper.Request.RequestUri.IsLoopback && urlHelper.Request.RequestUri.Scheme != Uri.UriSchemeHttps)
             {
-                var secureUrlBuilder = new UriBuilder(urlHelper.Request.RequestUri) { Scheme = Uri.UriSchemeHttps };
+                var secureUrlBuilder = new UriBuilder(urlHelper.Request.RequestUri)
+                {
+                    Scheme = Uri.UriSchemeHttps
+                };
+                if (secureUrlBuilder.Port == 80) secureUrlBuilder.Port = 443;
                 urlHelper.Request.RequestUri = new Uri(secureUrlBuilder.ToString());
             }
 
