@@ -91,7 +91,7 @@ namespace Nexus.Link.Libraries.Core.Error.Logic
             if (!(innerException is IFulcrumError innerError)) return;
             
             RecommendedWaitTimeInSeconds = innerError.RecommendedWaitTimeInSeconds;
-            InstanceId = innerError.ParentInstanceId;
+            ParentInstanceId = innerError.InstanceId;
         }
 
         /// <inheritdoc />
