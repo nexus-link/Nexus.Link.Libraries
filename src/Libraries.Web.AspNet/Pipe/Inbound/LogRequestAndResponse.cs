@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
 using System.Threading.Tasks;
+using Nexus.Link.Libraries.Core.Assert;
 using Nexus.Link.Libraries.Core.Logging;
 
 #if NETCOREAPP
@@ -42,6 +43,8 @@ namespace Nexus.Link.Libraries.Web.AspNet.Pipe.Inbound
 #endif
         protected override async Task InvokeAsync(CompabilityInvocationContext context)
         {
+            InternalContract.Require(!ExceptionToFulcrumResponse.HasStarted,
+                $"{nameof(ExceptionToFulcrumResponse)} must not precede {nameof(LogRequestAndResponse)}");
             DelegateState.HasStarted = true;
             var stopWatch = new Stopwatch();
             stopWatch.Start();
@@ -53,6 +56,7 @@ namespace Nexus.Link.Libraries.Web.AspNet.Pipe.Inbound
             }
             catch (Exception exception)
             {
+                // If ExceptionToFulcrumResponse handler is used, we should not end up here.
                 stopWatch.Stop();
                 LogException(context, exception, stopWatch.Elapsed);
                 throw;
