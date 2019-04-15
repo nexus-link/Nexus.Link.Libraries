@@ -24,6 +24,7 @@ namespace Nexus.Link.Libraries.Web.AspNet.Pipe.Inbound
     /// If the call results in an exception, this handler converts the exception into a response with the corresponding <see cref="FulcrumError"/>.
     /// </summary>
 #if NETCOREAPP
+    [Obsolete("Use ExceptionToFulcrumResponse")]
     public class ConvertExceptionToFulcrumResponse
     {
         private readonly RequestDelegate _next;
@@ -57,8 +58,10 @@ namespace Nexus.Link.Libraries.Web.AspNet.Pipe.Inbound
         }
     }
 
+    [Obsolete("Use ExceptionToFulcrumResponseExtension")]
     public static class ConvertExceptionToFulcrumResponseExtension
     {
+        [Obsolete("Use UseNexusExceptionToFulcrumResponse")]
         public static IApplicationBuilder UseNexusConvertExceptionToFulcrumResponse(
             this IApplicationBuilder builder)
         {

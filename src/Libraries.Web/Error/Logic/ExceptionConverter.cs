@@ -97,17 +97,43 @@ namespace Nexus.Link.Libraries.Web.Error.Logic
         }
 
         /// <summary>
-        /// Convert an HTTP response (<paramref name="response"/>) into a <see cref="FulcrumException"/>.
+        /// Convert an exception (<paramref name="e"/>) into a <see cref="FulcrumError"/>.
         /// </summary>
-        public static async Task<FulcrumException> ToFulcrumExceptionAsync(HttpResponseMessage response)
+        public static FulcrumError ToFulcrumError(FulcrumException fulcrumException)
         {
-            InternalContract.RequireNotNull(response, nameof(response));
-            var fulcrumError = await ToFulcrumErrorAsync(response);
-            if (fulcrumError == null) return null;
-            ValidateStatusCode(response.StatusCode, fulcrumError);
-            var fulcrumException = ToFulcrumException(fulcrumError);
-            FulcrumAssert.IsNotNull(fulcrumException, $"Could not convert the following {nameof(FulcrumError)} to a {nameof(FulcrumException)}:\r {ToJsonString(fulcrumError, Formatting.Indented)}");
-            return fulcrumException;
+            if (fulcrumException == null) return null;
+
+            var error = new FulcrumError();
+            error.CopyFrom(fulcrumException);
+            error.InnerError = ToFulcrumError(fulcrumException.InnerException, true);
+            error.ParentInstanceId = error.InnerError?.InstanceId;
+            return error;
+        }
+
+        /// <summary>
+        /// Convert an exception (<paramref name="e"/>) into a <see cref="FulcrumError"/>.
+        /// </summary>
+        private static FulcrumError ToFulcrumError(Exception e, bool alsoNonFulcrumExceptions = false)
+        {
+            if (e == null) return null;
+            if ((e is FulcrumException fulcrumException))
+            {
+                var error = new FulcrumError();
+                error.CopyFrom(fulcrumException);
+                error.InnerError = ToFulcrumError(fulcrumException.InnerException, true);
+                error.ParentInstanceId = error.InnerError?.InstanceId;
+                return error;
+            }
+
+            if (!alsoNonFulcrumExceptions) return null;
+
+            var fulcrumError = new FulcrumError
+            {
+                TechnicalMessage = e.Message,
+                InstanceId = Guid.NewGuid().ToString(),
+                Type = e.GetType().FullName
+            };
+            return fulcrumError;
         }
 
         public static async Task<FulcrumError> ToFulcrumErrorAsync(HttpResponseMessage response)
@@ -218,6 +244,20 @@ namespace Nexus.Link.Libraries.Web.Error.Logic
         }
 
         /// <summary>
+        /// Convert an HTTP response (<paramref name="response"/>) into a <see cref="FulcrumException"/>.
+        /// </summary>
+        public static async Task<FulcrumException> ToFulcrumExceptionAsync(HttpResponseMessage response)
+        {
+            InternalContract.RequireNotNull(response, nameof(response));
+            var fulcrumError = await ToFulcrumErrorAsync(response);
+            if (fulcrumError == null) return null;
+            ValidateStatusCode(response.StatusCode, fulcrumError);
+            var fulcrumException = ToFulcrumException(fulcrumError);
+            FulcrumAssert.IsNotNull(fulcrumException, $"Could not convert the following {nameof(FulcrumError)} to a {nameof(FulcrumException)}:\r {ToJsonString(fulcrumError, Formatting.Indented)}");
+            return fulcrumException;
+        }
+
+        /// <summary>
         /// Convert a <see cref="FulcrumError"/> (<paramref name="error"/>) into a <see cref="FulcrumException"/>.
         /// </summary>
         public static FulcrumException ToFulcrumException(FulcrumError error)
@@ -259,41 +299,13 @@ namespace Nexus.Link.Libraries.Web.Error.Logic
         }
 
         /// <summary>
-        /// Convert an exception (<paramref name="e"/>) into a <see cref="FulcrumError"/>.
-        /// </summary>
-        public static FulcrumError ToFulcrumError(Exception e, bool alsoNonFulcrumExceptions = false)
-        {
-            if (e == null) return null;
-            if (!(e is FulcrumException fulcrumException))
-            {
-                if (!alsoNonFulcrumExceptions) return null;
-                var fulcrumError = new FulcrumError
-                {
-                    TechnicalMessage = e.Message,
-                    FriendlyMessage =
-                        "The request couldn't be properly fulfilled."
-                        + "\rPlease report the following:"
-                        + $"\rCorrelationId: {FulcrumApplication.Context.CorrelationId}",
-                    InstanceId = Guid.NewGuid().ToString(),
-                    Type = e.GetType().FullName
-                };
-                Log.LogWarning($"Converted an exception that was not an {typeof(FulcrumException).Name} exception, the result was the following {typeof(FulcrumError).Name}: {fulcrumError.ToLogString()}");
-                return fulcrumError;
-            }
-
-            var error = new FulcrumError();
-            error.CopyFrom(fulcrumException);
-            error.InnerError = ToFulcrumError(fulcrumException.InnerException, true);
-            return error;
-        }
-
-        /// <summary>
         /// Transform a <see cref="FulcrumException"/> (<paramref name="source"/>) into a new <see cref="FulcrumException"/>.
         /// </summary>
         /// <param name="source">The exception to transform.</param>
         /// <param name="serverTechnicalName">The server that the </param>
         /// <returns>The same <paramref name="source"/> unless it was an exception that needs to be transformed; then a new exception is returned.</returns>
         /// <remarks>If <paramref name="source"/> had a null ServerTechnicalName it will be set to <paramref name="serverTechnicalName"/> as a side effect.</remarks>
+        [Obsolete("Not used anymore.", true)]
         public static FulcrumException FromServiceToBll(FulcrumException source, string serverTechnicalName = null)
         {
             if (source == null) return null;

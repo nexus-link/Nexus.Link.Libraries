@@ -17,9 +17,9 @@ namespace Nexus.Link.Libraries.Web.AspNet.Pipe.Inbound
     /// <summary>
     /// Logs requests and responses in the pipe
     /// </summary>
-    public class ExceptionToResponse : CompatibilityDelegatingHandler
+    public class ExceptionToFulcrumResponse : CompatibilityDelegatingHandler
     {
-        private static readonly DelegateState DelegateState = new DelegateState(typeof(ExceptionToResponse).FullName);
+        private static readonly DelegateState DelegateState = new DelegateState(typeof(ExceptionToFulcrumResponse).FullName);
 
         /// <summary>
         /// True if this delegate has started in the current context
@@ -32,12 +32,12 @@ namespace Nexus.Link.Libraries.Web.AspNet.Pipe.Inbound
 
 #if NETCOREAPP
         /// <inheritdoc />
-        public ExceptionToResponse(RequestDelegate next)
+        public ExceptionToFulcrumResponse(RequestDelegate next)
             : base(next)
         {
         }
 #else
-        public ExceptionToResponse()
+        public ExceptionToFulcrumResponse()
         {
         }
 #endif
@@ -84,12 +84,12 @@ namespace Nexus.Link.Libraries.Web.AspNet.Pipe.Inbound
         }
     }
 #if NETCOREAPP
-    public static class ExceptionToResponseExtension
+    public static class ExceptionToFulcrumResponseExtension
     {
-        public static IApplicationBuilder UseNexusExceptionToResponse(
+        public static IApplicationBuilder UseNexusExceptionToFulcrumResponse(
             this IApplicationBuilder builder)
         {
-            return builder.UseMiddleware<ExceptionToResponse>();
+            return builder.UseMiddleware<ExceptionToFulcrumResponse>();
         }
     }
 #endif
