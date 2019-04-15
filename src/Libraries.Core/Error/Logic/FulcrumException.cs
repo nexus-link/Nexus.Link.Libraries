@@ -55,6 +55,9 @@ namespace Nexus.Link.Libraries.Core.Error.Logic
         public string InstanceId { get; private set; }
 
         /// <inheritdoc />
+        public string ParentInstanceId { get; private set; }
+
+        /// <inheritdoc />
         public string ErrorLocation { get; set; }
 
         /// <inheritdoc />
@@ -82,34 +85,28 @@ namespace Nexus.Link.Libraries.Core.Error.Logic
         protected FulcrumException(string message, Exception innerException) : base(message, innerException)
         {
             TechnicalMessage = message;
-            if (!(innerException is FulcrumException error))
-            {
-                InstanceId = Guid.NewGuid().ToString();
-                CorrelationId = FulcrumApplication.Context.CorrelationId;
-                return;
-            }
-
-            FriendlyMessage = error.FriendlyMessage;
-            MoreInfoUrl = error.MoreInfoUrl;
-            RecommendedWaitTimeInSeconds = error.RecommendedWaitTimeInSeconds;
-            InstanceId = error.InstanceId;
-            CorrelationId = error.CorrelationId ?? FulcrumApplication.Context.CorrelationId;
+            InstanceId = Guid.NewGuid().ToString();
+            CorrelationId = FulcrumApplication.Context.CorrelationId;
             ServerTechnicalName = _serverTechnicalName;
+            if (!(innerException is IFulcrumError innerError)) return;
+            
+            RecommendedWaitTimeInSeconds = innerError.RecommendedWaitTimeInSeconds;
+            InstanceId = innerError.ParentInstanceId;
         }
 
         /// <inheritdoc />
         public IFulcrumError CopyFrom(IFulcrumError fulcrumError)
         {
-            TechnicalMessage = fulcrumError.TechnicalMessage;
-            FriendlyMessage = fulcrumError.FriendlyMessage;
-            MoreInfoUrl = fulcrumError.MoreInfoUrl;
+            TechnicalMessage = TechnicalMessage ?? fulcrumError.TechnicalMessage;
             IsRetryMeaningful = fulcrumError.IsRetryMeaningful;
             RecommendedWaitTimeInSeconds = fulcrumError.RecommendedWaitTimeInSeconds;
+            ParentInstanceId = fulcrumError.InstanceId;
+            if (fulcrumError.Type != Type) return this;
+
             ServerTechnicalName = fulcrumError.ServerTechnicalName;
-            InstanceId = fulcrumError.InstanceId;
-            Code = fulcrumError.Code;
-            Type = fulcrumError.Type;
-            CorrelationId = fulcrumError.CorrelationId;
+            FriendlyMessage = fulcrumError.FriendlyMessage;
+            MoreInfoUrl = fulcrumError.MoreInfoUrl ?? MoreInfoUrl;
+            Code = fulcrumError.Code ?? Code;
             return this;
         }
 
@@ -146,6 +143,12 @@ namespace Nexus.Link.Libraries.Core.Error.Logic
                     .ToArray();
                 return strings != null ? string.Concat(strings) : "";
             }
+        }
+
+        /// <inheritdoc />
+        public override string ToString()
+        {
+            return $"{GetType().Name} {TechnicalMessage}";
         }
 
         /// <inheritdoc />

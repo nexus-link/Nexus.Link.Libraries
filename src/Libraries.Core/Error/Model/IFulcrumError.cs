@@ -67,6 +67,11 @@ namespace Nexus.Link.Libraries.Core.Error.Model
         string InstanceId { get; }
 
         /// <summary>
+        /// If the error originated from another error, this is the InstanceId of that parent. A simple form of "InnerError".
+        /// </summary>
+        string ParentInstanceId { get; }
+
+        /// <summary>
         /// An optional hint on where this error occurred in the code. The recommendation is to use the name of the DLL file combined with a fixed GUID for the specific location within the DLL.
         /// </summary>
         string ErrorLocation { get; }

@@ -74,6 +74,19 @@ namespace Nexus.Link.Libraries.Web.AspNet.Tests
         }
 
         [TestMethod]
+        public void RemovePort()
+        {
+            var urlHelper = CreateUrlHelper("http://example.com:80");
+            var uri = new Uri(urlHelper.LinkWithEnforcedHttps(RouteName, new { id = "33" }));
+
+            Assert.IsTrue(uri.Scheme == Uri.UriSchemeHttps);
+            Assert.IsFalse(uri.IsLoopback);
+            Assert.IsTrue(uri.PathAndQuery.EndsWith("/33"));
+            Assert.AreEqual(443, uri.Port);
+            Assert.IsFalse(uri.PathAndQuery.Contains(":80"));
+        }
+
+        [TestMethod]
         public void NoModificationOnLocalHost1()
         {
             var urlHelper = CreateUrlHelper("http://localhost");

@@ -35,6 +35,9 @@ namespace Nexus.Link.Libraries.Core.Error.Model
         public string InstanceId { get; set; }
 
         /// <inheritdoc />
+        public string ParentInstanceId { get; set; }
+
+        /// <inheritdoc />
         public string ErrorLocation { get; set; }
 
         /// <inheritdoc />
@@ -61,6 +64,7 @@ namespace Nexus.Link.Libraries.Core.Error.Model
             RecommendedWaitTimeInSeconds = fulcrumError.RecommendedWaitTimeInSeconds;
             ServerTechnicalName = fulcrumError.ServerTechnicalName;
             InstanceId = fulcrumError.InstanceId;
+            ParentInstanceId = fulcrumError.ParentInstanceId;
             Code = fulcrumError.Code;
             ErrorLocation = fulcrumError.ErrorLocation;
             Type = fulcrumError.Type;
