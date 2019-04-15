@@ -64,7 +64,7 @@ namespace Nexus.Link.Libraries.Web.AspNet.Pipe.Inbound
             var response = AspNetExceptionConverter.ToHttpResponseMessage(exception);
 #endif
             Log.LogInformation(
-                $"Exception ({exception.Message}) was converted to an HTTP response ({response.StatusCode}).");
+                $"Exception ({exception.GetType().Name} {exception.Message}) was converted to an HTTP response ({response.StatusCode}).");
 #if NETCOREAPP
             if (response.StatusCode.Value >= 500)
             {
