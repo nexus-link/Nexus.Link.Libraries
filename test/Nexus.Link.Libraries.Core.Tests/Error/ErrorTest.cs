@@ -1,5 +1,6 @@
 ﻿using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Nexus.Link.Libraries.Core.Application;
 using Nexus.Link.Libraries.Core.Error.Logic;
 using Nexus.Link.Libraries.Core.Error.Model;
 using UT = Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -168,7 +169,7 @@ namespace Nexus.Link.Libraries.Core.Tests.Error
 
             // Other tests
             UT.Assert.IsNull(copy.InnerException);
-            UT.Assert.IsNull(copy.CorrelationId);
+            UT.Assert.AreEqual(FulcrumApplication.Context.CorrelationId, copy.CorrelationId);
             UT.Assert.IsNull(copy.ErrorLocation);
         }
     }

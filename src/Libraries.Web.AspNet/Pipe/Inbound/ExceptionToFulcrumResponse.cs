@@ -66,18 +66,10 @@ namespace Nexus.Link.Libraries.Web.AspNet.Pipe.Inbound
             Log.LogInformation(
                 $"Exception ({exception.GetType().Name} {exception.Message}) was converted to an HTTP response ({response.StatusCode}).");
 #if NETCOREAPP
-            if (response.StatusCode.Value >= 500)
-            {
-                Log.LogError($"The request could not be completed (status code {response.StatusCode.Value})");
-            }
             context.Context.Response.StatusCode = response.StatusCode.Value;
             context.Context.Response.ContentType = response.ContentType;
             await context.Context.Response.WriteAsync(response.Content);
 #else
-            if ((int)response.StatusCode >= 500)
-            {
-                Log.LogError($"The request could not be completed ({(int)response.StatusCode} {response.StatusCode})");
-            }
             context.ResponseMessage = response;
             await Task.CompletedTask;
 #endif

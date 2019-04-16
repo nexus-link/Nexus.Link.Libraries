@@ -65,14 +65,19 @@ namespace Nexus.Link.Libraries.Web.AspNet.Pipe.Inbound
 
         private static void LogResponse(CompabilityInvocationContext context, TimeSpan elapsedTime)
         {
+            var logLevel = LogSeverityLevel.Information;
 #if NETCOREAPP
             var request = context.Context.Request;
             var response = context.Context.Response;
+            if (response.StatusCode >= 500) logLevel = LogSeverityLevel.Error;
+            else if (response.StatusCode >= 400) logLevel = LogSeverityLevel.Warning;
 #else
             var request = context.RequestMessage;
             var response = context.ResponseMessage;
+            if ((int)response.StatusCode >= 500) logLevel = LogSeverityLevel.Error;
+            else if ((int)response.StatusCode >= 400) logLevel = LogSeverityLevel.Warning;
 #endif
-            Log.LogInformation($"INBOUND request-response {request.ToLogString(response, elapsedTime)}");
+            Log.LogOnLevel(logLevel, $"INBOUND request-response {request.ToLogString(response, elapsedTime)}");
         }
 
         private static void LogException(CompabilityInvocationContext context, Exception exception, TimeSpan elapsedTime)
