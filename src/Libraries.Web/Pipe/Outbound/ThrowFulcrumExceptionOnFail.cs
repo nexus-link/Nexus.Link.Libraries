@@ -33,13 +33,14 @@ namespace Nexus.Link.Libraries.Web.Pipe.Outbound
         public SendAsyncDelegate UnitTest_SendAsyncDependencyInjection { get; set; }
 
         /// <inheritdoc />
-        protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
+        protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request,
+            CancellationToken cancellationToken)
         {
-            string requestDescription = $"OUT request {request.ToLogString()}";
-            string fulcrumExceptionMessage = $"{requestDescription} resulted in a {nameof(FulcrumException)}";
+            var requestDescription = $"OUT request {request.ToLogString()}";
+            HttpResponseMessage response;
+            FulcrumException fulcrumException;
             try
             {
-                HttpResponseMessage response;
                 if (UnitTest_SendAsyncDependencyInjection == null || !FulcrumApplication.IsInDevelopment)
                 {
                     response = await base.SendAsync(request, cancellationToken);
@@ -50,16 +51,14 @@ namespace Nexus.Link.Libraries.Web.Pipe.Outbound
                     response = await UnitTest_SendAsyncDependencyInjection(request, cancellationToken);
                 }
 
-                requestDescription = $"OUT request-response {response.ToLogString()}";
+                requestDescription = $"OUT request-response {request.ToLogString(response)}";
 
-                var fulcrumException = await ExceptionConverter.ToFulcrumExceptionAsync(response);
+                fulcrumException = await ExceptionConverter.ToFulcrumExceptionAsync(response);
                 if (fulcrumException == null) return response;
-                fulcrumExceptionMessage = $"{requestDescription} was converted to a FulcrumException ({fulcrumException})";
-                throw fulcrumException;
             }
-            catch (FulcrumException fulcrumException)
+            catch (FulcrumException e)
             {
-                Log.LogError($"{fulcrumExceptionMessage} {fulcrumException}", fulcrumException);
+                Log.LogError($"{requestDescription} threw the exception {e.GetType().Name}: {e.TechnicalMessage}", e);
                 throw;
             }
             catch (TaskCanceledException e)
@@ -71,10 +70,15 @@ namespace Nexus.Link.Libraries.Web.Pipe.Outbound
             catch (Exception e)
             {
                 // If we end up here, we probably need to add another catch statement for that exception type.
-                var message = $"{requestDescription} failed with an exception of type {e.GetType().FullName}. Please report that the outbound pipe handler {nameof(ThrowFulcrumExceptionOnFail)} should catch this exception type explicitly.";
+                var message =
+                    $"{requestDescription} failed with an exception of type {e.GetType().FullName}. Please report that the outbound pipe handler {nameof(ThrowFulcrumExceptionOnFail)} should catch this exception type explicitly.";
                 Log.LogError(message, e);
                 throw new FulcrumAssertionFailedException(message, e);
             }
+
+            var severityLevel = (int) response.StatusCode > 500 ? LogSeverityLevel.Warning : LogSeverityLevel.Error;
+            Log.LogOnLevel(severityLevel, $"{requestDescription} was converted to (and threw) the exception {fulcrumException.GetType().Name}: {fulcrumException.TechnicalMessage}", fulcrumException);
+            throw fulcrumException;
         }
     }
 }
