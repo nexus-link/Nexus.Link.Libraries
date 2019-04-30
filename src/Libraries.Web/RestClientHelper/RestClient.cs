@@ -365,9 +365,7 @@ namespace Nexus.Link.Libraries.Web.RestClientHelper
                 if (responseContent == null) return result;
                 try
                 {
-                    result.Body =
-                        Microsoft.Rest.Serialization.SafeJsonConvert.DeserializeObject<TResponse>(responseContent,
-                            DeserializationSettings);
+                    result.Body = JsonConvert.DeserializeObject<TResponse>(responseContent, DeserializationSettings);
                 }
                 catch (Exception e)
                 {
@@ -420,8 +418,7 @@ namespace Nexus.Link.Libraries.Web.RestClientHelper
 
             if (instance != null)
             {
-                var requestContent =
-                    Microsoft.Rest.Serialization.SafeJsonConvert.SerializeObject(instance, SerializationSettings);
+                var requestContent = JsonConvert.SerializeObject(instance, SerializationSettings);
                 request.Content = new StringContent(requestContent, System.Text.Encoding.UTF8);
                 request.Content.Headers.ContentType =
                     System.Net.Http.Headers.MediaTypeHeaderValue.Parse("application/json; charset=utf-8");
