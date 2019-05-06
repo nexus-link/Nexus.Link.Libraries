@@ -16,6 +16,7 @@ namespace Nexus.Link.Libraries.Core.Tests.Logging
     public class TestQueueToAsyncLogger
     {
         private LogRecord _loggedRecord;
+        private string _loggedCorrelationId;
         private QueueToAsyncLogger _queueLogger;
         private int _callsToFallback;
 
@@ -36,9 +37,13 @@ namespace Nexus.Link.Libraries.Core.Tests.Logging
             var asyncLoggerMock = new Mock<IAsyncLogger>();
             asyncLoggerMock
                 .Setup(logger => logger.LogAsync(It.IsAny<LogRecord>()))
-                .Callback((LogRecord logRecord) => { _loggedRecord = logRecord; })
+                .Callback((LogRecord logRecord) => {
+                    _loggedRecord = logRecord;
+                    _loggedCorrelationId = FulcrumApplication.Context.CorrelationId;
+                })
                 .Returns(Task.CompletedTask);
             _queueLogger = new QueueToAsyncLogger(asyncLoggerMock.Object);
+            _queueLogger.KeepQueueAliveTimeSpan = TimeSpan.Zero;
         }
 
         [TestMethod]
@@ -56,6 +61,23 @@ namespace Nexus.Link.Libraries.Core.Tests.Logging
             _queueLogger.LogSync(expectedLogRecord);
             while (_queueLogger.OnlyForUnitTest_HasBackgroundWorkerForLogging) Thread.Sleep(10);
             UT.Assert.AreEqual(expectedLogRecord, _loggedRecord);
+            UT.Assert.AreEqual(0, _callsToFallback);
+        }
+
+        [TestMethod]
+        public void CorrelationIdIsPreserved()
+        {
+            var expectedLogRecord = new LogRecord()
+            {
+                Message = Guid.NewGuid().ToString(),
+                SeverityLevel = LogSeverityLevel.Error,
+                TimeStamp = DateTimeOffset.Now
+            };
+            var expectedCorrelationId1 = Guid.NewGuid().ToString();
+            FulcrumApplication.Context.CorrelationId = expectedCorrelationId1;
+            _queueLogger.LogSync(expectedLogRecord);
+            while (_queueLogger.OnlyForUnitTest_HasBackgroundWorkerForLogging) Thread.Sleep(10);
+            UT.Assert.AreEqual(expectedCorrelationId1, _loggedCorrelationId);
             UT.Assert.AreEqual(0, _callsToFallback);
         }
 

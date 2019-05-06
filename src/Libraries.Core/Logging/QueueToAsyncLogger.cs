@@ -24,6 +24,12 @@ namespace Nexus.Link.Libraries.Core.Logging
         private readonly IAsyncLogger _asyncLogger;
         private readonly MemoryQueue<LogQueueEnvelope> _queue;
 
+        public TimeSpan KeepQueueAliveTimeSpan
+        {
+            get => _queue.KeepQueueAliveTimeSpan;
+            set => _queue.KeepQueueAliveTimeSpan = value;
+        }
+
         public QueueToAsyncLogger(IAsyncLogger asyncLogger)
         {
             _asyncLogger = asyncLogger;
