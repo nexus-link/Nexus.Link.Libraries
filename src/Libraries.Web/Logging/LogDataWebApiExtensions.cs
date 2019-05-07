@@ -21,18 +21,19 @@ namespace Nexus.Link.Libraries.Web.Logging
         {
             var data = new HttpRequestData
             {
-                Method = request.Method.ToString(),
-                Path = request.RequestUri.PathAndQuery,
-                Route = route ?? request.RequestUri.AbsolutePath
+                Method = request?.Method.ToString(),
+                Path = request?.RequestUri.PathAndQuery,
+                Route = route ?? request?.RequestUri.AbsolutePath
             };
             if (FulcrumApplication.IsInProductionOrProductionSimulation) return data;
-            data.Headers = ToLogData(request.Headers);
-            data.Body = await ToLogDataAsync(request.Content);
+            data.Headers = ToLogData(request?.Headers);
+            data.Body = await ToLogDataAsync(request?.Content);
             return data;
         }
 
         private static Dictionary<string, string[]> ToLogData(HttpHeaders headers)
         {
+            if (headers == null) return null;
             var data = new Dictionary<string, string[]>();
             foreach (var header in headers)
             {
@@ -44,6 +45,7 @@ namespace Nexus.Link.Libraries.Web.Logging
 
         private static async Task<string> ToLogDataAsync(HttpContent content)
         {
+            if (content == null) return null;
             await content.LoadIntoBufferAsync();
             return await content.ReadAsStringAsync();
         }
@@ -55,12 +57,12 @@ namespace Nexus.Link.Libraries.Web.Logging
         {
             var data = new HttpResponseData
             {
-                StatusCode = (int)response.StatusCode,
+                StatusCode = response == null ? 0 : (int)response.StatusCode,
                 ElapsedSeconds = elapsedSeconds
             };
             if (FulcrumApplication.IsInProductionOrProductionSimulation) return data;
-            data.Headers = ToLogData(response.Headers);
-            data.Body = await ToLogDataAsync(response.Content);
+            data.Headers = ToLogData(response?.Headers);
+            data.Body = await ToLogDataAsync(response?.Content);
             return data;
         }
 

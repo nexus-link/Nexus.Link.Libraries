@@ -32,8 +32,8 @@ namespace Nexus.Link.Libraries.Web.Pipe
         public SendAsyncDelegate UnitTest_SendAsyncDependencyInjection { get; set; }
 
         /// <summary></summary>
-        /// <param name="direction">Typically INBOUND or OUTBUND</param>
-        public LogRequestAndResponse(string direction)
+        /// <param name="direction">Typically INBOUND or OUTBOUND</param>
+        protected LogRequestAndResponse(string direction)
         {
             _direction = direction;
             FulcrumApplication.Validate();
@@ -58,27 +58,30 @@ namespace Nexus.Link.Libraries.Web.Pipe
                     response = await UnitTest_SendAsyncDependencyInjection(request, cancellationToken);
                 }
                 timer.Stop();
-                LogResponse(request, response, timer.Elapsed);
+                await LogResponseAsync(request, response, timer.Elapsed);
                 return response;
             }
             catch (Exception e)
             {
                 timer.Stop();
-                LogException(request, e, timer.Elapsed);
+                await LogException(request, e, timer.Elapsed);
                 throw;
             }
         }
 
-        private void LogResponse(HttpRequestMessage request, HttpResponseMessage response, TimeSpan elapsedTime)
+        private async Task LogResponseAsync(HttpRequestMessage request, HttpResponseMessage response,
+            TimeSpan elapsedTime)
         {
             if (request == null) return;
             var level = response.IsSuccessStatusCode ? LogSeverityLevel.Information : LogSeverityLevel.Warning;
-            Log.LogOnLevel(level, $"{_direction} request-response {request.ToLogString(response, elapsedTime)}");
+            Log.LogOnLevel(level, $"{_direction} request-response {request.ToLogString(response, elapsedTime)}",
+                await request.ToLogDataAsync(response, null, elapsedTime.TotalSeconds));
         }
 
-        private void LogException(HttpRequestMessage request, Exception exception, TimeSpan elapsedTime)
+        private async Task LogException(HttpRequestMessage request, Exception exception, TimeSpan elapsedTime)
         {
-            Log.LogError($"{_direction} request-exception {request.ToLogString(elapsedTime)} | {exception.Message}", exception);
+            Log.LogError($"{_direction} request-exception {request.ToLogString(elapsedTime)} | {exception.Message}", 
+                await request.ToLogDataAsync(null, null, elapsedTime.TotalSeconds), exception);
         }
     }
 }
