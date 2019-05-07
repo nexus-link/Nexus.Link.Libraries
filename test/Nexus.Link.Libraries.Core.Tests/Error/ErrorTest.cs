@@ -1,5 +1,6 @@
 ﻿using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Nexus.Link.Libraries.Core.Application;
 using Nexus.Link.Libraries.Core.Error.Logic;
 using Nexus.Link.Libraries.Core.Error.Model;
 using UT = Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -134,6 +135,42 @@ namespace Nexus.Link.Libraries.Core.Tests.Error
 
             // Other tests
             UT.Assert.IsNull(fulcrumException.InnerException);
+        }
+
+        [TestMethod]
+        public void ExceptionToErrorAndBack()
+        {
+            var fulcrumException = new FulcrumConflictException(Guid.NewGuid().ToString())
+            {
+                TechnicalMessage = Guid.NewGuid().ToString(),
+                FriendlyMessage = Guid.NewGuid().ToString(),
+                CorrelationId = Guid.NewGuid().ToString(),
+                Code = Guid.NewGuid().ToString(),
+                ErrorLocation = Guid.NewGuid().ToString(),
+                MoreInfoUrl = Guid.NewGuid().ToString(),
+                RecommendedWaitTimeInSeconds = 100.0,
+                ServerTechnicalName = Guid.NewGuid().ToString()
+            };
+            var fulcrumError = new FulcrumError();
+            fulcrumError.CopyFrom(fulcrumException);
+            var copy = new FulcrumConflictException(fulcrumError.TechnicalMessage);
+            copy.CopyFrom(fulcrumError);
+
+            // Equal
+            UT.Assert.AreEqual(fulcrumError.Code, copy.Code);
+            UT.Assert.AreEqual(fulcrumError.RecommendedWaitTimeInSeconds, copy.RecommendedWaitTimeInSeconds);
+            UT.Assert.AreEqual(fulcrumError.ServerTechnicalName, copy.ServerTechnicalName);
+            UT.Assert.AreEqual(fulcrumError.FriendlyMessage, copy.FriendlyMessage);
+            UT.Assert.AreEqual(fulcrumError.Type, copy.Type);
+            UT.Assert.AreEqual(fulcrumError.MoreInfoUrl, copy.MoreInfoUrl);
+            UT.Assert.AreEqual(fulcrumError.ServerTechnicalName, copy.ServerTechnicalName);
+            UT.Assert.AreEqual(fulcrumError.InstanceId, copy.ParentInstanceId);
+            UT.Assert.AreEqual(fulcrumError.IsRetryMeaningful, copy.IsRetryMeaningful);
+
+            // Other tests
+            UT.Assert.IsNull(copy.InnerException);
+            UT.Assert.AreEqual(FulcrumApplication.Context.CorrelationId, copy.CorrelationId);
+            UT.Assert.IsNull(copy.ErrorLocation);
         }
     }
 }

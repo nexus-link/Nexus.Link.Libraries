@@ -56,6 +56,8 @@ namespace Nexus.Link.Libraries.Core.Queue.Logic
         private readonly QueueItemActionDelegate _queueItemAction;
         private Thread _backgroundWorkerThread;
 
+        public TimeSpan KeepQueueAliveTimeSpan { get; set; }
+
         /// <summary>
         ///     Constructor
         /// </summary>
@@ -68,6 +70,7 @@ namespace Nexus.Link.Libraries.Core.Queue.Logic
         /// </summary>
         public MemoryQueue(string name, QueueItemActionDelegate queueItemAction) : this(name, queueItemAction, false)
         {
+            KeepQueueAliveTimeSpan = TimeSpan.FromSeconds(1);
         }
 
         /// <summary>
@@ -175,7 +178,7 @@ namespace Nexus.Link.Libraries.Core.Queue.Logic
 
                 // As it is somewhat expensive to start a new background worker, we will hang around 
                 // for a short while to see if new items appear on the queue.
-                await WaitForAdditionalItemsAsync(TimeSpan.FromMilliseconds(1000));
+                await WaitForAdditionalItemsAsync(KeepQueueAliveTimeSpan);
             }
             LatestItemFetchedAfterActiveTimeSpan = TimeSpan.Zero;
         }
@@ -212,17 +215,44 @@ namespace Nexus.Link.Libraries.Core.Queue.Logic
         private async Task CallCallbackUntilQueueIsEmptyWithCollectionAwaitAsync()
         {
             FulcrumAssert.IsTrue(_actionsCanExecuteWithoutIndividualAwait);
-            var taskList = new List<Task>();
+            var previousTaskList = new List<Task>();
+            var currentTaskList = new List<Task>();
+            var currentTasksCount = 0;
             while (!_queue.IsEmpty)
             {
-                var message = await GetOneMessageWithPossibleDelayAsync();
-                if (Equals(message, default(T))) continue;
+                var message = await GetOneMessageNoBlockAsync();
+                if (Equals(message, default(T)))
+                {
+                    if (_queue.IsEmpty) break;
+                    // We have items in the queue that are waiting for the correct time, so wait a second
+                    currentTaskList.Add(Task.Delay(TimeSpan.FromMilliseconds(1000)));
+                    await AwaitAllFailSafeAsync(previousTaskList);
+                    await AwaitAllFailSafeAsync(currentTaskList);
+                    continue;
+                }
                 var messageIfException = $"QueueItemAction failed fore queue {Name} and item {message}.";
                 var task = ThreadHelper.ExecuteActionFailSafeAsync(async () => await _queueItemAction(message),
                     messageIfException);
-                taskList.Add(task);
+                currentTaskList.Add(task);
+                currentTasksCount++;
+                if (currentTasksCount < 10000) continue;
+                // If we have a VERY long queue, there is a risk that the task list will grow for ever.
+                // The strategy to solve this is to have two task lists. When the task list has reached its max, we will archive it.
+                // The next time that the task list has reached its max, we will await the archived tasks. The plan
+                // here is that the archived tasks should now have completed (when we have been filling the current task list),
+                // so awaiting them will not make the execution pause.
+                await AwaitAllFailSafeAsync(previousTaskList);
+                previousTaskList = currentTaskList;
+                currentTaskList = new List<Task>();
+                currentTasksCount = 0;
             }
 
+            await AwaitAllFailSafeAsync(previousTaskList);
+            await AwaitAllFailSafeAsync(currentTaskList);
+        }
+
+        private static async Task AwaitAllFailSafeAsync(ICollection<Task> taskList)
+        {
             try
             {
                 await Task.WhenAll(taskList);
@@ -233,6 +263,10 @@ namespace Nexus.Link.Libraries.Core.Queue.Logic
                     LogSeverityLevel.Error,
                     $"This part of the code should be fail safe, but we still got an exception.",
                     e);
+            }
+            finally
+            {
+                taskList.Clear();
             }
         }
 

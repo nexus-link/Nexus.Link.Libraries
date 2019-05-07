@@ -27,6 +27,8 @@
     <IncludeSymbols>true</IncludeSymbols>
     <PackageReleaseNotes>
       1.9.0 Support refactored Authentication
+      1.8.8 Better formatting of logs for outbound pipe.
+      1.8.7 The errors FulcrumForbiddenAccess and FulcrumUnauthorized now converts to the corresponding FulcrumExceptions
       1.8.6 The errors FulcrumForbiddenAccess and FulcrumUnauthorized now converts to the corresponding FulcrumExceptions
       1.8.5 BUG: ThrowFulcrumExceptionOnFail failed for successful messages
       1.8.4 Refactored field copy strategy for FulcrumError to FulcrumException

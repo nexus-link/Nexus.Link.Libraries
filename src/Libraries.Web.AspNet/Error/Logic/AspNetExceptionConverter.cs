@@ -6,6 +6,7 @@ using Microsoft.Rest;
 using Newtonsoft.Json;
 using Nexus.Link.Libraries.Core.Assert;
 using Nexus.Link.Libraries.Core.Error.Logic;
+using Nexus.Link.Libraries.Core.Logging;
 using Nexus.Link.Libraries.Web.Error.Logic;
 #if NETCOREAPP
 using Microsoft.AspNetCore.Mvc;
@@ -57,39 +58,24 @@ namespace Nexus.Link.Libraries.Web.AspNet.Error.Logic
 
         private static StatusAndContent ToStatusAndContent(Exception e)
         {
-            var error = ExceptionConverter.ToFulcrumError(e);
-            if (error == null)
+            if (e is FulcrumException fulcrumException)
             {
-                var message = $"The exception {e.GetType().FullName} ({e.Message}) was not recognized as a Fulcrum Exception.";
-                if (e is HttpOperationException httpOperationException && httpOperationException.Request != null)
+                var error = ExceptionConverter.ToFulcrumError(fulcrumException);
+                var statusCode = ExceptionConverter.ToHttpStatusCode(error);
+                FulcrumAssert.IsNotNull(statusCode);
+                var content = ExceptionConverter.ToJsonString(error, Formatting.Indented);
+                return new StatusAndContent
                 {
-                    message = $"Request {httpOperationException.Request.RequestUri.AbsoluteUri} failed. {message}";
-                }
-
-                e = new FulcrumAssertionFailedException(message, e);
-                error = ExceptionConverter.ToFulcrumError(e);
-                if (error == null) return FatalErrorAsActionResult(e);
+                    // ReSharper disable once PossibleInvalidOperationException
+                    StatusCode = statusCode.Value,
+                    Content = content
+                };
             }
 
-            var statusCode = ExceptionConverter.ToHttpStatusCode(error);
-            if (statusCode == null)
-            {
-                var message =
-                    $"The Type of the following error could not be converted to an HTTP status code: {ExceptionConverter.ToJsonString(error, Formatting.Indented)}.";
-                e = new FulcrumAssertionFailedException(message, e);
-                error = ExceptionConverter.ToFulcrumError(e);
-                if (error == null) return FatalErrorAsActionResult(e);
-
-                statusCode = ExceptionConverter.ToHttpStatusCode(error);
-                if (statusCode == null) return FatalErrorAsActionResult(e);
-            }
-
-            var content = ExceptionConverter.ToJsonString(error, Formatting.Indented);
-            return new StatusAndContent
-            {
-                StatusCode = statusCode.Value,
-                Content = content
-            };
+            var errorMessage = $"When converting an exception into an HTTP response, the exception ({e.GetType().FullName}) must inherit from {nameof(FulcrumException)}.";
+            Log.LogError(errorMessage, e);
+            fulcrumException = new FulcrumContractException(errorMessage, e);
+            return ToStatusAndContent(fulcrumException);
         }
 
         private static StatusAndContent FatalErrorAsActionResult(Exception e)

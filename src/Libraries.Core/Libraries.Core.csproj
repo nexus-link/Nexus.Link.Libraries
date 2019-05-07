@@ -43,6 +43,8 @@
     <IncludeSymbols>true</IncludeSymbols>
     <PackageReleaseNotes>
       4.0.0 Support refactored Authentication
+      3.6.3 Optimized memory queue task handling.
+      3.6.2 Added IFulcrumError.ParentInstanceId
       3.6.1 Added IFulcrumError.ParentInstanceId
       3.5.0 Added FulcrumResourceException
       3.4.5 BUG: StackTrace was used in obsolete situations when logging

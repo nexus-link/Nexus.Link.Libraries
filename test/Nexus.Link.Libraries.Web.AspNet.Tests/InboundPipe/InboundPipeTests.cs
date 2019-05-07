@@ -12,15 +12,15 @@ using Nexus.Link.Libraries.Core.MultiTenant.Model;
 using Nexus.Link.Libraries.Core.Platform.Configurations;
 using Nexus.Link.Libraries.Web.AspNet.Pipe.Inbound;
 #if NETCOREAPP
-using System.IO;
-using System.Text.RegularExpressions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Internal;
+using System.IO;
+using System.Text.RegularExpressions;
 #else
 using System.Net.Http;
 #endif
 
-namespace Nexus.Link.Libraries.Web.AspNet.Tests
+namespace Nexus.Link.Libraries.Web.AspNet.Tests.InboundPipe
 {
     [TestClass]
     public class InboundPipeTests
@@ -505,7 +505,7 @@ namespace Nexus.Link.Libraries.Web.AspNet.Tests
         }
 
         /// <summary>
-        /// LogRequestAndResponse must not come before BatchLogs in the pipe
+        /// SaveCorrelationId must not come before SaveClientTenantConfiguration in the pipe
         /// </summary>
         [TestMethod]
         public async Task SaveCorrelationIdMustNotBeBeforeSaveClientTenantConfiguration()

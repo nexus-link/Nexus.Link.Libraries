@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
 using System.Threading.Tasks;
+using Nexus.Link.Libraries.Core.Assert;
 using Nexus.Link.Libraries.Core.Logging;
 
 #if NETCOREAPP
@@ -42,6 +43,8 @@ namespace Nexus.Link.Libraries.Web.AspNet.Pipe.Inbound
 #endif
         protected override async Task InvokeAsync(CompabilityInvocationContext context)
         {
+            InternalContract.Require(!ExceptionToFulcrumResponse.HasStarted,
+                $"{nameof(ExceptionToFulcrumResponse)} must not precede {nameof(LogRequestAndResponse)}");
             DelegateState.HasStarted = true;
             var stopWatch = new Stopwatch();
             stopWatch.Start();
@@ -53,6 +56,7 @@ namespace Nexus.Link.Libraries.Web.AspNet.Pipe.Inbound
             }
             catch (Exception exception)
             {
+                // If ExceptionToFulcrumResponse handler is used, we should not end up here.
                 stopWatch.Stop();
                 LogException(context, exception, stopWatch.Elapsed);
                 throw;
@@ -61,14 +65,19 @@ namespace Nexus.Link.Libraries.Web.AspNet.Pipe.Inbound
 
         private static void LogResponse(CompabilityInvocationContext context, TimeSpan elapsedTime)
         {
+            var logLevel = LogSeverityLevel.Information;
 #if NETCOREAPP
             var request = context.Context.Request;
             var response = context.Context.Response;
+            if (response.StatusCode >= 500) logLevel = LogSeverityLevel.Error;
+            else if (response.StatusCode >= 400) logLevel = LogSeverityLevel.Warning;
 #else
             var request = context.RequestMessage;
             var response = context.ResponseMessage;
+            if ((int)response.StatusCode >= 500) logLevel = LogSeverityLevel.Error;
+            else if ((int)response.StatusCode >= 400) logLevel = LogSeverityLevel.Warning;
 #endif
-            Log.LogInformation($"INBOUND request-response {request.ToLogString(response, elapsedTime)}");
+            Log.LogOnLevel(logLevel, $"INBOUND request-response {request.ToLogString(response, elapsedTime)}");
         }
 
         private static void LogException(CompabilityInvocationContext context, Exception exception, TimeSpan elapsedTime)

@@ -26,8 +26,9 @@ namespace Nexus.Link.Libraries.Core.Tests.Queue
         {
             var stopWatch = new Stopwatch();
             var queue = new MemoryQueue<string>(nameof(CanRunWithoutIndividualAwait), SlowItemAction, true);
+            queue.KeepQueueAliveTimeSpan = TimeSpan.Zero;
             stopWatch.Start();
-            for (var i = 0; i < 10000; i++)
+            for (var i = 0; i < 20000; i++)
             {
                 queue.AddMessage($"item {i}");
             }
