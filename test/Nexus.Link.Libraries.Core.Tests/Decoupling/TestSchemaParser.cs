@@ -23,6 +23,18 @@ namespace Nexus.Link.Libraries.Core.Tests.Decoupling
         }
 
         [TestMethod]
+        public void ParseAnonymous()
+        {
+            var schemaParser = new SchemaParser()
+                .Add(typeof(DataAnonymous));
+            var dataBefore = new DataAnonymous {Zero = Guid.NewGuid().ToString()};
+            var json = JsonConvert.SerializeObject(dataBefore);
+            var success = schemaParser.TryParse(json, out var dataAfter);
+            UT.Assert.IsTrue(success);
+            UT.Assert.AreEqual(dataBefore, dataAfter);
+        }
+
+        [TestMethod]
         public void ParseTypes()
         {
             var schemaParser = new SchemaParser()

@@ -73,7 +73,7 @@ namespace Nexus.Link.Libraries.Core.Decoupling
         /// <param name="json">The JSON string to convert.</param>
         /// <param name="obj">The converted object.</param>
         /// <returns>True if the conversion was successful.</returns>
-        public bool TryConvert(string json, out object obj)
+        public bool TryParse(string json, out object obj)
         {
             var isSuccess = TryParse(json, out _, out _, out var o);
             obj = o;
