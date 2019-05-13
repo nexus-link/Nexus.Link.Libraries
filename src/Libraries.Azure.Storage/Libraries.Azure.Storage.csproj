@@ -9,14 +9,13 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Libraries.Azure.Core\Libraries.Azure.Core.csproj" />
     <ProjectReference Include="..\Libraries.Core\Libraries.Core.csproj" />
     <ProjectReference Include="..\Libraries.Crud\Libraries.Crud.csproj" />
   </ItemGroup>
 
   <PropertyGroup>
     <PackageId>Nexus.Link.Libraries.Azure</PackageId>
-    <PackageVersion>1.0.6</PackageVersion>
+    <PackageVersion>1.0.7</PackageVersion>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <PackageTags>nexus;link;fulcrum;lever</PackageTags>
     <Authors>XLENT Link</Authors>
@@ -26,6 +25,7 @@
     <Copyright>Copyright ©2019 Xlent Link AB</Copyright>
     <IncludeSymbols>true</IncludeSymbols>
     <PackageReleaseNotes>
+      1.0.7 Move Nexus.Link.Libraries.Azure.Core.File to Nexus.Link.Libraries.Azure.Storage.File
       1.0.6 Bumped version. New solution and build pipeline.
       1.0.5 Updated dependencies
       1.0.0 Core lib with support for .net standard
