@@ -29,7 +29,7 @@ namespace Nexus.Link.Libraries.Web.AspNet.Logging
             var message = request.ToLogString();
             if (elapsedTime != default(TimeSpan))
             {
-                message += $" | {elapsedTime}";
+                message += $" | {elapsedTime.TotalSeconds:0.###} s";
             }
             return message;
         }
