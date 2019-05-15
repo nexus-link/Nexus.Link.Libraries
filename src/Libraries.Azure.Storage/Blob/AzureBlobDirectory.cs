@@ -1,11 +1,11 @@
-﻿using System;
+﻿using Microsoft.WindowsAzure.Storage.Blob;
+using Nexus.Link.Libraries.Azure.Storage.File;
+using Nexus.Link.Libraries.Core.Error.Logic;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.WindowsAzure.Storage.Blob;
-using Nexus.Link.Libraries.Azure.Core.File;
-using Nexus.Link.Libraries.Core.Error.Logic;
 
 namespace Nexus.Link.Libraries.Azure.Storage.Blob
 {

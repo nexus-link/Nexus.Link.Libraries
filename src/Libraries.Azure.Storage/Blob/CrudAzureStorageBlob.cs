@@ -1,15 +1,15 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
-using Newtonsoft.Json;
-using Nexus.Link.Libraries.Azure.Core.File;
+﻿using Newtonsoft.Json;
+using Nexus.Link.Libraries.Azure.Storage.File;
 using Nexus.Link.Libraries.Core.Assert;
 using Nexus.Link.Libraries.Core.Error.Logic;
 using Nexus.Link.Libraries.Core.Storage.Logic;
 using Nexus.Link.Libraries.Core.Storage.Model;
 using Nexus.Link.Libraries.Crud.Interfaces;
 using Nexus.Link.Libraries.Crud.Model;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace Nexus.Link.Libraries.Azure.Storage.Blob
 {
@@ -18,12 +18,12 @@ namespace Nexus.Link.Libraries.Azure.Storage.Blob
         ICrud<TItem, TId>
     {
         public CrudAzureStorageBlob(string connectionString, string containerName)
-        :base(connectionString, containerName)
+        : base(connectionString, containerName)
         {
         }
     }
 
-    public class CrudAzureStorageBlob<TModelCreate, TModel, TId>  :
+    public class CrudAzureStorageBlob<TModelCreate, TModel, TId> :
         ICrud<TModelCreate, TModel, TId>
         where TModel : TModelCreate
     {
