@@ -51,7 +51,7 @@ namespace Nexus.Link.Libraries.Web.Pipe.Outbound
                     response = await UnitTest_SendAsyncDependencyInjection(request, cancellationToken);
                 }
 
-                requestDescription = $"OUT request-response {request.ToLogString(response)}";
+                requestDescription = $"OUT request-response {await request.ToLogStringAsync(response)}";
 
                 fulcrumException = await ExceptionConverter.ToFulcrumExceptionAsync(response);
                 if (fulcrumException == null) return response;

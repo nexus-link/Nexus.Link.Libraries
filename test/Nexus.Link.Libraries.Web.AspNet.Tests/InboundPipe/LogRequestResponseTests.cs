@@ -125,7 +125,7 @@ namespace Nexus.Link.Libraries.Web.AspNet.Tests.InboundPipe
         /// LogRequestAndResponse must not come before BatchLogs in the pipe
         /// </summary>
         [TestMethod]
-        public async Task StatusCode500LogWarning()
+        public async Task StatusCode500LogError()
         {
             var highestSeverityLevel = LogSeverityLevel.None;
             var mockLogger = new Mock<ISyncLogger>();
@@ -183,7 +183,7 @@ namespace Nexus.Link.Libraries.Web.AspNet.Tests.InboundPipe
 
         private class ReturnResponseWithPresetStatusCode
         {
-            private int _statusCode;
+            private readonly int _statusCode;
             private readonly RequestDelegate _next;
 
             /// <inheritdoc />
