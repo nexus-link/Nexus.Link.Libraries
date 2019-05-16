@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Globalization;
 using System.Net;
 using System.Net.Http;
 using System.Text.RegularExpressions;
@@ -28,7 +29,8 @@ namespace Nexus.Link.Libraries.Web.Logging
             var message = request.ToLogString();
             if (elapsedTime != default(TimeSpan))
             {
-                message += $" | {elapsedTime.TotalSeconds:0.###} s";
+                var secondsAsString = elapsedTime.TotalSeconds.ToString("0.###", CultureInfo.InvariantCulture);
+                message += $" | {secondsAsString}s";
             }
             return message;
         }
