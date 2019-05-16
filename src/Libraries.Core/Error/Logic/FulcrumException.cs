@@ -90,10 +90,12 @@ namespace Nexus.Link.Libraries.Core.Error.Logic
         {
             TechnicalMessage = message;
             InstanceId = Guid.NewGuid().ToString();
-            CorrelationId = FulcrumApplication.Context.CorrelationId;
             ServerTechnicalName = _serverTechnicalName;
-            if (!(innerException is IFulcrumError innerError)) return;
-            
+            CorrelationId = FulcrumApplication.Context.CorrelationId;
+            if (!(innerException is IFulcrumError innerError))
+            {
+                return;
+            }
             RecommendedWaitTimeInSeconds = innerError.RecommendedWaitTimeInSeconds;
             InnerInstanceId = innerError.InstanceId;
         }
@@ -101,16 +103,24 @@ namespace Nexus.Link.Libraries.Core.Error.Logic
         /// <inheritdoc />
         public IFulcrumError CopyFrom(IFulcrumError fulcrumError)
         {
+            InternalContract.RequireNotNull(fulcrumError, nameof(fulcrumError));
             TechnicalMessage = TechnicalMessage ?? fulcrumError.TechnicalMessage;
             IsRetryMeaningful = fulcrumError.IsRetryMeaningful;
             RecommendedWaitTimeInSeconds = fulcrumError.RecommendedWaitTimeInSeconds;
-            InnerInstanceId = fulcrumError.InstanceId;
-            if (fulcrumError.Type != Type) return this;
+            if (fulcrumError.Type != Type)
+            {
+                InnerInstanceId = fulcrumError.InstanceId;
+                return this;
+            }
 
+            CorrelationId = fulcrumError.CorrelationId;
+            InstanceId = fulcrumError.InstanceId;
+            InnerInstanceId = fulcrumError.InnerInstanceId;
             ServerTechnicalName = fulcrumError.ServerTechnicalName;
             FriendlyMessage = fulcrumError.FriendlyMessage;
             MoreInfoUrl = fulcrumError.MoreInfoUrl ?? MoreInfoUrl;
             Code = fulcrumError.Code ?? Code;
+            ErrorLocation = fulcrumError.ErrorLocation;
             return this;
         }
 

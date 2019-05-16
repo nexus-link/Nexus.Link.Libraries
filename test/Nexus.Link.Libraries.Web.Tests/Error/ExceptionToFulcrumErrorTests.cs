@@ -73,5 +73,11 @@ namespace Nexus.Link.Libraries.Web.Tests.Error
                 Assert.AreEqual(error.InnerInstanceId, error.InnerError?.InstanceId);
             }
         }
+
+        [TestMethod]
+        public async Task ConvertNestedFulcrumExceptions()
+        {
+            var innerException = new FulcrumContractException(Guid.NewGuid().ToString());
+        }
     }
 }

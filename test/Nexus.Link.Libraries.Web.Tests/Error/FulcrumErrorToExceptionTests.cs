@@ -64,8 +64,9 @@ namespace Nexus.Link.Libraries.Web.Tests.Error
         }
 
         [TestMethod]
-        public void ConvertedType()
+        public void ConvertedTypeNoInnerError()
         {
+            FulcrumApplication.Context.CorrelationId = Guid.NewGuid().ToString();
             var fulcrumError = new FulcrumError
             {
                 Type = FulcrumAssertionFailedException.ExceptionType,
@@ -82,33 +83,127 @@ namespace Nexus.Link.Libraries.Web.Tests.Error
             };
             var fulcrumException = ExceptionConverter.ToFulcrumException(fulcrumError);
 
+            Assert.AreNotEqual(fulcrumError.Type, fulcrumException.Type);
+
             // Equal
             Assert.IsNotNull(fulcrumException);
             Assert.AreEqual(fulcrumError.TechnicalMessage, fulcrumException.TechnicalMessage);
             Assert.AreEqual(fulcrumError.TechnicalMessage, fulcrumException.Message);
             Assert.AreEqual(fulcrumError.RecommendedWaitTimeInSeconds, fulcrumException.RecommendedWaitTimeInSeconds);
+            Assert.AreEqual(fulcrumError.IsRetryMeaningful, fulcrumException.IsRetryMeaningful);
 
             // NOT equal
-            Assert.AreNotEqual(fulcrumError.ServerTechnicalName, fulcrumException.ServerTechnicalName);
             Assert.AreNotEqual(fulcrumError.CorrelationId, fulcrumException.CorrelationId);
+            Assert.AreNotEqual(fulcrumError.ServerTechnicalName, fulcrumException.ServerTechnicalName);
             Assert.AreNotEqual(fulcrumError.Code, fulcrumException.Code);
-            Assert.AreNotEqual(fulcrumError.IsRetryMeaningful, fulcrumException.IsRetryMeaningful);
             Assert.AreNotEqual(fulcrumError.FriendlyMessage, fulcrumException.FriendlyMessage);
-            Assert.AreNotEqual(fulcrumError.Type, fulcrumException.Type);
             Assert.AreEqual(FulcrumResourceException.ExceptionType, fulcrumException.Type);
             Assert.AreNotEqual(fulcrumError.InstanceId, fulcrumException.InstanceId);
             Assert.AreNotEqual(fulcrumError.MoreInfoUrl, fulcrumException.MoreInfoUrl);
             Assert.IsNull(fulcrumException.ErrorLocation);
 
-            // Other tests
-            Assert.IsNull(fulcrumException.InnerException);
-            Assert.AreEqual(fulcrumError.InstanceId, fulcrumException.InnerInstanceId);
-
+            // Inner exception
+            Assert.IsNotNull(fulcrumException.InnerException);
+            var innerFulcrumException = fulcrumException.InnerException as FulcrumException;
+            Assert.IsNotNull(innerFulcrumException);
+            Assert.AreEqual(fulcrumError.InstanceId, innerFulcrumException.InstanceId);
+            Assert.AreEqual(fulcrumError.InnerInstanceId, innerFulcrumException.InnerInstanceId);
+            Assert.AreEqual(fulcrumError.ServerTechnicalName, innerFulcrumException.ServerTechnicalName);
+            Assert.AreEqual(fulcrumError.CorrelationId, innerFulcrumException.CorrelationId);
+            Assert.AreEqual(fulcrumError.Code, innerFulcrumException.Code);
+            Assert.AreEqual(fulcrumError.IsRetryMeaningful, innerFulcrumException.IsRetryMeaningful);
+            Assert.AreEqual(fulcrumError.FriendlyMessage, innerFulcrumException.FriendlyMessage);
+            Assert.AreEqual(fulcrumError.Type, innerFulcrumException.Type);
+            Assert.AreEqual(fulcrumError.InstanceId, innerFulcrumException.InstanceId);
+            Assert.AreEqual(fulcrumError.MoreInfoUrl, innerFulcrumException.MoreInfoUrl);
+            Assert.AreEqual(fulcrumError.ErrorLocation, innerFulcrumException.ErrorLocation);
         }
 
         [TestMethod]
-        public void SameType()
+        public void ConvertedTypeInnerErrorOfFulcrumType()
         {
+            FulcrumApplication.Context.CorrelationId = Guid.NewGuid().ToString();
+            var innerFulcrumError = new FulcrumError
+            {
+                TechnicalMessage = Guid.NewGuid().ToString(),
+                InstanceId = Guid.NewGuid().ToString(),
+                Type = FulcrumContractException.ExceptionType
+            };
+            var fulcrumError = new FulcrumError
+            {
+                Type = FulcrumAssertionFailedException.ExceptionType,
+                TechnicalMessage = Guid.NewGuid().ToString(),
+                FriendlyMessage = Guid.NewGuid().ToString(),
+                InstanceId = Guid.NewGuid().ToString(),
+                CorrelationId = Guid.NewGuid().ToString(),
+                Code = Guid.NewGuid().ToString(),
+                ErrorLocation = Guid.NewGuid().ToString(),
+                IsRetryMeaningful = true,
+                MoreInfoUrl = Guid.NewGuid().ToString(),
+                RecommendedWaitTimeInSeconds = 100.0,
+                ServerTechnicalName = Guid.NewGuid().ToString(),
+                InnerError = innerFulcrumError,
+                InnerInstanceId = innerFulcrumError.InstanceId
+            };
+            var fulcrumException = ExceptionConverter.ToFulcrumException(fulcrumError);
+
+            // Inner exception
+            Assert.IsNotNull(fulcrumException.InnerException);
+            var innerFulcrumException = fulcrumException.InnerException as FulcrumException;
+            Assert.IsNotNull(innerFulcrumException);
+            Assert.AreEqual(fulcrumError.InstanceId, innerFulcrumException.InstanceId);
+            Assert.AreEqual(fulcrumError.InnerInstanceId, innerFulcrumException.InnerInstanceId);
+
+            // Inner inner exception
+            Assert.IsNotNull(innerFulcrumException.InnerException);
+            var innerInnerFulcrumException = innerFulcrumException.InnerException as FulcrumException;
+            Assert.IsNotNull(innerInnerFulcrumException);
+            Assert.AreEqual(fulcrumError.InnerInstanceId, innerInnerFulcrumException.InstanceId);
+        }
+
+        [TestMethod]
+        public void ConvertedTypeInnerErrorOfNonFulcrumType()
+        {
+            FulcrumApplication.Context.CorrelationId = Guid.NewGuid().ToString();
+            var innerFulcrumError = new FulcrumError
+            {
+                TechnicalMessage = Guid.NewGuid().ToString(),
+                InstanceId = Guid.NewGuid().ToString(),
+                Type = "NotFulcrum"
+            };
+            var fulcrumError = new FulcrumError
+            {
+                Type = FulcrumAssertionFailedException.ExceptionType,
+                TechnicalMessage = Guid.NewGuid().ToString(),
+                FriendlyMessage = Guid.NewGuid().ToString(),
+                InstanceId = Guid.NewGuid().ToString(),
+                CorrelationId = Guid.NewGuid().ToString(),
+                Code = Guid.NewGuid().ToString(),
+                ErrorLocation = Guid.NewGuid().ToString(),
+                IsRetryMeaningful = true,
+                MoreInfoUrl = Guid.NewGuid().ToString(),
+                RecommendedWaitTimeInSeconds = 100.0,
+                ServerTechnicalName = Guid.NewGuid().ToString(),
+                InnerError = innerFulcrumError,
+                InnerInstanceId = innerFulcrumError.InstanceId
+            };
+            var fulcrumException = ExceptionConverter.ToFulcrumException(fulcrumError);
+
+            // Inner exception
+            Assert.IsNotNull(fulcrumException.InnerException);
+            var innerFulcrumException = fulcrumException.InnerException as FulcrumException;
+            Assert.IsNotNull(innerFulcrumException);
+            Assert.AreEqual(fulcrumError.InstanceId, innerFulcrumException.InstanceId);
+
+            // Inner inner exception
+            Assert.IsNull(innerFulcrumException.InnerException);
+            Assert.AreEqual(fulcrumError.InnerInstanceId, innerFulcrumException.InnerInstanceId);
+        }
+
+        [TestMethod]
+        public void SameTypeNoInnerError()
+        {
+            FulcrumApplication.Context.CorrelationId = Guid.NewGuid().ToString();
             var fulcrumError = new FulcrumError
             {
                 Type = FulcrumConflictException.ExceptionType,
@@ -125,6 +220,8 @@ namespace Nexus.Link.Libraries.Web.Tests.Error
             };
             var fulcrumException = ExceptionConverter.ToFulcrumException(fulcrumError);
 
+            Assert.AreEqual(fulcrumError.Type, fulcrumException.Type);
+
             // Equal
             Assert.IsNotNull(fulcrumException);
             Assert.AreEqual(fulcrumError.TechnicalMessage, fulcrumException.TechnicalMessage);
@@ -133,18 +230,82 @@ namespace Nexus.Link.Libraries.Web.Tests.Error
             Assert.AreEqual(fulcrumError.RecommendedWaitTimeInSeconds, fulcrumException.RecommendedWaitTimeInSeconds);
             Assert.AreEqual(fulcrumError.ServerTechnicalName, fulcrumException.ServerTechnicalName);
             Assert.AreEqual(fulcrumError.FriendlyMessage, fulcrumException.FriendlyMessage);
-            Assert.AreEqual(fulcrumError.Type, fulcrumException.Type);
             Assert.AreEqual(fulcrumError.MoreInfoUrl, fulcrumException.MoreInfoUrl);
-
-            // NOT equal
-            Assert.AreNotEqual(fulcrumError.CorrelationId, fulcrumException.CorrelationId);
-            Assert.AreNotEqual(fulcrumError.InstanceId, fulcrumException.InstanceId);
-            Assert.AreNotEqual(fulcrumError.IsRetryMeaningful, fulcrumException.IsRetryMeaningful);
-            Assert.IsNull(fulcrumException.ErrorLocation);
+            Assert.AreEqual(fulcrumError.CorrelationId, fulcrumException.CorrelationId);
+            Assert.AreEqual(fulcrumError.InstanceId, fulcrumException.InstanceId);
+            Assert.AreEqual(fulcrumError.IsRetryMeaningful, fulcrumException.IsRetryMeaningful);
+            Assert.AreEqual(fulcrumError.ErrorLocation, fulcrumException.ErrorLocation);
+            Assert.AreEqual(fulcrumError.InnerInstanceId, fulcrumException.InnerInstanceId);
 
             // Other tests
             Assert.IsNull(fulcrumException.InnerException);
-            Assert.AreEqual(fulcrumError.InstanceId, fulcrumException.InnerInstanceId);
+        }
+
+        [TestMethod]
+        public void SameTypeInnerErrorOfFulcrumType()
+        {
+            FulcrumApplication.Context.CorrelationId = Guid.NewGuid().ToString();
+            var innerFulcrumError = new FulcrumError
+            {
+                TechnicalMessage = Guid.NewGuid().ToString(),
+                InstanceId = Guid.NewGuid().ToString(),
+                Type = FulcrumContractException.ExceptionType
+            };
+            var fulcrumError = new FulcrumError
+            {
+                Type = FulcrumConflictException.ExceptionType,
+                TechnicalMessage = Guid.NewGuid().ToString(),
+                FriendlyMessage = Guid.NewGuid().ToString(),
+                InstanceId = Guid.NewGuid().ToString(),
+                CorrelationId = Guid.NewGuid().ToString(),
+                Code = Guid.NewGuid().ToString(),
+                ErrorLocation = Guid.NewGuid().ToString(),
+                IsRetryMeaningful = true,
+                MoreInfoUrl = Guid.NewGuid().ToString(),
+                RecommendedWaitTimeInSeconds = 100.0,
+                ServerTechnicalName = Guid.NewGuid().ToString(),
+                InnerError = innerFulcrumError,
+                InnerInstanceId = innerFulcrumError.InstanceId
+            };
+            var fulcrumException = ExceptionConverter.ToFulcrumException(fulcrumError);
+
+            // Inner exception
+            Assert.IsNotNull(fulcrumException.InnerException);
+            var innerFulcrumException = fulcrumException.InnerException as FulcrumException;
+            Assert.IsNotNull(innerFulcrumException);
+            Assert.AreEqual(fulcrumError.InnerInstanceId, innerFulcrumException.InstanceId);
+        }
+
+        [TestMethod]
+        public void SameTypeInnerErrorOfNonFulcrumType()
+        {
+            FulcrumApplication.Context.CorrelationId = Guid.NewGuid().ToString();
+            var innerFulcrumError = new FulcrumError
+            {
+                TechnicalMessage = Guid.NewGuid().ToString(),
+                InstanceId = Guid.NewGuid().ToString(),
+                Type = "NotFulcrum"
+            };
+            var fulcrumError = new FulcrumError
+            {
+                Type = FulcrumConflictException.ExceptionType,
+                TechnicalMessage = Guid.NewGuid().ToString(),
+                FriendlyMessage = Guid.NewGuid().ToString(),
+                InstanceId = Guid.NewGuid().ToString(),
+                CorrelationId = Guid.NewGuid().ToString(),
+                Code = Guid.NewGuid().ToString(),
+                ErrorLocation = Guid.NewGuid().ToString(),
+                IsRetryMeaningful = true,
+                MoreInfoUrl = Guid.NewGuid().ToString(),
+                RecommendedWaitTimeInSeconds = 100.0,
+                ServerTechnicalName = Guid.NewGuid().ToString(),
+                InnerError = innerFulcrumError,
+                InnerInstanceId = innerFulcrumError.InstanceId
+            };
+            var fulcrumException = ExceptionConverter.ToFulcrumException(fulcrumError);
+
+            // Inner exception
+            Assert.IsNull(fulcrumException.InnerException);
         }
 
         private void Verify(string type)

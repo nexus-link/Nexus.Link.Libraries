@@ -45,17 +45,14 @@ namespace Nexus.Link.Libraries.Core.Error.Logic
         }
 
         /// <inheritdoc />
-        public override bool IsRetryMeaningful => false;
+        public override bool IsRetryMeaningful { get; internal set; } = false;
 
         /// <inheritdoc />
         public override string Type => ExceptionType;
 
         /// <inheritdoc />
-        public override string FriendlyMessage =>
-            "A resource used by the application had an internal error."
-            + "\rPlease report the following:"
-            + $"\rCorrelationId: {CorrelationId}"
-            + $"\rInstanceId: {InstanceId}";
+        public override string FriendlyMessage { get; set; } =
+            "A resource used by the application had an internal error.";
 
         private void SetProperties()
         {

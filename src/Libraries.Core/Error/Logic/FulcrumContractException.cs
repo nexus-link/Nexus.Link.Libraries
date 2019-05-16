@@ -47,17 +47,14 @@ namespace Nexus.Link.Libraries.Core.Error.Logic
         }
 
         /// <inheritdoc />
-        public override bool IsRetryMeaningful => false;
+        public override bool IsRetryMeaningful { get; internal set; } = false;
 
         /// <inheritdoc />
         public override string Type => ExceptionType;
 
         /// <inheritdoc />
-        public override string FriendlyMessage =>
-            "A programmer's code calls another part of the program in a bad way. An end user is never supposed to see this error as it should be converted on the way."
-            + "\rPlease report the following:"
-            + $"\rCorrelationId: {CorrelationId}"
-            + $"\rInstanceId: {InstanceId}";
+        public override string FriendlyMessage {get; set;} =
+            "A programmer's code calls another part of the program in a bad way. An end user is never supposed to see this error as it should be converted on the way.";
 
         private void SetProperties()
         {
