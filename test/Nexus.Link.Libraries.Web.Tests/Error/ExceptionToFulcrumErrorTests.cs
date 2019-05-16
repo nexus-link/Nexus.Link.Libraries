@@ -70,7 +70,7 @@ namespace Nexus.Link.Libraries.Web.Tests.Error
                     $"Error location was expected to be null, but contained the following: {error.ErrorLocation}");
                 Assert.IsNotNull(error.InnerError);
                 Assert.AreEqual(innerMessage, error.InnerError.TechnicalMessage);
-                Assert.AreEqual(error.ParentInstanceId, error.InnerError?.InstanceId);
+                Assert.AreEqual(error.InnerInstanceId, error.InnerError?.InstanceId);
             }
         }
     }

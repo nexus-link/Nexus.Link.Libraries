@@ -56,7 +56,7 @@ namespace Nexus.Link.Libraries.Core.Tests.Error
 
             // Other tests
             UT.Assert.IsNull(fulcrumException.InnerException);
-            UT.Assert.AreEqual(fulcrumError.InstanceId, fulcrumException.ParentInstanceId);
+            UT.Assert.AreEqual(fulcrumError.InstanceId, fulcrumException.InnerInstanceId);
 
         }
 
@@ -97,7 +97,7 @@ namespace Nexus.Link.Libraries.Core.Tests.Error
 
             // Other tests
             UT.Assert.IsNull(fulcrumException.InnerException);
-            UT.Assert.AreEqual(fulcrumError.InstanceId, fulcrumException.ParentInstanceId);
+            UT.Assert.AreEqual(fulcrumError.InstanceId, fulcrumException.InnerInstanceId);
             UT.Assert.AreEqual(fulcrumException.TechnicalMessage, fulcrumException.Message);
         }
 
@@ -131,7 +131,7 @@ namespace Nexus.Link.Libraries.Core.Tests.Error
             UT.Assert.AreEqual(fulcrumError.IsRetryMeaningful, fulcrumException.IsRetryMeaningful);
             UT.Assert.AreEqual(fulcrumError.ErrorLocation, fulcrumException.ErrorLocation);
             UT.Assert.AreEqual(fulcrumError.InstanceId, fulcrumException.InstanceId);
-            UT.Assert.AreEqual(fulcrumError.ParentInstanceId, fulcrumException.ParentInstanceId);
+            UT.Assert.AreEqual(fulcrumError.InnerInstanceId, fulcrumException.InnerInstanceId);
 
             // Other tests
             UT.Assert.IsNull(fulcrumException.InnerException);
@@ -164,7 +164,7 @@ namespace Nexus.Link.Libraries.Core.Tests.Error
             UT.Assert.AreEqual(fulcrumError.Type, copy.Type);
             UT.Assert.AreEqual(fulcrumError.MoreInfoUrl, copy.MoreInfoUrl);
             UT.Assert.AreEqual(fulcrumError.ServerTechnicalName, copy.ServerTechnicalName);
-            UT.Assert.AreEqual(fulcrumError.InstanceId, copy.ParentInstanceId);
+            UT.Assert.AreEqual(fulcrumError.InstanceId, copy.InnerInstanceId);
             UT.Assert.AreEqual(fulcrumError.IsRetryMeaningful, copy.IsRetryMeaningful);
 
             // Other tests

@@ -106,7 +106,7 @@ namespace Nexus.Link.Libraries.Web.Error.Logic
             var error = new FulcrumError();
             error.CopyFrom(fulcrumException);
             error.InnerError = ToFulcrumError(fulcrumException.InnerException, true);
-            error.ParentInstanceId = error.InnerError?.InstanceId;
+            error.InnerInstanceId = error.InnerError?.InstanceId;
             return error;
         }
 
@@ -121,7 +121,7 @@ namespace Nexus.Link.Libraries.Web.Error.Logic
                 var error = new FulcrumError();
                 error.CopyFrom(fulcrumException);
                 error.InnerError = ToFulcrumError(fulcrumException.InnerException, true);
-                error.ParentInstanceId = error.InnerError?.InstanceId;
+                error.InnerInstanceId = error.InnerError?.InstanceId;
                 return error;
             }
 

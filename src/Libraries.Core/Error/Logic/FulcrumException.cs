@@ -55,7 +55,11 @@ namespace Nexus.Link.Libraries.Core.Error.Logic
         public string InstanceId { get; private set; }
 
         /// <inheritdoc />
+        [Obsolete("Renamed to InnerInstanceId", true)]
         public string ParentInstanceId { get; private set; }
+
+        /// <inheritdoc />
+        public string InnerInstanceId { get; private set; }
 
         /// <inheritdoc />
         public string ErrorLocation { get; set; }
@@ -91,7 +95,7 @@ namespace Nexus.Link.Libraries.Core.Error.Logic
             if (!(innerException is IFulcrumError innerError)) return;
             
             RecommendedWaitTimeInSeconds = innerError.RecommendedWaitTimeInSeconds;
-            ParentInstanceId = innerError.InstanceId;
+            InnerInstanceId = innerError.InstanceId;
         }
 
         /// <inheritdoc />
@@ -100,7 +104,7 @@ namespace Nexus.Link.Libraries.Core.Error.Logic
             TechnicalMessage = TechnicalMessage ?? fulcrumError.TechnicalMessage;
             IsRetryMeaningful = fulcrumError.IsRetryMeaningful;
             RecommendedWaitTimeInSeconds = fulcrumError.RecommendedWaitTimeInSeconds;
-            ParentInstanceId = fulcrumError.InstanceId;
+            InnerInstanceId = fulcrumError.InstanceId;
             if (fulcrumError.Type != Type) return this;
 
             ServerTechnicalName = fulcrumError.ServerTechnicalName;

@@ -102,7 +102,7 @@ namespace Nexus.Link.Libraries.Web.Tests.Error
 
             // Other tests
             Assert.IsNull(fulcrumException.InnerException);
-            Assert.AreEqual(fulcrumError.InstanceId, fulcrumException.ParentInstanceId);
+            Assert.AreEqual(fulcrumError.InstanceId, fulcrumException.InnerInstanceId);
 
         }
 
@@ -144,7 +144,7 @@ namespace Nexus.Link.Libraries.Web.Tests.Error
 
             // Other tests
             Assert.IsNull(fulcrumException.InnerException);
-            Assert.AreEqual(fulcrumError.InstanceId, fulcrumException.ParentInstanceId);
+            Assert.AreEqual(fulcrumError.InstanceId, fulcrumException.InnerInstanceId);
         }
 
         private void Verify(string type)
