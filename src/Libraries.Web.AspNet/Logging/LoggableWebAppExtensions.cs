@@ -1,6 +1,7 @@
 ﻿#if NETCOREAPP
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -33,7 +34,8 @@ namespace Nexus.Link.Libraries.Web.AspNet.Logging
             var message = request.ToLogString();
             if (elapsedTime != default(TimeSpan))
             {
-                message += $" | {elapsedTime.TotalSeconds:0.###} s";
+                var secondsAsString = elapsedTime.TotalSeconds.ToString("0.###", CultureInfo.InvariantCulture);
+                message += $" | {secondsAsString}s";
             }
             return message;
         }
