@@ -1,5 +1,5 @@
-$file = "$(Build.ArtifactStagingDirectory)\$(Filename)";
-$title = "$(Title)";
+$file = "$env:Build_ArtifactStagingDirectory\$env:Filename";
+$title = "$env:Title";
 Set-Content $file -Value "<!doctype html><html><head><meta charset='UTF-8'><title>$title</title>"
 Add-Content $file "<style type='text/css'>body { margin: 2rem; font-family: sans-serif; }</style>"
 Add-Content $file "</head><body><h1>$title</h1>"
