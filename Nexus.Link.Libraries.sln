@@ -23,6 +23,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{57821723
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution items", "Solution items", "{D13C7AB1-EB96-4372-A6DD-DEB7A11E1720}"
 	ProjectSection(SolutionItems) = preProject
+		GenerateReleaseNotes.ps1 = GenerateReleaseNotes.ps1
 		NuGet.config = NuGet.config
 		pipeline-azure-storage.yml = pipeline-azure-storage.yml
 		pipeline-core.yml = pipeline-core.yml
