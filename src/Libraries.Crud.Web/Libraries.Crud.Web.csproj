@@ -20,7 +20,6 @@
     <IncludeSymbols>true</IncludeSymbols>
     <PackageReleaseNotes>
       1.1.8 Bumped version. New solution and build pipeline.
-      1.1.8 Bumped version. New solution and build pipeline.
       1.1.7 Updated dependencies
       1.1.2 Added missing constructors
       1.1.1 Bumped dependencies

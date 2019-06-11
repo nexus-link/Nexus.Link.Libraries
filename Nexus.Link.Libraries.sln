@@ -3,8 +3,6 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.28010.2050
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Libraries.Azure.Core", "src\Libraries.Azure.Core\Libraries.Azure.Core.csproj", "{56DD0B4C-F9B2-4934-A620-33B80D2647D5}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Libraries.Azure.Storage", "src\Libraries.Azure.Storage\Libraries.Azure.Storage.csproj", "{463C8B34-0D3A-4B63-8F29-A24C74E29FDA}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Libraries.Core", "src\Libraries.Core\Libraries.Core.csproj", "{E078BF0D-B487-4AF2-98E9-B46C8D073287}"
@@ -25,6 +23,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{57821723
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution items", "Solution items", "{D13C7AB1-EB96-4372-A6DD-DEB7A11E1720}"
 	ProjectSection(SolutionItems) = preProject
+		GenerateReleaseNotes.ps1 = GenerateReleaseNotes.ps1
 		NuGet.config = NuGet.config
 		pipeline-azure-storage.yml = pipeline-azure-storage.yml
 		pipeline-core.yml = pipeline-core.yml
@@ -58,10 +57,6 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{56DD0B4C-F9B2-4934-A620-33B80D2647D5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{56DD0B4C-F9B2-4934-A620-33B80D2647D5}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{56DD0B4C-F9B2-4934-A620-33B80D2647D5}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{56DD0B4C-F9B2-4934-A620-33B80D2647D5}.Release|Any CPU.Build.0 = Release|Any CPU
 		{463C8B34-0D3A-4B63-8F29-A24C74E29FDA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{463C8B34-0D3A-4B63-8F29-A24C74E29FDA}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{463C8B34-0D3A-4B63-8F29-A24C74E29FDA}.Release|Any CPU.ActiveCfg = Release|Any CPU
