@@ -16,7 +16,7 @@
 
   <PropertyGroup>
     <PackageId>Nexus.Link.Libraries.Web</PackageId>
-    <PackageVersion>1.8.10-alfa</PackageVersion>
+    <PackageVersion>1.8.11-alfa</PackageVersion>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <PackageTags>nexus;link;fulcrum;lever</PackageTags>
     <Authors>XLENT Link</Authors>
@@ -26,7 +26,8 @@
     <Copyright>Copyright ©2019 Xlent Link AB</Copyright>
     <IncludeSymbols>true</IncludeSymbols>
     <PackageReleaseNotes>
-      1.8.10-alfa New strategy for converting FulcrumError to FulcrumException when it comes to inner errors.
+      1.8.11-alfa New strategy for converting FulcrumError to FulcrumException when it comes to inner errors.
+      1.8.10 RestClient now uses Newtonsoft serializer instead of Microsofts due to performance issues.
       1.8.9 Request-response logging now has elapsed time in seconds and logs Type and Message when the response is a FulcrumError.
       1.8.8 Better formatting of logs for outbound pipe.
       1.8.7 The errors FulcrumForbiddenAccess and FulcrumUnauthorized now converts to the corresponding FulcrumExceptions
