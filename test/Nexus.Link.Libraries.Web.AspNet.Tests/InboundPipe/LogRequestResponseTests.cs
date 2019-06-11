@@ -1,10 +1,14 @@
 ﻿using System.Diagnostics.CodeAnalysis;
+using System.Text;
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using Newtonsoft.Json;
 using Nexus.Link.Libraries.Core.Application;
+using Nexus.Link.Libraries.Core.Error.Logic;
 using Nexus.Link.Libraries.Core.Logging;
 using Nexus.Link.Libraries.Web.AspNet.Pipe.Inbound;
+using Nexus.Link.Libraries.Web.Error.Logic;
 #if NETCOREAPP
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Internal;
@@ -125,7 +129,7 @@ namespace Nexus.Link.Libraries.Web.AspNet.Tests.InboundPipe
         /// LogRequestAndResponse must not come before BatchLogs in the pipe
         /// </summary>
         [TestMethod]
-        public async Task StatusCode500LogWarning()
+        public async Task StatusCode500LogError()
         {
             var highestSeverityLevel = LogSeverityLevel.None;
             var mockLogger = new Mock<ISyncLogger>();
@@ -183,7 +187,7 @@ namespace Nexus.Link.Libraries.Web.AspNet.Tests.InboundPipe
 
         private class ReturnResponseWithPresetStatusCode
         {
-            private int _statusCode;
+            private readonly int _statusCode;
             private readonly RequestDelegate _next;
 
             /// <inheritdoc />
@@ -193,10 +197,28 @@ namespace Nexus.Link.Libraries.Web.AspNet.Tests.InboundPipe
                 _statusCode = statusCode;
             }
 
-            public Task InvokeAsync(HttpContext context)
+            public async Task InvokeAsync(HttpContext context)
             {
                 context.Response.StatusCode = _statusCode;
-                return Task.CompletedTask;
+                FulcrumException fulcrumException = null;
+                if (_statusCode >= 500)
+                {
+                    fulcrumException = new FulcrumAssertionFailedException("Internal error message");
+                }
+                else if (_statusCode >= 400)
+                {
+                    fulcrumException = new FulcrumServiceContractException("Client error message");
+                }
+
+                if (_statusCode >= 400)
+                {
+                    await context.Response.WriteAsync("Test");
+                    context.Response.Body = new MemoryStream();
+                    context.Response.ContentType = "application/json";
+                    var fulcrumError = ExceptionConverter.ToFulcrumError(fulcrumException);
+                    var content = ExceptionConverter.ToJsonString(fulcrumError, Formatting.Indented);
+                    await context.Response.WriteAsync(content);
+                }
             }
         }
 #else
@@ -213,7 +235,31 @@ namespace Nexus.Link.Libraries.Web.AspNet.Tests.InboundPipe
             protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request,
                 CancellationToken cancellationToken)
             {
-                return Task.FromResult(new HttpResponseMessage(_statusCode));
+                var response = new HttpResponseMessage(_statusCode);
+                if ((int)_statusCode >= 500)
+                {
+                    var fulcrumException = new FulcrumAssertionFailedException("Internal error message");
+                    var fulcrumError = ExceptionConverter.ToFulcrumError(fulcrumException);
+                    var content = ExceptionConverter.ToJsonString(fulcrumError, Formatting.Indented);
+                    var stringContent = new StringContent(content, Encoding.UTF8);
+                    response = new HttpResponseMessage(_statusCode)
+                    {
+                        Content = stringContent
+                    };
+                }
+                else if ((int)_statusCode >= 400)
+                {
+                    var fulcrumException = new FulcrumServiceContractException("Client error message");
+                    var fulcrumError = ExceptionConverter.ToFulcrumError(fulcrumException);
+                    var content = ExceptionConverter.ToJsonString(fulcrumError, Formatting.Indented);
+                    var stringContent = new StringContent(content, Encoding.UTF8);
+                    response = new HttpResponseMessage(_statusCode)
+                    {
+                        Content = stringContent
+                    };
+                }
+
+                return Task.FromResult(response);
             }
         }
 #endif

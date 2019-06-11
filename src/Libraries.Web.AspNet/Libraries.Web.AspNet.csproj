@@ -24,7 +24,7 @@
 
   <PropertyGroup>
     <PackageId>Nexus.Link.Libraries.Web.AspNet</PackageId>
-    <PackageVersion>1.5.2</PackageVersion>
+    <PackageVersion>1.5.3</PackageVersion>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <PackageTags>nexus;link;fulcrum;lever</PackageTags>
     <Authors>XLENT Link</Authors>
@@ -34,6 +34,7 @@
     <Copyright>Copyright ©2019 Xlent Link AB</Copyright>
     <IncludeSymbols>true</IncludeSymbols>
     <PackageReleaseNotes>
+      1.5.3 Request-response logging now has elapsed time in seconds and logs Type and Message when the response is a FulcrumError.
       1.5.2 Updated nexus nugets
       1.5.1 400-errors are now logged as warnings, while 500-errors are still logged as errors
       1.5.0 400-errors are no longer considered an error from a log perspective, but 500-errors still are

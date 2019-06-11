@@ -170,7 +170,7 @@ namespace Nexus.Link.Libraries.Web.Error.Logic
                 InstanceId = Guid.NewGuid().ToString(),
                 IsRetryMeaningful = false,
                 ServerTechnicalName = response?.RequestMessage?.RequestUri?.Host,
-                TechnicalMessage = $"{response.ToLogString()}: {shortContent}"
+                TechnicalMessage = $"{response?.StatusCode}: {shortContent}"
             };
 
             var statusCodeAsInt = (int)statusCode;
