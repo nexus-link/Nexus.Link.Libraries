@@ -77,6 +77,19 @@ namespace Nexus.Link.Libraries.Web.Tests.Error
         }
 
         [TestMethod]
+        public async Task Convert404()
+        {
+            var content = "Not result FulcrumError";
+            var responseMessage = new HttpResponseMessage(HttpStatusCode.NotFound)
+            {
+                Content = new StringContent(content, Encoding.UTF8)
+            };
+            var result = await ExceptionConverter.ToFulcrumExceptionAsync(responseMessage);
+            Assert.IsNotNull(result);
+            Assert.AreEqual(FulcrumContractException.ExceptionType, result.Type);
+        }
+
+        [TestMethod]
         public async Task ConvertNotFulcrumErrorAndAccessAfter()
         {
             var content = "Not result FulcrumError";

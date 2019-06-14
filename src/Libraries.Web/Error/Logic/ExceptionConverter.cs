@@ -146,13 +146,17 @@ namespace Nexus.Link.Libraries.Web.Error.Logic
                 await response.Content?.LoadIntoBufferAsync();
                 contentAsString = await response.Content?.ReadAsStringAsync();
                 var fulcrumError = Parse<FulcrumError>(contentAsString);
-                if (fulcrumError?.Type != null) return fulcrumError;
+                if (fulcrumError?.Type != null)
+                {
+                    ValidateStatusCode(response.StatusCode, fulcrumError);
+                    return fulcrumError;
+                }
             }
 
-            return ToFulcrumError(response.StatusCode, contentAsString, response);
+            return CreateFulcrumErrorFromHttpStatusCode(response.StatusCode, contentAsString, response);
         }
 
-        private static FulcrumError ToFulcrumError(HttpStatusCode statusCode, string contentAsString,
+        private static FulcrumError CreateFulcrumErrorFromHttpStatusCode(HttpStatusCode statusCode, string contentAsString,
             HttpResponseMessage response)
         {
             var shortContent = contentAsString;
@@ -205,7 +209,10 @@ namespace Nexus.Link.Libraries.Web.Error.Logic
                     case HttpStatusCode.PaymentRequired:
                     case HttpStatusCode.MethodNotAllowed:
                     case HttpStatusCode.NotAcceptable:
+                        fulcrumError.Type = FulcrumServiceContractException.ExceptionType;
+                        break;
                     case HttpStatusCode.NotFound:
+                        // TODO: Introduce FulcrumUnavailableException
                         fulcrumError.Type = FulcrumServiceContractException.ExceptionType;
                         break;
                     case HttpStatusCode.Unauthorized:
@@ -250,7 +257,6 @@ namespace Nexus.Link.Libraries.Web.Error.Logic
             InternalContract.RequireNotNull(response, nameof(response));
             var fulcrumError = await ToFulcrumErrorAsync(response);
             if (fulcrumError == null) return null;
-            ValidateStatusCode(response.StatusCode, fulcrumError);
             var fulcrumException = ToFulcrumException(fulcrumError);
             FulcrumAssert.IsNotNull(fulcrumException, $"Could not convert the following {nameof(FulcrumError)} to a {nameof(FulcrumException)}:\r {ToJsonString(fulcrumError, Formatting.Indented)}");
             return fulcrumException;
