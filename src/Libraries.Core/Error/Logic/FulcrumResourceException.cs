@@ -41,7 +41,9 @@ namespace Nexus.Link.Libraries.Core.Error.Logic
         /// </summary>
         public FulcrumResourceException(string message, Exception innerException) : base(message, innerException)
         {
-            SetProperties();
+            
+            SetProperties(innerException);
+            if (innerException is FulcrumException innerFulcrumException) CopyFrom(innerFulcrumException);
         }
 
         /// <inheritdoc />
@@ -54,7 +56,7 @@ namespace Nexus.Link.Libraries.Core.Error.Logic
         public override string FriendlyMessage { get; set; } =
             "A resource used by the application had an internal error.";
 
-        private void SetProperties()
+        private void SetProperties(Exception innerException = null)
         {
             MoreInfoUrl = $"http://lever.xlent-fulcrum.info/FulcrumExceptions#{Type}";
         }

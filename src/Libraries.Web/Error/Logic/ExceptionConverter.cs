@@ -295,7 +295,7 @@ namespace Nexus.Link.Libraries.Web.Error.Logic
 
             var innerFulcrumException = ToFulcrumException(typeHasChanged ? error : error.InnerError, false);
             var fulcrumException = factoryMethod(error.TechnicalMessage, innerFulcrumException);
-            fulcrumException.CopyFrom(error);
+            if (!typeHasChanged) fulcrumException.CopyFrom(error);
             return fulcrumException;
         }
 
