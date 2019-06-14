@@ -106,7 +106,7 @@ namespace Nexus.Link.Libraries.Web.Error.Logic
             var error = new FulcrumError();
             error.CopyFrom(fulcrumException);
             error.InnerError = ToFulcrumError(fulcrumException.InnerException, true);
-            error.ParentInstanceId = error.InnerError?.InstanceId;
+            error.InnerInstanceId = error.InnerError?.InstanceId;
             return error;
         }
 
@@ -121,7 +121,6 @@ namespace Nexus.Link.Libraries.Web.Error.Logic
                 var error = new FulcrumError();
                 error.CopyFrom(fulcrumException);
                 error.InnerError = ToFulcrumError(fulcrumException.InnerException, true);
-                error.ParentInstanceId = error.InnerError?.InstanceId;
                 return error;
             }
 
@@ -284,17 +283,19 @@ namespace Nexus.Link.Libraries.Web.Error.Logic
                 targetType = FulcrumErrorTargetExceptionType[error.Type];
             }
 
-            var typeHasChanged = targetType != error.Type;
-
             if (!FactoryMethodsCache.ContainsKey(targetType))
             {
+                if (!convertType) return null;
                 var message = $"The error type ({targetType}) was not recognized. Add it to {typeof(ExceptionConverter).FullName} if you want it to be converted.";
                 return new FulcrumAssertionFailedException(message);
             }
             var factoryMethod = FactoryMethodsCache[targetType];
 
-            var fulcrumException = factoryMethod(error.TechnicalMessage, null);
-            fulcrumException.CopyFrom(error);
+            var typeHasChanged = targetType != error.Type;
+
+            var innerFulcrumException = ToFulcrumException(typeHasChanged ? error : error.InnerError, false);
+            var fulcrumException = factoryMethod(error.TechnicalMessage, innerFulcrumException);
+            if (!typeHasChanged) fulcrumException.CopyFrom(error);
             return fulcrumException;
         }
 

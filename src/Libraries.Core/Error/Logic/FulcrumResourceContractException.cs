@@ -46,17 +46,14 @@ namespace Nexus.Link.Libraries.Core.Error.Logic
         }
 
         /// <inheritdoc />
-        public override bool IsRetryMeaningful => false;
+        public override bool IsRetryMeaningful { get; internal set; } = false;
 
         /// <inheritdoc />
         public override string Type => ExceptionType;
 
         /// <inheritdoc />
-        public override string FriendlyMessage =>
-            "A resource used by the application did not seem to behave according to the contract that has been set up."
-            + "\rPlease report the following:"
-            + $"\rCorrelationId: {CorrelationId}"
-            + $"\rInstanceId: {InstanceId}";
+        public override string FriendlyMessage {get; set;} =
+            "A resource used by the application did not seem to behave according to the contract that has been set up.";
 
         private void SetProperties()
         {

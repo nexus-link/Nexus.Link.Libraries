@@ -53,17 +53,14 @@ namespace Nexus.Link.Libraries.Core.Error.Logic
         }
 
         /// <inheritdoc />
-        public override bool IsRetryMeaningful => false;
+        public override bool IsRetryMeaningful { get; internal set; } = false;
 
         /// <inheritdoc />
         public override string Type => ExceptionType;
 
         /// <inheritdoc />
-        public override string FriendlyMessage =>
-            "An assertion made by the programmer proved to be wrong and the request couldn't be properly fulfilled."
-            + "\rPlease report the following:"
-            + $"\rCorrelationId: {CorrelationId}"
-            + $"\rInstanceId: {InstanceId}";
+        public override string FriendlyMessage {get; set;} =
+            "An assertion made by the programmer proved to be wrong and the request couldn't be properly fulfilled.";
 
         private void SetProperties()
         {
