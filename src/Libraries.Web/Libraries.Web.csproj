@@ -16,7 +16,7 @@
 
   <PropertyGroup>
     <PackageId>Nexus.Link.Libraries.Web</PackageId>
-    <Version>1.8.13</Version>
+    <Version>2.0.0-beta01</Version>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <PackageTags>nexus;link;fulcrum;lever</PackageTags>
     <Authors>XLENT Link</Authors>
@@ -26,6 +26,7 @@
     <Copyright>Copyright ©2019 Xlent Link AB</Copyright>
     <IncludeSymbols>true</IncludeSymbols>
     <PackageReleaseNotes>
+      2.0.0 Support refactored Authentication
       1.8.13 Bumped version
       1.8.12 BUG: RestClient responses with status code 404 resulted in a FulcrumAssertionFailedException. (Same thing could happen for other status codes other than 400 or 500).
       1.8.11 New strategy for converting FulcrumError to FulcrumException when it comes to inner errors.
@@ -33,6 +34,7 @@
       1.8.9 Request-response logging now has elapsed time in seconds and logs Type and Message when the response is a FulcrumError.
       1.8.8 Better formatting of logs for outbound pipe.
       1.8.7 The errors FulcrumForbiddenAccess and FulcrumUnauthorized now converts to the corresponding FulcrumExceptions
+      1.8.6 The errors FulcrumForbiddenAccess and FulcrumUnauthorized now converts to the corresponding FulcrumExceptions
       1.8.5 BUG: ThrowFulcrumExceptionOnFail failed for successful messages
       1.8.4 Refactored field copy strategy for FulcrumError to FulcrumException
       1.8.2 More consistent logging in the out pipe error to exception conversion

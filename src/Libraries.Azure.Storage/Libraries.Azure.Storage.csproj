@@ -15,7 +15,7 @@
 
   <PropertyGroup>
     <PackageId>Nexus.Link.Libraries.Azure</PackageId>
-    <Version>1.0.8</Version>
+    <Version>2.0.0-beta01</Version>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <PackageTags>nexus;link;fulcrum;lever</PackageTags>
     <Authors>XLENT Link</Authors>
@@ -25,6 +25,7 @@
     <Copyright>Copyright ©2019 Xlent Link AB</Copyright>
     <IncludeSymbols>true</IncludeSymbols>
     <PackageReleaseNotes>
+      2.0.0 Depends on major change in Libraries.Core
       1.0.8 Bumped version
       1.0.7 Move Nexus.Link.Libraries.Azure.Core.File to Nexus.Link.Libraries.Azure.Storage.File
       1.0.6 Bumped version. New solution and build pipeline.

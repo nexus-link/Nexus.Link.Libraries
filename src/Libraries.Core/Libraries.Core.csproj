@@ -32,7 +32,7 @@
 
   <PropertyGroup>
     <PackageId>Nexus.Link.Libraries.Core</PackageId>
-    <Version>3.7.1</Version>
+    <Version>4.0.0-bet02</Version>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <PackageTags>nexus;link;fulcrum;lever</PackageTags>
     <Authors>XLENT Link</Authors>
@@ -42,11 +42,13 @@
     <Copyright>Copyright ©2019 Xlent Link AB</Copyright>
     <IncludeSymbols>true</IncludeSymbols>
     <PackageReleaseNotes>
+      4.0.0 Support refactored Authentication
       3.7.1 Bumped version
       3.7.0 Added functionality for NamedSchema and VersionedSchema.
       3.6.4 Reworked how a FulcrumException should copy fields from its inner exception and from FulcrumError. Renamed ParentInstanceId to InnerInstanceId.
       3.6.3 Optimized memory queue task handling.
       3.6.2 Added IFulcrumError.ParentInstanceId
+      3.6.1 Added IFulcrumError.ParentInstanceId
       3.5.0 Added FulcrumResourceException
       3.4.5 BUG: StackTrace was used in obsolete situations when logging
       3.4.4 BUG: ErrorLocation must not be set to StackTrace
