@@ -1,4 +1,5 @@
-﻿using Nexus.Link.Libraries.Core.Assert;
+﻿using System;
+using Nexus.Link.Libraries.Core.Assert;
 using Nexus.Link.Libraries.Core.Logging;
 
 namespace Nexus.Link.Libraries.Core.Error.Model
@@ -35,7 +36,11 @@ namespace Nexus.Link.Libraries.Core.Error.Model
         public string InstanceId { get; set; }
 
         /// <inheritdoc />
+        [Obsolete("Renamed to InnerInstanceId", true)]
         public string ParentInstanceId { get; set; }
+
+        /// <inheritdoc />
+        public string InnerInstanceId { get; set; }
 
         /// <inheritdoc />
         public string ErrorLocation { get; set; }
@@ -64,7 +69,7 @@ namespace Nexus.Link.Libraries.Core.Error.Model
             RecommendedWaitTimeInSeconds = fulcrumError.RecommendedWaitTimeInSeconds;
             ServerTechnicalName = fulcrumError.ServerTechnicalName;
             InstanceId = fulcrumError.InstanceId;
-            ParentInstanceId = fulcrumError.ParentInstanceId;
+            InnerInstanceId = fulcrumError.InnerInstanceId;
             Code = fulcrumError.Code;
             ErrorLocation = fulcrumError.ErrorLocation;
             Type = fulcrumError.Type;

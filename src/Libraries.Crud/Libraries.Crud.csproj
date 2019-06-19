@@ -11,7 +11,7 @@
 
   <PropertyGroup>
     <PackageId>Nexus.Link.Libraries.Crud</PackageId>
-    <PackageVersion>1.0.6</PackageVersion>
+    <Version>1.0.7</Version>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <PackageTags>nexus;link;fulcrum;lever</PackageTags>
     <Authors>XLENT Link</Authors>
@@ -21,6 +21,7 @@
     <Copyright>Copyright ©2019 Xlent Link AB</Copyright>
     <IncludeSymbols>true</IncludeSymbols>
     <PackageReleaseNotes>
+      1.0.7 Bumped version
       1.0.6 Bumped version. New solution and build pipeline.
       1.0.5 Updated dependencies
       1.0.2 Bug: CrudClientTranslator.Create() did not translate the resulting id.

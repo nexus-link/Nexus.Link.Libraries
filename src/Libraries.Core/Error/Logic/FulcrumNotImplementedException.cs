@@ -42,7 +42,7 @@ namespace Nexus.Link.Libraries.Core.Error.Logic
         }
 
         /// <inheritdoc />
-        public override bool IsRetryMeaningful => false;
+        public override bool IsRetryMeaningful { get; internal set; } = false;
 
         /// <inheritdoc />
         public override string Type => ExceptionType;

@@ -1,7 +1,7 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using UT = Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace Nexus.Link.Libraries.Core.Tests.TestDecoupling
+namespace Nexus.Link.Libraries.Core.Tests.Translate
 {
     [TestClass]
     public class TestConceptValue

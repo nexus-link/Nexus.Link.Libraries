@@ -43,6 +43,9 @@
     <IncludeSymbols>true</IncludeSymbols>
     <PackageReleaseNotes>
       4.0.0 Support refactored Authentication
+      3.7.1 Bumped version
+      3.7.0 Added functionality for NamedSchema and VersionedSchema.
+      3.6.4 Reworked how a FulcrumException should copy fields from its inner exception and from FulcrumError. Renamed ParentInstanceId to InnerInstanceId.
       3.6.3 Optimized memory queue task handling.
       3.6.2 Added IFulcrumError.ParentInstanceId
       3.6.1 Added IFulcrumError.ParentInstanceId

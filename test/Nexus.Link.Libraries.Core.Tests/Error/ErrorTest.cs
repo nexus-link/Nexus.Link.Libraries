@@ -40,13 +40,13 @@ namespace Nexus.Link.Libraries.Core.Tests.Error
             // Equal
             UT.Assert.AreEqual(fulcrumException.TechnicalMessage, fulcrumException.Message);
             UT.Assert.AreEqual(fulcrumError.RecommendedWaitTimeInSeconds, fulcrumException.RecommendedWaitTimeInSeconds);
+            UT.Assert.AreEqual(fulcrumError.IsRetryMeaningful, fulcrumException.IsRetryMeaningful);
 
             // NOT equal
             UT.Assert.AreNotEqual(fulcrumError.TechnicalMessage, fulcrumException.TechnicalMessage);
             UT.Assert.AreNotEqual(fulcrumError.ServerTechnicalName, fulcrumException.ServerTechnicalName);
             UT.Assert.AreNotEqual(fulcrumError.CorrelationId, fulcrumException.CorrelationId);
             UT.Assert.AreNotEqual(fulcrumError.Code, fulcrumException.Code);
-            UT.Assert.AreNotEqual(fulcrumError.IsRetryMeaningful, fulcrumException.IsRetryMeaningful);
             UT.Assert.AreNotEqual(fulcrumError.FriendlyMessage, fulcrumException.FriendlyMessage);
             UT.Assert.AreNotEqual(fulcrumError.Type, fulcrumException.Type);
             UT.Assert.AreEqual(FulcrumResourceException.ExceptionType, fulcrumException.Type);
@@ -56,7 +56,7 @@ namespace Nexus.Link.Libraries.Core.Tests.Error
 
             // Other tests
             UT.Assert.IsNull(fulcrumException.InnerException);
-            UT.Assert.AreEqual(fulcrumError.InstanceId, fulcrumException.ParentInstanceId);
+            UT.Assert.AreEqual(fulcrumError.InstanceId, fulcrumException.InnerInstanceId);
 
         }
 
@@ -88,16 +88,15 @@ namespace Nexus.Link.Libraries.Core.Tests.Error
             UT.Assert.AreEqual(fulcrumError.Type, fulcrumException.Type);
             UT.Assert.AreEqual(fulcrumError.MoreInfoUrl, fulcrumException.MoreInfoUrl);
             UT.Assert.AreEqual(fulcrumError.ServerTechnicalName, fulcrumException.ServerTechnicalName);
+            UT.Assert.AreEqual(fulcrumError.CorrelationId, fulcrumException.CorrelationId);
+            UT.Assert.AreEqual(fulcrumError.InstanceId, fulcrumException.InstanceId);
+            UT.Assert.AreEqual(fulcrumError.IsRetryMeaningful, fulcrumException.IsRetryMeaningful);
+            UT.Assert.AreEqual(fulcrumError.ErrorLocation, fulcrumException.ErrorLocation);
 
             // NOT equal
-            UT.Assert.AreNotEqual(fulcrumError.CorrelationId, fulcrumException.CorrelationId);
-            UT.Assert.AreNotEqual(fulcrumError.InstanceId, fulcrumException.InstanceId);
-            UT.Assert.AreNotEqual(fulcrumError.IsRetryMeaningful, fulcrumException.IsRetryMeaningful);
-            UT.Assert.IsNull(fulcrumException.ErrorLocation);
 
             // Other tests
             UT.Assert.IsNull(fulcrumException.InnerException);
-            UT.Assert.AreEqual(fulcrumError.InstanceId, fulcrumException.ParentInstanceId);
             UT.Assert.AreEqual(fulcrumException.TechnicalMessage, fulcrumException.Message);
         }
 
@@ -131,7 +130,7 @@ namespace Nexus.Link.Libraries.Core.Tests.Error
             UT.Assert.AreEqual(fulcrumError.IsRetryMeaningful, fulcrumException.IsRetryMeaningful);
             UT.Assert.AreEqual(fulcrumError.ErrorLocation, fulcrumException.ErrorLocation);
             UT.Assert.AreEqual(fulcrumError.InstanceId, fulcrumException.InstanceId);
-            UT.Assert.AreEqual(fulcrumError.ParentInstanceId, fulcrumException.ParentInstanceId);
+            UT.Assert.AreEqual(fulcrumError.InnerInstanceId, fulcrumException.InnerInstanceId);
 
             // Other tests
             UT.Assert.IsNull(fulcrumException.InnerException);
@@ -164,13 +163,13 @@ namespace Nexus.Link.Libraries.Core.Tests.Error
             UT.Assert.AreEqual(fulcrumError.Type, copy.Type);
             UT.Assert.AreEqual(fulcrumError.MoreInfoUrl, copy.MoreInfoUrl);
             UT.Assert.AreEqual(fulcrumError.ServerTechnicalName, copy.ServerTechnicalName);
-            UT.Assert.AreEqual(fulcrumError.InstanceId, copy.ParentInstanceId);
+            UT.Assert.AreEqual(fulcrumError.InstanceId, copy.InstanceId);
             UT.Assert.AreEqual(fulcrumError.IsRetryMeaningful, copy.IsRetryMeaningful);
+            UT.Assert.AreEqual(fulcrumError.CorrelationId, copy.CorrelationId);
+            UT.Assert.AreEqual(fulcrumError.ErrorLocation, copy.ErrorLocation);
 
             // Other tests
             UT.Assert.IsNull(copy.InnerException);
-            UT.Assert.AreEqual(FulcrumApplication.Context.CorrelationId, copy.CorrelationId);
-            UT.Assert.IsNull(copy.ErrorLocation);
         }
     }
 }
