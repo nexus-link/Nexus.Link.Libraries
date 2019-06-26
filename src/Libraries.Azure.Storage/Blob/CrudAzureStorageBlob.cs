@@ -10,6 +10,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Nexus.Link.Libraries.Core.Json;
 
 namespace Nexus.Link.Libraries.Azure.Storage.Blob
 {
@@ -96,7 +97,7 @@ namespace Nexus.Link.Libraries.Azure.Storage.Blob
             var file = Directory.CreateFile(fileName);
             if (!await file.ExistsAsync()) return default(TModel);
             var content = await file.DownloadTextAsync();
-            return JsonConvert.DeserializeObject<TModel>(content);
+            return JsonHelper.SafeDeserializeObject<TModel>(content);
         }
 
         public async Task DeleteAsync(TId id, CancellationToken token = default(CancellationToken))
@@ -132,7 +133,7 @@ namespace Nexus.Link.Libraries.Azure.Storage.Blob
                 FulcrumAssert.IsNotNull(file, $"Expected {item.ToLogString()} to be a file.");
                 if (file == null) continue;
                 var content = await file.DownloadTextAsync();
-                var o = JsonConvert.DeserializeObject<TModel>(content);
+                var o = JsonHelper.SafeDeserializeObject<TModel>(content);
                 list.Add(o);
                 found++;
             }

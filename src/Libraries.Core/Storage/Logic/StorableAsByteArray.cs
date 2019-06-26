@@ -1,5 +1,6 @@
 ﻿using System.Text;
 using Newtonsoft.Json;
+using Nexus.Link.Libraries.Core.Json;
 using Nexus.Link.Libraries.Core.Storage.Model;
 
 namespace Nexus.Link.Libraries.Core.Storage.Logic
@@ -18,7 +19,7 @@ namespace Nexus.Link.Libraries.Core.Storage.Logic
             {
                 if (typeof(TData) == typeof(byte[])) return (TData)(object)ByteArray;
                 var jsonString = Encoding.UTF8.GetString(ByteArray);
-                return JsonConvert.DeserializeObject<TData>(jsonString);
+                return JsonHelper.SafeDeserializeObject<TData>(jsonString);
             }
             set
             {

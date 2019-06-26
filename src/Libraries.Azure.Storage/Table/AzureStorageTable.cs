@@ -6,6 +6,7 @@ using Microsoft.WindowsAzure.Storage;
 using Microsoft.WindowsAzure.Storage.Table;
 using Newtonsoft.Json;
 using Nexus.Link.Libraries.Core.Assert;
+using Nexus.Link.Libraries.Core.Json;
 using Nexus.Link.Libraries.Core.Storage.Logic;
 using Nexus.Link.Libraries.Core.Storage.Model;
 
@@ -62,7 +63,7 @@ namespace Nexus.Link.Libraries.Azure.Storage.Table
             if (!await Table.ExistsAsync(tableRequestOptions, operationContext, token)) return default(TStorableItem);
             var result = await Table.ExecuteAsync(TableOperation.Retrieve<JsonEntity>(partitionKey, rowKey), tableRequestOptions, operationContext, token);
             if (!(result.Result is JsonEntity entity)) return default(TStorableItem);
-            var item = JsonConvert.DeserializeObject<TStorableItem>(entity.JsonAsString);
+            var item = JsonHelper.SafeDeserializeObject<TStorableItem>(entity.JsonAsString);
             item.Etag = entity.ETag;
             return item;
         }
@@ -160,7 +161,7 @@ namespace Nexus.Link.Libraries.Azure.Storage.Table
 
         private TStorableItem ToStorableItem(JsonEntity jsonEntity)
         {
-            var o = JsonConvert.DeserializeObject<TStorableItem>(jsonEntity.JsonAsString);
+            var o = JsonHelper.SafeDeserializeObject<TStorableItem>(jsonEntity.JsonAsString);
             o.Etag = jsonEntity.ETag;
             return o;
         }
