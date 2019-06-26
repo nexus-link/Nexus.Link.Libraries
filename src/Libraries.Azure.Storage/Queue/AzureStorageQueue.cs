@@ -6,6 +6,7 @@ using Microsoft.WindowsAzure.Storage.Queue;
 using Newtonsoft.Json;
 using Nexus.Link.Libraries.Core.Assert;
 using Nexus.Link.Libraries.Core.Health.Model;
+using Nexus.Link.Libraries.Core.Json;
 using Nexus.Link.Libraries.Core.MultiTenant.Model;
 using Nexus.Link.Libraries.Core.Queue.Model;
 
@@ -76,7 +77,7 @@ namespace Nexus.Link.Libraries.Azure.Storage.Queue
         private T FromByteArray(byte[] byteArray)
         {
             var messageAsString = Encoding.UTF8.GetString(byteArray);
-            return JsonConvert.DeserializeObject<T>(messageAsString);
+            return JsonHelper.SafeDeserializeObject<T>(messageAsString);
         }
 
         // TODO: Remove dependency to IResourceHealth?

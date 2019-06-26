@@ -11,6 +11,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Extensions;
 using Newtonsoft.Json;
 using Nexus.Link.Libraries.Core.Error.Model;
+using Nexus.Link.Libraries.Core.Json;
 
 namespace Nexus.Link.Libraries.Web.AspNet.Logging
 {
@@ -72,7 +73,7 @@ namespace Nexus.Link.Libraries.Web.AspNet.Logging
             var logString = response.StatusCode.ToString();
             if (response.StatusCode < 400  || response.Body == null) return logString;
             var body = await GetBodyAsStringAsync(response);
-            var fulcrumError = JsonConvert.DeserializeObject<FulcrumError>(body);
+            var fulcrumError = JsonHelper.SafeDeserializeObject<FulcrumError>(body);
             if (fulcrumError != null)
             {
                 logString += $" | {fulcrumError.Type} | {fulcrumError.TechnicalMessage}";

@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Text;
 using Newtonsoft.Json;
 using Nexus.Link.Libraries.Core.Assert;
+using Nexus.Link.Libraries.Core.Json;
 
 namespace Nexus.Link.Libraries.Core.Decoupling
 {
@@ -94,7 +95,7 @@ namespace Nexus.Link.Libraries.Core.Decoupling
             schemaVersion = 0;
             obj = null;
             if (json == null) return false;
-            var probe = JsonConvert.DeserializeObject<NamedSchema>(json);
+            var probe = JsonHelper.SafeDeserializeObject<NamedSchema>(json);
             if (probe == null) return false;
             schemaName = probe.SchemaName ?? "";
             schemaVersion = probe.SchemaVersion ?? 0;
