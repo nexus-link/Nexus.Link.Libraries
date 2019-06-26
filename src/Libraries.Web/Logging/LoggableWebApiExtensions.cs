@@ -6,6 +6,7 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 using Nexus.Link.Libraries.Core.Error.Model;
+using Nexus.Link.Libraries.Core.Json;
 
 namespace Nexus.Link.Libraries.Web.Logging
 {

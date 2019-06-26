@@ -48,17 +48,7 @@ namespace Nexus.Link.Libraries.Web.Tests.Logging
             var response = CreateResponseMessage(null, HttpStatusCode.NotFound, body);
             var logString = await response.ToLogStringAsync();
             Assert.IsNotNull(logString);
-            Assert.AreEqual(logString, $"404 (NotFound) | Response content was not JSON: {body}");
-        }
-
-        [TestMethod]
-        public async Task ToLogStringWithLongXmlResponse()
-        {
-            var body = "<html>This is a very long string that is more than 40 characters.<html/>";
-            var response = CreateResponseMessage(null, HttpStatusCode.NotFound, body);
-            var logString = await response.ToLogStringAsync();
-            Assert.IsNotNull(logString);
-            Assert.AreEqual(logString, $"404 (NotFound) | Response content was not JSON. Truncated: {body.Substring(0,40)}...");
+            Assert.AreEqual(logString, $"404 (NotFound)");
         }
     }
 }
