@@ -84,15 +84,30 @@ namespace Nexus.Link.Libraries.Web.Logging
         /// </summary>
         public static async Task<string> ToLogStringAsync(this HttpResponseMessage response)
         {
-            if (response.Content == null) return null;
-            var logString = response.StatusCode.ToString();
+            if (response == null) return null;
+            var logString = $"{(int)response.StatusCode} ({response.StatusCode})";
             if (((int)response.StatusCode) < 400 || response.Content == null) return logString;
             await response.Content.LoadIntoBufferAsync();
             var body = await response.Content.ReadAsStringAsync();
-            var fulcrumError = JsonConvert.DeserializeObject<FulcrumError>(body);
-            if (fulcrumError != null)
+            try
             {
-                logString += $" | {fulcrumError.Type} | {fulcrumError.TechnicalMessage}";
+                var fulcrumError = JsonConvert.DeserializeObject<FulcrumError>(body);
+                if (fulcrumError != null)
+                {
+                    logString += $" | {fulcrumError.Type} | {fulcrumError.TechnicalMessage}";
+                }
+
+            }
+            catch (Exception)
+            {
+                if (body.Length <= 40)
+                {
+                    logString += $" | Response content was not JSON: {body}";
+                }
+                else
+                {
+                    logString += $" | Response content was not JSON. Truncated: {body.Substring(0, 40)}...";
+                }
             }
             return logString;
         }
