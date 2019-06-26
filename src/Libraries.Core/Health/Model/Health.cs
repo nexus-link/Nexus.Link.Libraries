@@ -37,6 +37,11 @@ namespace Nexus.Link.Libraries.Core.Health.Model
         public string Message { get; set; }
 
         /// <summary>
+        /// The id of the instance that the service runs on
+        /// </summary>
+        public string InstanceId { get; set; }
+
+        /// <summary>
         /// The health info of the service' subresources
         /// </summary>
         public List<HealthInfo> Resources { get; } = new List<HealthInfo>();
