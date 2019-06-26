@@ -16,7 +16,7 @@
 
   <PropertyGroup>
     <PackageId>Nexus.Link.Libraries.Web</PackageId>
-    <Version>2.0.0</Version>
+    <Version>2.0.1</Version>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <PackageTags>nexus;link;fulcrum;lever</PackageTags>
     <Authors>XLENT Link</Authors>
@@ -26,6 +26,7 @@
     <Copyright>Copyright ©2019 Xlent Link AB</Copyright>
     <IncludeSymbols>true</IncludeSymbols>
     <PackageReleaseNotes>
+      2.0.1 BUG: Logging of non-success HTTP response failed for non-JSON content, e.g. HTML response page.
       2.0.0 Support refactored Authentication
       1.8.13 Bumped version
       1.8.12 BUG: RestClient responses with status code 404 resulted in a FulcrumAssertionFailedException. (Same thing could happen for other status codes other than 400 or 500).
