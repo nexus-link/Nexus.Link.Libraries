@@ -13,8 +13,8 @@ namespace Nexus.Link.Libraries.Core.Context
         private readonly OneValueProvider<string> _callingClientName;
         private readonly OneValueProvider<Tenant> _clientTenant;
         private readonly OneValueProvider<ILeverConfiguration> _leverConfiguration;
-        private OneValueProvider<IPrincipal> _clientPrincipal;
-        private OneValueProvider<IPrincipal> _userPrincipal;
+        private readonly OneValueProvider<IPrincipal> _clientPrincipal;
+        private readonly OneValueProvider<IPrincipal> _userPrincipal;
 
         public NexusContext(IContextValueProvider valueProvider)
         {
