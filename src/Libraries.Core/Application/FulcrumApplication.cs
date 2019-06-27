@@ -43,6 +43,24 @@ namespace Nexus.Link.Libraries.Core.Application
 
             Setup.ThreadHandler = ThreadHelper.RecommendedForRuntime;
             Setup.SynchronousFastLogger = LogHelper.RecommendedSyncLoggerForRuntime;
+            switch (level)
+            {
+                case RunTimeLevelEnum.None:
+                case RunTimeLevelEnum.Development:
+                    Setup.LogSeverityLevelThreshold = LogSeverityLevel.Verbose;
+                    break;
+                case RunTimeLevelEnum.Test:
+                    Setup.LogSeverityLevelThreshold = LogSeverityLevel.Information;
+                    break;
+                case RunTimeLevelEnum.ProductionSimulation:
+                case RunTimeLevelEnum.Production:
+                    Setup.LogSeverityLevelThreshold = LogSeverityLevel.Warning;
+                    break;
+                default:
+                    Setup.LogSeverityLevelThreshold = LogSeverityLevel.Verbose;
+                    InternalContract.Fail($"Parameter {nameof(level)} had an unexpected value ({level})");
+                    break;
+            }
         }
 
         /// <summary>

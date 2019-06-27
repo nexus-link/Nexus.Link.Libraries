@@ -67,7 +67,6 @@ namespace Nexus.Link.Libraries.Core.Application
         /// <summary>
         /// A log must have at least this level to be sent for logging. Can be overridden in batches by <see cref="BatchLogAllSeverityLevelThreshold"/>.
         /// </summary>
-        [Obsolete("Use BatchLogger and pick a value in the constructor.", true)]
         public LogSeverityLevel LogSeverityLevelThreshold{ get; set; }
 
         /// <inheritdoc />

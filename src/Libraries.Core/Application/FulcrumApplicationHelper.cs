@@ -56,6 +56,7 @@ namespace Nexus.Link.Libraries.Core.Application
             FulcrumApplication.Setup.ThreadHandler = ThreadHelper.RecommendedForRuntime;
             FulcrumApplication.Setup.SynchronousFastLogger = LogHelper.RecommendedSyncLoggerForUnitTest;
             FulcrumApplication.Setup.FallbackLogger = LogHelper.RecommendedFallbackLoggerForUnitTest;
+            FulcrumApplication.Setup.LogSeverityLevelThreshold = LogSeverityLevel.Verbose;
         }
     }
 }

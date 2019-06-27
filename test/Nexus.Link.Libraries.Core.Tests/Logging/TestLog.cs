@@ -88,6 +88,35 @@ namespace Nexus.Link.Libraries.Core.Tests.Logging
         }
 
         [TestMethod]
+        public void LogOnlyOverThreshold()
+        {
+            LogRecord foundLogRecord = null;
+            var syncLoggerMock = new Mock<ISyncLogger>();
+            syncLoggerMock
+                .Setup(logger => logger.LogSync(It.IsAny<LogRecord>()))
+                .Callback((LogRecord logRecord) => foundLogRecord = logRecord);
+            FulcrumApplication.Setup.SynchronousFastLogger = syncLoggerMock.Object;
+            FulcrumApplication.Setup.LogSeverityLevelThreshold = LogSeverityLevel.Warning;
+            Log.LogVerbose("test");
+            UT.Assert.IsNull(foundLogRecord);
+            Log.LogInformation("test");
+            UT.Assert.IsNull(foundLogRecord);
+            Log.LogWarning("test");
+            UT.Assert.IsNotNull(foundLogRecord);
+            UT.Assert.AreEqual(LogSeverityLevel.Warning, foundLogRecord.SeverityLevel);
+            foundLogRecord = null;
+            Log.LogError("test");
+            UT.Assert.IsNotNull(foundLogRecord);
+            UT.Assert.AreEqual(LogSeverityLevel.Error, foundLogRecord.SeverityLevel);
+            foundLogRecord = null;
+            Log.LogCritical("test");
+            UT.Assert.IsNotNull(foundLogRecord);
+            UT.Assert.AreEqual(LogSeverityLevel.Critical, foundLogRecord.SeverityLevel);
+            foundLogRecord = null;
+            UT.Assert.AreEqual(0, _callsToFallback);
+        }
+
+        [TestMethod]
         public void LogInformationWithData()
         {
             LogRecord foundLogRecord = null;
