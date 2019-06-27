@@ -16,7 +16,7 @@
 
   <PropertyGroup>
     <PackageId>Nexus.Link.Libraries.Web</PackageId>
-    <Version>1.8.13</Version>
+    <Version>1.8.14</Version>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <PackageTags>nexus;link;fulcrum;lever</PackageTags>
     <Authors>XLENT Link</Authors>
@@ -26,6 +26,7 @@
     <Copyright>Copyright ©2019 Xlent Link AB</Copyright>
     <IncludeSymbols>true</IncludeSymbols>
     <PackageReleaseNotes>
+      1.8.14 BUG: Log level Warning and Error was mixed up when logging non-successful response in outbound pipe ThrowFulcrumExceptionOnFail.
       1.8.13 Bumped version
       1.8.12 BUG: RestClient responses with status code 404 resulted in a FulcrumAssertionFailedException. (Same thing could happen for other status codes other than 400 or 500).
       1.8.11 New strategy for converting FulcrumError to FulcrumException when it comes to inner errors.
