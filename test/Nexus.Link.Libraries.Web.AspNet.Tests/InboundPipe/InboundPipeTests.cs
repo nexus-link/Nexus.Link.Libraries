@@ -439,16 +439,17 @@ namespace Nexus.Link.Libraries.Web.AspNet.Tests.InboundPipe
                 })
                 .Verifiable();
             FulcrumApplication.Setup.SynchronousFastLogger = new BatchLogger(mockLogger.Object);
+            FulcrumApplication.Setup.LogSeverityLevelThreshold = LogSeverityLevel.Information;
 
 #if NETCOREAPP
             var doLogging = new LogFiveTimesHandler(async c => await Task.CompletedTask);
-            var batchLogsHandler = new BatchLogs(doLogging.InvokeAsync, LogSeverityLevel.Information, LogSeverityLevel.Warning);
+            var batchLogsHandler = new BatchLogs(doLogging.InvokeAsync, LogSeverityLevel.Warning);
             var context = new DefaultHttpContext();
             Assert.IsFalse(FulcrumApplication.Context.IsInBatchLogger);
             await batchLogsHandler.InvokeAsync(context);
             Assert.IsFalse(FulcrumApplication.Context.IsInBatchLogger);
 #else
-            var handler = new BatchLogs(LogSeverityLevel.Information, LogSeverityLevel.Warning)
+            var handler = new BatchLogs(LogSeverityLevel.Warning)
             {
                 InnerHandler = new LogFiveTimesHandler()
             };

@@ -41,8 +41,10 @@ namespace Nexus.Link.Libraries.Core.Logging
 
             if (FulcrumApplication.Context.ContextId != Batch.ContextId)
             {
+                var logAllThreshold = Batch.LogAllThreshold;
+                var releaseRecordsAsLateAsPossible = Batch.ReleaseRecordsAsLateAsPossible;
                 EndBatch();
-                StartBatch();
+                StartBatch(logAllThreshold, releaseRecordsAsLateAsPossible);
             }
 
             if (!Batch.HasReachedThreshold &&
@@ -73,16 +75,38 @@ namespace Nexus.Link.Libraries.Core.Logging
         /// <param name="releaseRecordsAsLateAsPossible">This is relevant when a log record is logged that fulfills the <paramref name="logAllThreshold"/> threshold.
         /// If true, the logs in the batch will not be released until <see cref="EndBatch"/> is called. If false, then the current log records will be immediately released
         /// and the following individual logs in the batch will be release immediately.</param>
+        [Obsolete("The parameter logIndividualThreshold has been removed. Use the application setting FulcrumApplication.Setup.LogSeverityLevelThreshold instead. Obsolete from 2019-06-27.", true)]
         public static void StartBatch(
-        LogSeverityLevel logIndividualThreshold = LogSeverityLevel.Warning,
+            LogSeverityLevel logIndividualThreshold = LogSeverityLevel.Warning,
             LogSeverityLevel logAllThreshold = LogSeverityLevel.Error,
             bool releaseRecordsAsLateAsPossible = false)
         {
             AsyncLocalBatch.Value = new BatchInfo();
             Batch.LogRecords = new List<LogRecord>();
             Batch.ContextId = FulcrumApplication.Context.ContextId;
-            Batch.HasReachedThreshold= false;
-            Batch.LogIndividualThreshold = logIndividualThreshold;
+            Batch.HasReachedThreshold = false;
+            Batch.LogAllThreshold = logAllThreshold;
+            Batch.ReleaseRecordsAsLateAsPossible = releaseRecordsAsLateAsPossible;
+            FulcrumApplication.Context.IsInBatchLogger = true;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="logAllThreshold">If any of the log records in the batch has this or higher severity level,
+        /// the <see cref="ApplicationSetup.LogSeverityLevelThreshold"/> will be ignored and consequently all log records will be logged.
+        /// Set this to <see cref="LogSeverityLevel.None"/> to avoid this functionality, i.e. only <see cref="ApplicationSetup.LogSeverityLevelThreshold"/> will be used.</param>
+        /// <param name="releaseRecordsAsLateAsPossible">This is relevant when a log record is logged that fulfills the <paramref name="logAllThreshold"/> threshold.
+        /// If true, the logs in the batch will not be released until <see cref="EndBatch"/> is called. If false, then the current log records will be immediately released
+        /// and the following individual logs in the batch will be release immediately.</param>
+        public static void StartBatch(
+            LogSeverityLevel logAllThreshold = LogSeverityLevel.Error,
+            bool releaseRecordsAsLateAsPossible = false)
+        {
+            AsyncLocalBatch.Value = new BatchInfo();
+            Batch.LogRecords = new List<LogRecord>();
+            Batch.ContextId = FulcrumApplication.Context.ContextId;
+            Batch.HasReachedThreshold = false;
             Batch.LogAllThreshold = logAllThreshold;
             Batch.ReleaseRecordsAsLateAsPossible = releaseRecordsAsLateAsPossible;
             FulcrumApplication.Context.IsInBatchLogger = true;
@@ -111,13 +135,12 @@ namespace Nexus.Link.Libraries.Core.Logging
         {
             return Batch.HasReachedThreshold
                 ? Batch.LogRecords
-                : Batch.LogRecords.Where(lr => lr.IsGreaterThanOrEqualTo(Batch.LogIndividualThreshold));
+                : Batch.LogRecords.Where(lr => lr.IsGreaterThanOrEqualTo(FulcrumApplication.Setup.LogSeverityLevelThreshold));
         }
 
         private class BatchInfo
         {
             public LogSeverityLevel LogAllThreshold { get; set; }
-            public LogSeverityLevel LogIndividualThreshold { get; set; }
             public bool ReleaseRecordsAsLateAsPossible { get; set; }
             public List<LogRecord> LogRecords { get; set; }
             public Guid ContextId { get; set; }
