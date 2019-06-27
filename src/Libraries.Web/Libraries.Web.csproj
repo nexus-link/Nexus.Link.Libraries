@@ -26,7 +26,7 @@
     <Copyright>Copyright ©2019 Xlent Link AB</Copyright>
     <IncludeSymbols>true</IncludeSymbols>
     <PackageReleaseNotes>
-      2.0.3 Bump to get the 1.8.14 changes into.
+      2.0.3 Bump to get the 1.8.14 changes.
       2.0.2 BUG: Logging of non-success HTTP response failed for non-JSON content, e.g. HTML response page.
       2.0.1 Safe deserializing.
       2.0.0 Support refactored Authentication
