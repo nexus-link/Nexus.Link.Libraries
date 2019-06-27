@@ -11,10 +11,10 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.9.0" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.2.0" />
     <PackageReference Include="MSTest.TestAdapter" Version="1.4.0" />
     <PackageReference Include="MSTest.TestFramework" Version="1.4.0" />
-    <PackageReference Include="Nexus.Link.Libraries.Crud.UnitTests" Version="1.0.2" />
+    <PackageReference Include="Nexus.Link.Libraries.Crud.UnitTests" Version="1.0.4" />
   </ItemGroup>
 
   <ItemGroup>
