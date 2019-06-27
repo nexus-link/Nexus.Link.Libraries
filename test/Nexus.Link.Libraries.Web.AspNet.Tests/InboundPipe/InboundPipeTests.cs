@@ -434,6 +434,7 @@ namespace Nexus.Link.Libraries.Web.AspNet.Tests.InboundPipe
                         It.IsAny<LogRecord>()))
                 .Callback((LogRecord lr) =>
                 {
+                    Assert.IsTrue(FulcrumApplication.Context.IsInBatchLogger);
                     Interlocked.Increment(ref _logCounter);
                 })
                 .Verifiable();
@@ -441,9 +442,11 @@ namespace Nexus.Link.Libraries.Web.AspNet.Tests.InboundPipe
 
 #if NETCOREAPP
             var doLogging = new LogFiveTimesHandler(async c => await Task.CompletedTask);
-            var saveConfigHandler = new BatchLogs(doLogging.InvokeAsync, LogSeverityLevel.Information, LogSeverityLevel.Warning);
+            var batchLogsHandler = new BatchLogs(doLogging.InvokeAsync, LogSeverityLevel.Information, LogSeverityLevel.Warning);
             var context = new DefaultHttpContext();
-            await saveConfigHandler.InvokeAsync(context);
+            Assert.IsFalse(FulcrumApplication.Context.IsInBatchLogger);
+            await batchLogsHandler.InvokeAsync(context);
+            Assert.IsFalse(FulcrumApplication.Context.IsInBatchLogger);
 #else
             var handler = new BatchLogs(LogSeverityLevel.Information, LogSeverityLevel.Warning)
             {
@@ -451,7 +454,9 @@ namespace Nexus.Link.Libraries.Web.AspNet.Tests.InboundPipe
             };
             var invoker = new HttpMessageInvoker(handler);
             var request = new HttpRequestMessage(HttpMethod.Get, "https://v-mock.org/v2/smoke-testing-company/ver");
+            Assert.IsFalse(FulcrumApplication.Context.IsInBatchLogger);
             await invoker.SendAsync(request, CancellationToken.None);
+            Assert.IsFalse(FulcrumApplication.Context.IsInBatchLogger);
 #endif
             mockLogger.Verify();
         }

@@ -85,12 +85,14 @@ namespace Nexus.Link.Libraries.Core.Logging
             Batch.LogIndividualThreshold = logIndividualThreshold;
             Batch.LogAllThreshold = logAllThreshold;
             Batch.ReleaseRecordsAsLateAsPossible = releaseRecordsAsLateAsPossible;
+            FulcrumApplication.Context.IsInBatchLogger = true;
         }
 
 
         public static void EndBatch()
         {
             FlushValues();
+            FulcrumApplication.Context.IsInBatchLogger = false;
             AsyncLocalBatch.Value = null;
         }
 

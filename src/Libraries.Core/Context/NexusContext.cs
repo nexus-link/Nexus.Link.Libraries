@@ -15,6 +15,7 @@ namespace Nexus.Link.Libraries.Core.Context
         private readonly OneValueProvider<ILeverConfiguration> _leverConfiguration;
         private readonly OneValueProvider<IPrincipal> _clientPrincipal;
         private readonly OneValueProvider<IPrincipal> _userPrincipal;
+        private readonly OneValueProvider<bool> _isInBatchLogger;
 
         public NexusContext(IContextValueProvider valueProvider)
         {
@@ -25,6 +26,7 @@ namespace Nexus.Link.Libraries.Core.Context
             _leverConfiguration = new OneValueProvider<ILeverConfiguration>(ValueProvider, "LeverConfigurationId");
             _clientPrincipal = new OneValueProvider<IPrincipal>(ValueProvider, "ClientPrincipal");
             _userPrincipal = new OneValueProvider<IPrincipal>(ValueProvider, "UserPrincipal");
+            _isInBatchLogger = new OneValueProvider<bool>(ValueProvider, "IsInBatchLogger");
         }
 
         /// <summary>
@@ -84,6 +86,15 @@ namespace Nexus.Link.Libraries.Core.Context
         {
             get => _userPrincipal.GetValue();
             set => _userPrincipal.SetValue(value);
+        }
+
+        /// <summary>
+        /// Access the context data
+        /// </summary>
+        public bool IsInBatchLogger
+        {
+            get => _isInBatchLogger.GetValue();
+            set => _isInBatchLogger.SetValue(value);
         }
 
     }

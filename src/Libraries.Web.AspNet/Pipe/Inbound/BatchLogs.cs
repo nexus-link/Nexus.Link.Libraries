@@ -33,7 +33,7 @@ namespace Nexus.Link.Libraries.Web.AspNet.Pipe.Inbound
         public BatchLogs(RequestDelegate next,
             LogSeverityLevel logIndividualThreshold = LogSeverityLevel.Warning,
             LogSeverityLevel logAllThreshold = LogSeverityLevel.Error, bool releaseRecordsAsLateAsPossible = false)
-        :base(next)
+            : base(next)
         {
             _logIndividualThreshold = logIndividualThreshold;
             _logAllThreshold = logAllThreshold;
