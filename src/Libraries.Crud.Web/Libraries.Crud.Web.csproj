@@ -31,15 +31,11 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.Rest.ClientRuntime" Version="3.0.3" />
+    <PackageReference Include="Microsoft.Rest.ClientRuntime" Version="2.3.9" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\Libraries.Crud\Libraries.Crud.csproj" />
     <ProjectReference Include="..\Libraries.Web\Libraries.Web.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Reference Include="System.Net.Http" />
   </ItemGroup>
 </Project>
