@@ -76,7 +76,7 @@ namespace Nexus.Link.Libraries.Web.Pipe.Outbound
                 throw new FulcrumAssertionFailedException(message, e);
             }
 
-            var severityLevel = (int) response.StatusCode > 500 ? LogSeverityLevel.Warning : LogSeverityLevel.Error;
+            var severityLevel = (int) response.StatusCode >= 500 ? LogSeverityLevel.Error : LogSeverityLevel.Warning;
             Log.LogOnLevel(severityLevel, $"{requestDescription} was converted to (and threw) the exception {fulcrumException.GetType().Name}: {fulcrumException.TechnicalMessage}", fulcrumException);
             throw fulcrumException;
         }
