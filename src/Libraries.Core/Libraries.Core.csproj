@@ -32,7 +32,7 @@
 
   <PropertyGroup>
     <PackageId>Nexus.Link.Libraries.Core</PackageId>
-    <Version>4.3.0</Version>
+    <Version>4.3.1</Version>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <PackageTags>nexus;link;fulcrum;lever</PackageTags>
     <Authors>XLENT Link</Authors>
@@ -42,6 +42,7 @@
     <Copyright>Copyright ©2019 Xlent Link AB</Copyright>
     <IncludeSymbols>true</IncludeSymbols>
     <PackageReleaseNotes>
+      4.3.1 VersionedSchema is now not nullable.
       4.3.0 FulcrumApplication.Setup.LogSeverityLevelThreshold is back. It will be set to an initial value that depends on the runtime level.
       4.2.0 InstanceId in response for ServiceMetas and Health
       4.1.0 JsonHelper for safe deserializing.
