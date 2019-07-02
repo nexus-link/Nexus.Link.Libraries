@@ -24,7 +24,7 @@
 
   <PropertyGroup>
     <PackageId>Nexus.Link.Libraries.Web.AspNet</PackageId>
-    <Version>2.1.0</Version>
+    <Version>2.2.0</Version>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <PackageTags>nexus;link;fulcrum;lever</PackageTags>
     <Authors>XLENT Link</Authors>
@@ -34,6 +34,7 @@
     <Copyright>Copyright ©2019 Xlent Link AB</Copyright>
     <IncludeSymbols>true</IncludeSymbols>
     <PackageReleaseNotes>
+      2.2.0 NexusWebApiApplication: Convenience class for helping with application start from Global.asax.cs (only for net461)
       2.1.0 Removed one parameter for BatchLogs. The individual severity level threshold will now be taken from FulcrumApplication.Setup.LogSeverityLevelThreshold.
       2.0.1 Safe deserializing.
       2.0.0 Depends on major change in Libraries.Core
