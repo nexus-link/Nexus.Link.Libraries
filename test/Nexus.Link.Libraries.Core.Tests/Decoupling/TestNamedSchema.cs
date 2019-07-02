@@ -21,7 +21,7 @@ namespace Nexus.Link.Libraries.Core.Tests.Decoupling
             var probe = JsonConvert.DeserializeObject<NamedSchema>(json);
             UT.Assert.IsNotNull(probe);
             UT.Assert.IsNull(probe.SchemaName);
-            UT.Assert.IsNull(probe.SchemaVersion);
+            UT.Assert.AreEqual(0, probe.SchemaVersion);
         }
 
         [TestMethod]
@@ -90,7 +90,7 @@ namespace Nexus.Link.Libraries.Core.Tests.Decoupling
         private class DataType1Version1 : INamedSchema
         {
             public string SchemaName { get; } = "DataType1";
-            public int? SchemaVersion { get; } = 1;
+            public int SchemaVersion { get; } = 1;
             public string First { get; set; }
 
             public override bool Equals(object obj)
@@ -103,7 +103,7 @@ namespace Nexus.Link.Libraries.Core.Tests.Decoupling
         private class DataType2Version2 : INamedSchema
         {
             public string SchemaName { get; } = "DataType2";
-            public int? SchemaVersion { get; } = 2;
+            public int SchemaVersion { get; } = 2;
             public string Second { get; set; }
 
             public override bool Equals(object obj)

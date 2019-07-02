@@ -98,7 +98,7 @@ namespace Nexus.Link.Libraries.Core.Decoupling
             var probe = JsonHelper.SafeDeserializeObject<NamedSchema>(json);
             if (probe == null) return false;
             schemaName = probe.SchemaName ?? "";
-            schemaVersion = probe.SchemaVersion ?? 0;
+            schemaVersion = probe.SchemaVersion;
             var type = Get(schemaName, schemaVersion);
             if (type == null) return false;
             obj = JsonConvert.DeserializeObject(json, type);

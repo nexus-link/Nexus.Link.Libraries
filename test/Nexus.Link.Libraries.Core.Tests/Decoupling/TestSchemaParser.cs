@@ -120,7 +120,7 @@ namespace Nexus.Link.Libraries.Core.Tests.Decoupling
         private class DataType1Version1 : INamedSchema
         {
             public string SchemaName { get; } = "DataType1";
-            public int? SchemaVersion { get; } = 1;
+            public int SchemaVersion { get; } = 1;
             public string First { get; set; }
 
             public override bool Equals(object obj)
@@ -133,7 +133,7 @@ namespace Nexus.Link.Libraries.Core.Tests.Decoupling
         private class DataType2Version1 : INamedSchema
         {
             public string SchemaName { get; } = "DataType2";
-            public int? SchemaVersion { get; } = 1;
+            public int SchemaVersion { get; } = 1;
             public string Second { get; set; }
 
             public override bool Equals(object obj)
@@ -146,7 +146,7 @@ namespace Nexus.Link.Libraries.Core.Tests.Decoupling
         private class DataType2Version2 : INamedSchema
         {
             public string SchemaName { get; } = "DataType2";
-            public int? SchemaVersion { get; } = 2;
+            public int SchemaVersion { get; } = 2;
             public string Third { get; set; }
 
             public override bool Equals(object obj)

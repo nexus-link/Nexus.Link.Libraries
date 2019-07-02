@@ -12,8 +12,8 @@ namespace Nexus.Link.Libraries.Core.Decoupling
     public interface IVersionedSchema
     {
         /// <summary>
-        /// The version of a schema
+        /// The version of a schema. 0 is reserved for the version of a type that originally didn't support IVersionedSchema.
         /// </summary>
-        int? SchemaVersion { get; }
+        int SchemaVersion { get; }
     }
 }

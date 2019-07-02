@@ -4,6 +4,6 @@
     public class AnonymousSchema : IVersionedSchema
     {
         /// <inheritdoc />
-        public int? SchemaVersion { get; set; }
+        public int SchemaVersion { get; set; }
     }
 }
