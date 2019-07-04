@@ -84,9 +84,10 @@ namespace Nexus.Link.Libraries.Web.AspNet.Pipe.Inbound
     public static class BatchLogsExtension
     {
         public static IApplicationBuilder UseNexusBatchLogs(
-            this IApplicationBuilder builder)
+            this IApplicationBuilder builder,
+            LogSeverityLevel logAllThreshold = LogSeverityLevel.Error, bool releaseRecordsAsLateAsPossible = false)
         {
-            return builder.UseMiddleware<BatchLogs>();
+            return builder.UseMiddleware<BatchLogs>(logAllThreshold, releaseRecordsAsLateAsPossible);
         }
     }
 #endif
