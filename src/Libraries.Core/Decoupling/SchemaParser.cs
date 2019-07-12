@@ -76,8 +76,7 @@ namespace Nexus.Link.Libraries.Core.Decoupling
         /// <returns>True if the conversion was successful.</returns>
         public bool TryParse(string json, out object obj)
         {
-            var isSuccess = TryParse(json, out _, out _, out var o);
-            obj = o;
+            var isSuccess = TryParse(json, out _, out _, out obj);
             return isSuccess;
         }
 
@@ -100,7 +99,7 @@ namespace Nexus.Link.Libraries.Core.Decoupling
             schemaName = probe.SchemaName ?? "";
             schemaVersion = probe.SchemaVersion;
             var type = Get(schemaName, schemaVersion);
-            return type != null && JsonHelper.TryDeserializeObject(json, out obj);
+            return type != null && JsonHelper.TryDeserializeObject(json, type, out obj);
         }
     }
 }

@@ -33,6 +33,27 @@ namespace Nexus.Link.Libraries.Core.Json
         }
 
         /// <summary>
+        /// Try to deserialize a JSON string.
+        /// </summary>
+        /// <param name="value">The JSON string that should be deserialized</param>
+        /// <param name="type">The type that the <paramref name="value"/> should be deserialized into.</param>
+        /// <param name="deserializedObject">The resulting deserialized object or null if the deserialization failed.</param>
+        /// <returns>True if the deserialization was successful.</returns>
+        public static bool TryDeserializeObject(string value, Type type, out object deserializedObject)
+        {
+            deserializedObject = null;
+            try
+            {
+                deserializedObject = JsonConvert.DeserializeObject(value, type);
+                return true;
+            }
+            catch (Exception)
+            {
+                return false;
+            }
+        }
+
+        /// <summary>
         /// Deserialize a JSON string. If the deserialization fails we will return default(T).
         /// </summary>
         /// <typeparam name="T">The type that the <paramref name="value"/> should be deserialized into.</typeparam>

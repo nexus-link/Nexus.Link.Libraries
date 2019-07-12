@@ -115,6 +115,12 @@ namespace Nexus.Link.Libraries.Core.Tests.Decoupling
                 if (!(obj is DataAnonymous data)) return false;
                 return data.Zero == Zero;
             }
+
+            /// <inheritdoc />
+            public override string ToString()
+            {
+                return $"{Zero}";
+            }
         }
 
         private class DataType1Version1 : INamedSchema
@@ -128,6 +134,12 @@ namespace Nexus.Link.Libraries.Core.Tests.Decoupling
                 if (!(obj is DataType1Version1 data)) return false;
                 return data.First == First;
             }
+
+            /// <inheritdoc />
+            public override string ToString()
+            {
+                return $"{SchemaName} ({SchemaVersion}) {First}";
+            }
         }
 
         private class DataType2Version1 : INamedSchema
@@ -140,6 +152,12 @@ namespace Nexus.Link.Libraries.Core.Tests.Decoupling
             {
                 if (!(obj is DataType2Version1 data)) return false;
                 return data.Second == Second;
+            }
+
+            /// <inheritdoc />
+            public override string ToString()
+            {
+                return $"{SchemaName} ({SchemaVersion}) {Second}";
             }
         }
 
