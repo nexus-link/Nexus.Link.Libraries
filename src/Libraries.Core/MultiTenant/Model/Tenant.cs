@@ -22,6 +22,13 @@ namespace Nexus.Link.Libraries.Core.MultiTenant.Model
         }
 
         /// <summary>
+        /// Empty constructor. Use the overload <see cref="Tenant(string,string)"/>, the empty constructor should only be used for deserialization. 
+        /// </summary>
+        public Tenant()
+        {
+        }
+
+        /// <summary>
         /// A unique lowercase abbreviation or acronym for the organization, e.g. "sef" for Svensk Elitfotboll
         /// </summary>
         public string Organization { get; }
