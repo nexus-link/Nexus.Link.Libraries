@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using Nexus.Link.Libraries.Core.Error.Model;
 
 namespace Nexus.Link.Libraries.Core.Json
@@ -11,6 +12,20 @@ namespace Nexus.Link.Libraries.Core.Json
     /// </summary>
     public class JsonHelper
     {
+        /// <summary>
+        /// Try to deserialize a JSON string.
+        /// </summary>
+        /// <typeparam name="T">The type that the <paramref name="value"/> should be deserialized into.</typeparam>
+        /// <param name="jObject">The object that should be deserialized</param>
+        /// <param name="deserializedObject">The resulting deserialized object or default(T) if the deserialization failed.</param>
+        /// <returns>True if the deserialization was successful.</returns>
+        public static bool TryDeserializeObject<T>(JObject jObject, out T deserializedObject)
+        {
+            if (jObject != null) return TryDeserializeObject(jObject.ToString(Formatting.None), out deserializedObject);
+            deserializedObject = default(T);
+            return false;
+        }
+
         /// <summary>
         /// Try to deserialize a JSON string.
         /// </summary>
@@ -51,6 +66,19 @@ namespace Nexus.Link.Libraries.Core.Json
             {
                 return false;
             }
+        }
+
+        /// <summary>
+        /// Deserialize a JSON string. If the deserialization fails we will return default(T).
+        /// </summary>
+        /// <typeparam name="T">The type that the <paramref name="value"/> should be deserialized into.</typeparam>
+        /// <param name="jObject">The object that should be deserialized</param>
+        /// <returns>The deserialized object or default(T) if the serialization failed.</returns>
+        public static T SafeDeserializeObject<T>(JObject jObject)
+        {
+            return jObject == null ? 
+                default(T) :
+                SafeDeserializeObject<T>(jObject.ToString(Formatting.None));
         }
 
         /// <summary>

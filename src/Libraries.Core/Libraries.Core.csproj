@@ -22,12 +22,6 @@
     <Folder Include="Platform\Configurations\" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Reference Include="Microsoft.Extensions.Configuration.Abstractions">
-      <HintPath>..\..\..\..\..\Program Files\dotnet\sdk\NuGetFallbackFolder\microsoft.extensions.configuration.abstractions\2.1.1\lib\netstandard2.0\Microsoft.Extensions.Configuration.Abstractions.dll</HintPath>
-    </Reference>
-  </ItemGroup>
-
   <PropertyGroup>
     <DefineConstants>TRACE;DEBUG</DefineConstants>
   </PropertyGroup>
@@ -39,7 +33,7 @@
 
   <PropertyGroup>
     <PackageId>Nexus.Link.Libraries.Core</PackageId>
-    <Version>4.4.1</Version>
+    <Version>4.4.2</Version>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <PackageTags>nexus;link;fulcrum;lever</PackageTags>
     <Authors>XLENT Link</Authors>
@@ -49,6 +43,7 @@
     <Copyright>Copyright ©2019 Xlent Link AB</Copyright>
     <IncludeSymbols>true</IncludeSymbols>
     <PackageReleaseNotes>
+      4.4.2 Added overloads of JsonHelper methods.
       4.4.1 Added support for IConfiguration.
       4.3.3 Added missing empty constructor for Tenant.
       4.3.2 VersionedSchema is now not nullable.

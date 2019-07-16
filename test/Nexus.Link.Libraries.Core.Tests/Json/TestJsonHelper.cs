@@ -20,10 +20,10 @@ namespace Nexus.Link.Libraries.Core.Tests.Json
         [TestMethod]
         public void TryDeserializeNull()
         {
-            var success = JsonHelper.TryDeserializeObject<SimpleObject>(null, out var simpleObject);
+            var success = JsonHelper.TryDeserializeObject<SimpleObject>((string)null, out var simpleObject);
             UT.Assert.IsFalse(success);
             UT.Assert.IsNull(simpleObject);
-            simpleObject = JsonHelper.SafeDeserializeObject<SimpleObject>(null);
+            simpleObject = JsonHelper.SafeDeserializeObject<SimpleObject>((string)null);
             UT.Assert.IsNull(simpleObject);
         }
 
