@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using Nexus.Link.Libraries.Core.Application;
 using Nexus.Link.Libraries.Core.Decoupling;
 using Nexus.Link.Libraries.Core.Error.Logic;
@@ -53,6 +54,30 @@ namespace Nexus.Link.Libraries.Core.Tests.Decoupling
             {
                 var json = JsonConvert.SerializeObject(dataBefore);
                 var success = schemaParser.TryParse(json, out _, out _, out var dataAfter);
+                UT.Assert.IsTrue(success);
+                UT.Assert.AreEqual(dataBefore, dataAfter);
+            }
+        }
+
+        [TestMethod]
+        public void ParseTypesJObject()
+        {
+            var schemaParser = new SchemaParser()
+                .Add(typeof(DataAnonymous))
+                .Add("DataType1", 1, typeof(DataType1Version1))
+                .Add("DataType2", 1, typeof(DataType2Version1))
+                .Add("DataType2", 2, typeof(DataType2Version2));
+            var dataOfDifferentVersions = new List<object>()
+            {
+                new DataAnonymous {Zero = Guid.NewGuid().ToString()},
+                new DataType1Version1 {First = Guid.NewGuid().ToString()},
+                new DataType2Version1 {Second = Guid.NewGuid().ToString()},
+                new DataType2Version2 {Third = Guid.NewGuid().ToString()}
+            };
+            foreach (var dataBefore in dataOfDifferentVersions)
+            {
+                var jObject = JObject.FromObject(dataBefore);
+                var success = schemaParser.TryParse(jObject, out _, out _, out var dataAfter);
                 UT.Assert.IsTrue(success);
                 UT.Assert.AreEqual(dataBefore, dataAfter);
             }

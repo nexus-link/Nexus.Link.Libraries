@@ -3,6 +3,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Text;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using Nexus.Link.Libraries.Core.Assert;
 using Nexus.Link.Libraries.Core.Json;
 
@@ -71,6 +72,19 @@ namespace Nexus.Link.Libraries.Core.Decoupling
         /// <summary>
         /// Try to convert a JSON string into an object of one of the registered types
         /// </summary>
+        /// <param name="jToken">The JSON object to convert.</param>
+        /// <param name="obj">The converted object.</param>
+        /// <returns>True if the conversion was successful.</returns>
+        public bool TryParse(JToken jToken, out object obj)
+        {
+            InternalContract.RequireNotNull(jToken, nameof(jToken));
+            InternalContract.Require(jToken.Type == JTokenType.Object, $"Parameter {nameof(jToken)} must be of a JSON object, but it was of type {jToken.Type}.");
+            return TryParse(jToken.ToString(), out obj);
+        }
+
+        /// <summary>
+        /// Try to convert a JSON string into an object of one of the registered types
+        /// </summary>
         /// <param name="json">The JSON string to convert.</param>
         /// <param name="obj">The converted object.</param>
         /// <returns>True if the conversion was successful.</returns>
@@ -78,6 +92,21 @@ namespace Nexus.Link.Libraries.Core.Decoupling
         {
             var isSuccess = TryParse(json, out _, out _, out obj);
             return isSuccess;
+        }
+
+        /// <summary>
+        /// Try to convert a JSON string into an object of one of the registered types
+        /// </summary>
+        /// <param name="jToken">The JSON object to convert.</param>
+        /// <param name="schemaName">The schema name that was used for the conversion.</param>
+        /// <param name="schemaVersion">The schema version that was used for the conversion.</param>
+        /// <param name="obj">The converted object.</param>
+        /// <returns>True if the conversion was successful.</returns>
+        public bool TryParse(JToken jToken, out string schemaName, out int schemaVersion, out object obj)
+        {
+            InternalContract.RequireNotNull(jToken, nameof(jToken));
+            InternalContract.Require(jToken.Type == JTokenType.Object, $"Parameter {nameof(jToken)} must be of a JSON object, but it was of type {jToken.Type}.");
+            return TryParse(jToken.ToString(), out schemaName, out schemaVersion, out obj);
         }
 
         /// <summary>
