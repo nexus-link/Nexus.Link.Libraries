@@ -3,6 +3,7 @@ using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Rest;
+using Newtonsoft.Json;
 using Nexus.Link.Libraries.Core.Application;
 using Nexus.Link.Libraries.Core.Assert;
 using Nexus.Link.Libraries.Core.Error.Logic;
@@ -66,6 +67,15 @@ namespace Nexus.Link.Libraries.Web.Pipe.Outbound
                 var message = $"{requestDescription} was cancelled.";
                 Log.LogWarning(message, e);
                 throw new FulcrumTryAgainException(message, e);
+            }
+            catch (Exception e) when (
+                e is HttpRequestException 
+                || e is JsonReaderException
+                )
+            {
+                var message = $"{requestDescription} failed: {e.Message}.";
+                Log.LogWarning(message, e);
+                throw new FulcrumResourceException(message, e);
             }
             catch (Exception e)
             {
