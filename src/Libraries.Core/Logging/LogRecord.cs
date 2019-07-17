@@ -4,6 +4,7 @@ using Newtonsoft.Json.Linq;
 using Nexus.Link.Libraries.Core.Application;
 using Nexus.Link.Libraries.Core.Assert;
 using Nexus.Link.Libraries.Core.Context;
+using Nexus.Link.Libraries.Core.Decoupling;
 
 namespace Nexus.Link.Libraries.Core.Logging
 {
@@ -11,20 +12,20 @@ namespace Nexus.Link.Libraries.Core.Logging
     /// <summary>
     /// Represents a log message with properties such as correlation id, calling client, severity and the text message.
     /// </summary>
-    public class LogRecord : IValidatable, ILoggable
+    public class LogRecord : IValidatable, ILoggable, INamedSchema
 #pragma warning restore CS0659 // Type overrides Object.Equals(object o) but does not override Object.GetHashCode()
     {
+        /// <inheritdoc />
+        public string SchemaName { get; } = "LogRecord";
+
+        /// <inheritdoc />
+        public int SchemaVersion { get; } = 1;
+
         /// <summary>
         /// The time that the log message was created
         /// Mandatory, i.e. must not be the default value.
         /// </summary>
         public DateTimeOffset TimeStamp { get; set; }
-
-        /// <summary>
-        /// The context when this log record was created.
-        /// </summary>
-        [Obsolete("Use FulcrumApplication.Context.", true)]
-        internal IDictionary<string, object> SavedContext { get; set; }
 
         /// <summary>
         /// The <see cref="LogSeverityLevel"/> of the log message
