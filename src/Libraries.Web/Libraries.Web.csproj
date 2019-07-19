@@ -16,7 +16,7 @@
 
   <PropertyGroup>
     <PackageId>Nexus.Link.Libraries.Web</PackageId>
-    <Version>2.0.5</Version>
+    <Version>2.1.0</Version>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <PackageTags>nexus;link;fulcrum;lever</PackageTags>
     <Authors>XLENT Link</Authors>
@@ -26,6 +26,7 @@
     <Copyright>Copyright ©2019 Xlent Link AB</Copyright>
     <IncludeSymbols>true</IncludeSymbols>
     <PackageReleaseNotes>
+      2.1.0 Added a StackifyLogger that can be used in client business api.
       2.0.5 ThrowFulcrumExceptionOnFail now catches HttpRequestException
       2.0.4 Bump to get the 1.8.14 changes.
       2.0.2 BUG: Logging of non-success HTTP response failed for non-JSON content, e.g. HTML response page.
