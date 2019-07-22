@@ -1,0 +1,26 @@
+resources:
+  repositories:
+  - repository: azure-devops-tools
+    type: github
+    endpoint: 'xlent-link-admin'
+    name: 'nexus-link/nexus-azure-devops-tools'
+    ref: 'refs/heads/master'
+ 
+trigger:
+  branches:
+    include:
+    - master
+    - dev
+  paths:
+    include:
+    - 'src/Authentication.AspNet.Sdk/*'   
+    
+jobs:
+- template: 'templates/netcore/v1/jobs/nuget.yml@azure-devops-tools'
+  parameters:
+    jobName: 'AzureStorage'
+    # Skip tests. Currently no implementation of locking, so 3 tests fail.
+    testProjectsPath: ''
+    nugetProjectsPath: 'src/Libraries.SqlServer/*.csproj'
+    nuGetFeedType: external
+    publishFeedCredentials: 'prd-nexus-nuget-external'

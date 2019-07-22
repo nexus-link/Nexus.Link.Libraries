@@ -1,0 +1,32 @@
+resources:
+  repositories:
+  - repository: azure-devops-tools
+    type: github
+    endpoint: 'xlent-link-admin'
+    name: 'nexus-link/nexus-azure-devops-tools'
+    ref: 'refs/heads/master'
+ 
+trigger:
+  branches:
+    include:
+    - master
+    - dev
+  paths:
+    include:
+    - 'src/Authentication.AspNet.Sdk/*'   
+    
+jobs:
+- template: 'templates/netcore/v1/jobs/nuget.yml@azure-devops-tools'
+  parameters:
+    jobName: 'Crud'
+    testProjectsPath: 'test/Nexus.Link.Libraries.Crud.Test/*.csproj'
+    nugetProjectsPath: 'src/Libraries.Crud/*.csproj'
+    nuGetFeedType: external
+    publishFeedCredentials: 'prd-nexus-nuget-external'
+- template: 'templates/netcore/v1/jobs/nuget.yml@azure-devops-tools'
+  parameters:
+    jobName: 'CrudUnitTests'
+    testProjectsPath: 'test/Nexus.Link.Libraries.Crud.Test/*.csproj'
+    nugetProjectsPath: 'src/Nexus.Link.Libraries.Crud.UnitTests/*.csproj'
+    nuGetFeedType: external
+    publishFeedCredentials: 'prd-nexus-nuget-external'
