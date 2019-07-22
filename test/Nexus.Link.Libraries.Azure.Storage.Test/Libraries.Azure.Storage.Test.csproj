@@ -18,6 +18,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\src\Libraries.Crud.UnitTests\Libraries.Crud.UnitTests.csproj" />
     <ProjectReference Include="..\..\src\Libraries.Azure.Storage\Libraries.Azure.Storage.csproj" />
   </ItemGroup>
 

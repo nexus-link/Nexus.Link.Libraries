@@ -15,6 +15,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\src\Libraries.Crud.UnitTests\Libraries.Crud.UnitTests.csproj" />
     <ProjectReference Include="..\..\src\Libraries.Crud\Libraries.Crud.csproj" />
   </ItemGroup>
 
