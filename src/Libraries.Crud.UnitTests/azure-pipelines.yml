@@ -20,6 +20,6 @@ jobs:
   parameters:
     jobName: 'CrudUnitTests'
     testProjectsPath: ''
-    nugetProjectsPath: 'src/Nexus.Link.Libraries.Crud.UnitTests/*.csproj'
+    nugetProjectsPath: 'src/Libraries.Crud.UnitTests/*.csproj'
     nuGetFeedType: external
     publishFeedCredentials: 'prd-nexus-nuget-external'
