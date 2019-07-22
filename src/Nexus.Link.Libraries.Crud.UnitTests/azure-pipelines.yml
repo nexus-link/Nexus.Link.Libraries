@@ -18,15 +18,8 @@ trigger:
 jobs:
 - template: 'templates/netcore/v1/jobs/nuget.yml@azure-devops-tools'
   parameters:
-    jobName: 'Crud'
-    testProjectsPath: 'test/Nexus.Link.Libraries.Crud.Test/*.csproj'
-    nugetProjectsPath: 'src/Libraries.Crud/*.csproj'
-    nuGetFeedType: external
-    publishFeedCredentials: 'prd-nexus-nuget-external'
-- template: 'templates/netcore/v1/jobs/nuget.yml@azure-devops-tools'
-  parameters:
     jobName: 'CrudUnitTests'
-    testProjectsPath: 'test/Nexus.Link.Libraries.Crud.Test/*.csproj'
+    testProjectsPath: ''
     nugetProjectsPath: 'src/Nexus.Link.Libraries.Crud.UnitTests/*.csproj'
     nuGetFeedType: external
     publishFeedCredentials: 'prd-nexus-nuget-external'
