@@ -18,7 +18,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\Libraries.SqlServer\Libraries.SqlServer.csproj" />
-    <ProjectReference Include="..\Nexus.Link.Libraries.Crud.UnitTests\Libraries.Crud.UnitTests.csproj" />
   </ItemGroup>
 
 </Project>

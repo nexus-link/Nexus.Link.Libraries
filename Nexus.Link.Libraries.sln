@@ -41,8 +41,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Libraries.Core.Tests", "tes
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Libraries.Crud.Test", "test\Nexus.Link.Libraries.Crud.Test\Libraries.Crud.Test.csproj", "{8F463F4A-42E0-48BE-883E-F7AC6CB61130}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Libraries.Crud.UnitTests", "test\Nexus.Link.Libraries.Crud.UnitTests\Libraries.Crud.UnitTests.csproj", "{A68E844E-BE05-4CEE-B3F1-23425023F1FD}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Libraries.Crud.Web.Test", "test\Nexus.Link.Libraries.Crud.Web.Test\Libraries.Crud.Web.Test.csproj", "{E2EFC8D9-43A3-41A3-A73C-A3B795E3BD17}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Libraries.SqlServer.Test", "test\Nexus.Link.Libraries.SqlServer.Test\Libraries.SqlServer.Test.csproj", "{3D8C1788-4844-4F67-A2B9-D7E14E207213}"
@@ -50,6 +48,8 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Libraries.Web.AspNet.Tests", "test\Nexus.Link.Libraries.Web.AspNet.Tests\Libraries.Web.AspNet.Tests.csproj", "{60791513-444B-4B38-9D5B-B59BE3966173}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Libraries.Web.Tests", "test\Nexus.Link.Libraries.Web.Tests\Libraries.Web.Tests.csproj", "{7ED9079E-C4E4-400A-9DD8-9A46FE8B6742}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Libraries.Crud.UnitTests", "src\Libraries.Crud.UnitTests\Libraries.Crud.UnitTests.csproj", "{313A3AFF-5F8D-4BEF-9051-D7E1A3116583}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -101,10 +101,6 @@ Global
 		{8F463F4A-42E0-48BE-883E-F7AC6CB61130}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8F463F4A-42E0-48BE-883E-F7AC6CB61130}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{8F463F4A-42E0-48BE-883E-F7AC6CB61130}.Release|Any CPU.Build.0 = Release|Any CPU
-		{A68E844E-BE05-4CEE-B3F1-23425023F1FD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{A68E844E-BE05-4CEE-B3F1-23425023F1FD}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{A68E844E-BE05-4CEE-B3F1-23425023F1FD}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{A68E844E-BE05-4CEE-B3F1-23425023F1FD}.Release|Any CPU.Build.0 = Release|Any CPU
 		{E2EFC8D9-43A3-41A3-A73C-A3B795E3BD17}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{E2EFC8D9-43A3-41A3-A73C-A3B795E3BD17}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E2EFC8D9-43A3-41A3-A73C-A3B795E3BD17}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -121,6 +117,10 @@ Global
 		{7ED9079E-C4E4-400A-9DD8-9A46FE8B6742}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7ED9079E-C4E4-400A-9DD8-9A46FE8B6742}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{7ED9079E-C4E4-400A-9DD8-9A46FE8B6742}.Release|Any CPU.Build.0 = Release|Any CPU
+		{313A3AFF-5F8D-4BEF-9051-D7E1A3116583}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{313A3AFF-5F8D-4BEF-9051-D7E1A3116583}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{313A3AFF-5F8D-4BEF-9051-D7E1A3116583}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{313A3AFF-5F8D-4BEF-9051-D7E1A3116583}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -129,7 +129,6 @@ Global
 		{D6EA3A92-B51F-4990-BE6E-1DAF8EF8DC52} = {57821723-4C04-4949-A42B-6CF8B55F1346}
 		{7E037CB7-8882-4695-BA31-F188C2AB6018} = {57821723-4C04-4949-A42B-6CF8B55F1346}
 		{8F463F4A-42E0-48BE-883E-F7AC6CB61130} = {57821723-4C04-4949-A42B-6CF8B55F1346}
-		{A68E844E-BE05-4CEE-B3F1-23425023F1FD} = {57821723-4C04-4949-A42B-6CF8B55F1346}
 		{E2EFC8D9-43A3-41A3-A73C-A3B795E3BD17} = {57821723-4C04-4949-A42B-6CF8B55F1346}
 		{3D8C1788-4844-4F67-A2B9-D7E14E207213} = {57821723-4C04-4949-A42B-6CF8B55F1346}
 		{60791513-444B-4B38-9D5B-B59BE3966173} = {57821723-4C04-4949-A42B-6CF8B55F1346}
