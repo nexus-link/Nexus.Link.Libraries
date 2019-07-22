@@ -13,7 +13,7 @@ trigger:
     - dev
   paths:
     include:
-    - 'src/Authentication.AspNet.Sdk/*'   
+    - 'src/Libraries.Crud.UnitTests/*'   
     
 jobs:
 - template: 'templates/netcore/v1/jobs/nuget.yml@azure-devops-tools'
