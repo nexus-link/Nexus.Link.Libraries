@@ -1,6 +1,5 @@
 ﻿#if NETCOREAPP
 #else
-
 using System;
 using System.Diagnostics;
 using System.Net;
@@ -103,7 +102,7 @@ namespace Nexus.Link.Libraries.Web.AspNet.Startup
                 try
                 {
                     var exception = new FulcrumResourceException($"FATAL ERROR IN STARTUP: {_startupError.Message}. Check fallback logs for details.");
-                    var error = ExceptionConverter.ToFulcrumError(exception);
+                    var error = ExceptionConverter.ToFulcrumError(exception, true);
                     var statusCode = ExceptionConverter.ToHttpStatusCode(error);
 
                     // TrySkipIisCustomErrors = true is important! Without it, IIS sets it's own response content.

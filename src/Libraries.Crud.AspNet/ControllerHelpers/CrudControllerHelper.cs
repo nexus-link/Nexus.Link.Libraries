@@ -10,7 +10,7 @@ using Nexus.Link.Libraries.Crud.PassThrough;
 
 namespace Nexus.Link.Libraries.Crud.AspNet.ControllerHelpers
 {
-    /// <inheritdoc cref="CrudControllerHelper{TModel}" />
+    /// <inheritdoc cref="CrudControllerHelper{TModel, TModel}" />
     public class CrudControllerHelper<TModel> :
         CrudControllerHelper<TModel, TModel>,
         ICrud<TModel, string>

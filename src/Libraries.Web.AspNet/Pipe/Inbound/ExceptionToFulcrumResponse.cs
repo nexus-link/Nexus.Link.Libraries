@@ -63,8 +63,6 @@ namespace Nexus.Link.Libraries.Web.AspNet.Pipe.Inbound
 #else
             var response = AspNetExceptionConverter.ToHttpResponseMessage(exception);
 #endif
-            Log.LogInformation(
-                $"Exception ({exception.GetType().Name} {exception.Message}) was converted to an HTTP response ({response.StatusCode}).");
 #if NETCOREAPP
             context.Context.Response.StatusCode = response.StatusCode.Value;
             context.Context.Response.ContentType = response.ContentType;

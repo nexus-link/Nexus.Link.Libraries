@@ -13,6 +13,7 @@ namespace Nexus.Link.Libraries.Web.Pipe
     /// <summary>
     /// Logs requests and responses in the pipe
     /// </summary>
+    [Obsolete("2019-07-22: Use Outbound.LogRequestAndResponse", true)]
     public abstract class LogRequestAndResponse : DelegatingHandler
     {
         private readonly string _direction;
@@ -33,7 +34,7 @@ namespace Nexus.Link.Libraries.Web.Pipe
 
         /// <summary></summary>
         /// <param name="direction">Typically INBOUND or OUTBUND</param>
-        public LogRequestAndResponse(string direction)
+        protected LogRequestAndResponse(string direction)
         {
             _direction = direction;
             FulcrumApplication.Validate();

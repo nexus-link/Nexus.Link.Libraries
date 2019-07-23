@@ -62,7 +62,7 @@ namespace Nexus.Link.Libraries.Web.Logging.Stackify
                 {
                     new Message
                     {
-                        Msg = $"{logRecord.Message} ({logRecord.TimeStamp.ToLogString()})",
+                        Msg = $"{logRecord.Message}\r{logRecord.Location}",
                         EpochMS = logRecord.TimeStamp.ToUnixTimeMilliseconds(),
                         Level = logRecord.SeverityLevel.ToString(),
                         SourceMethod = logRecord.Location,

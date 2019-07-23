@@ -85,10 +85,10 @@ namespace Nexus.Link.Libraries.Core.Threads
         /// <param name="token">Propagates notification that operations should be canceled.</param>
         /// i.e. parallel calls to this method will execute one at a time.
         /// </summary>
-        /// <param name="asyncMethod">The method to execute without parallelism.</param>
+        /// <param name="asyncMethod">The method to execute with restricted parallelism.</param>
         /// <param name="token">Propagates notification that operations should be canceled.</param>
         /// <returns></returns>
-        public async Task Execute(Func<CancellationToken, Task> asyncMethod, CancellationToken token = default(CancellationToken))
+        public async Task ExecuteAsync(Func<CancellationToken, Task> asyncMethod, CancellationToken token = default(CancellationToken))
         {
             try
             {
@@ -103,14 +103,47 @@ namespace Nexus.Link.Libraries.Core.Threads
 
         /// <summary>
         /// Execute <paramref name="asyncMethod"/> with the semaphore raised,
+        /// <param name="token">Propagates notification that operations should be canceled.</param>
         /// i.e. parallel calls to this method will execute one at a time.
         /// </summary>
-        /// <param name="asyncMethod">The method to execute without parallelism.</param>
+        /// <param name="asyncMethod">The method to execute with restricted parallelism.</param>
         /// <param name="token">Propagates notification that operations should be canceled.</param>
         /// <returns></returns>
-        public Task Execute(Func<Task> asyncMethod, CancellationToken token = default(CancellationToken))
+        public async Task<T> ExecuteAsync<T>(Func<CancellationToken, Task<T>> asyncMethod, CancellationToken token = default(CancellationToken))
         {
-            return Execute((t) => asyncMethod(), token);
+            try
+            {
+                await RaiseAsync(token);
+                return await asyncMethod(token);
+            }
+            finally
+            {
+                await LowerAsync(token);
+            }
+        }
+
+        /// <summary>
+        /// Execute <paramref name="asyncMethod"/> with the semaphore raised,
+        /// i.e. parallel calls to this method will execute one at a time.
+        /// </summary>
+        /// <param name="asyncMethod">The method to execute with restricted parallelism.</param>
+        /// <param name="token">Propagates notification that operations should be canceled.</param>
+        /// <returns></returns>
+        public Task ExecuteAsync(Func<Task> asyncMethod, CancellationToken token = default(CancellationToken))
+        {
+            return ExecuteAsync((t) => asyncMethod(), token);
+        }
+
+        /// <summary>
+        /// Execute <paramref name="asyncMethod"/> with the semaphore raised,
+        /// i.e. parallel calls to this method will execute one at a time.
+        /// </summary>
+        /// <param name="asyncMethod">The method to execute with restricted parallelism.</param>
+        /// <param name="token">Propagates notification that operations should be canceled.</param>
+        /// <returns></returns>
+        public Task<T> ExecuteAsync<T>(Func<Task<T>> asyncMethod, CancellationToken token = default(CancellationToken))
+        {
+            return ExecuteAsync((t) => asyncMethod(), token);
         }
     }
 }

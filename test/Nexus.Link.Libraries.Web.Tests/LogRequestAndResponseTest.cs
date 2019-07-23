@@ -30,7 +30,7 @@ namespace Nexus.Link.Libraries.Web.Tests
         [TestMethod]
         public async Task ResponseOk()
         {
-            var logRequestAndResponse = new LogRequestAndResponse
+            var logRequestAndResponse = new LogRequestAndResponseForTest
             {
                 UnitTest_SendAsyncDependencyInjection = SendAsyncResponseOk
             };
@@ -39,30 +39,30 @@ namespace Nexus.Link.Libraries.Web.Tests
             await logRequestAndResponse.SendAsync(request);
             var lastMessage = LastMessage(LogSeverityLevel.Information);
             Assert.IsNotNull(lastMessage);
-            Assert.IsTrue(lastMessage.Contains($"TEST request-response POST {request.RequestUri}"));
+            Assert.IsTrue(lastMessage.Contains($"OUTBOUND request-response POST {request.RequestUri}"));
             Assert.IsTrue(lastMessage.Contains(request.RequestUri.ToString()));
         }
 
         [TestMethod]
         public async Task ResponseBadRequest()
         {
-            var logRequestAndResponse = new LogRequestAndResponse
+            var logRequestAndResponse = new LogRequestAndResponseForTest
             {
                 UnitTest_SendAsyncDependencyInjection = SendAsyncResponseBadRequest
             };
             var request = new HttpRequestMessage(HttpMethod.Post, "http://example.com/badrequest");
             SetExpectedNumberOfLogs(1);
             await logRequestAndResponse.SendAsync(request);
-            var lastMessage = LastMessage(LogSeverityLevel.Warning);
+            var lastMessage = LastMessage(LogSeverityLevel.Error);
             Assert.IsNotNull(lastMessage);
-            Assert.IsTrue(lastMessage.Contains($"TEST request-response POST {request.RequestUri}"));
+            Assert.IsTrue(lastMessage.Contains($"OUTBOUND request-response POST {request.RequestUri}"));
         }
 
         [TestMethod]
         public async Task ResponseException()
         {
             var logRequestAndResponse =
-                new LogRequestAndResponse {UnitTest_SendAsyncDependencyInjection = SendAsyncResponseException};
+                new LogRequestAndResponseForTest {UnitTest_SendAsyncDependencyInjection = SendAsyncResponseException};
             var request = new HttpRequestMessage(HttpMethod.Post, "http://example.com/exception");
             SetExpectedNumberOfLogs(1);
             try
@@ -74,7 +74,7 @@ namespace Nexus.Link.Libraries.Web.Tests
             {
                 var lastMessage = LastMessage(LogSeverityLevel.Error);
                 Assert.IsNotNull(lastMessage);
-                Assert.IsTrue(lastMessage.Contains($"TEST request-exception POST {request.RequestUri}"));
+                Assert.IsTrue(lastMessage.Contains($"OUTBOUND request-exception POST {request.RequestUri}"));
             }
         }
 
@@ -87,11 +87,11 @@ namespace Nexus.Link.Libraries.Web.Tests
         private string LastMessage(LogSeverityLevel severityLevel)
         {
             var count = 0;
-            while (count++ < 10 && _numberOfLogs < _expectedNumberOfLogs) Thread.Sleep(TimeSpan.FromMilliseconds(100));
+            while (count++ < 100 && _numberOfLogs < _expectedNumberOfLogs) Thread.Sleep(TimeSpan.FromMilliseconds(10));
             Assert.IsFalse(_numberOfLogs < _expectedNumberOfLogs,
                 $"Expected {_expectedNumberOfLogs} logs, got {_numberOfLogs}");
-            while (count++ < 10 && _numberOfLogs <= _expectedNumberOfLogs &&
-                   !_lastMessageDictionary.ContainsKey(severityLevel)) Thread.Sleep(TimeSpan.FromMilliseconds(100));
+            while (count++ < 100 && _numberOfLogs <= _expectedNumberOfLogs &&
+                   !_lastMessageDictionary.ContainsKey(severityLevel)) Thread.Sleep(TimeSpan.FromMilliseconds(10));
             Assert.IsFalse(_numberOfLogs > _expectedNumberOfLogs,
                 $"Expected {_expectedNumberOfLogs} logs, got {_numberOfLogs}");
             return !_lastMessageDictionary.ContainsKey(severityLevel) ? null : _lastMessageDictionary[severityLevel];

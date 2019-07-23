@@ -24,7 +24,7 @@
 
   <PropertyGroup>
     <PackageId>Nexus.Link.Libraries.Web.AspNet</PackageId>
-    <Version>2.3.3</Version>
+    <Version>2.3.9</Version>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <PackageTags>nexus;link;fulcrum;lever</PackageTags>
     <Authors>XLENT Link</Authors>
@@ -34,16 +34,18 @@
     <Copyright>Copyright ©2019 Xlent Link AB</Copyright>
     <IncludeSymbols>true</IncludeSymbols>
     <PackageReleaseNotes>
-      2.3.3 Updated nexus nugets.
+      2.3.9 Bump
+      2.3.5 BUG: Bad HTTP response if application throws non-fulcrum exception. SOLUTION: Wrap the exception in a FulcrumAssertionFailedException.
+      2.3.3 Bump
       2.3.1 Added support for IConfiguration.
       2.2.2 Added missing parameters in UseNexusBatchLogs().
       2.2.0 NexusWebApiApplication: Convenience class for helping with application start from Global.asax.cs (only for net461)
       2.1.0 Removed one parameter for BatchLogs. The individual severity level threshold will now be taken from FulcrumApplication.Setup.LogSeverityLevelThreshold.
       2.0.1 Safe deserializing.
       2.0.0 Depends on major change in Libraries.Core
-      1.5.6 Updated nexus nugets
+      1.5.6 Bump
       1.5.3 Request-response logging now has elapsed time in seconds and logs Type and Message when the response is a FulcrumError.
-      1.5.2 Updated nexus nugets
+      1.5.2 Bump
       1.5.1 400-errors are now logged as warnings, while 500-errors are still logged as errors
       1.5.0 400-errors are no longer considered an error from a log perspective, but 500-errors still are
       1.4.8 When an URL is changed from http to https, port 80 is changed to port 443

@@ -26,7 +26,7 @@ namespace Nexus.Link.Libraries.Core.Tests.Threads
             var done = false;
             var tokenSource = new CancellationTokenSource();
             var asyncSemaphore = new NexusAsyncSemaphore(TimeSpan.FromDays(1));
-            var task = asyncSemaphore.Execute(() =>
+            var task = asyncSemaphore.ExecuteAsync(() =>
             {
                 done = true;
                 return Task.CompletedTask;
@@ -71,13 +71,13 @@ namespace Nexus.Link.Libraries.Core.Tests.Threads
             var done1 = false;
             var started2 = false;
             var asyncSemaphore = new NexusAsyncSemaphore();
-            var task1 = asyncSemaphore.Execute(async () =>
+            var task1 = asyncSemaphore.ExecuteAsync(async () =>
             {
                 started1 = true;
                 await Task.Delay(TimeSpan.FromMilliseconds(10));
                 done1 = true;
             });
-            var task2 = asyncSemaphore.Execute(async () =>
+            var task2 = asyncSemaphore.ExecuteAsync(async () =>
             {
                 started2 = true;
                 await Task.Delay(TimeSpan.FromMilliseconds(10));
@@ -97,7 +97,7 @@ namespace Nexus.Link.Libraries.Core.Tests.Threads
         {
             var tokenSource = new CancellationTokenSource();
             var asyncSemaphore = new NexusAsyncSemaphore(TimeSpan.FromDays(1));
-            var task = asyncSemaphore.Execute((t) => Task.Delay(TimeSpan.FromDays(1), t), tokenSource.Token);
+            var task = asyncSemaphore.ExecuteAsync((t) => Task.Delay(TimeSpan.FromDays(1), t), tokenSource.Token);
             tokenSource.Cancel();
             // 10ms grace period for task to finish 
             try

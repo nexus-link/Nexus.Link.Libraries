@@ -33,7 +33,7 @@
 
   <PropertyGroup>
     <PackageId>Nexus.Link.Libraries.Core</PackageId>
-    <Version>4.5.0</Version>
+    <Version>4.5.1</Version>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <PackageTags>nexus;link;fulcrum;lever</PackageTags>
     <Authors>XLENT Link</Authors>
@@ -43,7 +43,7 @@
     <Copyright>Copyright ©2019 Xlent Link AB</Copyright>
     <IncludeSymbols>true</IncludeSymbols>
     <PackageReleaseNotes>
-      4.5.0 Added NexusAsyncSemaphore.
+      4.5.1 Added NexusAsyncSemaphore.
       4.4.3 Added overloads of SchemaParser methods.
       4.4.2 Added overloads of JsonHelper methods.
       4.4.1 Added support for IConfiguration.

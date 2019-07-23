@@ -95,41 +95,33 @@ namespace Nexus.Link.Libraries.Web.Error.Logic
         }
 
         /// <summary>
-        /// Convert an exception (<paramref name="e"/>) into a <see cref="FulcrumError"/>.
+        /// Convert an exception (<paramref name="fulcrumException"/>) into a <see cref="FulcrumError"/>.
         /// </summary>
         public static FulcrumError ToFulcrumError(FulcrumException fulcrumException)
         {
-            if (fulcrumException == null) return null;
-
-            var error = new FulcrumError();
-            error.CopyFrom(fulcrumException);
-            error.InnerError = ToFulcrumError(fulcrumException.InnerException, true);
-            error.InnerInstanceId = error.InnerError?.InstanceId;
-            return error;
+            return ToFulcrumError(fulcrumException, true);
         }
 
         /// <summary>
-        /// Convert an exception (<paramref name="e"/>) into a <see cref="FulcrumError"/>.
+        /// Convert an exception (<paramref name="exception"/>) into a <see cref="FulcrumError"/>.
         /// </summary>
-        private static FulcrumError ToFulcrumError(Exception e, bool alsoNonFulcrumExceptions = false)
+        public static FulcrumError ToFulcrumError(Exception exception, bool topLevelMustBeFulcrumException)
         {
-            if (e == null) return null;
-            if ((e is FulcrumException fulcrumException))
+            if (exception == null) return null;
+            var fulcrumError = new FulcrumError();
+            if ((exception is FulcrumException fulcrumException))
             {
-                var error = new FulcrumError();
-                error.CopyFrom(fulcrumException);
-                error.InnerError = ToFulcrumError(fulcrumException.InnerException, true);
-                return error;
+                fulcrumError.CopyFrom(fulcrumException);
             }
-
-            if (!alsoNonFulcrumExceptions) return null;
-
-            var fulcrumError = new FulcrumError
+            else
             {
-                TechnicalMessage = e.Message,
-                InstanceId = Guid.NewGuid().ToString(),
-                Type = e.GetType().FullName
-            };
+
+                fulcrumError.TechnicalMessage = exception.Message;
+                fulcrumError.InstanceId = Guid.NewGuid().ToString();
+                fulcrumError.Type = exception.GetType().FullName;
+            }
+            fulcrumError.InnerError = ToFulcrumError(exception.InnerException, false);
+            fulcrumError.InnerInstanceId = fulcrumError.InnerError?.InstanceId;
             return fulcrumError;
         }
 
@@ -160,7 +152,7 @@ namespace Nexus.Link.Libraries.Web.Error.Logic
             var shortContent = contentAsString;
             if (shortContent.Length > 160)
             {
-                Log.LogInformation($"Truncating failed response content to 160 characters. This was the original content:\r{contentAsString}");
+                Log.LogVerbose($"Truncating failed response content to 160 characters. This was the original content:\r{contentAsString}");
                 shortContent = $"Truncated content: {contentAsString.Substring(0, 160)}";
             }
             var fulcrumError = new FulcrumError
@@ -349,7 +341,7 @@ namespace Nexus.Link.Libraries.Web.Error.Logic
         /// </summary>
         public static HttpStatusCode? ToHttpStatusCode(FulcrumException fulcrumException)
         {
-            var error = ToFulcrumError(fulcrumException);
+            var error = ToFulcrumError(fulcrumException, true);
             return ToHttpStatusCode(error);
         }
 
