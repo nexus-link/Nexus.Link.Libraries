@@ -223,7 +223,17 @@ namespace Nexus.Link.Libraries.Web.Error.Logic
                         fulcrumError.Type = FulcrumNotFoundException.ExceptionType;
                         break;
                     default:
-                        fulcrumError.Type = FulcrumServiceContractException.ExceptionType;
+                        if (statusCodeAsInt == 429) // Too many requests
+                        {
+                            fulcrumError.Type = FulcrumTryAgainException.ExceptionType;
+                            fulcrumError.IsRetryMeaningful = true;
+                            fulcrumError.RecommendedWaitTimeInSeconds = 30;
+                        }
+                        else
+                        {
+                            fulcrumError.Type = FulcrumServiceContractException.ExceptionType;
+                        }
+
                         break;
                 }
             }
