@@ -1,10 +1,11 @@
 ﻿using System;
 using System.Runtime.CompilerServices;
+using Microsoft.Extensions.Logging;
 using Newtonsoft.Json.Linq;
 
 namespace Nexus.Link.Libraries.Core.Logging
 {
-    public interface ILogFacade
+    public interface ILogFacade : ILogger
     {
 
         /// <summary>

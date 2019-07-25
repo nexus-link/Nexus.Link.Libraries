@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Runtime.CompilerServices;
 using System.Threading;
+using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Nexus.Link.Libraries.Core.Application;
 
@@ -32,6 +34,8 @@ namespace Nexus.Link.Libraries.Core.Logging
             [CallerLineNumber] int lineNumber = 0)
         {
             LogOnLevel(LogSeverityLevel.Verbose, message, exception, memberName, filePath, lineNumber);
+            var logger = new LogFacade();
+            logger.LogInformation(null, new Exception("test"), "My test message", this, this);
         }
 
         /// <inheritdoc />
@@ -252,6 +256,60 @@ namespace Nexus.Link.Libraries.Core.Logging
             }
 
             return logInstanceInformation;
+        }
+
+        /// <inheritdoc />
+        public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception exception, Func<TState, Exception, string> formatter)
+        {
+            var message = SafeFormatMessage(state, exception, formatter);
+            LogOnLevel(logLevel.ToLogSeverityLevel(), message, state, exception);
+        }
+
+        private static string SafeFormatMessage<TState>(TState state, Exception exception,
+            Func<TState, Exception, string> formatter)
+        {
+            string message;
+            try
+            {
+                if (formatter != null)
+                {
+                    message = formatter(state, exception);
+                }
+                else if (state is ILoggable loggable)
+                {
+                    message = loggable.ToLogString();
+                }
+                else
+                {
+                    message = JsonConvert.SerializeObject(state);
+                }
+            }
+            catch (Exception)
+            {
+                message = state.ToString();
+            }
+
+            return message;
+        }
+
+        /// <inheritdoc />
+        public bool IsEnabled(LogLevel logLevel)
+        {
+
+            if (FulcrumApplication.Context.IsInBatchLogger) return true;
+            return logLevel >= FulcrumApplication.Setup.LogSeverityLevelThreshold.ToLogLevel();
+        }
+
+        /// <inheritdoc />
+        public IDisposable BeginScope<TState>(TState state)
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <inheritdoc />
+        public string ToLogString()
+        {
+            throw new NotImplementedException();
         }
     }
 }

@@ -277,6 +277,7 @@ namespace Nexus.Link.Libraries.Core.Logging
             [CallerLineNumber] int lineNumber = 0)
         {
             _logger.LogOnLevel(severityLevel, message, data, exception, memberName, filePath, lineNumber);
+            _logger.
         }
     }
 }
