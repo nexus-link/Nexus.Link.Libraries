@@ -27,7 +27,7 @@
 
   <PropertyGroup>
     <PackageId>Nexus.Link.Libraries.Web.AspNet</PackageId>
-    <Version>2.4.0</Version>
+    <Version>2.4.1</Version>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <PackageTags>nexus;link;fulcrum;lever</PackageTags>
     <Authors>XLENT Link</Authors>
@@ -37,7 +37,7 @@
     <Copyright>Copyright ©2019 Xlent Link AB</Copyright>
     <IncludeSymbols>true</IncludeSymbols>
     <PackageReleaseNotes>
-      2.4.0 Added StartupHelperBase to support quick configuration of Startup.cs in Business API and Nexus Adapter.
+      2.4.1 Added StartupHelperBase to support quick configuration of Startup.cs in Business API and Nexus Adapter.
       2.3.10 Bump
       2.3.5 BUG: Bad HTTP response if application throws non-fulcrum exception. SOLUTION: Wrap the exception in a FulcrumAssertionFailedException.
       2.3.3 Bump

@@ -20,7 +20,7 @@ namespace Nexus.Link.Libraries.Web.AspNet.Startup
     /// <summary>
     /// Helper class for the different steps in the Startup.cs file.
     /// </summary>
-    public abstract class StartupHelperBase
+    public abstract class StartupHelperBase : IValidatable
     {
         /// <summary>
         /// The base URL to the authentication service for authenticating your app vs. Nexus Link.
@@ -110,6 +110,7 @@ namespace Nexus.Link.Libraries.Web.AspNet.Startup
         {
             try
             {
+                InternalContract.RequireValidated(this, GetType().FullName);
                 InitialServiceConfiguration(services);
                 DependencyInjectServices(services);
                 Log.LogInformation($"{nameof(StartupHelperBase)}.{nameof(ConfigureServices)} succeeded.");
@@ -130,6 +131,7 @@ namespace Nexus.Link.Libraries.Web.AspNet.Startup
         {
             try
             {
+                InternalContract.RequireValidated(this, GetType().FullName);
                 if (env.IsDevelopment())
                 {
                     app.UseDeveloperExceptionPage();
@@ -312,6 +314,23 @@ namespace Nexus.Link.Libraries.Web.AspNet.Startup
         /// </summary>
         protected abstract void ConfigureAppMiddleware(IApplicationBuilder app, IHostingEnvironment env);
         #endregion
+
+        /// <inheritdoc />
+        public void Validate(string errorLocation, string propertyPath = "")
+        {
+            FulcrumValidate.IsNotNull(DisplayName, nameof(DisplayName), errorLocation);
+            FulcrumValidate.IsNotNull(TechnicalName, nameof(TechnicalName), errorLocation);
+            FulcrumValidate.IsNotNull(ApiVersion, nameof(TechnicalName), ApiVersion);
+            FulcrumValidate.IsNotNull(TechnicalName, nameof(TechnicalName), errorLocation);
+            if (IsBusinessApi)
+            {
+                FulcrumValidate.IsNotNullOrWhiteSpace(NexusLinkAuthenticationBaseUrl, nameof(NexusLinkAuthenticationBaseUrl), errorLocation);
+                FulcrumValidate.IsNotNullOrWhiteSpace(BusinessEventsBaseUrl, nameof(BusinessEventsBaseUrl), errorLocation);
+                FulcrumValidate.IsNotNull(NexusLinkTokenRefresher, nameof(NexusLinkTokenRefresher), errorLocation);
+            }
+            FulcrumValidate.IsNotNullOrWhiteSpace(LocalAuthenticationBaseUrl, nameof(LocalAuthenticationBaseUrl), errorLocation);
+            FulcrumValidate.IsNotNull(LocalTokenRefresher, nameof(LocalTokenRefresher), errorLocation);
+        }
     }
 }
 #endif
