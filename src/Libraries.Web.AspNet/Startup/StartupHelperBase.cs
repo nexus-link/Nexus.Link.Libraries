@@ -23,34 +23,6 @@ namespace Nexus.Link.Libraries.Web.AspNet.Startup
     public abstract class StartupHelperBase : IValidatable
     {
         /// <summary>
-        /// The base URL to the authentication service for authenticating your app vs. Nexus Link.
-        /// </summary>
-        /// <remarks>Only useful for the Business API, not for Nexus Adapters.</remarks>
-        protected abstract string NexusLinkAuthenticationBaseUrl { get; set; }
-
-        /// <summary>
-        /// The base URL to the Nexus Link business events service.
-        /// </summary>
-        /// <remarks>Only useful for the Business API, not for Nexus Adapters.</remarks>
-        protected abstract string BusinessEventsBaseUrl { get; set; }
-
-        /// <summary>
-        /// A token generator for authenticating your app vs. Nexus Link.
-        /// </summary>
-        /// <remarks>Only useful for the Business API, not for Nexus Adapters.</remarks>
-        protected ITokenRefresherWithServiceClient NexusLinkTokenRefresher { get; set; }
-
-        /// <summary>
-        /// The base URL to the authentication service for authenticating within your platform.
-        /// </summary>
-        public abstract string LocalAuthenticationBaseUrl { get; protected set; }
-
-        /// <summary>
-        /// A token generator for authenticating between adapters and the business API.
-        /// </summary>
-        public ITokenRefresherWithServiceClient LocalTokenRefresher { get; set; }
-
-        /// <summary>
         /// The configuration from the Startup constructor.
         /// </summary>
         public IConfiguration Configuration { get; }
@@ -72,16 +44,11 @@ namespace Nexus.Link.Libraries.Web.AspNet.Startup
         }
 
         /// <summary>
-        /// A user friendly name, e.g. "Salesforce adapter"
-        /// </summary>
-        public abstract string DisplayName { get; set; }
-
-        /// <summary>
-        /// The technical name of this adapter, e.g. "Salesforce.NexusAdapter"
+        /// The technical name of this web app, e.g. "Business API" or "Salesforce.NexusAdapter"
         /// </summary>
         /// <remarks>
         /// Will be used to generate other technical names like the file for Swagger documentation.</remarks>
-        public abstract string TechnicalName { get; set; }
+        public string TechnicalName { get; set; }
 
         /// <summary>
         /// The version of the API. To be used in the Open API (swagger).
@@ -99,7 +66,7 @@ namespace Nexus.Link.Libraries.Web.AspNet.Startup
         /// </summary>
         public virtual string GetCommentsFilePath()
         {
-            var xmlFile = $"{TechnicalName}.Services.xml";
+            var xmlFile = $"{TechnicalName}.Service.xml";
             return Path.Combine(AppContext.BaseDirectory, xmlFile);
         }
 
@@ -110,7 +77,6 @@ namespace Nexus.Link.Libraries.Web.AspNet.Startup
         {
             try
             {
-                InternalContract.RequireValidated(this, GetType().FullName);
                 InitialServiceConfiguration(services);
                 DependencyInjectServices(services);
                 Log.LogInformation($"{nameof(StartupHelperBase)}.{nameof(ConfigureServices)} succeeded.");
@@ -132,6 +98,7 @@ namespace Nexus.Link.Libraries.Web.AspNet.Startup
             try
             {
                 InternalContract.RequireValidated(this, GetType().FullName);
+                ConfigureSwaggerMiddleware(app, env);
                 if (env.IsDevelopment())
                 {
                     app.UseDeveloperExceptionPage();
@@ -142,7 +109,6 @@ namespace Nexus.Link.Libraries.Web.AspNet.Startup
                 }
                 app.UseHttpsRedirection();
                 ConfigureNexusLinkMiddleware(app, env);
-                ConfigureSwaggerMiddleware(app, env);
                 ConfigureBusinessApiMiddleware(app, env);
                 ConfigureAppMiddleware(app, env);
                 app.UseMvc();
@@ -174,7 +140,10 @@ namespace Nexus.Link.Libraries.Web.AspNet.Startup
         /// Initial settings that is needed for your environment
         /// </summary>
         /// <param name="services">The parameter from Startup.ConfigureServices.</param>
-        protected abstract void InitialLocalConfiguration(IServiceCollection services);
+        protected virtual void InitialLocalConfiguration(IServiceCollection services)
+        {
+            TechnicalName = FulcrumApplication.AppSettings.GetString("TechnicalName", true);
+        }
 
         /// <summary>
         /// Configure Swagger
@@ -184,8 +153,7 @@ namespace Nexus.Link.Libraries.Web.AspNet.Startup
         {
             services.AddSwaggerGen(c =>
             {
-                services.AddMvc().SetCompatibilityVersion(CompatibilityVersion);
-                c.SwaggerDoc(ApiVersion, new Info {Title = DisplayName, Version = ApiVersion});
+                c.SwaggerDoc(ApiVersion, new Info {Title = FulcrumApplication.Setup.Name, Version = ApiVersion});
                 c.AddSecurityDefinition("Bearer",
                     new ApiKeyScheme
                     {
@@ -247,8 +215,10 @@ namespace Nexus.Link.Libraries.Web.AspNet.Startup
         private void InitialServiceConfiguration(IServiceCollection services)
         {
             InitialNexusLinkConfiguration(services);
+            services.AddMvc().SetCompatibilityVersion(CompatibilityVersion);
             InitialLocalConfiguration(services);
             InitialSwaggerConfiguration(services);
+            InternalContract.RequireValidated(this, GetType().FullName);
         }
 
         private void DependencyInjectServices(IServiceCollection services)
@@ -316,20 +286,11 @@ namespace Nexus.Link.Libraries.Web.AspNet.Startup
         #endregion
 
         /// <inheritdoc />
-        public void Validate(string errorLocation, string propertyPath = "")
+        public virtual void Validate(string errorLocation, string propertyPath = "")
         {
-            FulcrumValidate.IsNotNull(DisplayName, nameof(DisplayName), errorLocation);
             FulcrumValidate.IsNotNull(TechnicalName, nameof(TechnicalName), errorLocation);
             FulcrumValidate.IsNotNull(ApiVersion, nameof(TechnicalName), ApiVersion);
             FulcrumValidate.IsNotNull(TechnicalName, nameof(TechnicalName), errorLocation);
-            if (IsBusinessApi)
-            {
-                FulcrumValidate.IsNotNullOrWhiteSpace(NexusLinkAuthenticationBaseUrl, nameof(NexusLinkAuthenticationBaseUrl), errorLocation);
-                FulcrumValidate.IsNotNullOrWhiteSpace(BusinessEventsBaseUrl, nameof(BusinessEventsBaseUrl), errorLocation);
-                FulcrumValidate.IsNotNull(NexusLinkTokenRefresher, nameof(NexusLinkTokenRefresher), errorLocation);
-            }
-            FulcrumValidate.IsNotNullOrWhiteSpace(LocalAuthenticationBaseUrl, nameof(LocalAuthenticationBaseUrl), errorLocation);
-            FulcrumValidate.IsNotNull(LocalTokenRefresher, nameof(LocalTokenRefresher), errorLocation);
         }
     }
 }

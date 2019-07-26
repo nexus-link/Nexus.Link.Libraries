@@ -10,7 +10,7 @@ using Nexus.Link.Services.Contracts.Capabilities.Integration.Logging;
 namespace Nexus.Link.Services.Controllers.Capabilities.Integration.Logging
 {
     /// <summary>
-    /// Service implementation of <see cref="IBusinessEventService"/>
+    /// Service implementation of <see cref="ILoggingService"/>
     /// </summary>
     public abstract class LogsControllerBase : ControllerBase, ILoggingService
     {
