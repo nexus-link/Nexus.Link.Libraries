@@ -26,24 +26,24 @@ namespace Nexus.Link.Libraries.Web.AspNet.Startup
         /// The base URL to the authentication service for authenticating your app vs. Nexus Link.
         /// </summary>
         /// <remarks>Only useful for the Business API, not for Nexus Adapters.</remarks>
-        protected static string NexusLinkAuthenticationBaseUrl { get; set; }
+        protected abstract string NexusLinkAuthenticationBaseUrl { get; set; }
 
         /// <summary>
         /// The base URL to the Nexus Link business events service.
         /// </summary>
         /// <remarks>Only useful for the Business API, not for Nexus Adapters.</remarks>
-        protected static string BusinessEventsBaseUrl { get; set; }
+        protected abstract string BusinessEventsBaseUrl { get; set; }
 
         /// <summary>
         /// A token generator for authenticating your app vs. Nexus Link.
         /// </summary>
         /// <remarks>Only useful for the Business API, not for Nexus Adapters.</remarks>
-        protected static ITokenRefresherWithServiceClient NexusLinkTokenRefresher { get; set; }
+        protected ITokenRefresherWithServiceClient NexusLinkTokenRefresher { get; set; }
 
         /// <summary>
         /// The base URL to the authentication service for authenticating within your platform.
         /// </summary>
-        public static string LocalAuthenticationBaseUrl { get; protected set; }
+        public abstract string LocalAuthenticationBaseUrl { get; protected set; }
 
         /// <summary>
         /// A token generator for authenticating between adapters and the business API.
@@ -74,14 +74,14 @@ namespace Nexus.Link.Libraries.Web.AspNet.Startup
         /// <summary>
         /// A user friendly name, e.g. "Salesforce adapter"
         /// </summary>
-        public virtual string DisplayName { get; set; }
+        public abstract string DisplayName { get; set; }
 
         /// <summary>
         /// The technical name of this adapter, e.g. "Salesforce.NexusAdapter"
         /// </summary>
         /// <remarks>
         /// Will be used to generate other technical names like the file for Swagger documentation.</remarks>
-        public virtual string TechnicalName { get; set; }
+        public abstract string TechnicalName { get; set; }
 
         /// <summary>
         /// The version of the API. To be used in the Open API (swagger).
