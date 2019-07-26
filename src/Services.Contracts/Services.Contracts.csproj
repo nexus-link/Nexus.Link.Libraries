@@ -1,0 +1,30 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp2.1</TargetFramework>
+    <RootNamespace>Nexus.Link.Services.Contracts</RootNamespace>
+    <AssemblyName>Nexus.Link.Services.Contracts</AssemblyName>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <PackageId>Nexus.Link.Services.Contracts</PackageId>
+    <Version>1.0.3</Version>
+    <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
+    <PackageTags>nexus;link</PackageTags>
+    <Authors>XLENT Link</Authors>
+    <PackageProjectUrl>https://github.com/nexus-link/Nexus.Link.Sdks</PackageProjectUrl>
+    <PackageLanguage>en-US</PackageLanguage>
+    <Description>Contracts for Nexus Link Services, aimed at business API developers.</Description>
+    <Copyright>Copyright ©2019 Xlent Link AB</Copyright>
+    <IncludeSymbols>true</IncludeSymbols>
+    <PackageReleaseNotes>
+      1.0.3 Bump
+      1.0.0 First release
+    </PackageReleaseNotes>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Libraries.Core\Libraries.Core.csproj" />
+  </ItemGroup>
+
+</Project>
