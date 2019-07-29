@@ -10,17 +10,17 @@ namespace Nexus.Link.Libraries.Core.Guards
     /// <summary>
     /// A generic class for asserting things that the programmer thinks is true. Generic in the meaning that a parameter says what exception that should be thrown when an assumption is false.
     /// </summary>
-    public class ContractGuard : IContractGuard
+    public class ContractGuard2 : IContractGuard2
     {
         private readonly IGuard _guard;
 
-        private static readonly Lazy<IContractGuard> LazyInternalGuard =
-            new Lazy<IContractGuard>(() => new ContractGuard(LogSeverityLevel.Critical, null, false));
+        private static readonly Lazy<IContractGuard2> LazyInternalGuard =
+            new Lazy<IContractGuard2>(() => new ContractGuard2(LogSeverityLevel.Critical, null, false));
 
         /// <summary>
         /// A guard for the guards
         /// </summary>
-        protected static IContractGuard InternalGuard => LazyInternalGuard.Value;
+        protected static IContractGuard2 InternalGuard => LazyInternalGuard.Value;
 
         /// <summary>
         /// Constructor with settings for how to behave on guards that are not fulfilled.
@@ -28,7 +28,7 @@ namespace Nexus.Link.Libraries.Core.Guards
         /// <param name="exceptionTypeToThrow">The exception type to throw. Null means the no exceptions are thrown.</param>
         /// <param name="logAsLevel">The severity level to use for logging. Use <see cref="LogSeverityLevel.None"/> for no logging.</param>
         /// <param name="verifyParameters">True means that we should verify the parameters. Should be true for external calls and false for internal calls.</param>
-        internal ContractGuard(LogSeverityLevel logAsLevel, Type exceptionTypeToThrow, bool verifyParameters)
+        internal ContractGuard2(LogSeverityLevel logAsLevel, Type exceptionTypeToThrow, bool verifyParameters)
         {
             _guard = new Guard(logAsLevel, exceptionTypeToThrow, verifyParameters);
         }
@@ -38,7 +38,7 @@ namespace Nexus.Link.Libraries.Core.Guards
         /// </summary>
         /// <param name="exceptionTypeToThrow">The exception type to throw. Null means the no exceptions are thrown.</param>
         /// <param name="logAsLevel">The severity level to use for logging. Use <see cref="LogSeverityLevel.None"/> for no logging.</param>
-        public ContractGuard(LogSeverityLevel logAsLevel, Type exceptionTypeToThrow = null)
+        public ContractGuard2(LogSeverityLevel logAsLevel, Type exceptionTypeToThrow = null)
         : this(logAsLevel, exceptionTypeToThrow, true)
         {
         }

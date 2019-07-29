@@ -1,4 +1,5 @@
-﻿using System.Diagnostics.CodeAnalysis;
+﻿using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 
 namespace Nexus.Link.Libraries.Core.Misc
@@ -44,7 +45,23 @@ namespace Nexus.Link.Libraries.Core.Misc
         /// <param name="filePath">Full path of the source file that contains the caller. This is the file path at compile time.</param>
         /// <param name="lineNumber">Line number in the source file at which the method is called</param>
         [SuppressMessage("ReSharper", "ExplicitCallerInfoArgument")]
+        [Obsolete("2019-07-28: Use the Factory method.", false)]
         public static CodeLocation Create(
+            [CallerMemberName] string memberName = "",
+            [CallerFilePath] string filePath = "",
+            [CallerLineNumber] int lineNumber = 0)
+        {
+            return new CodeLocation(memberName, filePath, lineNumber);
+        }
+
+        /// <summary>
+        /// Create a new instance for the current location in the code.
+        /// </summary>
+        /// <param name="memberName">Method or property name of the caller</param>
+        /// <param name="filePath">Full path of the source file that contains the caller. This is the file path at compile time.</param>
+        /// <param name="lineNumber">Line number in the source file at which the method is called</param>
+        [SuppressMessage("ReSharper", "ExplicitCallerInfoArgument")]
+        public static CodeLocation Factory(
             [CallerMemberName] string memberName = "",
             [CallerFilePath] string filePath = "",
             [CallerLineNumber] int lineNumber = 0)

@@ -8,7 +8,7 @@ namespace Nexus.Link.Libraries.Core.Guards
     /// <summary>
     /// A generic class for making sure that contracts are honored. Generic in the meaning that a parameter says what exception that should be thrown when an assumption is false.
     /// </summary>
-    public interface IContractGuard
+    public interface IContractGuard2
     {
         /// <summary>
         /// Will always fail. Used for instance as a default case in a switch statement where all cases should be covered, so we should never end up in the default case.

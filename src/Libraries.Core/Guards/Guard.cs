@@ -26,7 +26,7 @@ namespace Nexus.Link.Libraries.Core.Guards
         protected static IGuard ConstructorGuard => LazyConstructorGuard.Value;
 
         private static readonly Lazy<IContractGuard> LazyInternalGuard =
-            new Lazy<IContractGuard>(() => new ContractGuard(LogSeverityLevel.Critical, null, false));
+            new Lazy<IContractGuard>(() => new InternalContractGuard(LogSeverityLevel.Critical, null, false));
 
         /// <summary>
         /// A guard for the guards
@@ -417,7 +417,7 @@ namespace Nexus.Link.Libraries.Core.Guards
         {
             if (LogAsLevel != LogSeverityLevel.None)
             {
-                NexusLink.Nexus.Logger.LogOnLevel(LogAsLevel, customMessage, null, filePath, memberName, lineNumber);
+                NexusLink.Nl.Logger.LogOnLevel(LogAsLevel, customMessage, null, filePath, memberName, lineNumber);
             }
             if (ExceptionTypeToThrow == null) return;
             Exception exception = Activator.CreateInstance(ExceptionTypeToThrow, customMessage) as Exception;
