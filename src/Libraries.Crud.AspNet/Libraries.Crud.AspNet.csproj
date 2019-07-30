@@ -6,10 +6,6 @@
     <AssemblyName>Nexus.Link.Libraries.Crud.AspNet</AssemblyName>
   </PropertyGroup>
 
-  <ItemGroup Condition="'$(TargetFramework)'=='netcoreapp2.1'">
-    <PackageReference Include="Microsoft.AspNetCore.Mvc" Version="2.1.3" />
-  </ItemGroup>
-
   <ItemGroup>
     <ProjectReference Include="..\Libraries.Crud.Web\Libraries.Crud.Web.csproj" />
     <ProjectReference Include="..\Libraries.Web.AspNet\Libraries.Web.AspNet.csproj" />
@@ -17,7 +13,7 @@
 
   <PropertyGroup>
     <PackageId>Nexus.Link.Libraries.Crud.AspNet</PackageId>
-    <Version>2.0.3</Version>
+    <Version>2.0.4</Version>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <PackageTags>nexus;link;fulcrum;lever</PackageTags>
     <Authors>XLENT Link</Authors>
@@ -27,6 +23,7 @@
     <Copyright>Copyright ©2019 Xlent Link AB</Copyright>
     <IncludeSymbols>true</IncludeSymbols>
     <PackageReleaseNotes>
+      2.0.4 Bump
       2.0.3 BUG: Swagger problems in .NET Core
       2.0.1 Depends on major change in Libraries.Core
       1.3.3 Bumped version

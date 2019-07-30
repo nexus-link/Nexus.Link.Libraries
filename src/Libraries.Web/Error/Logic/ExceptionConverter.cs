@@ -80,7 +80,9 @@ namespace Nexus.Link.Libraries.Web.Error.Logic
             // Core
             AddFulcrumException(typeof(FulcrumAssertionFailedException), HttpStatusCode.InternalServerError, FulcrumResourceException.ExceptionType);
             AddFulcrumException(typeof(FulcrumResourceException), HttpStatusCode.InternalServerError, FulcrumResourceException.ExceptionType);
+#pragma warning disable 618
             AddFulcrumException(typeof(FulcrumResourceContractException), HttpStatusCode.InternalServerError, FulcrumResourceException.ExceptionType);
+#pragma warning restore 618
             AddFulcrumException(typeof(FulcrumContractException), HttpStatusCode.InternalServerError, FulcrumResourceException.ExceptionType);
             AddFulcrumException(typeof(FulcrumNotImplementedException), HttpStatusCode.InternalServerError, FulcrumResourceException.ExceptionType);
             AddFulcrumException(typeof(FulcrumTryAgainException), HttpStatusCode.InternalServerError, FulcrumTryAgainException.ExceptionType);
