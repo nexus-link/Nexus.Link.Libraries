@@ -64,10 +64,15 @@ namespace Nexus.Link.Libraries.Web.AspNet.Startup
         /// <summary>
         /// The name of the XML file. Created based on the <see cref="TechnicalName"/>.
         /// </summary>
+        /// <returns>The path or NULL if no file is found at that path.</returns>
         public virtual string GetCommentsFilePath()
         {
             var xmlFile = $"{TechnicalName}.Service.xml";
-            return Path.Combine(AppContext.BaseDirectory, xmlFile);
+            var path = Path.Combine(AppContext.BaseDirectory, xmlFile);
+            if (File.Exists(path)) return path;
+
+            Log.LogWarning($"Could not find API documentation file ({path})");
+            return null;
         }
 
         /// <summary>
@@ -167,7 +172,8 @@ namespace Nexus.Link.Libraries.Web.AspNet.Startup
                     {"Bearer", Enumerable.Empty<string>()},
                 });
 
-                c.IncludeXmlComments(GetCommentsFilePath());
+                var commentsFilePath = GetCommentsFilePath();
+                if (commentsFilePath != null) c.IncludeXmlComments(commentsFilePath);
             });
         }
 

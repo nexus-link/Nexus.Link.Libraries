@@ -26,11 +26,11 @@ namespace Nexus.Link.Services.Controllers.Capabilities.Integration.Authenticatio
         /// <inheritdoc />
         [HttpPost]
         [Route("")]
-        public Task<AuthenticationToken> ObtainAccessToken(AuthenticationCredentials credentials, CancellationToken token = default(CancellationToken))
+        public Task<AuthenticationToken> ObtainAccessTokenAsync(AuthenticationCredentials credentials, CancellationToken token = default(CancellationToken))
         {
             ServiceContract.RequireNotNull(credentials, nameof(credentials));
             ServiceContract.RequireValidated(credentials, nameof(credentials));
-            return Capability.TokenService.ObtainAccessToken(credentials, token);
+            return Capability.TokenService.ObtainAccessTokenAsync(credentials, token);
         }
     }
 }

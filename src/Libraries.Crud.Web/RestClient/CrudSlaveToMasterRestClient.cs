@@ -29,46 +29,6 @@ namespace Nexus.Link.Libraries.Crud.Web.RestClient
         /// The name of the sub path that are the children. (Plural noun)
         /// </summary>
         public string ChildrenName { get; }
-        /// <summary></summary>
-        /// <param name="baseUri">The base URL that all HTTP calls methods will refer to.</param>
-        /// <param name="parentName">The name of the sub path that is the parent of the children. (Singular noun)</param>
-        /// <param name="childrenName">The name of the sub path that are the children. (Plural noun)</param>
-        /// <param name="withLogging">Should logging handlers be used in outbound pipe?</param>
-        [Obsolete("Use (string, HttpClient, string, string) overload")]
-        public CrudSlaveToMasterRestClient(string baseUri, string parentName = "Parent", string childrenName = "Children", bool withLogging = true)
-            : base(baseUri, withLogging)
-        {
-            ParentName = parentName;
-            ChildrenName = childrenName;
-        }
-
-        /// <summary></summary>
-        /// <param name="baseUri">The base URL that all HTTP calls methods will refer to.</param>
-        /// <param name="parentName">The name of the sub path that is the parent of the children. (Singular noun)</param>
-        /// <param name="childrenName">The name of the sub path that are the children. (Plural noun)</param>
-        /// <param name="credentials">The credentials used when making the HTTP calls.</param>
-        /// <param name="withLogging">Should logging handlers be used in outbound pipe?</param>
-        [Obsolete("Use (string, HttpClient, ServiceClientCredentials, string, string) overload")]
-        public CrudSlaveToMasterRestClient(string baseUri, ServiceClientCredentials credentials, string parentName = "Parent", string childrenName = "Children", bool withLogging = true)
-            : base(baseUri, credentials, withLogging)
-        {
-            ParentName = parentName;
-            ChildrenName = childrenName;
-        }
-
-        /// <summary></summary>
-        /// <param name="baseUri">The base URL that all HTTP calls methods will refer to.</param>
-        /// <param name="parentName">The name of the sub path that is the parent of the children. (Singular noun)</param>
-        /// <param name="childrenName">The name of the sub path that are the children. (Plural noun)</param>
-        /// <param name="authenticationToken">The token used when making the HTTP calls.</param>
-        /// <param name="withLogging">Should logging handlers be used in outbound pipe?</param>
-        [Obsolete("Use (string, HttpClient, ServiceClientCredentials, string, string) overload")]
-        public CrudSlaveToMasterRestClient(string baseUri, AuthenticationToken authenticationToken, string parentName = "Parent", string childrenName = "Children", bool withLogging = true)
-            : base(baseUri, authenticationToken, withLogging)
-        {
-            ParentName = parentName;
-            ChildrenName = childrenName;
-        }
 
         /// <summary></summary>
         /// <param name="baseUri">The base URL that all HTTP calls methods will refer to.</param>

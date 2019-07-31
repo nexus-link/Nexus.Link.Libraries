@@ -16,41 +16,13 @@ namespace Nexus.Link.Libraries.Crud.Web.RestClient
         CrudManyToOneRestClient<TManyModel, TManyModel, TId>,
         ICrudManyToOne<TManyModel, TId>
     {
-        /// <summary></summary>
-        /// <param name="baseUri">The base URL that all HTTP calls methods will refer to.</param>
-        /// <param name="parentName">The name of the sub path that is the parent of the children. (Singular noun)</param>
-        /// <param name="childrenName">The name of the sub path that are the children. (Plural noun)</param>
-        /// <param name="withLogging">Should logging handlers be used in outbound pipe?</param>
-        [Obsolete("Use (string, HttpClient, string, string) overload")]
-        public CrudManyToOneRestClient(string baseUri, string parentName = "Parent",
-            string childrenName = "Children", bool withLogging = true)
-            : base(baseUri, parentName, childrenName, withLogging)
-        {
-        }
 
         /// <summary></summary>
         /// <param name="baseUri">The base URL that all HTTP calls methods will refer to.</param>
         /// <param name="parentName">The name of the sub path that is the parent of the children. (Singular noun)</param>
         /// <param name="childrenName">The name of the sub path that are the children. (Plural noun)</param>
-        /// <param name="credentials">The credentials used when making the HTTP calls.</param>
-        /// <param name="withLogging">Should logging handlers be used in outbound pipe?</param>
-        [Obsolete("Use (string, HttpClient, ServiceClientCredentials, string, string) overload")]
-        public CrudManyToOneRestClient(string baseUri, ServiceClientCredentials credentials,
-            string parentName = "Parent", string childrenName = "Children", bool withLogging = true)
-            : base(baseUri, credentials, parentName, childrenName, withLogging)
-        {
-        }
-
-        /// <summary></summary>
-        /// <param name="baseUri">The base URL that all HTTP calls methods will refer to.</param>
-        /// <param name="parentName">The name of the sub path that is the parent of the children. (Singular noun)</param>
-        /// <param name="childrenName">The name of the sub path that are the children. (Plural noun)</param>
-        /// <param name="authenticationToken">The token used when making the HTTP calls.</param>
-        /// <param name="withLogging">Should logging handlers be used in outbound pipe?</param>
-        [Obsolete("Use (string, HttpClient, ServiceClientCredentials, string, string) overload")]
-        public CrudManyToOneRestClient(string baseUri, AuthenticationToken authenticationToken,
-            string parentName = "Parent", string childrenName = "Children", bool withLogging = true)
-            : base(baseUri, authenticationToken, parentName, childrenName, withLogging)
+        public CrudManyToOneRestClient(string baseUri, string parentName = "Parent", string childrenName = "Children")
+            : base(baseUri, parentName, childrenName)
         {
         }
 
@@ -60,7 +32,7 @@ namespace Nexus.Link.Libraries.Crud.Web.RestClient
         /// <param name="childrenName">The name of the sub path that are the children. (Plural noun)</param>
         /// <param name="credentials">The credentials used when making the HTTP calls</param>
         /// <param name="httpClient">The HttpClient used when making the HTTP calls.</param>
-        public CrudManyToOneRestClient(string baseUri, HttpClient httpClient, ServiceClientCredentials credentials, string parentName, string childrenName)
+        public CrudManyToOneRestClient(string baseUri, HttpClient httpClient, ServiceClientCredentials credentials, string parentName = "Parent", string childrenName = "Children")
             : base(baseUri, httpClient, credentials, parentName, childrenName)
         {
         }
@@ -74,9 +46,6 @@ namespace Nexus.Link.Libraries.Crud.Web.RestClient
             : base(baseUri, httpClient, parentName, childrenName)
         {
         }
-
-
-
     }
 
     /// <inheritdoc cref="CrudRestClient{TManyModelCreate, TManyModel,TId}" />
@@ -93,42 +62,13 @@ namespace Nexus.Link.Libraries.Crud.Web.RestClient
         /// The name of the sub path that are the children. (Plural noun)
         /// </summary>
         public string ChildrenName { get; }
-        /// <summary></summary>
-        /// <param name="baseUri">The base URL that all HTTP calls methods will refer to.</param>
-        /// <param name="parentName">The name of the sub path that is the parent of the children. (Singular noun)</param>
-        /// <param name="childrenName">The name of the sub path that are the children. (Plural noun)</param>
-        /// <param name="withLogging">Should logging handlers be used in outbound pipe?</param>
-        [Obsolete("Use (string, HttpClient,, string, string) overload")]
-        public CrudManyToOneRestClient(string baseUri, string parentName = "Parent", string childrenName = "Children", bool withLogging = true)
-            : base(baseUri, withLogging)
-        {
-            ParentName = parentName;
-            ChildrenName = childrenName;
-        }
 
         /// <summary></summary>
         /// <param name="baseUri">The base URL that all HTTP calls methods will refer to.</param>
         /// <param name="parentName">The name of the sub path that is the parent of the children. (Singular noun)</param>
         /// <param name="childrenName">The name of the sub path that are the children. (Plural noun)</param>
-        /// <param name="credentials">The credentials used when making the HTTP calls.</param>
-        /// <param name="withLogging">Should logging handlers be used in outbound pipe?</param>
-        [Obsolete("Use (string, HttpClient, ServiceClientCredentials, string, string) overload")]
-        public CrudManyToOneRestClient(string baseUri, ServiceClientCredentials credentials, string parentName = "Parent", string childrenName = "Children", bool withLogging = true)
-            : base(baseUri, credentials, withLogging)
-        {
-            ParentName = parentName;
-            ChildrenName = childrenName;
-        }
-
-        /// <summary></summary>
-        /// <param name="baseUri">The base URL that all HTTP calls methods will refer to.</param>
-        /// <param name="parentName">The name of the sub path that is the parent of the children. (Singular noun)</param>
-        /// <param name="childrenName">The name of the sub path that are the children. (Plural noun)</param>
-        /// <param name="authenticationToken">The token used when making the HTTP calls.</param>
-        /// <param name="withLogging">Should logging handlers be used in outbound pipe?</param>
-        [Obsolete("Use (string, HttpClient, ServiceClientCredentials, string, string) overload")]
-        public CrudManyToOneRestClient(string baseUri, AuthenticationToken authenticationToken, string parentName = "Parent", string childrenName = "Children", bool withLogging = true)
-            : base(baseUri, authenticationToken, withLogging)
+        public CrudManyToOneRestClient(string baseUri, string parentName, string childrenName)
+            : base(baseUri)
         {
             ParentName = parentName;
             ChildrenName = childrenName;

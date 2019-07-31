@@ -18,36 +18,12 @@ namespace Nexus.Link.Libraries.Crud.Web.RestClient
         CrudRestClient<TModel, TModel, TId>,
         ICrud<TModel, TId>
     {
-
         /// <summary></summary>
         /// <param name="baseUri">The base URL that all HTTP calls methods will refer to.</param>
-        /// <param name="withLogging">Should logging handlers be used in outbound pipe?</param>
-        [Obsolete("Use (string, HttpClient) overload")]
-        public CrudRestClient(string baseUri, bool withLogging = true)
-            : base(baseUri, withLogging)
+        public CrudRestClient(string baseUri)
+            : base(baseUri)
         {
         }
-
-        /// <summary></summary>
-        /// <param name="baseUri">The base URL that all HTTP calls methods will refer to.</param>
-        /// <param name="credentials">The credentials used when making the HTTP calls.</param>
-        /// <param name="withLogging">Should logging handlers be used in outbound pipe?</param>
-        [Obsolete("Use (string, HttpClient, ServiceClientCredentials) overload", true)]
-        public CrudRestClient(string baseUri, ServiceClientCredentials credentials, bool withLogging = true)
-            : base(baseUri, credentials, withLogging)
-        {
-        }
-
-        /// <summary></summary>
-        /// <param name="baseUri">The base URL that all HTTP calls methods will refer to.</param>
-        /// <param name="authenticationToken">The token used when making the HTTP calls.</param>
-        /// <param name="withLogging">Should logging handlers be used in outbound pipe?</param>
-        [Obsolete("Use (string, HttpClient, ServiceClientCredentials) overload", true)]
-        public CrudRestClient(string baseUri, AuthenticationToken authenticationToken, bool withLogging)
-            : base(baseUri, authenticationToken, withLogging)
-        {
-        }
-
         /// <summary></summary>
         /// <param name="baseUri">The base URL that all HTTP calls methods will refer to.</param>
         /// <param name="httpClient">The HttpClient used when making the HTTP calls.</param>
@@ -71,35 +47,6 @@ namespace Nexus.Link.Libraries.Crud.Web.RestClient
         Libraries.Web.RestClientHelper.RestClient,
         ICrud<TModelCreate, TModel, TId> where TModel : TModelCreate
     {
-
-        /// <summary></summary>
-        /// <param name="baseUri">The base URL that all HTTP calls methods will refer to.</param>
-        /// <param name="withLogging">Should logging handlers be used in outbound pipe?</param>
-        [Obsolete("Use (string, HttpClient) overload", true)]
-        public CrudRestClient(string baseUri, bool withLogging = true)
-            : base(baseUri, withLogging)
-        {
-        }
-
-        /// <summary></summary>
-        /// <param name="baseUri">The base URL that all HTTP calls methods will refer to.</param>
-        /// <param name="credentials">The credentials used when making the HTTP calls.</param>
-        /// <param name="withLogging">Should logging handlers be used in outbound pipe?</param>
-        [Obsolete("Use (string, HttpClient, ServiceClientCredentials) overload", true)]
-        public CrudRestClient(string baseUri, ServiceClientCredentials credentials, bool withLogging = true)
-            : base(baseUri, credentials, withLogging)
-        {
-        }
-
-        /// <summary></summary>
-        /// <param name="baseUri">The base URL that all HTTP calls methods will refer to.</param>
-        /// <param name="authenticationToken">The token used when making the HTTP calls.</param>
-        /// <param name="withLogging">Should logging handlers be used in outbound pipe?</param>
-        [Obsolete("Use (string, HttpClient, ServiceClientCredentials) overload", true)]
-        public CrudRestClient(string baseUri, AuthenticationToken authenticationToken, bool withLogging)
-            : base(baseUri, authenticationToken, withLogging)
-        {
-        }
 
         /// <summary></summary>
         /// <param name="baseUri">The base URL that all HTTP calls methods will refer to.</param>

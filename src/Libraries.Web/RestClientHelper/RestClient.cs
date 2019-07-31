@@ -62,54 +62,17 @@ namespace Nexus.Link.Libraries.Web.RestClientHelper
         public static IHttpClient HttpClient { get; set; }
 
         /// <summary></summary>
-        [Obsolete("Use (string, value provider) overload", true)]
-        // ReSharper disable once UnusedParameter.Local
-        public RestClient(Uri baseUri)
-            : this(baseUri.AbsoluteUri)
-        {
-        }
-
-        /// <summary>
-        /// Constructor
-        /// </summary>
-        /// <param name="baseUri">The base URL that all HTTP calls methods will refer to.</param>
-        /// <param name="valueProvider"></param>
-        [Obsolete("Use (string, HttpClient) overload", true)]
-        // ReSharper disable once UnusedParameter.Local
-        public RestClient(Uri baseUri, IValueProvider valueProvider)
-            : this(baseUri.AbsoluteUri)
-        {
-        }
-
-        /// <summary></summary>
         /// <param name="baseUri">The base URL that all HTTP calls methods will refer to.</param>
         // ReSharper disable once UnusedParameter.Local
         public RestClient(string baseUri)
         {
+            InternalContract.RequireNotNullOrWhiteSpace(baseUri, nameof(baseUri));
             BaseUri = new Uri(baseUri);
             lock (LockClass)
             {
                 if (HttpClient == null)
                 {
                     var handlers = OutboundPipeFactory.CreateDelegatingHandlers();
-                    var httpClient = HttpClientFactory.Create(handlers);
-                    HttpClient = new HttpClientWrapper(httpClient);
-                }
-            }
-        }
-
-        /// <summary></summary>
-        /// <param name="baseUri">The base URL that all HTTP calls methods will refer to.</param>
-        /// <param name="withLogging">Should logging handlers be used in outbound pipe?</param>
-        [Obsolete("Use (string, HttpClient) overload", true)]
-        public RestClient(string baseUri, bool withLogging)
-        {
-            BaseUri = new Uri(baseUri);
-            lock (LockClass)
-            {
-                if (HttpClient == null)
-                {
-                    var handlers = withLogging ? OutboundPipeFactory.CreateDelegatingHandlers() : OutboundPipeFactory.CreateDelegatingHandlersWithoutLogging();
                     var httpClient = HttpClientFactory.Create(handlers);
                     HttpClient = new HttpClientWrapper(httpClient);
                 }
@@ -126,36 +89,6 @@ namespace Nexus.Link.Libraries.Web.RestClientHelper
 
         /// <summary></summary>
         /// <param name="baseUri">The base URL that all HTTP calls methods will refer to.</param>
-        /// <param name="credentials">The credentials used when making the HTTP calls.</param>
-        /// <param name="withLogging">Should logging handlers be used in outbound pipe?</param
-        [Obsolete("Use (string, HttpClient, ServiceClientCredentials) overload", true)]
-        public RestClient(string baseUri, ServiceClientCredentials credentials, bool withLogging) : this(baseUri, withLogging)
-        {
-            Credentials = credentials;
-        }
-
-        /// <summary></summary>
-        /// <param name="baseUri">The base URL that all HTTP calls methods will refer to.</param>
-        /// <param name="authenticationToken">The toekn used when making the HTTP calls.</param>
-        [Obsolete("Use (string, HttpClient, ServiceCredentials) overload. Please use new ClientCredentials(authenticationToken) to create the ServiceCredentials.", true)]
-        public RestClient(string baseUri, AuthenticationToken authenticationToken) :
-            this(baseUri, authenticationToken, true)
-        {
-        }
-
-        /// <summary></summary>
-        /// <param name="baseUri">The base URL that all HTTP calls methods will refer to.</param>
-        /// <param name="authenticationToken">The token used when making the HTTP calls.</param>
-        /// <param name="withLogging">Should logging handlers be used in outbound pipe?</param
-        [Obsolete("Use (string, HttpClient, ServiceCredentials) overload. Please use new ClientCredentials(authenticationToken) to create the ServiceCredentials.", true)]
-        public RestClient(string baseUri, AuthenticationToken authenticationToken, bool withLogging) :
-            this(baseUri, withLogging)
-        {
-            Credentials = new ClientCredentials(authenticationToken);
-        }
-
-        /// <summary></summary>
-        /// <param name="baseUri">The base URL that all HTTP calls methods will refer to.</param>
         /// <param name="httpClient">The HttpClient used when making the HTTP calls.</param>
         /// <param name="credentials">The credentials used when making the HTTP calls.</param>
         public RestClient(string baseUri, HttpClient httpClient, ServiceClientCredentials credentials) : this(baseUri, httpClient)
@@ -163,9 +96,23 @@ namespace Nexus.Link.Libraries.Web.RestClientHelper
             Credentials = credentials;
         }
 
+
+        /// <summary></summary>
+        /// <param name="baseUri">The base URL that all HTTP calls methods will refer to.</param>
         public RestClient(string baseUri, HttpClient httpClient)
         {
-            BaseUri = new Uri(baseUri);
+            InternalContract.RequireNotNullOrWhiteSpace(baseUri, nameof(baseUri));
+            InternalContract.RequireNotNull(httpClient, nameof(httpClient));
+            try
+            {
+
+                BaseUri = new Uri(baseUri);
+            }
+            catch (UriFormatException e)
+            {
+                InternalContract.Fail($"The format of {nameof(baseUri)} ({baseUri}) is not correct: {e.Message}");
+            }
+
             lock (LockClass)
             {
                 HttpClient = new HttpClientWrapper(httpClient);
@@ -330,6 +277,7 @@ namespace Nexus.Link.Libraries.Web.RestClientHelper
         private static HttpRequestMessage CreateRequest(HttpMethod method, string url, Dictionary<string, List<string>> customHeaders)
         {
             var request = new HttpRequestMessage(method, url);
+            request.Headers.TryAddWithoutValidation("Accept", new List<string> {"application/json"});
             if (customHeaders != null)
             {
                 foreach (var header in customHeaders)
