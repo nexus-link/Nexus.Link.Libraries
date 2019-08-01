@@ -275,6 +275,7 @@ namespace Nexus.Link.Libraries.Web.AspNet.Startup
 
             app.UseSwaggerUI(c =>
             {
+                c.DocumentTitle = FulcrumApplication.Setup.Name;
                 c.SwaggerEndpoint("/swagger/v1/swagger.json", $"{FulcrumApplication.Setup.Name} {ApiVersion}");
             });
         }
