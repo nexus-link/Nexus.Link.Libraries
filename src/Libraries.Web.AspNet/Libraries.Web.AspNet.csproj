@@ -28,7 +28,7 @@
 
   <PropertyGroup>
     <PackageId>Nexus.Link.Libraries.Web.AspNet</PackageId>
-    <Version>2.4.21</Version>
+    <Version>2.5.2</Version>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <PackageTags>nexus;link;fulcrum;lever</PackageTags>
     <Authors>XLENT Link</Authors>
@@ -38,6 +38,7 @@
     <Copyright>Copyright ©2019 Xlent Link AB</Copyright>
     <IncludeSymbols>true</IncludeSymbols>
     <PackageReleaseNotes>
+      2.5.2 Refactored StartupHelperBase into StartupBase.
       2.4.21 Now sets the OpenApi DocumentTitle.
       2.4.20 Bump
       2.4.13 Added StartupHelperBase to support quick configuration of Startup.cs in Business API and Nexus Adapter.
