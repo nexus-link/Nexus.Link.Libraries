@@ -105,21 +105,17 @@ namespace Nexus.Link.Libraries.Web.AspNet.Startup
             {
                 ConfigureAppMiddleware(app, env);
                 InternalContract.RequireValidated(this, GetType().FullName);
-                if (env.IsDevelopment())
-                {
-                    app.UseDeveloperExceptionPage();
-                }
-                else
-                {
-                    app.UseHsts();
-                }
+
+                app.UseHsts();
                 app.UseHttpsRedirection();
                 app.UseMvc();
                 Log.LogInformation($"{nameof(StartupBase)}.{nameof(Configure)} succeeded.");
             }
             catch (Exception e)
             {
-                Log.LogCritical($"{nameof(StartupBase)}.{nameof(Configure)} failed. The application {TechnicalName} needs to be restarted.: {e.Message}", e);
+                Log.LogCritical(
+                    $"{nameof(StartupBase)}.{nameof(Configure)} failed. The application {TechnicalName} needs to be restarted.: {e.Message}",
+                    e);
                 throw;
             }
         }
