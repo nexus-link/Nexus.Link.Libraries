@@ -39,15 +39,9 @@ namespace Nexus.Link.Libraries.Web.AspNet.Startup
         protected StartupBase(IConfiguration configuration, bool isBusinessApi)
         {
             Configuration = configuration;
+            FulcrumApplication.AppSettings = new AppSettings(Configuration.GetSection("FulcrumApplication"));
             IsBusinessApi = isBusinessApi;
         }
-
-        /// <summary>
-        /// The technical name of this web app, e.g. "Business API" or "Salesforce.NexusAdapter"
-        /// </summary>
-        /// <remarks>
-        /// Will be used to generate other technical names like the file for Swagger documentation.</remarks>
-        protected string TechnicalName { get; set; }
 
         /// <summary>
         /// The version of the API. To be used in the Open API (swagger).
@@ -74,6 +68,7 @@ namespace Nexus.Link.Libraries.Web.AspNet.Startup
         {
             try
             {
+                FulcrumApplication.Validate();
                 ConfigureServicesInitialUrgentPart(services);
                 FulcrumApplication.ValidateButNotInProduction();
                 InternalContract.RequireValidated(this, GetType().FullName);
@@ -85,7 +80,7 @@ namespace Nexus.Link.Libraries.Web.AspNet.Startup
             catch (Exception e)
             {
                 Log.LogCritical(
-                    $"{nameof(StartupBase)}.{nameof(ConfigureServices)} failed. The application {TechnicalName} needs to be restarted.: {e.Message}",
+                    $"{nameof(StartupBase)}.{nameof(ConfigureServices)} failed. The application {FulcrumApplication.Setup?.Name} needs to be restarted.: {e.Message}",
                     e);
                 throw;
             }
@@ -114,13 +109,14 @@ namespace Nexus.Link.Libraries.Web.AspNet.Startup
             catch (Exception e)
             {
                 Log.LogCritical(
-                    $"{nameof(StartupBase)}.{nameof(Configure)} failed. The application {TechnicalName} needs to be restarted.: {e.Message}",
+                    $"{nameof(StartupBase)}.{nameof(Configure)} failed. The application {FulcrumApplication.Setup?.Name} needs to be restarted.: {e.Message}",
                     e);
                 throw;
             }
         }
 
         #region Configure Services
+
         /// <summary>
         /// Makes the initial most urgent Nexus settings - application properties and logging.
         /// </summary>
@@ -130,10 +126,6 @@ namespace Nexus.Link.Libraries.Web.AspNet.Startup
         /// <param name="services">The parameter from Startup.ConfigureServices.</param>
         protected virtual void ConfigureServicesInitialUrgentPart(IServiceCollection services)
         {
-            var configurationSection = Configuration.GetSection("FulcrumApplication");
-            FulcrumAssert.IsNotNull(configurationSection);
-            Application.FulcrumApplicationHelper.WebBasicSetup(configurationSection);
-            TechnicalName = FulcrumApplication.AppSettings.GetString("TechnicalName", true);
             FulcrumApplication.Setup.SynchronousFastLogger = GetSynchronousFastLogger();
         }
 
@@ -174,12 +166,12 @@ namespace Nexus.Link.Libraries.Web.AspNet.Startup
 
 
         /// <summary>
-        /// The name of the XML file. Created based on the <see cref="TechnicalName"/>.
+        /// The name of the XML file. Created based on the FulcrumApplication.Setup.Name.
         /// </summary>
         /// <returns>The path or NULL if no file is found at that path.</returns>
         protected virtual string GetCommentsFilePath()
         {
-            var xmlFile = $"{TechnicalName}.Service.xml";
+            var xmlFile = $"{FulcrumApplication.Setup.Name}.Service.xml";
             var path = Path.Combine(AppContext.BaseDirectory, xmlFile);
             if (File.Exists(path)) return path;
 
@@ -214,7 +206,9 @@ namespace Nexus.Link.Libraries.Web.AspNet.Startup
         /// <param name="services">From the parameter to Startup.ConfigureServices.</param>
         /// <remarks>Always override this to inject your services.</remarks>
         protected abstract void DependencyInjectServices(IServiceCollection services);
+
         #endregion
+
 
         #region Configure
 
@@ -256,13 +250,13 @@ namespace Nexus.Link.Libraries.Web.AspNet.Startup
                 c.SwaggerEndpoint("/swagger/v1/swagger.json", $"{FulcrumApplication.Setup.Name} {ApiVersion}");
             });
         }
+
         #endregion
 
         /// <inheritdoc />
         public virtual void Validate(string errorLocation, string propertyPath = "")
         {
-            FulcrumValidate.IsNotNull(TechnicalName, nameof(TechnicalName), errorLocation);
-            FulcrumValidate.IsNotNull(ApiVersion, nameof(TechnicalName), ApiVersion);
+            FulcrumValidate.IsNotNull(ApiVersion, nameof(ApiVersion), errorLocation);
         }
     }
 }

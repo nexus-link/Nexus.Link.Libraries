@@ -10,6 +10,7 @@ namespace Nexus.Link.Services.Controllers.Capabilities.Integration.Authenticatio
     /// <summary>
     /// Service implementation of <see cref="ITokenService"/>
     /// </summary>
+    [ApiController]
     public abstract class TokensControllerBase : ControllerBase, ITokenService
     {
         protected readonly IAuthenticationCapability Capability;

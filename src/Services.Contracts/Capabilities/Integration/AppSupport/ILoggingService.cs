@@ -2,7 +2,7 @@
 using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
 
-namespace Nexus.Link.Services.Contracts.Capabilities.Integration.Logging
+namespace Nexus.Link.Services.Contracts.Capabilities.Integration.AppSupport
 {
     /// <summary>
     /// Services for BusinessEvents

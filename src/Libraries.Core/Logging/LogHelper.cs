@@ -136,7 +136,7 @@ namespace Nexus.Link.Libraries.Core.Logging
         /// <summary>
         /// Recommended <see cref="ISyncLogger"/> for unit testing.
         /// </summary>
-        public static ISyncLogger RecommendedSyncLoggerForUnitTest { get; } = new ConsoleLogger();
+        public static ISyncLogger RecommendedSyncLoggerForUnitTest { get; } = new DebugTraceLogger();
 
         /// <summary>
         /// Recommended <see cref="ISyncLogger"/> for developing an application. For test environments and production, we recommend that you write your own logger.
@@ -146,7 +146,7 @@ namespace Nexus.Link.Libraries.Core.Logging
         /// <summary>
         /// Recommended <see cref="ISyncLogger"/> for unit testing.
         /// </summary>
-        public static IFallbackLogger RecommendedFallbackLoggerForUnitTest { get; } = new ConsoleLogger();
+        public static IFallbackLogger RecommendedFallbackLoggerForUnitTest { get; } = new DebugTraceLogger();
 
         /// <summary>
         /// Recommended <see cref="ISyncLogger"/> for developing an application. For test environments and production, we recommend that you write your own logger.

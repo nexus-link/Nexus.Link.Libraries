@@ -1,7 +1,7 @@
 ﻿namespace Nexus.Link.Services.Contracts.Capabilities.Integration.Authentication
 {
     /// <summary>
-    /// The services
+    /// Authentication
     /// </summary>
     public interface IAuthenticationCapability
     {

@@ -1,6 +1,6 @@
-﻿using Nexus.Link.Services.Contracts.Capabilities.Integration.Authentication;
+﻿using Nexus.Link.Services.Contracts.Capabilities.Integration.AppSupport;
+using Nexus.Link.Services.Contracts.Capabilities.Integration.Authentication;
 using Nexus.Link.Services.Contracts.Capabilities.Integration.BusinessEvents;
-using Nexus.Link.Services.Contracts.Capabilities.Integration.Logging;
 
 namespace Nexus.Link.Services.Contracts.Capabilities.Integration
 {
@@ -22,6 +22,6 @@ namespace Nexus.Link.Services.Contracts.Capabilities.Integration
         /// <summary>
         /// Service for centralized logging
         /// </summary>
-        ILoggingCapability Logging{ get; }
+        IAppSupportCapability AppSupport{ get; }
     }
 }

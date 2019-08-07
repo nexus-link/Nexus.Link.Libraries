@@ -1,7 +1,7 @@
 ﻿namespace Nexus.Link.Services.Contracts.Capabilities.Integration.BusinessEvents
 {
     /// <summary>
-    /// The services for business events
+    /// Business Events
     /// </summary>
     public interface IBusinessEventsCapability
     {

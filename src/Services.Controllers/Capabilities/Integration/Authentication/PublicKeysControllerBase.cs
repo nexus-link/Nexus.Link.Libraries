@@ -8,6 +8,7 @@ namespace Nexus.Link.Services.Controllers.Capabilities.Integration.Authenticatio
     /// <summary>
     /// Service implementation of <see cref="IPublicKeyService"/>
     /// </summary>
+    [ApiController]
     public abstract class PublicKeysControllerBase : ControllerBase, IPublicKeyService
     {
         /// <summary>

@@ -13,6 +13,7 @@ namespace Nexus.Link.Services.Controllers.Capabilities.Integration.BusinessEvent
     /// <summary>
     /// Service implementation of <see cref="IBusinessEventService"/>
     /// </summary>
+    [ApiController]
     public abstract class BusinessEventsControllerBase : ControllerBase, IBusinessEventService
     {
         protected readonly IBusinessEventsCapability Capability;
