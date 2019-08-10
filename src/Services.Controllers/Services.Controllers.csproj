@@ -14,7 +14,7 @@
 
   <PropertyGroup>
     <PackageId>Nexus.Link.Services.Controllers</PackageId>
-    <Version>1.2.5</Version>
+    <Version>1.3.1</Version>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <PackageTags>nexus;link</PackageTags>
     <Authors>XLENT Link</Authors>
@@ -24,7 +24,9 @@
     <Copyright>Copyright ©2019 Xlent Link AB</Copyright>
     <IncludeSymbols>true</IncludeSymbols>
     <PackageReleaseNotes>
-      1.2.5 Bump
+      1.3.1 Bump
+      1.3.0 Now uses the policy HasMandatoryRole for authorization
+      1.2.6 Bump
       1.2.3 Added AppSupport
       1.1.1 Bump
       1.1.0 Introduced RootsControllerBase

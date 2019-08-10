@@ -2,10 +2,8 @@
 using System.Diagnostics;
 using System.Threading.Tasks;
 using Nexus.Link.Libraries.Core.Assert;
-using Nexus.Link.Libraries.Core.Logging;
 using Nexus.Link.Libraries.Web.AspNet.Error.Logic;
 #if NETCOREAPP
-using Nexus.Link.Libraries.Web.AspNet.Logging;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 #else

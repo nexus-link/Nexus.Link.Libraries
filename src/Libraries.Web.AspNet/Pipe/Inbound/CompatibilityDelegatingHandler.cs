@@ -1,8 +1,5 @@
-﻿using System;
+﻿using System.Threading.Tasks;
 using System.Threading;
-using System.Threading.Tasks;
-using Nexus.Link.Libraries.Core.Application;
-using Nexus.Link.Libraries.Core.Context;
 #if NETCOREAPP
 using Microsoft.AspNetCore.Http;
 #else

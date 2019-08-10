@@ -9,10 +9,5 @@
         /// Service for tokens
         /// </summary>
         ITokenService TokenService { get; }
-		
-        /// <summary>
-        /// Service for public keys
-        /// </summary>
-        IPublicKeyService PublicKeyService { get; set; }
     }
 }

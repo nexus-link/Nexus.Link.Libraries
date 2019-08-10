@@ -6,6 +6,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Rest;
 using Newtonsoft.Json;
+using Nexus.Link.Libraries.Core.Application;
 using Nexus.Link.Libraries.Core.Assert;
 using Nexus.Link.Libraries.Core.Context;
 using Nexus.Link.Libraries.Core.Error.Logic;
@@ -102,7 +103,7 @@ namespace Nexus.Link.Libraries.Web.RestClientHelper
         public RestClient(string baseUri, HttpClient httpClient)
         {
             InternalContract.RequireNotNullOrWhiteSpace(baseUri, nameof(baseUri));
-            InternalContract.RequireNotNull(httpClient, nameof(httpClient));
+            if (!FulcrumApplication.IsInDevelopment) InternalContract.RequireNotNull(httpClient, nameof(httpClient));
             try
             {
 

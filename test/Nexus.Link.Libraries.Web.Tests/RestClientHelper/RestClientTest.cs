@@ -31,6 +31,47 @@ namespace Nexus.Link.Libraries.Web.Tests.RestClientHelper
             Assert.IsNotNull(client);
         }
 
+        [TestMethod]
+        public async Task PostNoResponseContentWithNullHttpClient()
+        {
+            var client = new RestClient("http://example.se", (HttpClient) null);
+            var person = new Person();
+            await client.PostNoResponseContentAsync("", person);
+        }
+
+        [TestMethod]
+        public async Task PostWithNullHttpClient()
+        {
+            var client = new RestClient("http://example.se", (HttpClient) null);
+            var person = new Person();
+            var id = await client.PostAsync<string, Person>("", person);
+            Assert.IsNull(id);
+        }
+
+        [TestMethod]
+        public async Task GetWithNullHttpClient()
+        {
+            var client = new RestClient("http://example.se", (HttpClient) null);
+            var person = await client.GetAsync<Person>("");
+            Assert.IsNull(person);
+        }
+
+        [TestMethod]
+        public async Task PutWithNullHttpClient()
+        {
+            var client = new RestClient("http://example.se", (HttpClient) null);
+            var person = new Person();
+            var personOut = await client.PutAsync<Person, Person>("1", person);
+            Assert.IsNull(personOut);
+        }
+
+        [TestMethod]
+        public async Task DeleteWithNullHttpClient()
+        {
+            var client = new RestClient("http://example.se", (HttpClient) null);
+            await client.DeleteAsync("1");
+        }
+
         #region POST
 
         [TestMethod]

@@ -13,6 +13,8 @@ using Nexus.Link.Libraries.Core.Assert;
 using Nexus.Link.Libraries.Core.Logging;
 using Nexus.Link.Libraries.Web.AspNet.Pipe.Inbound;
 using Swashbuckle.AspNetCore.Swagger;
+using Microsoft.AspNetCore.Mvc.Authorization;
+using Nexus.Link.Libraries.Web.AspNet.Authorize;
 
 namespace Nexus.Link.Libraries.Web.AspNet.Startup
 {
@@ -72,7 +74,13 @@ namespace Nexus.Link.Libraries.Web.AspNet.Startup
                 ConfigureServicesInitialUrgentPart(services);
                 FulcrumApplication.ValidateButNotInProduction();
                 InternalContract.RequireValidated(this, GetType().FullName);
-                services.AddMvc().SetCompatibilityVersion(CompatibilityVersion);
+                services.AddMvc(opts =>
+                {
+                    if (!FulcrumApplication.IsInDevelopment) return;
+                    Log.LogWarning($"Anonymous service usage is allowed, due to development mode.");
+                    opts.Filters.Add(new AllowAnonymousFilter());
+                })
+                    .SetCompatibilityVersion(CompatibilityVersion);
                 ConfigureServicesSwagger(services);
                 DependencyInjectServices(services);
                 Log.LogInformation($"{nameof(StartupBase)}.{nameof(ConfigureServices)} succeeded.");
@@ -146,6 +154,9 @@ namespace Nexus.Link.Libraries.Web.AspNet.Startup
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc(ApiVersion, new Info {Title = FulcrumApplication.Setup.Name, Version = ApiVersion});
+                var commentsFilePath = GetCommentsFilePath();
+                if (commentsFilePath != null) c.IncludeXmlComments(commentsFilePath);
+                if (FulcrumApplication.IsInDevelopment) return;
                 c.AddSecurityDefinition("Bearer",
                     new ApiKeyScheme
                     {
@@ -158,20 +169,18 @@ namespace Nexus.Link.Libraries.Web.AspNet.Startup
                 {
                     {"Bearer", Enumerable.Empty<string>()},
                 });
-
-                var commentsFilePath = GetCommentsFilePath();
-                if (commentsFilePath != null) c.IncludeXmlComments(commentsFilePath);
             });
         }
 
 
         /// <summary>
-        /// The name of the XML file. Created based on the FulcrumApplication.Setup.Name.
+        /// The name of the XML file. Created based on the TechnicalName.
         /// </summary>
         /// <returns>The path or NULL if no file is found at that path.</returns>
         protected virtual string GetCommentsFilePath()
         {
-            var xmlFile = $"{FulcrumApplication.Setup.Name}.Service.xml";
+            var technicalName = FulcrumApplication.AppSettings.GetString("TechnicalName", true);
+            var xmlFile = $"{technicalName}.Service.xml";
             var path = Path.Combine(AppContext.BaseDirectory, xmlFile);
             if (File.Exists(path)) return path;
 
@@ -241,13 +250,14 @@ namespace Nexus.Link.Libraries.Web.AspNet.Startup
         /// </summary>
         protected virtual void ConfigureSwaggerMiddleware(IApplicationBuilder app, IHostingEnvironment env)
         {
+            var technicalName = FulcrumApplication.AppSettings.GetString("TechnicalName", true);
             // Enable middleware to serve generated Swagger as a JSON endpoint.
             app.UseSwagger();
 
             app.UseSwaggerUI(c =>
             {
                 c.DocumentTitle = FulcrumApplication.Setup.Name;
-                c.SwaggerEndpoint("/swagger/v1/swagger.json", $"{FulcrumApplication.Setup.Name} {ApiVersion}");
+                c.SwaggerEndpoint("/swagger/v1/swagger.json", $"{technicalName} {ApiVersion}");
             });
         }
 

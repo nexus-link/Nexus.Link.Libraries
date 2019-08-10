@@ -1,22 +1,21 @@
-﻿using System;
-using System.Diagnostics;
-using System.Threading.Tasks;
-using Nexus.Link.Libraries.Core.Application;
-using Nexus.Link.Libraries.Core.Assert;
-using Nexus.Link.Libraries.Core.Context;
+﻿using System.Threading.Tasks;
 using Nexus.Link.Libraries.Core.Logging;
 using Nexus.Link.Libraries.Web.AspNet.Error.Logic;
 using Nexus.Link.Libraries.Core.Error.Model;
 
 #if NETCOREAPP
+using System;
+using System.Diagnostics;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
+using Nexus.Link.Libraries.Core.Assert;
 #else
 using System.Collections.Generic;
 using System.Threading;
 using System.Net.Http;
 using System.Web.Http;
 using System.Web.Http.ExceptionHandling;
+using Nexus.Link.Libraries.Core.Application;
 #endif
 namespace Nexus.Link.Libraries.Web.AspNet.Pipe.Inbound
 {

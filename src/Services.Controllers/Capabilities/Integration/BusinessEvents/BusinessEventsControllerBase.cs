@@ -14,6 +14,7 @@ namespace Nexus.Link.Services.Controllers.Capabilities.Integration.BusinessEvent
     /// Service implementation of <see cref="IBusinessEventService"/>
     /// </summary>
     [ApiController]
+    [Authorize(Policy = "HasMandatoryRole")]
     public abstract class BusinessEventsControllerBase : ControllerBase, IBusinessEventService
     {
         protected readonly IBusinessEventsCapability Capability;
@@ -30,7 +31,6 @@ namespace Nexus.Link.Services.Controllers.Capabilities.Integration.BusinessEvent
         /// <inheritdoc />
         [HttpPost]
         [Route("")]
-        [Authorize(Roles = "business-api-caller")]
         public virtual Task PublishAsync(JToken @event, CancellationToken token = default(CancellationToken))
         {
             ServiceContract.RequireNotNull(@event, nameof(@event));

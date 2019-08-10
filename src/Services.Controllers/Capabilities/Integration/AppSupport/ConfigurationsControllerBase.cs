@@ -16,6 +16,7 @@ namespace Nexus.Link.Services.Controllers.Capabilities.Integration.AppSupport
     /// Service implementation of <see cref="IConfigurationService"/>
     /// </summary>
     [ApiController]
+    [Authorize(Policy = "HasMandatoryRole")]
     public abstract class ConfigurationsControllerBase : IConfigurationService
     {
         /// <summary>
@@ -37,7 +38,6 @@ namespace Nexus.Link.Services.Controllers.Capabilities.Integration.AppSupport
 
         /// <inheritdoc />
         [HttpGet("{id}")]
-        [Authorize(Roles = "business-api-caller")]
         public async Task<JToken> ReadAsync(string id, CancellationToken token = new CancellationToken())
         {
             var authenticatedSystemName = FulcrumApplication.Context.ClientPrincipal?.Identity.Name;

@@ -33,5 +33,12 @@ namespace Nexus.Link.Services.Controllers.Capabilities.Integration.Authenticatio
             ServiceContract.RequireValidated(credentials, nameof(credentials));
             return Capability.TokenService.ObtainAccessTokenAsync(credentials, token);
         }
+
+        /// <inheritdoc />
+        [HttpGet("PublicKeyAsXml")]
+        public Task<string> GetPublicRsaKeyAsXmlAsync(CancellationToken token = default(CancellationToken))
+        {
+            return Capability.TokenService.GetPublicRsaKeyAsXmlAsync(token);
+        }
     }
 }

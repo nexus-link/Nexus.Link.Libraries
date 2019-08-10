@@ -1,18 +1,6 @@
 ﻿#if NETCOREAPP
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
-using Nexus.Link.Libraries.Core.Application;
 using Nexus.Link.Libraries.Core.Assert;
-using Nexus.Link.Libraries.Core.Logging;
-using Nexus.Link.Libraries.Web.AspNet.Pipe.Inbound;
-using Swashbuckle.AspNetCore.Swagger;
 
 namespace Nexus.Link.Libraries.Web.AspNet.Startup
 {
