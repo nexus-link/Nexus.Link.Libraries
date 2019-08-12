@@ -6,7 +6,6 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Nexus.Link.Libraries.Core.Assert;
 using Nexus.Link.Libraries.Core.Json;
-using Nexus.Link.Libraries.Crud.Interfaces;
 using Nexus.Link.Services.Contracts.Events;
 
 namespace Nexus.Link.Services.Controllers.Events
@@ -41,12 +40,5 @@ namespace Nexus.Link.Services.Controllers.Events
             InternalContract.RequireValidated(@event?.Metadata, nameof(@event.Metadata));
             return await Logic.CreateAsync(eventAsJson, token);
         }
-    }
-
-    /// <summary>
-    /// Needs to be implemented by an adapter that subscribes to events
-    /// </summary>
-    public interface IEventReceiver : ICreate<JToken, string>
-    {
     }
 }
