@@ -31,14 +31,14 @@ namespace Nexus.Link.Services.Controllers.Events
 
         /// <inheritdoc />
         [HttpPost("")]
-        public async Task<string> CreateAsync(JToken eventAsJson, CancellationToken token = default(CancellationToken))
+        public async Task ReceiveEvent(JToken eventAsJson, CancellationToken token = default(CancellationToken))
         {
             InternalContract.RequireNotNull(eventAsJson, nameof(eventAsJson));
             var @event = JsonHelper.SafeDeserializeObject<PublishableEvent>(eventAsJson.ToString(Formatting.None));
             InternalContract.RequireNotNull(@event, nameof(@event));
             InternalContract.RequireNotNull(@event?.Metadata, nameof(@event.Metadata));
             InternalContract.RequireValidated(@event?.Metadata, nameof(@event.Metadata));
-            return await Logic.CreateAsync(eventAsJson, token);
+            await Logic.ReceiveEvent(eventAsJson, token);
         }
     }
 }
