@@ -7,7 +7,7 @@ using Newtonsoft.Json.Linq;
 using Nexus.Link.Libraries.Core.Error.Logic;
 using Nexus.Link.Libraries.Core.Json;
 using Nexus.Link.Services.Contracts.Capabilities.Integration.BusinessEvents;
-using Nexus.Link.Services.Contracts.Capabilities.Integration.BusinessEvents.Model;
+using Nexus.Link.Services.Contracts.Events;
 using Nexus.Link.Services.Controllers.Capabilities.Integration.BusinessEvents;
 
 namespace Services.Controllers.UnitTests

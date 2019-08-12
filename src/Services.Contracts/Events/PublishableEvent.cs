@@ -1,4 +1,4 @@
-﻿namespace Nexus.Link.Services.Contracts.Capabilities.Integration.BusinessEvents.Model
+﻿namespace Nexus.Link.Services.Contracts.Events
 {
     public class PublishableEvent : IPublishableEvent
     {

@@ -1,6 +1,6 @@
 ﻿using Nexus.Link.Libraries.Core.Assert;
 
-namespace Nexus.Link.Services.Contracts.Capabilities.Integration.BusinessEvents.Model
+namespace Nexus.Link.Services.Contracts.Events
 {
     /// <summary>
     /// Metadata for an event
