@@ -17,7 +17,7 @@ namespace Nexus.Link.Services.Controllers.Events
     [Route("api/EventReceiver/v1/[controller]")]
     [ApiController]
     [Authorize(Policy = "HasMandatoryRole")]
-    public abstract class BusinessEventsBaseController : IEventReceiver
+    public abstract class EventsControllerBase : IEventReceiver
     {
         /// <summary>
         /// The logic for this controller
@@ -25,7 +25,7 @@ namespace Nexus.Link.Services.Controllers.Events
         protected readonly IEventReceiver Logic;
 
         /// <inheritdoc />
-        protected BusinessEventsBaseController(IEventReceiver logic)
+        protected EventsControllerBase(IEventReceiver logic)
         {
             Logic = logic;
         }
