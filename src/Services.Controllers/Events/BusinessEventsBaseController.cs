@@ -8,12 +8,11 @@ using Nexus.Link.Libraries.Core.Assert;
 using Nexus.Link.Libraries.Core.Json;
 using Nexus.Link.Libraries.Crud.Interfaces;
 using Nexus.Link.Services.Contracts.Events;
-using Techstep.BusinessApi.Libraries.Contracts.DataSync.Bearing;
 
-namespace Techstep.BusinessApi.Libraries.Controllers.Events
+namespace Nexus.Link.Services.Controllers.Events
 {
     /// <summary>
-    /// Service implementation of <see cref="ISyncUserService"/>
+    /// Service implementation of <see cref="IEventReceiver"/>
     /// </summary>
     [Route("api/EventReceiver/v1/[controller]")]
     [ApiController]
