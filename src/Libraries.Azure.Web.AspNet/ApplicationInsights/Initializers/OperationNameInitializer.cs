@@ -1,5 +1,7 @@
 ﻿#if NETCOREAPP
 #else
+using System.Collections;
+using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
 using System.Web;
@@ -18,6 +20,7 @@ namespace Nexus.Link.Libraries.Azure.Web.AspNet.ApplicationInsights.Initializers
             {
                 var context = HttpContext.Current;
                 var operationName = "";
+                var paramString = "";
                 //var parameterValues = "";
                 if (context != null)
                 {
@@ -36,16 +39,28 @@ namespace Nexus.Link.Libraries.Azure.Web.AspNet.ApplicationInsights.Initializers
                             var action = descriptors?.FirstOrDefault();
                             var controllerName = action?.ControllerDescriptor.ControllerName;
                             var actionName = action?.ActionName;
-                            var paramCount = routeData.Values.Count;
-
-                            var paramString = "[";
-                            for (var i = 0; i < paramCount; i++)
+                            var parameters = action?.GetParameters();
+                            
+                            if (parameters != null && parameters.Count > 0)
                             {
-                                var parameter = routeData.Values.ElementAt(i);
-                                paramString += $"{parameter.Key}, ";
-
+                                var parameterList = parameters.Select(p => p.ParameterName);
+                                paramString = "[" + string.Join(",", parameterList) + "]";
                             }
-                            paramString = paramString.Remove(paramString.Length - 2) + "]";
+
+                            //foreach (var parameter in parameters)
+                            //{
+                            //    parameter.ParameterName
+                            //}
+                            //var paramCount = routeData.Values.Count;
+
+                            //var paramString = "[";
+                            //for (var i = 0; i < paramCount; i++)
+                            //{
+                            //    var parameter = routeData.Values.ElementAt(i);
+                            //    paramString += $"{parameter.Key}, ";
+
+                            //}
+                            //paramString = paramString.Remove(paramString.Length - 2) + "]";
 
                             operationName = string.IsNullOrEmpty(actionName)
                                 ? $"{httpVerb} {route.RouteTemplate}"
