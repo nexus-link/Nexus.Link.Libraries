@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.28010.2050
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.29025.244
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Libraries.Azure.Storage", "src\Libraries.Azure.Storage\Libraries.Azure.Storage.csproj", "{463C8B34-0D3A-4B63-8F29-A24C74E29FDA}"
 EndProject
@@ -56,6 +56,8 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Services.Contracts", "src\Services.Contracts\Services.Contracts.csproj", "{47CD88C0-ED2B-4AB6-978A-A566EC0F9C47}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Services.Controllers.UnitTests", "test\Services.Controllers.UnitTests\Services.Controllers.UnitTests.csproj", "{BA5BBF31-38E4-45BC-B034-168A0521B615}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Libraries.Azure.Web.AspNet", "src\Libraries.Azure.Web.AspNet\Libraries.Azure.Web.AspNet.csproj", "{BBFC4379-E3B0-4D94-9007-34C1D3DE284F}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -139,6 +141,10 @@ Global
 		{BA5BBF31-38E4-45BC-B034-168A0521B615}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{BA5BBF31-38E4-45BC-B034-168A0521B615}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{BA5BBF31-38E4-45BC-B034-168A0521B615}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BBFC4379-E3B0-4D94-9007-34C1D3DE284F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BBFC4379-E3B0-4D94-9007-34C1D3DE284F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BBFC4379-E3B0-4D94-9007-34C1D3DE284F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BBFC4379-E3B0-4D94-9007-34C1D3DE284F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
