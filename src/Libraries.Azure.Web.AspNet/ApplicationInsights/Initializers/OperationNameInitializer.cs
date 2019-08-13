@@ -14,6 +14,19 @@ namespace Nexus.Link.Libraries.Azure.Web.AspNet.ApplicationInsights.Initializers
 {
     public class OperationNameInitializer : ITelemetryInitializer
     {
+        /// <summary>
+        /// ITelemetryInitializer that sets the operation name of request telemetry without parameter values
+        /// </summary>
+        /// <param name="filteredParameters">List of parameter names that will be removed if present</param>
+        public OperationNameInitializer(List<string> filteredParameters = null)
+        {
+            if (filteredParameters != null && filteredParameters.Count > 0)
+            {
+                FilteredParameterNames.AddRange(filteredParameters);
+            }
+        }
+        public List<string> FilteredParameterNames = new List<string>();
+
         public void Initialize(ITelemetry telemetry)
         {
             if (telemetry is RequestTelemetry)
@@ -40,27 +53,16 @@ namespace Nexus.Link.Libraries.Azure.Web.AspNet.ApplicationInsights.Initializers
                             var controllerName = action?.ControllerDescriptor.ControllerName;
                             var actionName = action?.ActionName;
                             var parameters = action?.GetParameters();
-                            
+
                             if (parameters != null && parameters.Count > 0)
                             {
-                                var parameterList = parameters.Select(p => p.ParameterName);
-                                paramString = "[" + string.Join(",", parameterList) + "]";
+                                var parameterList = parameters.Where(p => !FilteredParameterNames.Contains(p.ParameterName)).Select(p => p.ParameterName).ToList();
+                                if (parameterList.Count > 0)
+                                {
+                                    paramString = "[" + string.Join(",", parameterList) + "]";
+                                }
+
                             }
-
-                            //foreach (var parameter in parameters)
-                            //{
-                            //    parameter.ParameterName
-                            //}
-                            //var paramCount = routeData.Values.Count;
-
-                            //var paramString = "[";
-                            //for (var i = 0; i < paramCount; i++)
-                            //{
-                            //    var parameter = routeData.Values.ElementAt(i);
-                            //    paramString += $"{parameter.Key}, ";
-
-                            //}
-                            //paramString = paramString.Remove(paramString.Length - 2) + "]";
 
                             operationName = string.IsNullOrEmpty(actionName)
                                 ? $"{httpVerb} {route.RouteTemplate}"
@@ -72,35 +74,6 @@ namespace Nexus.Link.Libraries.Azure.Web.AspNet.ApplicationInsights.Initializers
                         //Operation Name like route template
                         operationName = $"{httpVerb} {route.RouteTemplate} ";
                     }
-
-                    //var token = route.DataTokens.FirstOrDefault(t => t.Key == "actions");
-
-                    //if (token.Value != null)
-                    //{
-                    //    //Operation Name similar to .NET Core
-                    //    var descriptors = token.Value as HttpActionDescriptor[];
-                    //    var action = descriptors?.FirstOrDefault();
-
-                    //    var actionName = action?.ActionName;
-                    //    var paramCount = routeData.Values.Count;
-
-                    //    var paramString = "[";
-
-                    //    for (var i = 0; i < paramCount; i++)
-                    //    {
-                    //        var parameter = routeData.Values.ElementAt(i);
-                    //        paramString += $"{parameter.Key}, ";
-                    //        //parameterValues += $"[{parameter.Value}]";
-                    //    }
-
-                    //    paramString = paramString.Remove(paramString.Length - 2) + "]";
-                    //    operationName = string.IsNullOrEmpty(actionName) ? $"{httpVerb} {route.RouteTemplate}" : $"{httpVerb} {actionName} {paramString}";
-                    //}
-                    //else
-                    //{
-                    //    //Operation Name like route template
-                    //    operationName = $"{httpVerb} {route.RouteTemplate} ";
-                    //}
 
                     if (!string.IsNullOrWhiteSpace(operationName))
                     {
