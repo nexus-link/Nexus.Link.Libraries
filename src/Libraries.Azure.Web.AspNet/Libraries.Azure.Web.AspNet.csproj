@@ -1,0 +1,40 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFrameworks>netcoreapp2.1;net461</TargetFrameworks>
+  </PropertyGroup>
+
+  <ItemGroup Condition="'$(TargetFramework)'=='net461'">
+    <PackageReference Include="Microsoft.ApplicationInsights" Version="2.10.0" />
+    <PackageReference Include="Microsoft.ApplicationInsights.Agent.Intercept" Version="2.4.0" />
+    <PackageReference Include="Microsoft.ApplicationInsights.DependencyCollector" Version="2.10.0" />
+    <PackageReference Include="Microsoft.ApplicationInsights.PerfCounterCollector" Version="2.10.0" />
+    <PackageReference Include="Microsoft.ApplicationInsights.Web" Version="2.10.0" />
+    <PackageReference Include="Microsoft.ApplicationInsights.WindowsServer" Version="2.10.0" />
+    <PackageReference Include="Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel" Version="2.10.0" />
+    <PackageReference Include="Microsoft.AspNet.WebApi.Core" Version="5.2.7" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(TargetFramework)'=='netcoreapp2.1'">
+
+  </ItemGroup>
+
+  
+  <PropertyGroup>
+    <PackageId>Nexus.Link.Libraries.Azure.Web.AspNet</PackageId>
+    <Version>1.0.0</Version>
+    <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
+    <PackageTags>nexus;link;fulcrum;lever</PackageTags>
+    <Authors>XLENT Link</Authors>
+    <PackageProjectUrl>https://github.com/nexus-link/Nexus.Link.Libraries.Azure.Web.AspNet</PackageProjectUrl>
+    <PackageLanguage>en-US</PackageLanguage>
+    <Description>Nexus Web library for Azure, both ASP.NET and ASP.NET Core</Description>
+    <Copyright>Copyright ©2019 Xlent Link AB</Copyright>
+    <IncludeSymbols>true</IncludeSymbols>
+    <PackageReleaseNotes>
+      1.0.0 First release - TelemetryInitializer for operation based OperationName
+    </PackageReleaseNotes>
+    <RootNamespace>Nexus.Link.Libraries.Azure.Web.AspNet</RootNamespace>
+    <AssemblyName>Nexus.Link.Libraries.Azure.Web.AspNet</AssemblyName>
+  </PropertyGroup>
+</Project>
