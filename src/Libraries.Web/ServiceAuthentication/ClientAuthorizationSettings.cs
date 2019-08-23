@@ -67,6 +67,10 @@ namespace Nexus.Link.Libraries.Web.ServiceAuthentication
         /// </summary>
         public string PostBody { get; set; }
         /// <summary>
+        /// For authorization type <see cref="AuthorizationTypeEnum.JwtFromUrl"/>, the content type of the body. Defaults to "application/json"
+        /// </summary>
+        public string PostContentType { get; set; } = "application/json";
+        /// <summary>
         /// For authorization type <see cref="AuthorizationTypeEnum.JwtFromUrl"/>, a json path to the access token of the response.
         /// E.g. "AccessToken" or "data.token".
         /// </summary>

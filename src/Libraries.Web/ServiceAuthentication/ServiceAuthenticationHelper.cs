@@ -46,8 +46,7 @@ namespace Nexus.Link.Libraries.Web.ServiceAuthentication
         public async Task<AuthorizationToken> GetAuthorizationForClientAsync(Tenant tenant, ILeverConfiguration configuration, string client)
         {
             var cacheKey = $"{tenant}/{client}";
-            var authorization = _authCache[cacheKey] as AuthorizationToken;
-            if (authorization != null) return authorization;
+            if (_authCache[cacheKey] is AuthorizationToken authorization) return authorization;
 
             try
             {
@@ -62,14 +61,12 @@ namespace Nexus.Link.Libraries.Web.ServiceAuthentication
                     {
                         if (shared.Type != JTokenType.Array)
                         {
-                            var message =
-                                $"Configuration error. The value for 'shared-client-authentications' must be an array.";
+                            const string message = "Configuration error. The value for 'shared-client-authentications' must be an array.";
                             Log.LogCritical(message);
                             throw new FulcrumAssertionFailedException(message);
                         }
 
-                        var sharedSettings =
-                            JsonConvert.DeserializeObject<List<ClientAuthorizationSettings>>(shared.ToString());
+                        var sharedSettings = JsonConvert.DeserializeObject<List<ClientAuthorizationSettings>>(shared.ToString());
                         var setting = sharedSettings?.FirstOrDefault(x => x.UseForClients.Contains(client));
                         if (setting != null) tenantClientSetting = JObject.FromObject(setting);
                     }
@@ -77,12 +74,10 @@ namespace Nexus.Link.Libraries.Web.ServiceAuthentication
 
                 if (tenantClientSetting == null)
                 {
-                    tenantClientSetting = JObject.FromObject(new ClientAuthorizationSettings
-                        {AuthorizationType = ClientAuthorizationSettings.AuthorizationTypeEnum.None});
+                    tenantClientSetting = JObject.FromObject(new ClientAuthorizationSettings { AuthorizationType = ClientAuthorizationSettings.AuthorizationTypeEnum.None });
                 }
 
-                var authSettings =
-                    JsonConvert.DeserializeObject<ClientAuthorizationSettings>(tenantClientSetting.ToString());
+                var authSettings = JsonConvert.DeserializeObject<ClientAuthorizationSettings>(tenantClientSetting.ToString());
                 FulcrumAssert.IsNotNull(authSettings, null, "Expected non-null auth settings");
                 FulcrumAssert.IsNotNull(authSettings.AuthorizationType, null, "Expected AuthorizationType");
 
@@ -92,8 +87,7 @@ namespace Nexus.Link.Libraries.Web.ServiceAuthentication
                     case ClientAuthorizationSettings.AuthorizationTypeEnum.None:
                         return null;
                     case ClientAuthorizationSettings.AuthorizationTypeEnum.Basic:
-                        FulcrumAssert.IsNotNullOrWhiteSpace(authSettings.Username, null,
-                            "Expected a Basic Auth Username");
+                        FulcrumAssert.IsNotNullOrWhiteSpace(authSettings.Username, null, "Expected a Basic Auth Username");
                         FulcrumAssert.IsNotNull(authSettings.Password, null, "Expected a Basic Auth Password");
                         token = Base64Encode($"{authSettings.Username}:{authSettings.Password}");
                         tokenType = "Basic";
@@ -113,13 +107,11 @@ namespace Nexus.Link.Libraries.Web.ServiceAuthentication
 
                 if (string.IsNullOrWhiteSpace(token))
                 {
-                    throw new FulcrumAssertionFailedException(
-                        $"Client authorization of type '{authSettings.AuthorizationType}' resulted in an empty token.");
+                    throw new FulcrumAssertionFailedException($"Client authorization of type '{authSettings.AuthorizationType}' resulted in an empty token.");
                 }
 
-                authorization = new AuthorizationToken {Type = tokenType, Token = token};
-                _authCache.Set(cacheKey, authorization,
-                    DateTimeOffset.Now.AddMinutes(authSettings.TokenCacheInMinutes));
+                authorization = new AuthorizationToken { Type = tokenType, Token = token };
+                _authCache.Set(cacheKey, authorization, DateTimeOffset.Now.AddMinutes(authSettings.TokenCacheInMinutes));
             }
             catch (Exception e)
             {
@@ -141,7 +133,7 @@ namespace Nexus.Link.Libraries.Web.ServiceAuthentication
             {
                 Method = HttpMethod.Post,
                 RequestUri = new Uri(authSettings.PostUrl),
-                Content = new StringContent(authSettings.PostBody, Encoding.UTF8, "application/json")
+                Content = new StringContent(authSettings.PostBody, Encoding.UTF8, authSettings.PostContentType)
             };
 
             var response = "";
@@ -150,8 +142,7 @@ namespace Nexus.Link.Libraries.Web.ServiceAuthentication
                 var httpResponse = await HttpClient.SendAsync(httpRequest, CancellationToken.None);
                 if (httpResponse == null || !httpResponse.IsSuccessStatusCode)
                 {
-                    Log.LogError(
-                        $"Error fetching token from '{authSettings.PostUrl}' with json path '{authSettings.ResponseTokenJsonPath}'. Status code: '{httpResponse?.StatusCode}'.");
+                    Log.LogError($"Error fetching token from '{authSettings.PostUrl}' with json path '{authSettings.ResponseTokenJsonPath}'. Status code: '{httpResponse?.StatusCode}'.");
                     return null;
                 }
                 FulcrumAssert.IsNotNull(httpResponse.Content);
@@ -164,8 +155,7 @@ namespace Nexus.Link.Libraries.Web.ServiceAuthentication
             }
             catch (Exception e)
             {
-                Log.LogError(
-                    $"Error fetching token from '{authSettings.PostUrl}' with json path '{authSettings.ResponseTokenJsonPath}' on response '{response}'. Error message: {e.Message}", e);
+                Log.LogError($"Error fetching token from '{authSettings.PostUrl}' with json path '{authSettings.ResponseTokenJsonPath}' on response '{response}'. Error message: {e.Message}", e);
                 return null;
             }
         }
