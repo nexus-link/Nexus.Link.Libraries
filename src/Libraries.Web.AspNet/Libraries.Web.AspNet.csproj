@@ -28,7 +28,7 @@
 
   <PropertyGroup>
     <PackageId>Nexus.Link.Libraries.Web.AspNet</PackageId>
-    <Version>2.8.0</Version>
+    <Version>2.8.1</Version>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <PackageTags>nexus;link;fulcrum;lever</PackageTags>
     <Authors>XLENT Link</Authors>
@@ -38,6 +38,7 @@
     <Copyright>Copyright ©2019 Xlent Link AB</Copyright>
     <IncludeSymbols>true</IncludeSymbols>
     <PackageReleaseNotes>
+      2.8.1 Bump
       2.8.0 Access to IConfiguration on in NETCOREAPP
       2.7.2 Use TechnicalName when appropriate.
       2.7.1 Allow code in development mode to access services anonymously. Added MandatoryRoleRequriement.
