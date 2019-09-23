@@ -48,9 +48,12 @@ namespace Nexus.Link.Services.Contracts.DataSync
         {
             var updatedEvent = new DataSyncEntityWasUpdated
             {
-                ClientName = _clientName,
-                EntityName = _entityName,
-                Value = id
+                Key =
+                {
+                    ClientName = _clientName,
+                    EntityName = _entityName,
+                    Value = id
+                }
             };
             await updatedEvent.PublishAsync(token);
         }
