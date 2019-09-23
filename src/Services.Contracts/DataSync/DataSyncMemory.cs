@@ -50,7 +50,7 @@ namespace Nexus.Link.Services.Contracts.DataSync
             {
                 ClientName = _clientName,
                 EntityName = _entityName,
-                Id = id
+                Value = id
             };
             await updatedEvent.PublishAsync(token);
         }
