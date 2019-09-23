@@ -46,7 +46,7 @@ namespace Nexus.Link.Services.Contracts.DataSync
 
         private async Task PublishEvent(string id, CancellationToken token)
         {
-            var updatedEvent = new SynchronizedEntityWasUpdated
+            var updatedEvent = new DataSyncEntityWasUpdated
             {
                 ClientName = _clientName,
                 EntityName = _entityName,

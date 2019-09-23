@@ -3,7 +3,7 @@
     /// <summary>
     /// This event is published whenever a new Invoices has been published.
     /// </summary>
-    public class SynchronizedEntityWasUpdated : IPublishableEvent
+    public class DataSyncEntityWasUpdated : IPublishableEvent
     {
         /// <inheritdoc />
         public EventMetadata Metadata { get; set; } = 
@@ -22,6 +22,6 @@
         /// <summary>
         /// The id of the object that has been updated.
         /// </summary>
-        public string Id { get; set; }
+        public string Value { get; set; }
     }
 }
