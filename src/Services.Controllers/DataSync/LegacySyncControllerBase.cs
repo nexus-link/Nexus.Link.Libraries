@@ -49,14 +49,14 @@ namespace Nexus.Link.Services.Controllers.DataSync
                 var objectData = await readLogic.ReadAsync(id, token);
                 if (objectData == null)
                 {
-                    return NotFound("CBF83F95-8A30-4887-B57B-3E471246D825");
+                    return NotFound("\"CBF83F95-8A30-4887-B57B-3E471246D825\"");
                 }
 
                 return Ok(JObject.FromObject(objectData, JsonSerializer.Create(JsonSerializerSettings())));
             }
             catch (FulcrumNotFoundException)
             {
-                return NotFound("CBF83F95-8A30-4887-B57B-3E471246D825");
+                return NotFound("\"CBF83F95-8A30-4887-B57B-3E471246D825\"");
             }
             catch (FulcrumForbiddenAccessException e)
             {
