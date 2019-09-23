@@ -16,7 +16,7 @@ namespace Nexus.Link.Services.Contracts.Events.SynchronizedEntity
         /// <summary>
         /// The time (ISO8061) when the object was updated.
         /// </summary>
-        public string TimeStamp { get; } = DateTime.UtcNow.ToString("o");
+        public string Timestamp { get; } = DateTime.UtcNow.ToString("o");
 
         /// <summary>
         /// Optional. Name of the user that caused the update.

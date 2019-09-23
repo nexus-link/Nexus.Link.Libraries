@@ -8,7 +8,7 @@
 
   <PropertyGroup>
     <PackageId>Nexus.Link.Services.Contracts</PackageId>
-    <Version>1.3.3</Version>
+    <Version>1.3.4</Version>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <PackageTags>nexus;link</PackageTags>
     <Authors>XLENT Link</Authors>
@@ -18,7 +18,7 @@
     <Copyright>Copyright ©2019 Xlent Link AB</Copyright>
     <IncludeSymbols>true</IncludeSymbols>
     <PackageReleaseNotes>
-      1.3.3 Renamed and added field in DataSyncEntityWasUpdated.
+      1.3.4 Renamed and added field in DataSyncEntityWasUpdated.
       1.3.0 Moved DataSyncMemory and EventExtensions here.
       1.2.4 Bump
       1.2.3 Added DataSync and Events
