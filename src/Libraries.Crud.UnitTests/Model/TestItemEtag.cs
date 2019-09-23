@@ -1,7 +1,8 @@
 ﻿using Nexus.Link.Libraries.Core.Storage.Model;
+
 #pragma warning disable 659
 
-namespace Nexus.Link.Libraries.Crud.Test.NuGet.Model
+namespace Nexus.Link.Libraries.Crud.UnitTests.Model
 {
     /// <summary>
     /// A  uniquely identifiable item that implements <see cref="IOptimisticConcurrencyControlByETag"/> to be used in testing
