@@ -37,7 +37,7 @@ namespace Nexus.Link.Services.Controllers.DataSync
         /// </summary>
         /// <returns></returns>
         [HttpGet("{id}")]
-        public async Task<ActionResult<JObject>> LegacyReadAsync(string id, CancellationToken token = default(CancellationToken))
+        public async Task<ActionResult<T>> LegacyReadAsync(string id, CancellationToken token = default(CancellationToken))
         {
             ServiceContract.RequireNotNullOrWhiteSpace(id, nameof(id));
             try
@@ -76,7 +76,7 @@ namespace Nexus.Link.Services.Controllers.DataSync
         /// GET for a synchronized object, according to the contract in http://lever.xlent-fulcrum.info/wiki/XLENT_Match
         /// </summary>
         [HttpPut("{id}")]
-        public async Task<ActionResult> LegacyUpdateAsync(string id, [FromBody]JObject jObject, CancellationToken token = default(CancellationToken))
+        public async Task<ActionResult> LegacyUpdateAsync(string id, [FromBody]T item, CancellationToken token = default(CancellationToken))
         {
             try
             {
@@ -84,7 +84,6 @@ namespace Nexus.Link.Services.Controllers.DataSync
                 {
                     return StatusCode(500, $"{Logic.GetType().FullName} must implement IUpdate");
                 }
-                var item = jObject.ToObject<T>();
                 await updateLogic.UpdateAsync(id, item, token);
                 return Ok();
             }
@@ -110,7 +109,7 @@ namespace Nexus.Link.Services.Controllers.DataSync
         /// POST for a synchronized object, according to the contract in http://lever.xlent-fulcrum.info/wiki/XLENT_Match
         /// </summary>
         [HttpPost("")]
-        public async Task<ActionResult<string>> LegacyCreateAsync([FromBody]JObject jObject, CancellationToken token = default(CancellationToken))
+        public async Task<ActionResult<string>> LegacyCreateAsync([FromBody]T item, CancellationToken token = default(CancellationToken))
         {
             try
             {
@@ -118,7 +117,6 @@ namespace Nexus.Link.Services.Controllers.DataSync
                 {
                     return StatusCode(500, $"{Logic.GetType().FullName} must implement ICreate");
                 }
-                var item = jObject.ToObject<T>();
                 var id = await createLogic.CreateAsync(item, token);
                 FulcrumAssert.IsNotNullOrWhiteSpace(id);
                 return Ok(id);
