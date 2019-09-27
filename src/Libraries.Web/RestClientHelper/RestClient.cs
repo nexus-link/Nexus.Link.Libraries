@@ -306,9 +306,13 @@ namespace Nexus.Link.Libraries.Web.RestClientHelper
 
             if (method == HttpMethod.Get || method == HttpMethod.Put || method == HttpMethod.Post)
             {
-                if (response.StatusCode != HttpStatusCode.OK)
+                if ((method == HttpMethod.Get || method == HttpMethod.Put) && response.StatusCode != HttpStatusCode.OK)
                 {
                     throw new FulcrumResourceException($"The response to request {request.ToLogString()} was expected to have HttpStatusCode {HttpStatusCode.OK}, but had {response.StatusCode.ToLogString()}.");
+                }
+                if (method == HttpMethod.Post && response.StatusCode != HttpStatusCode.OK && response.StatusCode != HttpStatusCode.Created)
+                {
+                    throw new FulcrumResourceException($"The response to request {request.ToLogString()} was expected to have HttpStatusCode {HttpStatusCode.OK} or {HttpStatusCode.Created}, but had {response.StatusCode.ToLogString()}.");
                 }
                 var responseContent = await TryGetContentAsString(response.Content, false);
                 if (responseContent == null) return result;
