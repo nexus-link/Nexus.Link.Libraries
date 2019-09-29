@@ -25,6 +25,7 @@
     <IncludeSymbols>true</IncludeSymbols>
     <PackageReleaseNotes>
       1.4.4 Using T insread of JObject in LegacySyncControllerBase to make Model show up i swagger.
+      1.4.3 Bump
       1.4.2 Returned Guid must have quotes.
       1.4.1 Bump
       1.4.0 Added DataSync ControllerBase
