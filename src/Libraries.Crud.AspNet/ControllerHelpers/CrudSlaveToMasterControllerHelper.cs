@@ -161,26 +161,37 @@ namespace Nexus.Link.Libraries.Crud.AspNet.ControllerHelpers
         /// <inheritdoc />
         public async Task DeleteAsync(string masterId, string slaveId, CancellationToken token = default(CancellationToken))
         {
-            throw new System.NotImplementedException();
+            ServiceContract.RequireNotNullOrWhiteSpace(masterId, nameof(masterId));
+            ServiceContract.RequireNotNullOrWhiteSpace(slaveId, nameof(slaveId));
+            await Logic.DeleteAsync(masterId, slaveId, token);
         }
 
         /// <inheritdoc />
         public async Task DeleteChildrenAsync(string parentId, CancellationToken token = default(CancellationToken))
         {
-            throw new System.NotImplementedException();
+            ServiceContract.RequireNotNullOrWhiteSpace(parentId, nameof(parentId));
+            await Logic.DeleteChildrenAsync(parentId, token);
         }
 
         /// <inheritdoc />
         public async Task<SlaveLock<string>> ClaimLockAsync(string masterId, string slaveId, CancellationToken token = default(CancellationToken))
         {
-            throw new System.NotImplementedException();
+            ServiceContract.RequireNotNullOrWhiteSpace(masterId, nameof(masterId));
+            ServiceContract.RequireNotNullOrWhiteSpace(slaveId, nameof(slaveId));
+            var @lock = await Logic.ClaimLockAsync(masterId, slaveId, token);
+            FulcrumAssert.IsNotNull(@lock);
+            FulcrumAssert.IsValidated(@lock);
+            return @lock;
         }
 
         /// <inheritdoc />
         public async Task ReleaseLockAsync(string masterId, string slaveId, string lockId,
             CancellationToken token = default(CancellationToken))
         {
-            throw new System.NotImplementedException();
+            ServiceContract.RequireNotNullOrWhiteSpace(masterId, nameof(masterId));
+            ServiceContract.RequireNotNullOrWhiteSpace(slaveId, nameof(slaveId));
+            ServiceContract.RequireNotNullOrWhiteSpace(lockId, nameof(lockId));
+            await Logic.ReleaseLockAsync(masterId, slaveId, lockId, token);
         }
     }
 }
