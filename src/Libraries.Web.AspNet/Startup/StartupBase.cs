@@ -74,15 +74,15 @@ namespace Nexus.Link.Libraries.Web.AspNet.Startup
                 ConfigureServicesInitialUrgentPart(services);
                 FulcrumApplication.ValidateButNotInProduction();
                 InternalContract.RequireValidated(this, GetType().FullName);
-                services.AddMvc(opts =>
+                var mvc = services.AddMvc(opts =>
                 {
                     if (!FulcrumApplication.IsInDevelopment) return;
                     Log.LogWarning($"Anonymous service usage is allowed, due to development mode.");
                     opts.Filters.Add(new AllowAnonymousFilter());
-                })
-                    .SetCompatibilityVersion(CompatibilityVersion);
+                });
+                mvc.SetCompatibilityVersion(CompatibilityVersion);
                 ConfigureServicesSwagger(services);
-                DependencyInjectServices(services);
+                DependencyInjectServices(services, mvc);
                 Log.LogInformation($"{nameof(StartupBase)}.{nameof(ConfigureServices)} succeeded.");
             }
             catch (Exception e)
@@ -213,8 +213,9 @@ namespace Nexus.Link.Libraries.Web.AspNet.Startup
         /// This is where the application injects its own services.
         /// </summary>
         /// <param name="services">From the parameter to Startup.ConfigureServices.</param>
+        /// <param name="mvc"></param>
         /// <remarks>Always override this to inject your services.</remarks>
-        protected abstract void DependencyInjectServices(IServiceCollection services);
+        protected abstract void DependencyInjectServices(IServiceCollection services, IMvcBuilder mvc);
 
         #endregion
 
