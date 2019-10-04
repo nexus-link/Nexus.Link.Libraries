@@ -1,4 +1,6 @@
-﻿#if NETCOREAPP
+﻿
+using System.Reflection;
+#if NETCOREAPP
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -14,8 +16,7 @@ using Nexus.Link.Libraries.Core.Logging;
 using Nexus.Link.Libraries.Web.AspNet.Pipe.Inbound;
 using Swashbuckle.AspNetCore.Swagger;
 using Microsoft.AspNetCore.Mvc.Authorization;
-using Nexus.Link.Libraries.Web.AspNet.Authorize;
-
+using Nexus.Link.Services.Contracts.Capabilities;
 namespace Nexus.Link.Libraries.Web.AspNet.Startup
 {
     /// <summary>
@@ -82,7 +83,8 @@ namespace Nexus.Link.Libraries.Web.AspNet.Startup
                 });
                 mvc.SetCompatibilityVersion(CompatibilityVersion);
                 ConfigureServicesSwagger(services);
-                DependencyInjectServices(services, mvc);
+                DependencyInjectServices(services);
+                AddControllersToMvc(services, mvc);
                 Log.LogInformation($"{nameof(StartupBase)}.{nameof(ConfigureServices)} succeeded.");
             }
             catch (Exception e)
@@ -92,6 +94,60 @@ namespace Nexus.Link.Libraries.Web.AspNet.Startup
                     e);
                 throw;
             }
+        }
+
+        private readonly IDictionary<Type, IEnumerable<Type>> _capabilityInterfaceToControllerClasses = new Dictionary<Type, IEnumerable<Type>>();
+
+        private void AddControllersToMvc(IServiceCollection services, IMvcBuilder mvcBuilder)
+        {
+            using (var serviceScope = services.BuildServiceProvider().CreateScope())
+            {
+                var serviceProvider = serviceScope.ServiceProvider;
+
+                foreach (var serviceType in _capabilityInterfaceToControllerClasses.Keys)
+                {
+                    FulcrumAssert.IsTrue(serviceType.IsInterface);
+                    var service = serviceProvider.GetService(serviceType);
+                    if (service == null) continue;
+                    var controllerTypes = _capabilityInterfaceToControllerClasses[serviceType];
+                    FulcrumAssert.IsNotNull(controllerTypes);
+                    foreach (var controllerType in controllerTypes)
+                    {
+                        FulcrumAssert.IsTrue(controllerType.IsClass);
+                        var assembly = controllerType.GetTypeInfo().Assembly;
+                        mvcBuilder.AddApplicationPart(assembly);
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// Register which controllers that should be used for a specific capability interface.
+        /// </summary>
+        protected void RegisterCapabilityControllers<TCapabilityInterface>(params Type[] controllerTypes)
+            where TCapabilityInterface : IServicesCapability
+        {
+            InternalContract.Require(typeof(TCapabilityInterface).IsInterface, 
+                $"The type ({typeof(TCapabilityInterface).Name}) passed to {nameof(TCapabilityInterface)} must be an interface.");
+            RegisterCapabilityControllers(typeof(TCapabilityInterface), controllerTypes);
+        }
+
+        /// <summary>
+        /// Register which controllers that should be used for a specific capability interface.
+        /// </summary>
+        protected void RegisterCapabilityControllers(Type capabilityInterface, params Type[] controllerTypes)
+        {
+            InternalContract.Require(capabilityInterface, type => type.IsInterface, nameof(capabilityInterface));
+            InternalContract.Require(capabilityInterface.IsInterface, 
+                $"The parameter {nameof(capabilityInterface)} must be an interface.");
+            InternalContract.Require(typeof(IServicesCapability).IsAssignableFrom(capabilityInterface), 
+                $"The parameter {nameof(capabilityInterface)} must inherit from {typeof(IServicesCapability).FullName}.");
+            foreach (var controllerType in controllerTypes)
+            {
+                InternalContract.Require(controllerType, type => type.IsClass, nameof(controllerType));
+            }
+
+            _capabilityInterfaceToControllerClasses.Add(capabilityInterface, controllerTypes);
         }
 
         /// <summary>
@@ -215,7 +271,7 @@ namespace Nexus.Link.Libraries.Web.AspNet.Startup
         /// <param name="services">From the parameter to Startup.ConfigureServices.</param>
         /// <param name="mvc"></param>
         /// <remarks>Always override this to inject your services.</remarks>
-        protected abstract void DependencyInjectServices(IServiceCollection services, IMvcBuilder mvc);
+        protected abstract void DependencyInjectServices(IServiceCollection services);
 
         #endregion
 
