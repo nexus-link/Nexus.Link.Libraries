@@ -111,12 +111,16 @@ namespace Nexus.Link.Libraries.Web.AspNet.Startup
                     if (service == null) continue;
                     var controllerTypes = _capabilityInterfaceToControllerClasses[serviceType];
                     FulcrumAssert.IsNotNull(controllerTypes);
+                    var controllerNames = new List<string>();
                     foreach (var controllerType in controllerTypes)
                     {
                         FulcrumAssert.IsTrue(controllerType.IsClass);
                         var assembly = controllerType.GetTypeInfo().Assembly;
                         mvcBuilder.AddApplicationPart(assembly);
+                        controllerNames.Add(controllerType.Name);
                     }
+                    Log.LogInformation($"Injected controllers for {serviceType.Name}: {string.Join(", ", controllerNames)}");
+                    Log.LogVerbose($"The capability {serviceType.Name} was implemented by {service.GetType().FullName}");
                 }
             }
         }
