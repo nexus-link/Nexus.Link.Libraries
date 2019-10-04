@@ -124,18 +124,18 @@ namespace Nexus.Link.Libraries.Web.AspNet.Startup
         /// <summary>
         /// Register which controllers that should be used for a specific capability interface.
         /// </summary>
-        protected void RegisterCapabilityControllers<TCapabilityInterface>(params Type[] controllerTypes)
+        public void RegisterControllersForCapability<TCapabilityInterface>(params Type[] controllerTypes)
             where TCapabilityInterface : IServicesCapability
         {
             InternalContract.Require(typeof(TCapabilityInterface).IsInterface, 
                 $"The type ({typeof(TCapabilityInterface).Name}) passed to {nameof(TCapabilityInterface)} must be an interface.");
-            RegisterCapabilityControllers(typeof(TCapabilityInterface), controllerTypes);
+            RegisterControllersForCapability(typeof(TCapabilityInterface), controllerTypes);
         }
 
         /// <summary>
         /// Register which controllers that should be used for a specific capability interface.
         /// </summary>
-        protected void RegisterCapabilityControllers(Type capabilityInterface, params Type[] controllerTypes)
+        public void RegisterControllersForCapability(Type capabilityInterface, params Type[] controllerTypes)
         {
             InternalContract.Require(capabilityInterface, type => type.IsInterface, nameof(capabilityInterface));
             InternalContract.Require(capabilityInterface.IsInterface, 
