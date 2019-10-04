@@ -3,7 +3,7 @@
     /// <summary>
     /// Business Events
     /// </summary>
-    public interface IBusinessEventsCapability
+    public interface IBusinessEventsCapability : IServicesCapability
     {
         /// <summary>
         /// Service for business events
