@@ -1,7 +1,6 @@
-﻿
-using System.Reflection;
-#if NETCOREAPP
+﻿#if NETCOREAPP
 using System;
+using System.Reflection;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -81,7 +80,10 @@ namespace Nexus.Link.Libraries.Web.AspNet.Startup
                     Log.LogWarning($"Anonymous service usage is allowed, due to development mode.");
                     opts.Filters.Add(new AllowAnonymousFilter());
                 });
-                mvc.SetCompatibilityVersion(CompatibilityVersion);
+                mvc
+                    .SetCompatibilityVersion(CompatibilityVersion)
+                    .ConfigureApplicationPartManager(apm =>
+                        apm.FeatureProviders.Add(new RemoveRedundantControllers(_controllersToKeep)));
                 ConfigureServicesSwagger(services);
                 DependencyInjectServices(services);
                 AddControllersToMvc(services, mvc);
@@ -97,12 +99,17 @@ namespace Nexus.Link.Libraries.Web.AspNet.Startup
         }
 
         private readonly IDictionary<Type, IEnumerable<Type>> _capabilityInterfaceToControllerClasses = new Dictionary<Type, IEnumerable<Type>>();
+        private readonly HashSet<Type> _controllersToKeep = new HashSet<Type>();
 
+        // https://docs.microsoft.com/en-us/aspnet/core/mvc/advanced/app-parts?view=aspnetcore-2.2
+        // When we need a controller, this code will add all controllers in the same assembly.
+        // See RemoveRedundantControllers for removing the controllers that are redundant.
         private void AddControllersToMvc(IServiceCollection services, IMvcBuilder mvcBuilder)
         {
             using (var serviceScope = services.BuildServiceProvider().CreateScope())
             {
                 var serviceProvider = serviceScope.ServiceProvider;
+                var assemblies = new HashSet<Assembly>();
 
                 foreach (var serviceType in _capabilityInterfaceToControllerClasses.Keys)
                 {
@@ -110,17 +117,32 @@ namespace Nexus.Link.Libraries.Web.AspNet.Startup
                     var service = serviceProvider.GetService(serviceType);
                     if (service == null) continue;
                     var controllerTypes = _capabilityInterfaceToControllerClasses[serviceType];
-                    FulcrumAssert.IsNotNull(controllerTypes);
-                    var controllerNames = new List<string>();
-                    foreach (var controllerType in controllerTypes)
+                    FulcrumAssert.IsNotNull(controllerTypes);        
+                    var controllerList = controllerTypes as List<Type> ?? controllerTypes.ToList();
+
+                    foreach (var controllerType in controllerList)
                     {
                         FulcrumAssert.IsTrue(controllerType.IsClass);
                         var assembly = controllerType.GetTypeInfo().Assembly;
-                        mvcBuilder.AddApplicationPart(assembly);
-                        controllerNames.Add(controllerType.Name);
+                        assemblies.Add(assembly);
+                        _controllersToKeep.Add(controllerType);
                     }
-                    Log.LogInformation($"Injected controllers for {serviceType.Name}: {string.Join(", ", controllerNames)}");
-                    Log.LogVerbose($"The capability {serviceType.Name} was implemented by {service.GetType().FullName}");
+
+                    if (controllerList.Count > 0)
+                    {
+                        var names = controllerList.Select(t => t.Name);
+                        Log.LogInformation(
+                            $"Injecting controllers for the capability {serviceType.Name}: {string.Join(", ", names)}");
+                        Log.LogVerbose(
+                            $"The capability {serviceType.Name} was implemented by {service.GetType().FullName}");
+                    }
+                }
+
+                foreach (var assembly in assemblies)
+                {
+                    mvcBuilder.AddApplicationPart(assembly);
+                    Log.LogInformation(
+                        $"Injected all controllers in assembly {assembly.FullName}. The redundant ones will be removed later.");
                 }
             }
         }
