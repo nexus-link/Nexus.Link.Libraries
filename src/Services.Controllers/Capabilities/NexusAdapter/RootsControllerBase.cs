@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Nexus.Link.Libraries.Core.Application;
 
-namespace Nexus.Link.Services.Controllers.Capabilities.Api
+namespace Nexus.Link.Services.Controllers.Capabilities.NexusAdapter
 {
     /// <summary>
     /// Service implementation of <see cref="IRootService"/>
