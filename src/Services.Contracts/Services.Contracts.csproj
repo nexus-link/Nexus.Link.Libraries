@@ -18,7 +18,6 @@
     <Copyright>Copyright ©2019 Xlent Link AB</Copyright>
     <IncludeSymbols>true</IncludeSymbols>
     <PackageReleaseNotes>
-      1.5.2 Introduced NexusAdapter capability
       1.5.1 Added interface overload.
       1.5.0 Introduced IServicesCapability
       1.4.0 Added IDataSyncTesting, renamed DataSyncMemoryMock.
@@ -37,10 +36,6 @@
   <ItemGroup>
     <ProjectReference Include="..\Libraries.Core\Libraries.Core.csproj" />
     <ProjectReference Include="..\Libraries.Crud\Libraries.Crud.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Capabilities\NexusAdapter\" />
   </ItemGroup>
 
 </Project>
