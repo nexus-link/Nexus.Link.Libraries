@@ -11,7 +11,7 @@ Suppose that a producer is putting items on a queue that a consumer is reading. 
 
 This is how it works. If you have the data types QueueEnvelopeV1 and QueueEnvelopeV2 that both inherits from IVersionedSchema, then you can use the following code to deserialize data:
 
-```
+```csharp
 var json = Queue.ReadOneItem();
 var probe = JsonConvert.DeserializeObject<AnonymousSchema>(json);
 if (!probe.SchemaVersion.HasValue)
@@ -43,7 +43,7 @@ The next level of this where different data types (with different versions) are 
 
 This is how it works. If you have the data types ItemType1 and ItemType2 that both inherits from INamedSchema, then you can use the following code to deserialize data:
 
-```
+```csharp
 var json = Queue.ReadOneItem();
 var probe = JsonConvert.DeserializeObject<NamedSchema>(json);
 if (!probe.SchemaName == null)
@@ -70,7 +70,7 @@ A named schema can also have versions, where you the typically would have nested
 
 We provide a convenience class, `SchemaParser`, that can do the deserialization for you. You just tell the class which names and versions you have, and it will take care of the dirty work for you.
 
-```
+```csharp
 var schemaParser = new SchemaParser()
   .Add(typeof(DataAnonymous))
   .Add("DataType1", 1, typeof(DataType1Version1))
