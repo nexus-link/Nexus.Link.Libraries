@@ -97,7 +97,6 @@ namespace Nexus.Link.Libraries.Web.AspNet.Tests
             Assert.IsTrue(uri.PathAndQuery.EndsWith("/99"));
         }
 
-
         [TestMethod]
         public void NoModificationOnLocalHost2()
         {
@@ -106,6 +105,16 @@ namespace Nexus.Link.Libraries.Web.AspNet.Tests
 
             Assert.IsFalse(uri.Scheme == Uri.UriSchemeHttps);
             Assert.IsTrue(uri.IsLoopback);
+            Assert.IsTrue(uri.PathAndQuery.EndsWith("/99"));
+        }
+
+        [TestMethod]
+        public void NoModificationOnNexusLocal()
+        {
+            var urlHelper = CreateUrlHelper("http://nexus.local");
+            var uri = new Uri(urlHelper.LinkWithEnforcedHttps(RouteName, new { id = "99" }));
+
+            Assert.IsFalse(uri.Scheme == Uri.UriSchemeHttps);
             Assert.IsTrue(uri.PathAndQuery.EndsWith("/99"));
         }
 
