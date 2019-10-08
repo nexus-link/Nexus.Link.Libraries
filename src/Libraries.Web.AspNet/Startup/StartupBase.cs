@@ -62,7 +62,7 @@ namespace Nexus.Link.Libraries.Web.AspNet.Startup
         /// Don't override this method unless you really know what you are doing.
         /// First see if the following methods could be good enough for your needs:
         /// Always override <see cref="GetSynchronousFastLogger"/> to establish your preferred way of logging.
-        /// Always override <see cref="DependencyInjectServices"/> to inject your own services.
+        /// Always override <see cref="DependencyInjectServices(IServiceCollection)"/> to inject your own services.
         /// Override <see cref="ConfigureServicesInitialUrgentPart"/> if you have things that needs to be initialized early.
         /// Override <see cref="ConfigureServicesSwagger"/> if you want to change how swagger is set up.
         /// </remarks>
@@ -86,6 +86,7 @@ namespace Nexus.Link.Libraries.Web.AspNet.Startup
                         apm.FeatureProviders.Add(new RemoveRedundantControllers(_controllersToKeep)));
                 ConfigureServicesSwagger(services);
                 DependencyInjectServices(services);
+                DependencyInjectServicesAdvanced(services, mvc);
                 AddControllersToMvc(services, mvc);
                 Log.LogInformation($"{nameof(StartupBase)}.{nameof(ConfigureServices)} succeeded.");
             }
@@ -298,6 +299,17 @@ namespace Nexus.Link.Libraries.Web.AspNet.Startup
         /// <param name="mvc"></param>
         /// <remarks>Always override this to inject your services.</remarks>
         protected abstract void DependencyInjectServices(IServiceCollection services);
+
+        /// <summary>
+        /// This is where the application injects its own services.
+        /// </summary>
+        /// <param name="services">From the parameter to Startup.ConfigureServices.</param>
+        /// <param name="mvc"></param>
+        /// <remarks>Always override this to inject your services.</remarks>
+        protected virtual void DependencyInjectServicesAdvanced(IServiceCollection services, IMvcBuilder mvcBuild)
+        {
+
+        }
 
         #endregion
 
