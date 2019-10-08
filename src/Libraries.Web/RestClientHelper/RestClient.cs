@@ -55,6 +55,7 @@ namespace Nexus.Link.Libraries.Web.RestClientHelper
         };
 
         private static readonly object LockClass = new object();
+        private static HttpMethod _patchMethod = new HttpMethod("PATCH");
 
         /// <summary>
         /// The HttpClient that is used for all HTTP calls.
@@ -186,29 +187,49 @@ namespace Nexus.Link.Libraries.Web.RestClientHelper
         #region PUT
 
         /// <inheritdoc />
-        public async Task<TResponse> PutAsync<TResponse, TBody>(string relativeUrl, TBody body, Dictionary<string, List<string>> customHeaders = null,
+        public Task<TResponse> PutAsync<TResponse, TBody>(string relativeUrl, TBody body, Dictionary<string, List<string>> customHeaders = null,
             CancellationToken cancellationToken = new CancellationToken())
         {
-            InternalContract.RequireNotNull(relativeUrl, nameof(relativeUrl));
-            var response = await SendRequestAsync<TResponse, TBody>(HttpMethod.Put, relativeUrl, body, customHeaders, cancellationToken);
-            return response.Body;
+            return PutOrPatchAsync<TResponse, TBody>(HttpMethod.Put, relativeUrl, body, customHeaders, cancellationToken);
         }
 
         /// <inheritdoc />
-        public async Task<TBodyAndResponse> PutAndReturnUpdatedObjectAsync<TBodyAndResponse>(string relativeUrl, TBodyAndResponse body,
+        public Task<TBodyAndResponse> PutAndReturnUpdatedObjectAsync<TBodyAndResponse>(string relativeUrl, TBodyAndResponse body,
             Dictionary<string, List<string>> customHeaders = null, CancellationToken cancellationToken = new CancellationToken())
         {
-            InternalContract.RequireNotNull(relativeUrl, nameof(relativeUrl));
-            return await PutAsync<TBodyAndResponse, TBodyAndResponse>(relativeUrl, body, customHeaders, cancellationToken);
+            return PutOrPatchAndReturnUpdatedObjectAsync(HttpMethod.Put, relativeUrl, body, customHeaders, cancellationToken);
         }
 
         /// <inheritdoc />
-        public async Task PutNoResponseContentAsync<TBody>(string relativeUrl, TBody body, Dictionary<string, List<string>> customHeaders = null,
+        public Task PutNoResponseContentAsync<TBody>(string relativeUrl, TBody body, Dictionary<string, List<string>> customHeaders = null,
             CancellationToken cancellationToken = new CancellationToken())
         {
-            InternalContract.RequireNotNull(relativeUrl, nameof(relativeUrl));
-            var response = await SendRequestAsync(HttpMethod.Put, relativeUrl, body, customHeaders, cancellationToken);
-            await VerifySuccessAsync(response);
+            return PutOrPatchNoResponseContentAsync(HttpMethod.Put, relativeUrl, body, customHeaders, cancellationToken);
+        }
+
+        #endregion
+
+        #region PATCH
+
+        /// <inheritdoc />
+        public Task<TResponse> PatchAsync<TResponse, TBody>(string relativeUrl, TBody body, Dictionary<string, List<string>> customHeaders = null,
+            CancellationToken cancellationToken = new CancellationToken())
+        {
+            return PutOrPatchAsync<TResponse, TBody>(_patchMethod, relativeUrl, body, customHeaders, cancellationToken);
+        }
+
+        /// <inheritdoc />
+        public Task<TBodyAndResponse> PatchAndReturnUpdatedObjectAsync<TBodyAndResponse>(string relativeUrl, TBodyAndResponse body,
+            Dictionary<string, List<string>> customHeaders = null, CancellationToken cancellationToken = new CancellationToken())
+        {
+            return PutOrPatchAndReturnUpdatedObjectAsync(_patchMethod, relativeUrl, body, customHeaders, cancellationToken);
+        }
+
+        /// <inheritdoc />
+        public Task PatchNoResponseContentAsync<TBody>(string relativeUrl, TBody body, Dictionary<string, List<string>> customHeaders = null,
+            CancellationToken cancellationToken = new CancellationToken())
+        {
+            return PutOrPatchNoResponseContentAsync(_patchMethod, relativeUrl, body, customHeaders, cancellationToken);
         }
 
         #endregion
@@ -274,6 +295,29 @@ namespace Nexus.Link.Libraries.Web.RestClientHelper
         #endregion
 
         #region Helpers
+
+        private async Task<TResponse> PutOrPatchAsync<TResponse, TBody>(HttpMethod method, string relativeUrl, TBody body, Dictionary<string, List<string>> customHeaders = null,
+            CancellationToken cancellationToken = new CancellationToken())
+        {
+            InternalContract.RequireNotNull(relativeUrl, nameof(relativeUrl));
+            var response = await SendRequestAsync<TResponse, TBody>(method, relativeUrl, body, customHeaders, cancellationToken);
+            return response.Body;
+        }
+
+        private async Task<TBodyAndResponse> PutOrPatchAndReturnUpdatedObjectAsync<TBodyAndResponse>(HttpMethod method, string relativeUrl, TBodyAndResponse body,
+            Dictionary<string, List<string>> customHeaders = null, CancellationToken cancellationToken = new CancellationToken())
+        {
+            InternalContract.RequireNotNull(relativeUrl, nameof(relativeUrl));
+            return await PutOrPatchAsync<TBodyAndResponse, TBodyAndResponse>(method, relativeUrl, body, customHeaders, cancellationToken);
+        }
+
+        private async Task PutOrPatchNoResponseContentAsync<TBody>(HttpMethod method, string relativeUrl, TBody body, Dictionary<string, List<string>> customHeaders = null,
+            CancellationToken cancellationToken = new CancellationToken())
+        {
+            InternalContract.RequireNotNull(relativeUrl, nameof(relativeUrl));
+            var response = await SendRequestAsync(method, relativeUrl, body, customHeaders, cancellationToken);
+            await VerifySuccessAsync(response);
+        }
 
         private static HttpRequestMessage CreateRequest(HttpMethod method, string url, Dictionary<string, List<string>> customHeaders)
         {
