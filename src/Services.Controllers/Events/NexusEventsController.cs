@@ -13,10 +13,10 @@ namespace Nexus.Link.Services.Controllers.Events
     /// <summary>
     /// Service implementation of <see cref="IEventReceiver"/>
     /// </summary>
-    [Route("api/EventReceiver/v1/[controller]")]
+    [Route("api/EventReceiver/v1/NexusEvents")]
     [ApiController]
     [Authorize(Policy = "HasMandatoryRole")]
-    public abstract class EventsControllerBase : IEventReceiver
+    public class NexusEventsController: IEventReceiver
     {
         /// <summary>
         /// The logic for this controller
@@ -24,7 +24,7 @@ namespace Nexus.Link.Services.Controllers.Events
         protected readonly IEventReceiver Logic;
 
         /// <inheritdoc />
-        protected EventsControllerBase(IEventReceiver logic)
+        public NexusEventsController(IEventReceiver logic)
         {
             Logic = logic;
         }
