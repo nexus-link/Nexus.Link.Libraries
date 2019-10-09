@@ -15,9 +15,9 @@ namespace Nexus.Link.Services.Controllers.Capabilities.Integration.AppSupport
     /// <summary>
     /// Service implementation of <see cref="IConfigurationService"/>
     /// </summary>
-    [Route("api/Integration/v1/[area]/v1/Configurations")]
     [ApiController]
     [Area("AppSupport")]
+    [Route("api/Integration/v1/[area]/v1/Configurations")]
     [Authorize(Policy = "HasMandatoryRole")]
     public class NexusConfigurationsController : IConfigurationService
     {

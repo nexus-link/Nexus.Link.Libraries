@@ -14,7 +14,7 @@
 
   <PropertyGroup>
     <PackageId>Nexus.Link.Services.Controllers</PackageId>
-    <Version>2.0.0</Version>
+    <Version>2.0.1</Version>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <PackageTags>nexus;link</PackageTags>
     <Authors>XLENT Link</Authors>
@@ -24,7 +24,7 @@
     <Copyright>Copyright ©2019 Xlent Link AB</Copyright>
     <IncludeSymbols>true</IncludeSymbols>
     <PackageReleaseNotes>
-      2.0.0 Changed controller routes.
+      2.0.1 Changed controller routes.
       1.4.13 Introduced NexusApi capability
       1.4.11 Bump
       1.4.4 Using T insead of JObject in LegacySyncControllerBase to make Model show up i swagger.

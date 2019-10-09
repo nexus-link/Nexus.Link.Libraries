@@ -13,6 +13,8 @@ namespace Nexus.Link.Services.Controllers.Capabilities.Integration.BusinessEvent
     /// <summary>
     /// Service implementation of <see cref="IBusinessEventService"/>
     /// </summary>
+    [ApiController]
+    [Area("BusinessEvents")]
     [Route("api/Integration/v1/[area]/v1/Events")]
     public class NexusBusinessEventsController : ControllerBase, IBusinessEventService
     {
