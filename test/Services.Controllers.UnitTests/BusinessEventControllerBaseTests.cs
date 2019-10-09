@@ -66,7 +66,7 @@ namespace Services.Controllers.UnitTests
             public string DataField { get; set;  }
         }
 
-        private class BusinessEventsController : BusinessEventsControllerBase
+        private class BusinessEventsController : NexusBusinessEventsController
         {
             /// <inheritdoc />
             public BusinessEventsController(IBusinessEventsCapability capability) : base(capability)

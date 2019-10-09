@@ -9,7 +9,7 @@
 
   <PropertyGroup>
     <PackageId>Nexus.Link.Libraries.Crud.Web</PackageId>
-    <Version>2.1.7</Version>
+    <Version>2.1.9</Version>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <PackageTags>nexus;link;fulcrum;lever</PackageTags>
     <Authors>XLENT Link</Authors>
@@ -19,6 +19,7 @@
     <Copyright>Copyright ©2019 Xlent Link AB</Copyright>
     <IncludeSymbols>true</IncludeSymbols>
     <PackageReleaseNotes>
+      2.1.9 Bump
       2.1.7 Added missing CrudSlaveToMasterRestClient{TModel, TId}
       2.1.6 Bump
       2.1.0 Removed long-time obsolete RestClient constructors and added tests on incoming parameters.

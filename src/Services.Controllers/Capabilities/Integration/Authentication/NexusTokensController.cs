@@ -11,7 +11,9 @@ namespace Nexus.Link.Services.Controllers.Capabilities.Integration.Authenticatio
     /// Service implementation of <see cref="ITokenService"/>
     /// </summary>
     [ApiController]
-    public abstract class TokensControllerBase : ControllerBase, ITokenService
+    [Area("Authentication")]
+    [Route("api/Integration/v1/[area]/v1/Tokens")]
+    public class NexusTokensController : ControllerBase, ITokenService
     {
         protected readonly IAuthenticationCapability Capability;
 
@@ -19,7 +21,7 @@ namespace Nexus.Link.Services.Controllers.Capabilities.Integration.Authenticatio
         /// Constructor
         /// </summary>
         /// <param name="capability">The logic layer</param>
-        protected TokensControllerBase(IAuthenticationCapability capability)
+        public NexusTokensController(IAuthenticationCapability capability)
         {
             Capability = capability;
         }

@@ -15,9 +15,11 @@ namespace Nexus.Link.Services.Controllers.Capabilities.Integration.AppSupport
     /// <summary>
     /// Service implementation of <see cref="IConfigurationService"/>
     /// </summary>
+    [Route("api/Integration/v1/[area]/v1/Configurations")]
     [ApiController]
+    [Area("AppSupport")]
     [Authorize(Policy = "HasMandatoryRole")]
-    public abstract class ConfigurationsControllerBase : IConfigurationService
+    public class NexusConfigurationsController : IConfigurationService
     {
         /// <summary>
         /// The capability where this controller resides
@@ -30,7 +32,7 @@ namespace Nexus.Link.Services.Controllers.Capabilities.Integration.AppSupport
         protected readonly ICrud<JToken, string> CrudController;
 
         /// <inheritdoc />
-        protected ConfigurationsControllerBase(IAppSupportCapability capability)
+        public NexusConfigurationsController(IAppSupportCapability capability)
         {
             Capability = capability;
             CrudController = new CrudController<JToken>(capability.ConfigurationService);
@@ -44,7 +46,8 @@ namespace Nexus.Link.Services.Controllers.Capabilities.Integration.AppSupport
             FulcrumAssert.IsNotNull(authenticatedSystemName);
             if (id.ToLowerInvariant() != authenticatedSystemName?.ToLowerInvariant())
             {
-                throw new FulcrumForbiddenAccessException($"{nameof(id)} ({id}) must be the same as the authenticated client id ({authenticatedSystemName}).");
+                throw new FulcrumForbiddenAccessException(
+                    $"{nameof(id)} ({id}) must be the same as the authenticated client id ({authenticatedSystemName}).");
             }
 
             try

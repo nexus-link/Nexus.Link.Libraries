@@ -10,6 +10,7 @@ using Nexus.Link.Libraries.Core.Application;
 using Nexus.Link.Libraries.Core.Assert;
 using Nexus.Link.Libraries.Core.Context;
 using Nexus.Link.Libraries.Core.Error.Logic;
+using Nexus.Link.Libraries.Core.Logging;
 using Nexus.Link.Libraries.Core.Platform.Authentication;
 using Nexus.Link.Libraries.Web.Logging;
 using Nexus.Link.Libraries.Web.Pipe.Outbound;
@@ -79,6 +80,7 @@ namespace Nexus.Link.Libraries.Web.RestClientHelper
                     HttpClient = new HttpClientWrapper(httpClient);
                 }
             }
+            Log.LogVerbose($"Created REST client {GetType().FullName}: {baseUri}");
         }
 
         /// <summary></summary>

@@ -13,9 +13,8 @@ namespace Nexus.Link.Services.Controllers.Capabilities.Integration.BusinessEvent
     /// <summary>
     /// Service implementation of <see cref="IBusinessEventService"/>
     /// </summary>
-    [ApiController]
-    [Authorize(Policy = "HasMandatoryRole")]
-    public abstract class BusinessEventsControllerBase : ControllerBase, IBusinessEventService
+    [Route("api/Integration/v1/[area]/v1/Events")]
+    public class NexusBusinessEventsController : ControllerBase, IBusinessEventService
     {
         protected readonly IBusinessEventsCapability Capability;
 
@@ -23,7 +22,7 @@ namespace Nexus.Link.Services.Controllers.Capabilities.Integration.BusinessEvent
         /// Constructor
         /// </summary>
         /// <param name="capability">The logic layer</param>
-        protected BusinessEventsControllerBase(IBusinessEventsCapability capability)
+        public NexusBusinessEventsController(IBusinessEventsCapability capability)
         {
             Capability = capability;
         }
