@@ -151,12 +151,12 @@ namespace Nexus.Link.Libraries.Web.AspNet.Startup
         /// <summary>
         /// Register which controllers that should be used for a specific capability interface.
         /// </summary>
-        public void RegisterControllersForCapability<TCapabilityInterface>(params Type[] controllerTypes)
-            where TCapabilityInterface : IServicesCapability
+        public void RegisterControllersForCapability<TControllerInjector>(params Type[] controllerTypes)
+            where TControllerInjector : IControllerInjector
         {
-            InternalContract.Require(typeof(TCapabilityInterface).IsInterface, 
-                $"The type ({typeof(TCapabilityInterface).Name}) passed to {nameof(TCapabilityInterface)} must be an interface.");
-            RegisterControllersForCapability(typeof(TCapabilityInterface), controllerTypes);
+            InternalContract.Require(typeof(TControllerInjector).IsInterface, 
+                $"The type ({typeof(TControllerInjector).Name}) passed to {nameof(TControllerInjector)} must be an interface.");
+            RegisterControllersForCapability(typeof(TControllerInjector), controllerTypes);
         }
 
         /// <summary>
@@ -167,8 +167,8 @@ namespace Nexus.Link.Libraries.Web.AspNet.Startup
             InternalContract.Require(capabilityInterface, type => type.IsInterface, nameof(capabilityInterface));
             InternalContract.Require(capabilityInterface.IsInterface, 
                 $"The parameter {nameof(capabilityInterface)} must be an interface.");
-            InternalContract.Require(typeof(IServicesCapability).IsAssignableFrom(capabilityInterface), 
-                $"The parameter {nameof(capabilityInterface)} must inherit from {typeof(IServicesCapability).FullName}.");
+            InternalContract.Require(typeof(IControllerInjector).IsAssignableFrom(capabilityInterface), 
+                $"The parameter {nameof(capabilityInterface)} must inherit from {typeof(IControllerInjector).FullName}.");
             foreach (var controllerType in controllerTypes)
             {
                 InternalContract.Require(controllerType, type => type.IsClass, nameof(controllerType));

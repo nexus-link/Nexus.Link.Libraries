@@ -3,7 +3,7 @@
     /// <summary>
     /// Application support
     /// </summary>
-    public interface IAppSupportCapability : IServicesCapability
+    public interface IAppSupportCapability : IControllerInjector
     {
         /// <summary>
         /// Service for getting application configurations

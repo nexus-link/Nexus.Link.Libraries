@@ -1,13 +1,14 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
+using Nexus.Link.Services.Contracts.Capabilities;
 
 namespace Nexus.Link.Services.Contracts.Events
 {
     /// <summary>
     /// Needs to be implemented by an adapter that subscribes to events
     /// </summary>
-    public interface IEventReceiver
+    public interface IEventReceiver : IControllerInjector
     {
         Task ReceiveEvent(JToken eventAsJson, CancellationToken token = default(CancellationToken));
     }

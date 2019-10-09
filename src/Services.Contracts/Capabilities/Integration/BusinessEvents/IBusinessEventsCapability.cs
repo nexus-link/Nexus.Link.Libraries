@@ -3,7 +3,7 @@
     /// <summary>
     /// Business Events
     /// </summary>
-    public interface IBusinessEventsCapability : IServicesCapability
+    public interface IBusinessEventsCapability : IControllerInjector
     {
         /// <summary>
         /// Service for business events
