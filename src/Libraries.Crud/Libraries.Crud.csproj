@@ -11,7 +11,7 @@
 
   <PropertyGroup>
     <PackageId>Nexus.Link.Libraries.Crud</PackageId>
-    <Version>2.0.4</Version>
+    <Version>2.0.5</Version>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <PackageTags>nexus;link;fulcrum;lever</PackageTags>
     <Authors>XLENT Link</Authors>
@@ -21,7 +21,7 @@
     <Copyright>Copyright ©2019 Xlent Link AB</Copyright>
     <IncludeSymbols>true</IncludeSymbols>
     <PackageReleaseNotes>
-      2.0.4 Bump
+      2.0.5 Bump
       2.0.2 Safe deserializing.
       2.0.0 Depends on major change in Libraries.Core
       1.0.7 Bumped version
