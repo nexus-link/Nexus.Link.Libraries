@@ -16,7 +16,7 @@ namespace Nexus.Link.Libraries.Crud.AspNet.DefaultControllers
     public abstract class CrudDefaultController<TModel> : CrudDefaultController<TModel, TModel>, ICrud<TModel, string>
     {
         /// <inheritdoc />
-        protected CrudDefaultController(ICrud<TModel, string> logic)
+        protected CrudDefaultController(ICrudable<TModel, string> logic)
             : base(logic)
         {
         }
