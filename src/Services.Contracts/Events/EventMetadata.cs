@@ -1,11 +1,12 @@
 ﻿using Nexus.Link.Libraries.Core.Assert;
+using Nexus.Link.Libraries.Core.Logging;
 
 namespace Nexus.Link.Services.Contracts.Events
 {
     /// <summary>
     /// Metadata for an event
     /// </summary>
-    public class EventMetadata : IValidatable
+    public class EventMetadata : IValidatable, ILoggable
     {
         /// <summary>
         /// Empty constructor.
@@ -43,5 +44,12 @@ namespace Nexus.Link.Services.Contracts.Events
             FulcrumValidate.IsGreaterThanOrEqualTo(0, MajorVersion, nameof(MajorVersion), errorLocation);
             FulcrumValidate.IsGreaterThanOrEqualTo(0, MinorVersion, nameof(MinorVersion), errorLocation);
         }
+
+        /// <summary>
+        /// Implements <see cref="ILoggable"/>
+        /// </summary>
+        public string ToLogString() => $"{EntityName}.{EventName} ({MajorVersion}.{MinorVersion})";
+
+        public override string ToString() => ToLogString();
     }
 }

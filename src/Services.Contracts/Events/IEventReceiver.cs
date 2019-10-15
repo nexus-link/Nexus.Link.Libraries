@@ -10,6 +10,9 @@ namespace Nexus.Link.Services.Contracts.Events
     /// </summary>
     public interface IEventReceiver : IControllerInjector
     {
-        Task ReceiveEvent(JToken eventAsJson, CancellationToken token = default(CancellationToken));
+        Task ReceiveEventAsync(JToken eventAsJson, CancellationToken token = default(CancellationToken));
+
+        Task ReceiveEventExplicitlyAsync(string entityName, string eventName, int majorVersion,
+            JToken eventAsJson, CancellationToken token = default(CancellationToken));
     }
 }
