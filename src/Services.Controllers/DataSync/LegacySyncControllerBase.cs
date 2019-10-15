@@ -7,6 +7,7 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Nexus.Link.Libraries.Core.Assert;
 using Nexus.Link.Libraries.Core.Error.Logic;
+using Nexus.Link.Libraries.Core.Misc;
 using Nexus.Link.Libraries.Crud.Interfaces;
 
 namespace Nexus.Link.Services.Controllers.DataSync
@@ -140,7 +141,7 @@ namespace Nexus.Link.Services.Controllers.DataSync
                 }
 
                 var id = await createLogic.CreateAsync(item, token);
-                FulcrumAssert.IsNotNullOrWhiteSpace(id);
+                FulcrumAssert.IsNotNullOrWhiteSpace(id, CodeLocation.AsString());
                 return Ok(id);
             }
             catch (FulcrumNotFoundException)

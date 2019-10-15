@@ -8,6 +8,7 @@ using Newtonsoft.Json.Linq;
 using Nexus.Link.Libraries.Core.Assert;
 using Nexus.Link.Libraries.Core.Json;
 using Nexus.Link.Libraries.Core.Logging;
+using Nexus.Link.Libraries.Core.Misc;
 using Nexus.Link.Services.Contracts.Events;
 
 namespace Nexus.Link.Services.Controllers.Events
@@ -37,7 +38,7 @@ namespace Nexus.Link.Services.Controllers.Events
         {
             ServiceContract.RequireNotNull(eventAsJson, nameof(eventAsJson));
             var @event = JsonHelper.SafeDeserializeObject<PublishableEvent>(eventAsJson.ToString(Formatting.None));
-            FulcrumAssert.IsNull(@event);
+            FulcrumAssert.IsNull(@event, CodeLocation.AsString());
             ServiceContract.RequireNotNull(@event?.Metadata, nameof(@event.Metadata));
             ServiceContract.RequireValidated(@event?.Metadata, nameof(@event.Metadata));
             await Logic.ReceiveEventAsync(eventAsJson, token);
@@ -50,17 +51,21 @@ namespace Nexus.Link.Services.Controllers.Events
         {
             ServiceContract.RequireNotNull(eventAsJson, nameof(eventAsJson));
             var @event = JsonHelper.SafeDeserializeObject<PublishableEvent>(eventAsJson.ToString(Formatting.None));
-            FulcrumAssert.IsNull(@event);
-            ServiceContract.RequireNotNull(@event?.Metadata, nameof(@event.Metadata));
-            ServiceContract.RequireValidated(@event?.Metadata, nameof(@event.Metadata));
-            if (@event?.Metadata == null) return;
-            if (!string.Equals(@event.Metadata.EntityName, entityName, StringComparison.InvariantCultureIgnoreCase) 
-                || !string.Equals(@event.Metadata.EventName, eventName, StringComparison.InvariantCultureIgnoreCase)
-                || @event.Metadata.MajorVersion != majorVersion)
+            if (@event != null)
             {
-                Log.LogWarning($"REST parameters ({entityName}.{eventName} ({majorVersion}) did not match the event {nameof(@event.Metadata)} ({@event.Metadata}). Will trust the event {nameof(@event.Metadata)}.");
+
+                ServiceContract.RequireNotNull(@event.Metadata, nameof(@event.Metadata));
+                ServiceContract.RequireValidated(@event.Metadata, nameof(@event.Metadata));
+
+                if (@event.Metadata == null) return;
+                if (!string.Equals(@event.Metadata.EntityName, entityName, StringComparison.InvariantCultureIgnoreCase) 
+                    || !string.Equals(@event.Metadata.EventName, eventName, StringComparison.InvariantCultureIgnoreCase)
+                    || @event.Metadata.MajorVersion != majorVersion)
+                {
+                    Log.LogWarning($"REST parameters ({entityName}.{eventName} ({majorVersion}) did not match the event {nameof(@event.Metadata)} ({@event.Metadata}). Will trust the event {nameof(@event.Metadata)}.");
+                }
             }
-            await Logic.ReceiveEventAsync(eventAsJson, token);
+            await Logic.ReceiveEventExplicitlyAsync(entityName, eventName, majorVersion, eventAsJson, token);
         }
     }
 }
