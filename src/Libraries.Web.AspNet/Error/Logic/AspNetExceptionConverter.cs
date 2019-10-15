@@ -62,7 +62,7 @@ namespace Nexus.Link.Libraries.Web.AspNet.Error.Logic
 
             if (!(e is FulcrumException fulcrumException))
             {
-                var message = $"Application threw an exception that didn't inherit from {typeof(FulcrumException)}.";
+                var message = $"Application threw an exception that didn't inherit from {typeof(FulcrumException)}.\r{e.GetType().FullName}: {e.Message}\rFull exception:\r{e}";
                 Log.LogError(message, e);
                 fulcrumException = new FulcrumAssertionFailedException(message, e);
             }
@@ -71,7 +71,7 @@ namespace Nexus.Link.Libraries.Web.AspNet.Error.Logic
             var statusCode = ExceptionConverter.ToHttpStatusCode(error);
             FulcrumAssert.IsNotNull(statusCode, CodeLocation.AsString());
             Log.LogVerbose(
-                $"Error ({error.Type} {error.TechnicalMessage}) was converted to an HTTP response ({statusCode}).");
+                $"{error.Type} => HTTP status {statusCode}");
             var content = ExceptionConverter.ToJsonString(error, Formatting.Indented);
             return new StatusAndContent
             {
