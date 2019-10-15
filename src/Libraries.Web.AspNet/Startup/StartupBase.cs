@@ -1,4 +1,6 @@
-﻿#if NETCOREAPP
+﻿
+using Nexus.Link.Libraries.Core.Misc;
+#if NETCOREAPP
 using System;
 using System.Reflection;
 using System.Collections.Generic;
@@ -114,7 +116,7 @@ namespace Nexus.Link.Libraries.Web.AspNet.Startup
 
                 foreach (var serviceType in _capabilityInterfaceToControllerClasses.Keys)
                 {
-                    FulcrumAssert.IsTrue(serviceType.IsInterface);
+                    FulcrumAssert.IsTrue(serviceType.IsInterface, CodeLocation.AsString());
                     var service = serviceProvider.GetService(serviceType);
                     if (service == null) continue;
                     var controllerTypes = _capabilityInterfaceToControllerClasses[serviceType];
@@ -123,7 +125,7 @@ namespace Nexus.Link.Libraries.Web.AspNet.Startup
 
                     foreach (var controllerType in controllerList)
                     {
-                        FulcrumAssert.IsTrue(controllerType.IsClass);
+                        FulcrumAssert.IsTrue(controllerType.IsClass, CodeLocation.AsString());
                         var assembly = controllerType.GetTypeInfo().Assembly;
                         assemblies.Add(assembly);
                         _controllersToKeep.Add(controllerType);

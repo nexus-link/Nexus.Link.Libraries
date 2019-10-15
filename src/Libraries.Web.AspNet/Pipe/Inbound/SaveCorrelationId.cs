@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using Nexus.Link.Libraries.Core.Application;
 using Nexus.Link.Libraries.Core.Assert;
 using Nexus.Link.Libraries.Core.Logging;
+using Nexus.Link.Libraries.Core.Misc;
 using Nexus.Link.Libraries.Web.Pipe;
 
 #if NETCOREAPP
@@ -88,7 +89,7 @@ namespace Nexus.Link.Libraries.Web.AspNet.Pipe.Inbound
             var request = context?.RequestMessage;
 #endif
 
-            FulcrumAssert.IsNotNull(request);
+            FulcrumAssert.IsNotNull(request, CodeLocation.AsString());
             if (request == null) return null;
 #if NETCOREAPP
             var correlationHeaderValueExists =

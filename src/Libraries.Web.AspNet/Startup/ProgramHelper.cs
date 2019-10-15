@@ -1,4 +1,6 @@
-﻿#if NETCOREAPP
+﻿
+using Nexus.Link.Libraries.Core.Misc;
+#if NETCOREAPP
 using Microsoft.Extensions.Configuration;
 using Nexus.Link.Libraries.Core.Assert;
 
@@ -16,7 +18,7 @@ namespace Nexus.Link.Libraries.Web.AspNet.Startup
         {
             var configuration = builder.Build();
             var configurationSection = configuration.GetSection("FulcrumApplication");
-            FulcrumAssert.IsNotNull(configurationSection);
+            FulcrumAssert.IsNotNull(configurationSection, CodeLocation.AsString());
             Application.FulcrumApplicationHelper.WebBasicSetup(configurationSection);
         }
 
@@ -27,7 +29,7 @@ namespace Nexus.Link.Libraries.Web.AspNet.Startup
         public static void AddConfiguration(IConfiguration configuration)
         {
             var configurationSection = configuration.GetSection("FulcrumApplication");
-            FulcrumAssert.IsNotNull(configurationSection);
+            FulcrumAssert.IsNotNull(configurationSection, CodeLocation.AsString());
             Application.FulcrumApplicationHelper.WebBasicSetup(configurationSection);
         }
     }
