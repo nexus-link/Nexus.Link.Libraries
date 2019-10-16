@@ -15,7 +15,8 @@ namespace Nexus.Link.Services.Contracts.DataSync
     public class DataSyncMemory<TModel> : DataSyncMemory<TModel, TModel>, IDataSyncCreate<TModel>
     {
         /// <inheritdoc />
-        public DataSyncMemory(string clientName, string entityName) : base(clientName, entityName)
+        public DataSyncMemory(string clientName, string entityName, GetParentIdDelegate<TModel> getParentIdDelegate) 
+            : base(clientName, entityName, getParentIdDelegate)
         {
         }
     }
@@ -23,7 +24,8 @@ namespace Nexus.Link.Services.Contracts.DataSync
     // TODO: This class does not belong in the Services.Contracts library, but it was put here to avoid introducing a new library with only this file.
     /// <inheritdoc cref="IDataSyncCreate{T}" />
     /// <inheritdoc cref="IDataSyncReadUpdate{T}" />
-    public class DataSyncMemory<TModelCreate, TModel> : CrudMemory<TModelCreate, TModel, string>, IDataSyncCreate<TModelCreate, TModel>, IDataSyncReadUpdate<TModel>,
+    public class DataSyncMemory<TModelCreate, TModel> : ManyToOneMemory<TModelCreate, TModel, string>,
+        IDataSyncCreate<TModelCreate, TModel>, IDataSyncReadUpdate<TModel>, 
         IDataSyncTesting<TModel>
         where TModel : TModelCreate
     {
@@ -31,7 +33,8 @@ namespace Nexus.Link.Services.Contracts.DataSync
         protected readonly string EntityName;
 
         /// <inheritdoc />
-        public DataSyncMemory(string clientName, string entityName)
+        public DataSyncMemory(string clientName, string entityName, GetParentIdDelegate<TModel> getParentIdDelegate)
+            :base(getParentIdDelegate)
         {
             ClientName = clientName;
             EntityName = entityName;
