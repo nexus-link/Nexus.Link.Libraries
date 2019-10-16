@@ -16,7 +16,7 @@
 
   <PropertyGroup>
     <PackageId>Nexus.Link.Libraries.SqlServer</PackageId>
-    <Version>2.0.4</Version>
+    <Version>2.0.5</Version>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <PackageTags>nexus;link;fulcrum;lever</PackageTags>
     <Authors>XLENT Link</Authors>
@@ -26,7 +26,7 @@
     <Copyright>Copyright ©2019 Xlent Link AB</Copyright>
     <IncludeSymbols>true</IncludeSymbols>
     <PackageReleaseNotes>
-      2.0.4 Bump
+      2.0.5 Bump
       2.0.1 Depends on major change in Libraries.Core
       1.0.9 Bumped version
       1.0.8 Bugfix in ManyToOneSql

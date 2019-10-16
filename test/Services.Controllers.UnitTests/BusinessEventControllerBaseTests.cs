@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using Newtonsoft.Json.Linq;
+using Nexus.Link.Libraries.Core.Assert;
 using Nexus.Link.Libraries.Core.Error.Logic;
 using Nexus.Link.Libraries.Core.Json;
 using Nexus.Link.Services.Contracts.Capabilities.Integration.BusinessEvents;
@@ -64,6 +65,13 @@ namespace Services.Controllers.UnitTests
                 new EventMetadata(Guid.NewGuid().ToString(), Guid.NewGuid().ToString(), 5, 7);
 
             public string DataField { get; set;  }
+
+            /// <inheritdoc />
+            public void Validate(string errorLocation, string propertyPath = "")
+            {
+                FulcrumValidate.IsNotNull(Metadata, nameof(Metadata), errorLocation);
+                FulcrumValidate.IsValidated(Metadata, $"{propertyPath}.{nameof(Metadata)}", nameof(Metadata), errorLocation);
+            }
         }
 
         private class BusinessEventsController : NexusBusinessEventsController
