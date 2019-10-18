@@ -2,6 +2,7 @@
 using System.Diagnostics;
 using System.Threading.Tasks;
 using Nexus.Link.Libraries.Core.Assert;
+using Nexus.Link.Libraries.Core.Misc;
 using Nexus.Link.Libraries.Web.AspNet.Error.Logic;
 #if NETCOREAPP
 using Microsoft.AspNetCore.Builder;
@@ -56,7 +57,7 @@ namespace Nexus.Link.Libraries.Web.AspNet.Pipe.Inbound
         {
 #if NETCOREAPP
             var response = AspNetExceptionConverter.ToContentResult(exception);
-            FulcrumAssert.IsTrue(response.StatusCode.HasValue);
+            FulcrumAssert.IsTrue(response.StatusCode.HasValue, CodeLocation.AsString());
             Debug.Assert(response.StatusCode.HasValue);
 #else
             var response = AspNetExceptionConverter.ToHttpResponseMessage(exception);

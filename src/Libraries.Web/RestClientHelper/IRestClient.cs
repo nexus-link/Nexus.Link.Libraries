@@ -156,6 +156,53 @@ namespace Nexus.Link.Libraries.Web.RestClientHelper
             CancellationToken cancellationToken = default(CancellationToken));
         #endregion
 
+        #region PATCH
+
+        /// <summary>
+        /// Send PUT to <paramref name="relativeUrl"/> with <paramref name="body"/> and with a response of another type than the type of <paramref name="body"/>.
+        /// </summary>
+        /// <typeparam name="TResponse">The type for the response.</typeparam>
+        /// <typeparam name="TBody">The type for the <paramref name="body"/>.</typeparam>
+        /// <param name="relativeUrl">The Url relative to <see cref="BaseUri"/>, including parameters, etc.</param>
+        /// <param name="body">The PUT body.</param>
+        /// <param name="customHeaders">Optional headers.</param>
+        /// <param name="cancellationToken">Optional cancellation token.</param>
+        /// <returns>An object.</returns>
+        Task<TResponse> PatchAsync<TResponse, TBody>(
+            string relativeUrl, TBody body,
+            Dictionary<string, List<string>> customHeaders = null,
+            CancellationToken cancellationToken = default(CancellationToken));
+
+        /// <summary>
+        /// Send PUT to <paramref name="relativeUrl"/> with <paramref name="body"/> with the updated object as the returned value.
+        /// </summary>
+        /// <typeparam name="TBodyAndResponse">The type for both the <paramref name="body"/> and the returned result.</typeparam>
+        /// <param name="relativeUrl">The Url relative to <see cref="BaseUri"/>, including parameters, etc.</param>
+        /// <param name="body">The PUT body.</param>
+        /// <param name="customHeaders">Optional headers.</param>
+        /// <param name="cancellationToken">Optional cancellation token.</param>
+        /// <returns>The updated object with the same type as the <paramref name="body"/>.</returns>
+        Task<TBodyAndResponse> PatchAndReturnUpdatedObjectAsync<TBodyAndResponse>(
+            string relativeUrl,
+            TBodyAndResponse body,
+            Dictionary<string, List<string>> customHeaders = null,
+            CancellationToken cancellationToken = default(CancellationToken));
+
+        /// <summary>
+        /// Send PUT to <paramref name="relativeUrl"/> with <paramref name="body"/> with no returned value.
+        /// </summary>
+        /// <typeparam name="TBody">The type for the <paramref name="body"/>.</typeparam>
+        /// <param name="relativeUrl">The Url relative to <see cref="BaseUri"/>, including parameters, etc.</param>
+        /// <param name="body">The PUT body.</param>
+        /// <param name="customHeaders">Optional headers.</param>
+        /// <param name="cancellationToken">Optional cancellation token.</param>
+        Task PatchNoResponseContentAsync<TBody>(
+            string relativeUrl,
+            TBody body,
+            Dictionary<string, List<string>> customHeaders = null,
+            CancellationToken cancellationToken = default(CancellationToken));
+        #endregion
+
         #region DELETE
 
         /// <summary>

@@ -1,4 +1,5 @@
-﻿using Nexus.Link.Libraries.Core.Application;
+﻿using System.Configuration;
+using Nexus.Link.Libraries.Core.Application;
 using Nexus.Link.Libraries.Core.Assert;
 using Nexus.Link.Libraries.Core.Logging;
 using Nexus.Link.Libraries.Core.MultiTenant.Model;

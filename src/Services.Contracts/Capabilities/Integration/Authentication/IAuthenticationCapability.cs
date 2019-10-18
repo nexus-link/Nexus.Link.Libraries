@@ -3,7 +3,7 @@
     /// <summary>
     /// Authentication
     /// </summary>
-    public interface IAuthenticationCapability : IServicesCapability
+    public interface IAuthenticationCapability : IControllerInjector
     {
         /// <summary>
         /// Service for tokens

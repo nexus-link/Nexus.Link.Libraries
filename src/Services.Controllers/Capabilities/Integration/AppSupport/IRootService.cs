@@ -2,7 +2,7 @@
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Nexus.Link.Services.Controllers.Capabilities.NexusApi
+namespace Nexus.Link.Services.Controllers.Capabilities.Integration.AppSupport
 {
     public interface IRootService
     {

@@ -1,4 +1,5 @@
 ﻿using System;
+using Nexus.Link.Libraries.Core.Assert;
 
 namespace Nexus.Link.Services.Contracts.Events.SynchronizedEntity
 {
@@ -22,9 +23,18 @@ namespace Nexus.Link.Services.Contracts.Events.SynchronizedEntity
         /// Optional. Name of the user that caused the update.
         /// </summary>
         public string UserName { get; set; }
+
+        /// <inheritdoc />
+        public void Validate(string errorLocation, string propertyPath = "")
+        {
+            FulcrumValidate.IsNotNull(Metadata, nameof(Metadata), errorLocation);
+            FulcrumValidate.IsValidated(Metadata, $"{propertyPath}.{nameof(Metadata)}", nameof(Metadata), errorLocation);
+            FulcrumValidate.IsNotNull(Key, nameof(Key), errorLocation);
+            FulcrumValidate.IsValidated(Key, $"{propertyPath}.{nameof(Key)}", nameof(Key), errorLocation);
+        }
     }
 
-    public class SyncKey
+    public class SyncKey : IValidatable
     {
         /// <summary>
         /// The name of the sync client
@@ -40,5 +50,13 @@ namespace Nexus.Link.Services.Contracts.Events.SynchronizedEntity
         /// The id of the object that has been updated.
         /// </summary>
         public string Value { get; set; }
+
+        /// <inheritdoc />
+        public void Validate(string errorLocation, string propertyPath = "")
+        {
+            FulcrumValidate.IsNotNullOrWhiteSpace(ClientName, nameof(ClientName), errorLocation);
+            FulcrumValidate.IsNotNullOrWhiteSpace(EntityName, nameof(EntityName), errorLocation);
+            // Value can be null when creating objects
+        }
     }
 }

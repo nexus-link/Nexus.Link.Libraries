@@ -6,6 +6,7 @@ using Newtonsoft.Json.Linq;
 using Nexus.Link.Libraries.Core.Application;
 using Nexus.Link.Libraries.Core.Assert;
 using Nexus.Link.Libraries.Core.Error.Logic;
+using Nexus.Link.Libraries.Core.Misc;
 using Nexus.Link.Libraries.Crud.AspNet.Controllers;
 using Nexus.Link.Libraries.Crud.Interfaces;
 using Nexus.Link.Services.Contracts.Capabilities.Integration.AppSupport;
@@ -16,8 +17,10 @@ namespace Nexus.Link.Services.Controllers.Capabilities.Integration.AppSupport
     /// Service implementation of <see cref="IConfigurationService"/>
     /// </summary>
     [ApiController]
+    [Area("AppSupport")]
+    [Route("api/Integration/v1/[area]/v1/Configurations")]
     [Authorize(Policy = "HasMandatoryRole")]
-    public abstract class ConfigurationsControllerBase : IConfigurationService
+    public class NexusConfigurationsController : IConfigurationService
     {
         /// <summary>
         /// The capability where this controller resides
@@ -30,7 +33,7 @@ namespace Nexus.Link.Services.Controllers.Capabilities.Integration.AppSupport
         protected readonly ICrud<JToken, string> CrudController;
 
         /// <inheritdoc />
-        protected ConfigurationsControllerBase(IAppSupportCapability capability)
+        public NexusConfigurationsController(IAppSupportCapability capability)
         {
             Capability = capability;
             CrudController = new CrudController<JToken>(capability.ConfigurationService);
@@ -41,10 +44,11 @@ namespace Nexus.Link.Services.Controllers.Capabilities.Integration.AppSupport
         public async Task<JToken> ReadAsync(string id, CancellationToken token = new CancellationToken())
         {
             var authenticatedSystemName = FulcrumApplication.Context.ClientPrincipal?.Identity.Name;
-            FulcrumAssert.IsNotNull(authenticatedSystemName);
+            FulcrumAssert.IsNotNull(authenticatedSystemName, CodeLocation.AsString());
             if (id.ToLowerInvariant() != authenticatedSystemName?.ToLowerInvariant())
             {
-                throw new FulcrumForbiddenAccessException($"{nameof(id)} ({id}) must be the same as the authenticated client id ({authenticatedSystemName}).");
+                throw new FulcrumForbiddenAccessException(
+                    $"{nameof(id)} ({id}) must be the same as the authenticated client id ({authenticatedSystemName}).");
             }
 
             try

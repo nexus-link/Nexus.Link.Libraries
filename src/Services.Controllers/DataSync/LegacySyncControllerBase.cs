@@ -7,6 +7,7 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Nexus.Link.Libraries.Core.Assert;
 using Nexus.Link.Libraries.Core.Error.Logic;
+using Nexus.Link.Libraries.Core.Misc;
 using Nexus.Link.Libraries.Crud.Interfaces;
 
 namespace Nexus.Link.Services.Controllers.DataSync
@@ -15,18 +16,34 @@ namespace Nexus.Link.Services.Controllers.DataSync
     /// Service implementation of <see cref="I"/>
     /// </summary>
     [Authorize(Policy = "HasMandatoryRole")]
-    public abstract class LegacySyncControllerBase<T>: ControllerBase
+    public abstract class LegacySyncControllerBase<TModel> : LegacySyncControllerBase<TModel, TModel>
+    {
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        /// <param name="logic">The logic layer</param>
+        protected LegacySyncControllerBase(ICrudable<TModel, string> logic)
+            : base(logic)
+        {
+        }
+    }
+
+    /// <summary>
+    /// Service implementation of <see cref="I"/>
+    /// </summary>
+    [Authorize(Policy = "HasMandatoryRole")]
+    public abstract class LegacySyncControllerBase<TModelCreate, TModel> : ControllerBase where TModel : TModelCreate
     {
         /// <summary>
         /// The capability for this controller
         /// </summary>
-        protected readonly ICrudable<T, string> Logic;
+        protected readonly ICrudable<TModel, string> Logic;
 
         /// <summary>
         /// Constructor
         /// </summary>
         /// <param name="logic">The logic layer</param>
-        protected LegacySyncControllerBase(ICrudable<T, string> logic)
+        protected LegacySyncControllerBase(ICrudable<TModel, string> logic)
         {
             InternalContract.RequireNotNull(logic, nameof(logic));
             Logic = logic;
@@ -37,15 +54,17 @@ namespace Nexus.Link.Services.Controllers.DataSync
         /// </summary>
         /// <returns></returns>
         [HttpGet("{id}")]
-        public async Task<ActionResult<T>> LegacyReadAsync(string id, CancellationToken token = default(CancellationToken))
+        public async Task<ActionResult<TModel>> LegacyReadAsync(string id,
+            CancellationToken token = default(CancellationToken))
         {
             ServiceContract.RequireNotNullOrWhiteSpace(id, nameof(id));
             try
             {
-                if (!(Logic is IRead<T, string> readLogic))
+                if (!(Logic is IRead<TModel, string> readLogic))
                 {
                     return StatusCode(500, $"{Logic.GetType().FullName} must implement IRead");
                 }
+
                 var objectData = await readLogic.ReadAsync(id, token);
                 if (objectData == null)
                 {
@@ -76,14 +95,16 @@ namespace Nexus.Link.Services.Controllers.DataSync
         /// GET for a synchronized object, according to the contract in http://lever.xlent-fulcrum.info/wiki/XLENT_Match
         /// </summary>
         [HttpPut("{id}")]
-        public async Task<ActionResult> LegacyUpdateAsync(string id, [FromBody]T item, CancellationToken token = default(CancellationToken))
+        public async Task<ActionResult> LegacyUpdateAsync(string id, [FromBody] TModel item,
+            CancellationToken token = default(CancellationToken))
         {
             try
             {
-                if (!(Logic is IUpdate<T, string> updateLogic))
+                if (!(Logic is IUpdate<TModel, string> updateLogic))
                 {
                     return StatusCode(500, $"{Logic.GetType().FullName} must implement IUpdate");
                 }
+
                 await updateLogic.UpdateAsync(id, item, token);
                 return Ok();
             }
@@ -109,16 +130,18 @@ namespace Nexus.Link.Services.Controllers.DataSync
         /// POST for a synchronized object, according to the contract in http://lever.xlent-fulcrum.info/wiki/XLENT_Match
         /// </summary>
         [HttpPost("")]
-        public async Task<ActionResult<string>> LegacyCreateAsync([FromBody]T item, CancellationToken token = default(CancellationToken))
+        public async Task<ActionResult<string>> LegacyCreateAsync([FromBody] TModelCreate item,
+            CancellationToken token = default(CancellationToken))
         {
             try
             {
-                if (!(Logic is ICreate<T, string> createLogic))
+                if (!(Logic is ICreate<TModelCreate, TModel, string> createLogic))
                 {
                     return StatusCode(500, $"{Logic.GetType().FullName} must implement ICreate");
                 }
+
                 var id = await createLogic.CreateAsync(item, token);
-                FulcrumAssert.IsNotNullOrWhiteSpace(id);
+                FulcrumAssert.IsNotNullOrWhiteSpace(id, CodeLocation.AsString());
                 return Ok(id);
             }
             catch (FulcrumNotFoundException)
@@ -150,7 +173,7 @@ namespace Nexus.Link.Services.Controllers.DataSync
                 NullValueHandling = NullValueHandling.Ignore,
                 ReferenceLoopHandling = ReferenceLoopHandling.Serialize,
                 ContractResolver = new Microsoft.Rest.Serialization.ReadOnlyJsonContractResolver(),
-                Converters = new  System.Collections.Generic.List<JsonConverter>
+                Converters = new System.Collections.Generic.List<JsonConverter>
                 {
                     new Microsoft.Rest.Serialization.Iso8601TimeSpanConverter()
                 }

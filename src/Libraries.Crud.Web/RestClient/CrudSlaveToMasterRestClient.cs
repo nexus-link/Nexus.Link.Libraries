@@ -158,6 +158,7 @@ namespace Nexus.Link.Libraries.Crud.Web.RestClient
         /// <inheritdoc />
         public Task<PageEnvelope<TManyModel>> ReadChildrenWithPagingAsync(TId parentId, int offset = 0, int? limit = null, CancellationToken token = default(CancellationToken))
         {
+            InternalContract.RequireNotDefaultValue(parentId, nameof(parentId));
             InternalContract.RequireGreaterThanOrEqualTo(0, offset, nameof(offset));
             var limitParameter = "";
             if (limit != null)
