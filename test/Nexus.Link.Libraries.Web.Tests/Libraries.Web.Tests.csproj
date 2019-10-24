@@ -21,4 +21,10 @@
     <ProjectReference Include="..\..\src\Libraries.Web\Libraries.Web.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Update="ServiceAuthentication\auth-config.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
 </Project>

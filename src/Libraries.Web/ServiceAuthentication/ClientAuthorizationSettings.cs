@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using Nexus.Link.Libraries.Web.Clients;
 
 namespace Nexus.Link.Libraries.Web.ServiceAuthentication
 {
@@ -34,7 +35,12 @@ namespace Nexus.Link.Libraries.Web.ServiceAuthentication
         }
 
         /// <summary>
-        /// This client's authorization type
+        /// The identification of this authentication setting, referred to by <see cref="ClientConfiguration"/>
+        /// </summary>
+        public string Id { get; set; }
+
+        /// <summary>
+        /// Authorization type
         /// </summary>
         public AuthorizationTypeEnum AuthorizationType { get; set; }
 

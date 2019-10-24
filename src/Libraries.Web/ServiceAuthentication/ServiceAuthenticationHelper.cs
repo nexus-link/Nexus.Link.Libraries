@@ -13,6 +13,7 @@ using Nexus.Link.Libraries.Core.Error.Logic;
 using Nexus.Link.Libraries.Core.Logging;
 using Nexus.Link.Libraries.Core.MultiTenant.Model;
 using Nexus.Link.Libraries.Core.Platform.Configurations;
+using Nexus.Link.Libraries.Web.Clients;
 using Nexus.Link.Libraries.Web.Pipe.Outbound;
 using Nexus.Link.Libraries.Web.RestClientHelper;
 
@@ -50,36 +51,7 @@ namespace Nexus.Link.Libraries.Web.ServiceAuthentication
 
             try
             {
-                // Note: We can't just use configuration.Value<ClientAuthorizationSettings>($"{client}-authentication")
-                // because we get exception "Cannot cast Newtonsoft.Json.Linq.JObject to Newtonsoft.Json.Linq.JToken".
-                // See ServiceAuthenticationHelperTest.ShowWhyWeHaveToMakeWorkaroundInServiceAuthenticationHelper
-                var tenantClientSetting = configuration?.Value<JObject>($"{client}-authentication");
-                if (tenantClientSetting == null)
-                {
-                    var shared = configuration?.Value<JToken>("shared-client-authentications");
-                    if (shared != null)
-                    {
-                        if (shared.Type != JTokenType.Array)
-                        {
-                            const string message = "Configuration error. The value for 'shared-client-authentications' must be an array.";
-                            Log.LogCritical(message);
-                            throw new FulcrumAssertionFailedException(message);
-                        }
-
-                        var sharedSettings = JsonConvert.DeserializeObject<List<ClientAuthorizationSettings>>(shared.ToString());
-                        var setting = sharedSettings?.FirstOrDefault(x => x.UseForClients.Contains(client));
-                        if (setting != null) tenantClientSetting = JObject.FromObject(setting);
-                    }
-                }
-
-                if (tenantClientSetting == null)
-                {
-                    tenantClientSetting = JObject.FromObject(new ClientAuthorizationSettings { AuthorizationType = ClientAuthorizationSettings.AuthorizationTypeEnum.None });
-                }
-
-                var authSettings = JsonConvert.DeserializeObject<ClientAuthorizationSettings>(tenantClientSetting.ToString());
-                FulcrumAssert.IsNotNull(authSettings, null, "Expected non-null auth settings");
-                FulcrumAssert.IsNotNull(authSettings.AuthorizationType, null, "Expected AuthorizationType");
+                var authSettings = GetAuthorizationSettings(configuration, client);
 
                 string token, tokenType;
                 switch (authSettings.AuthorizationType)
@@ -120,6 +92,88 @@ namespace Nexus.Link.Libraries.Web.ServiceAuthentication
             }
 
             return authorization;
+        }
+
+        private static ClientAuthorizationSettings GetAuthorizationSettings(ILeverConfiguration configuration, string client)
+        {
+            // Do we have version 2 of the configuration syntax?
+            var authSettings = GetAuthSettingsVersion2(configuration, client);
+            if (authSettings != null) return authSettings;
+
+            // Default to version 1
+            authSettings = GetAuthSettingsVersion1(configuration, client);
+            return authSettings;
+        }
+
+        private static ClientAuthorizationSettings GetAuthSettingsVersion2(ILeverConfiguration configuration, string client)
+        {
+            var clientConfigurations = GetClientsConfigurations(configuration);
+            if (clientConfigurations == null) return null;
+
+            if (!clientConfigurations.TryGetValue(client, out var clientConfiguration) || string.IsNullOrWhiteSpace(clientConfiguration.Authentication))
+            {
+                return new ClientAuthorizationSettings { AuthorizationType = ClientAuthorizationSettings.AuthorizationTypeEnum.None };
+            }
+            var authentications = GetAuthentications(configuration);
+            if (authentications == null || !authentications.TryGetValue(clientConfiguration.Authentication, out var authentication))
+            {
+                throw new FulcrumResourceException($"Client '{client}' refers to authentication '{clientConfiguration.Authentication}', which does not exist");
+            }
+
+            return authentication;
+
+        }
+
+        private static Dictionary<string, ClientAuthorizationSettings> GetAuthentications(ILeverConfiguration configuration)
+        {
+            var authenticationsAsJToken = configuration?.Value<JToken>("Authentications");
+            if (authenticationsAsJToken == null) return null;
+            var authentications = JsonConvert.DeserializeObject<List<ClientAuthorizationSettings>>(authenticationsAsJToken.ToString());
+            return authentications.ToDictionary(x => x.Id, x => x);
+        }
+
+        private static Dictionary<string, ClientConfiguration> GetClientsConfigurations(ILeverConfiguration configuration)
+        {
+            var tenantClientSettingJToken = configuration?.Value<JToken>("Clients");
+            if (tenantClientSettingJToken == null) return null;
+            var clientConfigurations = JsonConvert.DeserializeObject<List<ClientConfiguration>>(tenantClientSettingJToken.ToString());
+            return clientConfigurations.ToDictionary(x => x.Name, x => x);
+        }
+
+        private static ClientAuthorizationSettings GetAuthSettingsVersion1(ILeverConfiguration configuration, string client)
+        {
+            // Note: We can't just use configuration.Value<ClientAuthorizationSettings>($"{client}-authentication")
+            // because we get exception "Cannot cast Newtonsoft.Json.Linq.JObject to Newtonsoft.Json.Linq.JToken".
+            // See ServiceAuthenticationHelperTest.ShowWhyWeHaveToMakeWorkaroundInServiceAuthenticationHelper
+            var tenantClientSetting = configuration?.Value<JObject>($"{client}-authentication");
+            if (tenantClientSetting == null)
+            {
+                var shared = configuration?.Value<JToken>("shared-client-authentications");
+                if (shared != null)
+                {
+                    if (shared.Type != JTokenType.Array)
+                    {
+                        const string message = "Configuration error. The value for 'shared-client-authentications' must be an array.";
+                        Log.LogCritical(message);
+                        throw new FulcrumAssertionFailedException(message);
+                    }
+
+                    var sharedSettings = JsonConvert.DeserializeObject<List<ClientAuthorizationSettings>>(shared.ToString());
+                    var setting = sharedSettings?.FirstOrDefault(x => x.UseForClients.Contains(client));
+                    if (setting != null) tenantClientSetting = JObject.FromObject(setting);
+                }
+            }
+
+            if (tenantClientSetting == null)
+            {
+                tenantClientSetting = JObject.FromObject(new ClientAuthorizationSettings { AuthorizationType = ClientAuthorizationSettings.AuthorizationTypeEnum.None });
+            }
+
+            var authSettings = JsonConvert.DeserializeObject<ClientAuthorizationSettings>(tenantClientSetting.ToString());
+            FulcrumAssert.IsNotNull(authSettings, null, "Expected non-null auth settings");
+            FulcrumAssert.IsNotNull(authSettings.AuthorizationType, null, "Expected AuthorizationType");
+
+            return authSettings;
         }
 
         private async Task<string> FetchJwtFromUrl(ClientAuthorizationSettings authSettings)
