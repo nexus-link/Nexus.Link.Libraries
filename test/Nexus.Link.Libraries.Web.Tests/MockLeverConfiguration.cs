@@ -1,8 +1,7 @@
-﻿using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
+﻿using Newtonsoft.Json.Linq;
 using Nexus.Link.Libraries.Core.Platform.Configurations;
 
-namespace Nexus.Link.Libraries.Web.Tests.ServiceAuthentication
+namespace Nexus.Link.Libraries.Web.Tests
 {
     public class MockLeverConfiguration : ILeverConfiguration
     {

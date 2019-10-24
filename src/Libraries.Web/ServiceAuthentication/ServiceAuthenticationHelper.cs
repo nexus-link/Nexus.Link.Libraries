@@ -107,13 +107,9 @@ namespace Nexus.Link.Libraries.Web.ServiceAuthentication
 
         private static ClientAuthorizationSettings GetAuthSettingsVersion2(ILeverConfiguration configuration, string client)
         {
-            var clientConfigurations = GetClientsConfigurations(configuration);
-            if (clientConfigurations == null) return null;
+            var clientConfiguration = ClientConfigurationHelper.GetConfigurationForClient(configuration, client);
+            if (clientConfiguration == null) return null; 
 
-            if (!clientConfigurations.TryGetValue(client, out var clientConfiguration) || string.IsNullOrWhiteSpace(clientConfiguration.Authentication))
-            {
-                return new ClientAuthorizationSettings { AuthorizationType = ClientAuthorizationSettings.AuthorizationTypeEnum.None };
-            }
             var authentications = GetAuthentications(configuration);
             if (authentications == null || !authentications.TryGetValue(clientConfiguration.Authentication, out var authentication))
             {
@@ -121,7 +117,6 @@ namespace Nexus.Link.Libraries.Web.ServiceAuthentication
             }
 
             return authentication;
-
         }
 
         private static Dictionary<string, ClientAuthorizationSettings> GetAuthentications(ILeverConfiguration configuration)
@@ -132,13 +127,6 @@ namespace Nexus.Link.Libraries.Web.ServiceAuthentication
             return authentications.ToDictionary(x => x.Id, x => x);
         }
 
-        private static Dictionary<string, ClientConfiguration> GetClientsConfigurations(ILeverConfiguration configuration)
-        {
-            var tenantClientSettingJToken = configuration?.Value<JToken>("Clients");
-            if (tenantClientSettingJToken == null) return null;
-            var clientConfigurations = JsonConvert.DeserializeObject<List<ClientConfiguration>>(tenantClientSettingJToken.ToString());
-            return clientConfigurations.ToDictionary(x => x.Name, x => x);
-        }
 
         private static ClientAuthorizationSettings GetAuthSettingsVersion1(ILeverConfiguration configuration, string client)
         {
