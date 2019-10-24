@@ -21,7 +21,6 @@ using Nexus.Link.Libraries.Web.ServiceAuthentication;
 // ReSharper disable CommentTypo
 // ReSharper disable StringLiteralTypo
 
-// TODO: Test PostContentBody
 namespace Nexus.Link.Libraries.Web.Tests.ServiceAuthentication
 {
     [TestClass]
@@ -151,15 +150,22 @@ namespace Nexus.Link.Libraries.Web.Tests.ServiceAuthentication
         [TestMethod]
         public async Task JwtFromUrlSuccess()
         {
+            const string expectedContentType = "xx-application/json";
             SetupConfigMock(new ClientAuthorizationSettings
             {
                 AuthorizationType = ClientAuthorizationSettings.AuthorizationTypeEnum.JwtFromUrl,
                 PostUrl = "http://localhost",
                 PostBody = "{}",
+                PostContentType = expectedContentType,
                 ResponseTokenJsonPath = "data.AccessToken"
             });
 
+            string contentType = null;
             _httpClientMock.Setup(x => x.SendAsync(It.IsAny<HttpRequestMessage>(), It.IsAny<CancellationToken>()))
+                .Callback((HttpRequestMessage request, CancellationToken cancellationToken) =>
+                {
+                    contentType = request.Content.Headers.ContentType.MediaType;
+                })
                 .ReturnsAsync(new HttpResponseMessage(HttpStatusCode.OK)
                 {
                     Content = new StringContent(JObject.FromObject(new
@@ -174,6 +180,7 @@ namespace Nexus.Link.Libraries.Web.Tests.ServiceAuthentication
             var result = await _authenticationHelper.GetAuthorizationForClientAsync(Tenant, LeverConfiguration, ClientName);
             Assert.AreEqual("bearer", result.Type.ToLowerInvariant());
             Assert.AreEqual(Jwt, result.Token, result.Token);
+            Assert.AreEqual(expectedContentType, contentType);
         }
 
         [TestMethod]
