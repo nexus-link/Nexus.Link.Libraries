@@ -47,6 +47,7 @@ namespace Nexus.Link.Libraries.Web.AspNet.Controllers
         {
             if (requestUri.IsLoopback) return true;
             if (requestUri.Host == "nexus.local") return true;
+            if (requestUri.Host.EndsWith("nexus.local")) return true;
             return false;
         }
     }
