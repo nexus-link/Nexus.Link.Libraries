@@ -15,7 +15,7 @@ namespace Nexus.Link.Services.Contracts.DataSync
     public class DataSyncMemory<TModel> : DataSyncMemory<TModel, TModel>, IDataSyncCreate<TModel>
     {
         /// <inheritdoc />
-        public DataSyncMemory(string clientName, string entityName, GetParentIdDelegate<TModel> getParentIdDelegate) 
+        public DataSyncMemory(string clientName, string entityName, GetParentIdDelegate<TModel> getParentIdDelegate = null) 
             : base(clientName, entityName, getParentIdDelegate)
         {
         }
@@ -33,7 +33,7 @@ namespace Nexus.Link.Services.Contracts.DataSync
         protected readonly string EntityName;
 
         /// <inheritdoc />
-        public DataSyncMemory(string clientName, string entityName, GetParentIdDelegate<TModel> getParentIdDelegate)
+        public DataSyncMemory(string clientName, string entityName, GetParentIdDelegate<TModel> getParentIdDelegate = null)
             :base(getParentIdDelegate)
         {
             ClientName = clientName;
@@ -80,12 +80,31 @@ namespace Nexus.Link.Services.Contracts.DataSync
         }
 
         /// <inheritdoc />
+        public override Task<PageEnvelope<TModel>> ReadChildrenWithPagingAsync(string parentId, int offset, int? limit = null,
+            CancellationToken token = default(CancellationToken))
+        {
+            if (FulcrumApplication.IsInProductionOrProductionSimulation)
+                throw new FulcrumNotImplementedException(
+                    "This method is not expected to run in a production environment");
+            return base.ReadChildrenWithPagingAsync(parentId, offset, limit, token);
+        }
+
+        /// <inheritdoc />
         public override Task DeleteAsync(string id, CancellationToken token = default(CancellationToken))
         {
             if (FulcrumApplication.IsInProductionOrProductionSimulation)
                 throw new FulcrumNotImplementedException(
                     "This method is not expected to run in a production environment");
             return base.DeleteAsync(id, token);
+        }
+
+        /// <inheritdoc />
+        public override Task DeleteChildrenAsync(string masterId, CancellationToken token = default(CancellationToken))
+        {
+            if (FulcrumApplication.IsInProductionOrProductionSimulation)
+                throw new FulcrumNotImplementedException(
+                    "This method is not expected to run in a production environment");
+            return base.DeleteChildrenAsync(masterId, token);
         }
 
         /// <inheritdoc />
