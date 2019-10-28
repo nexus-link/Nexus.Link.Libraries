@@ -263,7 +263,7 @@ namespace Nexus.Link.Libraries.Crud.MemoryStorage
         }
 
         /// <inheritdoc />
-        public Task<TManyToManyModel> ReadAsync(TId masterId, TId slaveId, CancellationToken token = default(CancellationToken))
+        public virtual Task<TManyToManyModel> ReadAsync(TId masterId, TId slaveId, CancellationToken token = default(CancellationToken))
         {
             TManyToManyModel item;
             lock (MemoryItems)
@@ -294,14 +294,14 @@ namespace Nexus.Link.Libraries.Crud.MemoryStorage
         }
 
         /// <inheritdoc />
-        public Task CreateWithSpecifiedIdAsync(TId masterId, TId slaveId, TManyToManyModelCreate item,
+        public virtual Task CreateWithSpecifiedIdAsync(TId masterId, TId slaveId, TManyToManyModelCreate item,
             CancellationToken token = default(CancellationToken))
         {
             return CreateAsync(item, token);
         }
 
         /// <inheritdoc />
-        public Task<TManyToManyModel> CreateWithSpecifiedIdAndReturnAsync(TId masterId, TId slaveId, TManyToManyModelCreate item,
+        public virtual Task<TManyToManyModel> CreateWithSpecifiedIdAndReturnAsync(TId masterId, TId slaveId, TManyToManyModelCreate item,
             CancellationToken token = default(CancellationToken))
         {
             return CreateAndReturnAsync(item, token);
