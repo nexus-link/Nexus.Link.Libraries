@@ -61,7 +61,7 @@ namespace Nexus.Link.Libraries.Crud.MemoryStorage
         }
 
         /// <inheritdoc />
-        public Task<PageEnvelope<TModel>> ReadChildrenWithPagingAsync(TId parentId, int offset, int? limit = null, CancellationToken token = default(CancellationToken))
+        public virtual Task<PageEnvelope<TModel>> ReadChildrenWithPagingAsync(TId parentId, int offset, int? limit = null, CancellationToken token = default(CancellationToken))
         {
             limit = limit ?? PageInfo.DefaultLimit;
             InternalContract.RequireNotNull(parentId, nameof(parentId));
@@ -79,7 +79,7 @@ namespace Nexus.Link.Libraries.Crud.MemoryStorage
         }
 
         /// <inheritdoc />
-        public async Task<IEnumerable<TModel>> ReadChildrenAsync(TId parentId, int limit = int.MaxValue, CancellationToken token = default(CancellationToken))
+        public virtual async Task<IEnumerable<TModel>> ReadChildrenAsync(TId parentId, int limit = int.MaxValue, CancellationToken token = default(CancellationToken))
         {
             InternalContract.RequireNotNull(parentId, nameof(parentId));
             InternalContract.RequireGreaterThan(0, limit, nameof(limit));
@@ -99,7 +99,7 @@ namespace Nexus.Link.Libraries.Crud.MemoryStorage
         }
 
         /// <inheritdoc />
-        public async Task DeleteChildrenAsync(TId masterId, CancellationToken token = default(CancellationToken))
+        public virtual async Task DeleteChildrenAsync(TId masterId, CancellationToken token = default(CancellationToken))
         {
             InternalContract.RequireNotNull(masterId, nameof(masterId));
             InternalContract.RequireNotDefaultValue(masterId, nameof(masterId));
