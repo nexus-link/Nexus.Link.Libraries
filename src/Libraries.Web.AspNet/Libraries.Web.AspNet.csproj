@@ -28,16 +28,17 @@
 
   <PropertyGroup>
     <PackageId>Nexus.Link.Libraries.Web.AspNet</PackageId>
-    <Version>2.12.6</Version>
+    <Version>2.12.7</Version>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <PackageTags>nexus;link;fulcrum;lever</PackageTags>
     <Authors>XLENT Link</Authors>
-    <PackageProjectUrl>https://github.com/nexus-link/Nexus.Link.Libraries.Web.AspNet</PackageProjectUrl>
+    <PackageProjectUrl>https://github.com/nexus-link/Nexus.Link.Libraries</PackageProjectUrl>
     <PackageLanguage>en-US</PackageLanguage>
     <Description>Nexus Web library for both ASP.NET and ASP.NET Core</Description>
     <Copyright>Copyright ©2019 Xlent Link AB</Copyright>
     <IncludeSymbols>true</IncludeSymbols>
     <PackageReleaseNotes>
+      2.12.7 Fix: PackageProjectUrl for this nuget package
       2.12.6 Support more local hosts. Also LoadConfiguration => LoadConfigurationAsync in NexusWebApiApplication.
       2.12.4 Bump
       2.12.3 Better logging messages for converting exceptions into HTTP responses.
