@@ -6,6 +6,7 @@
 
   <ItemGroup Condition="'$(TargetFramework)'=='net461'">
     <Reference Include="System.Web"></Reference>
+    <Reference Include="System.Configuration" />
     <PackageReference Include="Microsoft.AspNet.WebApi" Version="5.2.7" />
     <PackageReference Include="Microsoft.AspNet.WebApi.Core" Version="5.2.7" />
     <PackageReference Include="Microsoft.AspNet.WebApi.WebHost" Version="5.2.7" />
@@ -24,12 +25,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Libraries.Web\Libraries.Web.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Reference Include="System.Configuration">
-      <HintPath>..\..\..\..\..\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.6.1\System.Configuration.dll</HintPath>
-    </Reference>
   </ItemGroup>
 
   <PropertyGroup>
