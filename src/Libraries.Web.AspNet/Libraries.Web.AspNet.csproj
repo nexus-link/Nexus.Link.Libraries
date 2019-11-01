@@ -26,9 +26,15 @@
     <ProjectReference Include="..\Libraries.Web\Libraries.Web.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Reference Include="System.Configuration">
+      <HintPath>..\..\..\..\..\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.6.1\System.Configuration.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
   <PropertyGroup>
     <PackageId>Nexus.Link.Libraries.Web.AspNet</PackageId>
-    <Version>2.12.7</Version>
+    <Version>2.12.8-alpha</Version>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <PackageTags>nexus;link;fulcrum;lever</PackageTags>
     <Authors>XLENT Link</Authors>
@@ -38,8 +44,9 @@
     <Copyright>Copyright ©2019 Xlent Link AB</Copyright>
     <IncludeSymbols>true</IncludeSymbols>
     <PackageReleaseNotes>
+      2.12.8 Nexus Services: Remove old FulcrumTraceSource.trace.txt files from App_Data at startup
       2.12.7 Fix: PackageProjectUrl for this nuget package
-      2.12.6 Support more local hosts. Also LoadConfiguration => LoadConfigurationAsync in NexusWebApiApplication.
+      2.12.6 Support more local hosts. Also LoadConfiguration =&gt; LoadConfigurationAsync in NexusWebApiApplication.
       2.12.4 Bump
       2.12.3 Better logging messages for converting exceptions into HTTP responses.
       2.12.2 Added CodeLocation for FulcrumAssert.
