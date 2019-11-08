@@ -9,10 +9,11 @@ using Nexus.Link.Libraries.Core.Health.Model;
 using Nexus.Link.Libraries.Core.Json;
 using Nexus.Link.Libraries.Core.MultiTenant.Model;
 using Nexus.Link.Libraries.Core.Queue.Model;
+using Nexus.Link.Libraries.Core.Storage.Model;
 
 namespace Nexus.Link.Libraries.Azure.Storage.Queue
 {
-    public class AzureStorageQueue<T> : ICompleteQueue<T>
+    public class AzureStorageQueue<T> : ICompleteQueue<T>, IAzureStorageQueue<T> where T : IAzureStorageQueueMessage
     {
         public string Name { get; }
 
@@ -40,13 +41,31 @@ namespace Nexus.Link.Libraries.Azure.Storage.Queue
         public async Task<T> GetOneMessageNoBlockAsync()
         {
             var message = await (await _cloudQueueTask).GetMessageAsync();
-            return message == null ? default(T) : FromByteArray(message.AsBytes);
+            var response = message == null ? default(T) : FromByteArray(message.AsBytes);
+            if (response != null)
+            {
+                response.QueueMessage = message;
+            }
+
+            return response;
         }
 
         public async Task<T> PeekNoBlockAsync()
         {
             var message = await (await _cloudQueueTask).PeekMessageAsync();
-            return message == null ? default(T) : FromByteArray(message.AsBytes);
+            var response = message == null ? default(T) : FromByteArray(message.AsBytes);
+
+            if (response != null)
+            {
+                response.QueueMessage = message;
+            }
+
+            return response;
+        }
+
+        public async Task DeleteMessageAsync(T message)
+        {
+            await (await _cloudQueueTask).DeleteMessageAsync(message.QueueMessage.Id, message.QueueMessage.PopReceipt);
         }
 
         public async Task<HealthResponse> GetResourceHealthAsync()
