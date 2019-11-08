@@ -13,7 +13,7 @@ using Nexus.Link.Libraries.Core.Storage.Model;
 
 namespace Nexus.Link.Libraries.Azure.Storage.Queue
 {
-    public class AzureStorageQueue<T> : ICompleteQueue<T>, IAzureStorageQueue<T> where T : IAzureStorageQueueMessage
+    public class AzureStorageQueue<T> : IAzureStorageQueue<T> where T : IAzureStorageQueueMessage
     {
         public string Name { get; }
 

@@ -6,7 +6,7 @@ namespace Nexus.Link.Libraries.Core.Queue.Model
     /// <summary>
     /// A generic interface for reading items to a queue.
     /// </summary>
-    public interface IAzureStorageQueue<in T> : IBaseQueue where T : IAzureStorageQueueMessage
+    public interface IAzureStorageQueue<T> : ICompleteQueue<T> where T : IAzureStorageQueueMessage
     {
         /// <summary>
         /// Removes the specified message from the queue
