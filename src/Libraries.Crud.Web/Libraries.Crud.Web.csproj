@@ -9,17 +9,20 @@
 
   <PropertyGroup>
     <PackageId>Nexus.Link.Libraries.Crud.Web</PackageId>
-    <Version>2.1.5</Version>
+    <Version>2.1.13</Version>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <PackageTags>nexus;link;fulcrum;lever</PackageTags>
     <Authors>XLENT Link</Authors>
-    <PackageProjectUrl>https://github.com/xlent-link/Nexus.Link.Libraries.Crud.Web</PackageProjectUrl>
+    <PackageProjectUrl>https://github.com/nexus-link/Nexus.Link.Libraries</PackageProjectUrl>
     <PackageLanguage>en-US</PackageLanguage>
     <Description>Nexus Crud Web support for .NETStandard</Description>
     <Copyright>Copyright ©2019 Xlent Link AB</Copyright>
     <IncludeSymbols>true</IncludeSymbols>
     <PackageReleaseNotes>
-      2.1.5 Bump
+      2.1.13 Fix: PackageProjectUrl for this nuget package
+      2.1.12 Bump
+      2.1.7 Added missing CrudSlaveToMasterRestClient{TModel, TId}
+      2.1.6 Bump
       2.1.0 Removed long-time obsolete RestClient constructors and added tests on incoming parameters.
       2.0.2 Consolidated dependencies.
       2.0.0 Depends on major change in Libraries.Core

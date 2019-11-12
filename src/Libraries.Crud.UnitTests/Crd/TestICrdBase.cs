@@ -1,9 +1,9 @@
 ﻿using System.Threading.Tasks;
-using Nexus.Link.Libraries.Crud.Interfaces;
 using Nexus.Link.Libraries.Core.Storage.Model;
-using Nexus.Link.Libraries.Crud.Test.NuGet.Model;
+using Nexus.Link.Libraries.Crud.Interfaces;
+using Nexus.Link.Libraries.Crud.UnitTests.Model;
 
-namespace Nexus.Link.Libraries.Crud.Test.NuGet.Crd
+namespace Nexus.Link.Libraries.Crud.UnitTests.Crd
 {
     public abstract class TestICrdBase<TModelCreate, TModel, TId>
         where TModelCreate : IItemForTesting, new()

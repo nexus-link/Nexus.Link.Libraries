@@ -1,6 +1,6 @@
 ﻿using Nexus.Link.Libraries.Core.Assert;
 
-namespace Nexus.Link.Libraries.Crud.Test.NuGet.Model
+namespace Nexus.Link.Libraries.Crud.UnitTests.Model
 {
     /// <summary>
     /// A minimal storable item that implments <see cref="IValidatable"/> to be used in testing

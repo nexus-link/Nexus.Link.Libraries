@@ -13,6 +13,40 @@ using Nexus.Link.Libraries.Crud.Model;
 
 namespace Nexus.Link.Libraries.Crud.Web.RestClient
 {
+    /// <inheritdoc cref="CrudSlaveToMasterRestClient{TModelCreate,TModel,TId}" />
+    public class CrudSlaveToMasterRestClient<TModel, TId> :
+        CrudSlaveToMasterRestClient<TModel, TModel, TId>,
+        ICrudSlaveToMaster<TModel, TId>
+    {
+        /// <summary></summary>
+        /// <param name="baseUri">The base URL that all HTTP calls methods will refer to.</param>
+        /// <param name="parentName">The name of the sub path that is the parent of the children. (Singular noun)</param>
+        /// <param name="childrenName">The name of the sub path that are the children. (Plural noun)</param>
+        public CrudSlaveToMasterRestClient(string baseUri, string parentName, string childrenName)
+            : base(baseUri, parentName, childrenName)
+        {
+        }
+        /// <summary></summary>
+        /// <param name="baseUri">The base URL that all HTTP calls methods will refer to.</param>
+        /// <param name="httpClient">The HttpClient used when making the HTTP calls.</param>
+        /// <param name="credentials">The credentials used when making the HTTP calls</param>
+        /// <param name="parentName">The name of the sub path that is the parent of the children. (Singular noun)</param>
+        /// <param name="childrenName">The name of the sub path that are the children. (Plural noun)</param>
+        public CrudSlaveToMasterRestClient(string baseUri, HttpClient httpClient, ServiceClientCredentials credentials, string parentName, string childrenName)
+            : base(baseUri, httpClient, credentials, parentName, childrenName)
+        {
+        }
+
+        /// <summary></summary>
+        /// <param name="baseUri">The base URL that all HTTP calls methods will refer to.</param>
+        /// <param name="httpClient">The HttpClient used when making the HTTP calls.</param>
+        /// <param name="parentName">The name of the sub path that is the parent of the children. (Singular noun)</param>
+        /// <param name="childrenName">The name of the sub path that are the children. (Plural noun)</param>
+        public CrudSlaveToMasterRestClient(string baseUri, HttpClient httpClient, string parentName, string childrenName)
+            : base(baseUri, httpClient, parentName, childrenName)
+        {
+        }
+    }
 
     /// <inheritdoc cref="RestClient" />
     public class CrudSlaveToMasterRestClient<TManyModelCreate, TManyModel, TId> : 
@@ -34,8 +68,19 @@ namespace Nexus.Link.Libraries.Crud.Web.RestClient
         /// <param name="baseUri">The base URL that all HTTP calls methods will refer to.</param>
         /// <param name="parentName">The name of the sub path that is the parent of the children. (Singular noun)</param>
         /// <param name="childrenName">The name of the sub path that are the children. (Plural noun)</param>
-        /// <param name="credentials">The credentials used when making the HTTP calls</param>
+        public CrudSlaveToMasterRestClient(string baseUri, string parentName, string childrenName)
+            : base(baseUri)
+        {
+            ParentName = parentName;
+            ChildrenName = childrenName;
+        }
+
+        /// <summary></summary>
+        /// <param name="baseUri">The base URL that all HTTP calls methods will refer to.</param>
         /// <param name="httpClient">The HttpClient used when making the HTTP calls.</param>
+        /// <param name="credentials">The credentials used when making the HTTP calls</param>
+        /// <param name="parentName">The name of the sub path that is the parent of the children. (Singular noun)</param>
+        /// <param name="childrenName">The name of the sub path that are the children. (Plural noun)</param>
         public CrudSlaveToMasterRestClient(string baseUri, HttpClient httpClient, ServiceClientCredentials credentials, string parentName, string childrenName)
             : base(baseUri, httpClient, credentials)
         {
@@ -45,9 +90,9 @@ namespace Nexus.Link.Libraries.Crud.Web.RestClient
 
         /// <summary></summary>
         /// <param name="baseUri">The base URL that all HTTP calls methods will refer to.</param>
+        /// <param name="httpClient">The HttpClient used when making the HTTP calls.</param>
         /// <param name="parentName">The name of the sub path that is the parent of the children. (Singular noun)</param>
         /// <param name="childrenName">The name of the sub path that are the children. (Plural noun)</param>
-        /// <param name="httpClient">The HttpClient used when making the HTTP calls.</param>
         public CrudSlaveToMasterRestClient(string baseUri, HttpClient httpClient, string parentName, string childrenName)
             : base(baseUri, httpClient)
         {
@@ -113,6 +158,7 @@ namespace Nexus.Link.Libraries.Crud.Web.RestClient
         /// <inheritdoc />
         public Task<PageEnvelope<TManyModel>> ReadChildrenWithPagingAsync(TId parentId, int offset = 0, int? limit = null, CancellationToken token = default(CancellationToken))
         {
+            InternalContract.RequireNotDefaultValue(parentId, nameof(parentId));
             InternalContract.RequireGreaterThanOrEqualTo(0, offset, nameof(offset));
             var limitParameter = "";
             if (limit != null)

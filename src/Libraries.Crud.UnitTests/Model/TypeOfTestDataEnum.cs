@@ -1,4 +1,4 @@
-namespace Nexus.Link.Libraries.Crud.Test.NuGet.Model
+namespace Nexus.Link.Libraries.Crud.UnitTests.Model
 {
     /// <summary>
     /// Enumeration for the different kinds of data that we expect from a testable class.

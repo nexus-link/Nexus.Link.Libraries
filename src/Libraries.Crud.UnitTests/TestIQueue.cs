@@ -2,9 +2,9 @@
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Nexus.Link.Libraries.Core.Queue.Model;
-using Nexus.Link.Libraries.Crud.Test.NuGet.Model;
+using Nexus.Link.Libraries.Crud.UnitTests.Model;
 
-namespace Nexus.Link.Libraries.Crud.Test.NuGet
+namespace Nexus.Link.Libraries.Crud.UnitTests
 {
     [TestClass]
     public abstract class TestIQueue

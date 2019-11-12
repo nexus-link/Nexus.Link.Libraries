@@ -3,17 +3,16 @@ using System.Linq;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
-using Libraries.Crud.Web.Test.Support.Models;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using Nexus.Link.Libraries.Core.Application;
-using Nexus.Link.Libraries.Core.Context;
 using Nexus.Link.Libraries.Core.Storage.Model;
-using Nexus.Link.Libraries.Crud.Web.RestClient;
 using Nexus.Link.Libraries.Crud.Interfaces;
+using Nexus.Link.Libraries.Crud.Web.RestClient;
+using Nexus.Link.Libraries.Crud.Web.Test.Support.Models;
 using Nexus.Link.Libraries.Web.RestClientHelper;
 
-namespace Libraries.Crud.Web.Test.RestClientTests
+namespace Nexus.Link.Libraries.Crud.Web.Test.RestClientTests
 {
     [TestClass]
     public class CrudManyToOneRecursiveRestClientTest : TestBase
@@ -29,7 +28,7 @@ namespace Libraries.Crud.Web.Test.RestClientTests
         {
             FulcrumApplicationHelper.UnitTestSetup(typeof(CrudManyToOneRecursiveRestClientTest).FullName);
             HttpClientMock = new Mock<IHttpClient>();
-            RestClient.HttpClient = HttpClientMock.Object;
+            Libraries.Web.RestClientHelper.RestClient.HttpClient = HttpClientMock.Object;
             _parentChildrenClient = new CrudManyToOneRestClient<Person, Guid>(ResourcePath);
             _oneManyClient = new CrudManyToOneRestClient<Person, Guid>(ResourcePath, "One", "Many");
             _person = new Person()

@@ -4,14 +4,15 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Nexus.Link.Libraries.Core.Application;
 
-namespace Nexus.Link.Services.Controllers.Capabilities.Api
+namespace Nexus.Link.Services.Controllers.Capabilities.Integration.AppSupport
 {
     /// <summary>
     /// Service implementation of <see cref="IRootService"/>
     /// </summary>
+    [ApiController]
     [Route("")]
     [ApiExplorerSettings(IgnoreApi = true)]
-    public abstract class RootsControllerBase : IRootService
+    public class NexusRootsController : IRootService
     {
         // The default
         [HttpGet("")]
@@ -30,7 +31,7 @@ namespace Nexus.Link.Services.Controllers.Capabilities.Api
         /// Override this if you want to change the HTML welcome message
         /// </summary>
         /// <returns>The HTML to present in the <see cref="Welcome"/> method.</returns>
-        protected string GetWelcomeHtml()
+        protected virtual string GetWelcomeHtml()
         {
             var content =
                 "<html>" +

@@ -75,6 +75,24 @@ namespace Nexus.Link.Libraries.Azure.Storage.Test
             Assert.IsNull(await getTask);
         }
 
+        //TODO: Does this work?
+        [TestMethod]
+        public async Task DeleteMessageAsync()
+        {
+            var message = new Message { Name = "Message1" };
+            await _queue.AddMessageAsync(message);
+            var result = await _queue.PeekNoBlockAsync();
+            Assert.IsNotNull(result);
+            Assert.AreEqual(message.Name, result.Name);
+            result = await _queue.GetOneMessageNoBlockAsync();
+            Assert.IsNotNull(result);
+            Assert.AreEqual(message.Name, result.Name);
+            await _queue.DeleteMessageAsync(result);
+
+            result = await _queue.GetOneMessageNoBlockAsync();
+            Assert.IsNull(result);
+        }
+
         [TestMethod]
         public async Task HealthAsync()
         {

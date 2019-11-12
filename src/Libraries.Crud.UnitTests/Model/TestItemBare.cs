@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Nexus.Link.Libraries.Crud.Test.NuGet.Model
+namespace Nexus.Link.Libraries.Crud.UnitTests.Model
 {
     /// <summary>
     /// A minimal storable item to be used in testing

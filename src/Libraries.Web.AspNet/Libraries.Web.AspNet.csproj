@@ -28,16 +28,31 @@
 
   <PropertyGroup>
     <PackageId>Nexus.Link.Libraries.Web.AspNet</PackageId>
-    <Version>2.7.2</Version>
+    <Version>2.12.7</Version>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <PackageTags>nexus;link;fulcrum;lever</PackageTags>
     <Authors>XLENT Link</Authors>
-    <PackageProjectUrl>https://github.com/nexus-link/Nexus.Link.Libraries.Web.AspNet</PackageProjectUrl>
+    <PackageProjectUrl>https://github.com/nexus-link/Nexus.Link.Libraries</PackageProjectUrl>
     <PackageLanguage>en-US</PackageLanguage>
     <Description>Nexus Web library for both ASP.NET and ASP.NET Core</Description>
     <Copyright>Copyright ©2019 Xlent Link AB</Copyright>
     <IncludeSymbols>true</IncludeSymbols>
     <PackageReleaseNotes>
+      2.12.7 Fix: PackageProjectUrl for this nuget package
+      2.12.6 Support more local hosts. Also LoadConfiguration => LoadConfigurationAsync in NexusWebApiApplication.
+      2.12.4 Bump
+      2.12.3 Better logging messages for converting exceptions into HTTP responses.
+      2.12.2 Added CodeLocation for FulcrumAssert.
+      2.12.1 Bump
+      2.12.0 Renamed IServicesCapability to IControllerInjector
+      2.11.1 Bump
+      2.11.0 Added DependencyInjectServicesAdvanced in Startup.
+      2.10.3 Removes redundant controllers
+      2.10.2 Made registration of controllers public.
+      2.10.0 Added IMvcBuilder to StartupBase.DependencyInjectServices and added support for injecting controllers.
+      2.9.0 Added IMvcBuilder to StartupBase.DependencyInjectServices.
+      2.8.2 Bump
+      2.8.0 Access to IConfiguration on in NETCOREAPP
       2.7.2 Use TechnicalName when appropriate.
       2.7.1 Allow code in development mode to access services anonymously. Added MandatoryRoleRequriement.
       2.6.4 Bump
