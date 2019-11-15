@@ -1,33 +1,30 @@
-﻿using System;
+﻿
+using Newtonsoft.Json.Linq;
+#if NETCOREAPP
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using System.Threading;
+using Nexus.Link.Libraries.Core.Assert;
+using Nexus.Link.Libraries.Web.AspNet.Pipe.Inbound;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc.Controllers;
+using Microsoft.AspNetCore.Mvc.Filters;
+using Microsoft.AspNetCore.Routing;
+using System.Diagnostics.CodeAnalysis;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using Nexus.Link.Libraries.Core.Application;
-using Nexus.Link.Libraries.Core.Error.Logic;
-using Nexus.Link.Libraries.Core.Logging;
-using Nexus.Link.Libraries.Core.MultiTenant.Model;
-using Nexus.Link.Libraries.Core.Platform.Configurations;
-using Nexus.Link.Libraries.Web.AspNet.Pipe.Inbound;
-#if NETCOREAPP
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Http.Internal;
-using System.IO;
-using System.Text.RegularExpressions;
-#else
-using System.Net.Http;
-#endif
+using Nexus.Link.Libraries.Core.Storage.Model;
+using Nexus.Link.Libraries.Core.Translation;
+using Nexus.Link.Libraries.Crud.Interfaces;
+#pragma warning disable 659
 
 namespace Nexus.Link.Libraries.Web.AspNet.Tests.InboundPipe
 {
     [TestClass]
     public class ValueTranslatorFilterTests
     {
-        private static int _logCounter;
-        private static string _foundCorrelationId;
-        private static Tenant _foundClientTenant;
 
         [TestInitialize]
         [SuppressMessage("ReSharper", "ObjectCreationAsStatement")]
@@ -36,635 +33,94 @@ namespace Nexus.Link.Libraries.Web.AspNet.Tests.InboundPipe
             FulcrumApplicationHelper.UnitTestSetup(typeof(ValueTranslatorFilterTests).FullName);
             FulcrumApplication.Context.CorrelationId = null;
             FulcrumApplication.Context.ClientTenant = null;
-            FulcrumApplication.Context.LeverConfiguration = null;
         }
 
         [TestMethod]
-        public async Task SaveClientTenantOldPrefixSuccess()
+        public async Task ArgumentsAndResultAreTranslatedAsync()
         {
-#if NETCOREAPP
-            var saveConfigHandler =
-                new SaveClientTenant(async context =>
-                {
-                    _foundClientTenant = FulcrumApplication.Context.ClientTenant;
-                    await Task.CompletedTask;
-                }, SaveClientTenant.LegacyVersionPrefix);
-#else
-            var mockHandler = new Mock<HttpMessageHandler>();
-            var saveConfigHandler = new SaveClientTenant(SaveClientTenant.LegacyVersionPrefix)
+            const string inId = "in-1";
+            const string outId = "out-1";
+
+            // Mock a translator
+            var testServiceMock = new Mock<ITranslatorService>();
+            testServiceMock
+                .Setup(service => service.TranslateAsync(It.IsAny<IEnumerable<string>>(),It.IsAny<string>()))
+                .ReturnsAsync(() =>new Dictionary<string, string> {{$"(foo.id!~consumer!{inId})", outId}});
+
+            // Prepare context
+            var foosController = new FoosController();
+            var inFoo = new Foo
             {
-                InnerHandler = new GetContextTestHandler
-                {
-                    InnerHandler = mockHandler.Object
-                }
+                Id = inId,
+                Name = "name"
             };
-            var invoker = new HttpMessageInvoker(saveConfigHandler);
-#endif
-
-            foreach (var entry in new Dictionary<Tenant, string>
+            var controllerActionDescriptor = new ControllerActionDescriptor();
+            controllerActionDescriptor.MethodInfo =
+                foosController.GetType().GetMethod(nameof(foosController.UpdateAndReturnAsync));
+            var actionContext = new ActionContext
             {
-                {new Tenant("smoke-testing-company", "ver"), "https://v-mock.org/v2/smoke-testing-company/ver/"},
-                {
-                    new Tenant("smoke-testing-company", "local"),
-                    "https://v-mock.org/api/v-pa1/smoke-testing-company/local/"
-                },
-                {
-                    new Tenant("fulcrum", "prd"),
-                    "https://prd-fulcrum-fundamentals.azurewebsites.net/api/v1/fulcrum/prd/ServiceMetas/ServiceHealth"
-                },
-                {
-                    new Tenant("fulcrum", "ver"),
-                    "https://ver-fulcrum-fundamentals.azurewebsites.net/api/v1/fulcrum/ver/ServiceMetas/ServiceHealth"
-                }
-            })
-            {
-                _foundClientTenant = null;
-                var expectedTenant = entry.Key;
-#if NETCOREAPP
-                var context = new DefaultHttpContext();
-                SetRequest(context, entry.Value);
-                await saveConfigHandler.InvokeAsync(context);
-#else
-                var request = new HttpRequestMessage(HttpMethod.Get, entry.Value);
-                await invoker.SendAsync(request, CancellationToken.None);
-#endif
-                Assert.AreEqual(expectedTenant, _foundClientTenant,
-                    $"Could not find tenant '{expectedTenant}' from url '{entry.Value}'. Found {_foundClientTenant}");
-            }
-        }
-
-        [TestMethod]
-        public async Task SaveClientTenantOldPrefixAcceptsFalsePositives()
-        {
-#if NETCOREAPP
-            var saveConfigHandler =
-                new SaveClientTenant(async ctx =>
-                {
-                    _foundClientTenant = FulcrumApplication.Context.ClientTenant;
-                    await Task.CompletedTask;
-                }, SaveClientTenant.LegacyVersionPrefix);
-#else
-            var mockHandler = new Mock<HttpMessageHandler>();
-            var saveConfigHandler = new SaveClientTenant(SaveClientTenant.LegacyVersionPrefix)
-            {
-                InnerHandler = new GetContextTestHandler
-                {
-                    InnerHandler = mockHandler.Object
-                }
+                HttpContext = new DefaultHttpContext(),
+                RouteData = new RouteData(),
+                ActionDescriptor = controllerActionDescriptor
             };
-            var invoker = new HttpMessageInvoker(saveConfigHandler);
-#endif
-
- 
-                _foundClientTenant = null;
-            var url = "https://ver-fulcrum-fundamentals.azurewebsites.net/api/v1/false/positive/ServiceMetas/ServiceHealth";
-#if NETCOREAPP
-            var context = new DefaultHttpContext();
-            SetRequest(context, url);
-                await saveConfigHandler.InvokeAsync(context);
-#else
-                var request = new HttpRequestMessage(HttpMethod.Get, url);
-                await invoker.SendAsync(request, CancellationToken.None);
-#endif
-            Assert.IsNotNull(_foundClientTenant);
-        }
-
-        [TestMethod]
-        public async Task SaveClientTenantNewPrefixSuccess()
-        {
-#if NETCOREAPP
-            var saveConfigHandler =
-                new SaveClientTenant(async context =>
-                {
-                    _foundClientTenant = FulcrumApplication.Context.ClientTenant;
-                    await Task.CompletedTask;
-                }, SaveClientTenant.ApiVersionTenantPrefix);
-#else
-            var mockHandler = new Mock<HttpMessageHandler>();
-            var saveConfigHandler = new SaveClientTenant(SaveClientTenant.ApiVersionTenantPrefix)
+            var executingContext = new ActionExecutingContext(actionContext, new List<IFilterMetadata>(),
+                new Dictionary<string, object> {{"id", inFoo.Id}, {"item", inFoo}}, foosController)
             {
-                InnerHandler = new GetContextTestHandler
-                {
-                    InnerHandler = mockHandler.Object
-                }
+                Result = new JsonResult(inFoo)
             };
-            var invoker = new HttpMessageInvoker(saveConfigHandler);
-#endif
 
-            foreach (var entry in new Dictionary<Tenant, string>
-            {
-                {new Tenant("smoke-testing-company", "ver"), "https://v-mock.org/api/v2/Tenant/smoke-testing-company/ver/"},
-                {
-                    new Tenant("smoke-testing-company", "local"),
-                    "https://v-mock.org/api/v-pa1/Tenant/smoke-testing-company/local/"
-                },
-                {
-                    new Tenant("fulcrum", "prd"),
-                    "https://prd-fulcrum-fundamentals.azurewebsites.net/api/v1/Tenant/fulcrum/prd/ServiceMetas/ServiceHealth"
-                },
-                {
-                    new Tenant("fulcrum", "ver"),
-                    "https://ver-fulcrum-fundamentals.azurewebsites.net/api/v1/Tenant/fulcrum/ver/ServiceMetas/ServiceHealth"
-                }
-            })
-            {
-                _foundClientTenant = null;
-                var expectedTenant = entry.Key;
-#if NETCOREAPP
-                var context = new DefaultHttpContext();
-                SetRequest(context, entry.Value);
-                await saveConfigHandler.InvokeAsync(context);
-#else
-                var request = new HttpRequestMessage(HttpMethod.Get, entry.Value);
-                await invoker.SendAsync(request, CancellationToken.None);
-#endif
-                Assert.AreEqual(expectedTenant, _foundClientTenant,
-                    $"Could not find tenant '{expectedTenant}' from url '{entry.Value}'. Found {_foundClientTenant}");
-            }
+            // Setup the filter
+            var filter = new ValueTranslatorFilter(() => "consumer", testServiceMock.Object);
+
+            // Run the filter
+            Assert.IsFalse(inFoo.Id.StartsWith("(foo.id!"));
+            await filter.OnActionExecutionAsync(executingContext, () => Task.FromResult(new ActionExecutedContext(actionContext, new List<IFilterMetadata>(),
+                foosController)));
+            Assert.IsTrue(inFoo.Id.StartsWith("(foo.id!"));
+
+            // Verify that the result has been translated
+            var jsonResult = executingContext.Result as JsonResult;
+            Assert.IsNotNull(jsonResult);
+            var jObject = jsonResult.Value as JObject;
+            Assert.IsNotNull(jObject);
+            var outFoo = jObject.ToObject<Foo>();
+            Assert.IsNotNull(outFoo);
+            Assert.AreEqual(outId, outFoo.Id);
         }
 
-        [TestMethod]
-        public async Task SaveClientTenantNewPrefixDetectsFalsePositives()
-        {
-#if NETCOREAPP
-            var saveConfigHandler =
-                new SaveClientTenant(async ctx =>
-                {
-                    _foundClientTenant = FulcrumApplication.Context.ClientTenant;
-                    await Task.CompletedTask;
-                }, SaveClientTenant.ApiVersionTenantPrefix);
-#else
-            var mockHandler = new Mock<HttpMessageHandler>();
-            var saveConfigHandler = new SaveClientTenant(SaveClientTenant.ApiVersionTenantPrefix)
-            {
-                InnerHandler = new GetContextTestHandler
-                {
-                    InnerHandler = mockHandler.Object
-                }
-            };
-            var invoker = new HttpMessageInvoker(saveConfigHandler);
-#endif
-
-
-            _foundClientTenant = null;
-            const string url = "https://ver-fulcrum-fundamentals.azurewebsites.net/api/v1/false/positive/ServiceMetas/ServiceHealth";
-#if NETCOREAPP
-            var context = new DefaultHttpContext();
-            SetRequest(context, url);
-            await saveConfigHandler.InvokeAsync(context);
-#else
-                var request = new HttpRequestMessage(HttpMethod.Get, url);
-                await invoker.SendAsync(request, CancellationToken.None);
-#endif
-            Assert.IsNull(_foundClientTenant);
-        }
-
-#if NETCOREAPP
-        private void SetRequest(DefaultHttpContext context, string url)
-        {
-            var request = new DefaultHttpRequest(context);
-            var match = Regex.Match(url, "^(https?)://([^/]+)(/[^?]+)(\\?.*)?$");
-            request.Scheme = match.Groups[1].Value;
-            request.Host = new HostString(match.Groups[2].Value);
-            request.PathBase = new PathString("/");
-            request.Path = new PathString(match.Groups[3].Value);
-            request.Method = "GET";
-            request.Body = new MemoryStream();
-            request.QueryString = new QueryString(match.Groups[4].Value);
-        }
-#endif
-        [TestMethod]
-        public async Task SaveConfigurationFail()
-        {
-#if NETCOREAPP
-            var saveConfigHandler =
-                new SaveClientTenant(async context => await Task.CompletedTask, SaveClientTenant.LegacyVersionPrefix);
-#else
-            var saveConfigHandler = new SaveClientTenant(SaveClientTenant.LegacyVersionPrefix)
-            {
-                InnerHandler = new Mock<HttpMessageHandler>().Object
-            };
-            var invoker = new HttpMessageInvoker(saveConfigHandler);
-#endif
-            FulcrumApplication.Context.ClientTenant = null;
-            foreach (var url in new[]
-            {
-                "http://gooogle.com/",
-                "https://anywhere.org/api/v1/eels/"
-            })
-            {
-#if NETCOREAPP
-                var context = new DefaultHttpContext();
-                SetRequest(context, url);
-                await saveConfigHandler.InvokeAsync(context);
-#else
-                var request = new HttpRequestMessage(HttpMethod.Get, url);
-                await invoker.SendAsync(request, CancellationToken.None);
-#endif
-                Assert.IsNull(FulcrumApplication.Context.ClientTenant);
-            }
-        }
-
-        /// <summary>
-        /// This represents the preferred order in the pipe when saving configuration and propagating correlation id:
-        ///
-        /// 1. <see cref="SaveConfiguration"/>
-        /// 2. <see cref="SaveCorrelationId"/>
-        /// </summary>
-        [TestMethod]
-        public async Task SavedConfigurationWhenLoggingWithNoCorrelationId()
-        {
-            // Simulate a pipe of DelegatingHandlers where SaveConfiguration happens first
-#if NETCOREAPP
-            var innerHandler = new SaveCorrelationId(async context =>
-            {
-                _foundClientTenant = FulcrumApplication.Context.ClientTenant;
-                _foundCorrelationId = FulcrumApplication.Context.CorrelationId;
-                await Task.CompletedTask;
-            });
-            var middleHandler = new SaveClientTenantConfiguration(innerHandler.InvokeAsync, new Mock<ILeverServiceConfiguration>().Object);
-            var outerHandler =
-                new SaveClientTenant(middleHandler.InvokeAsync, SaveClientTenant.LegacyVersionPrefix);
-#else
-            var outerHandler = new SaveClientTenant(SaveClientTenant.LegacyVersionPrefix)
-            {
-                InnerHandler = new SaveClientTenantConfiguration(new Mock<ILeverServiceConfiguration>().Object)
-                {
-                    InnerHandler = new SaveCorrelationId
-                    {
-                        InnerHandler = new GetContextTestHandler()
-                        {
-                            InnerHandler = new Mock<HttpMessageHandler>().Object
-                        }
-                    }
-                }
-            };
-#endif
-
-            // Define Organization/Environment for the uri path
-            const string org = "my-org";
-            const string env = "prd";
-
-            // Invoke a request and get back the tenant that was logged on
-            var loggedTenant = await SavedConfigurationPlayingWithSaveCorrelationId(
-#if NETCOREAPP
-                outerHandler.InvokeAsync,
-#else
-                outerHandler,
-#endif
-                org, env);
-
-            Assert.IsNotNull(_foundCorrelationId, "CorrelationId should have been created");
-            Assert.AreEqual(_foundClientTenant, loggedTenant,
-                $"Expected the tenant on the value provider ('{_foundClientTenant}') to equal the logged tenant ('{loggedTenant}')");
-        }
-
-        private async Task<Tenant> SavedConfigurationPlayingWithSaveCorrelationId(
-
-#if NETCOREAPP
-            RequestDelegate invokeDelegate,
-#else
-            DelegatingHandler outerHandler,
-#endif
-            string organization, string environment)
-        {
-            // Setup a mocked logger as the FullLogger so that we have full control
-            var mockLogger = new Mock<ISyncLogger>();
-            FulcrumApplication.Setup.SynchronousFastLogger = mockLogger.Object;
-
-            // We want to register when the LogAsync method is invoked and catch the tenant
-            var loggingCalled = new ManualResetEvent(false);
-            Tenant loggedTenant = null;
-            mockLogger.Setup(x => x.LogSync(It.IsAny<LogRecord>()))
-                .Callback((LogRecord x) =>
-                {
-                    loggedTenant = FulcrumApplication.Context.ClientTenant;
-                    loggingCalled.Set();
-                })
-                // Support for verifying that the method has been invoked
-                .Verifiable();
-
-            var url = $"https://v-mock.org/v2-alpha/{organization}/{environment}/Entity";
-
-#if NETCOREAPP
-            var context = new DefaultHttpContext();
-            SetRequest(context, url);
-            await invokeDelegate(context);
-
-#else
-// Simulate an incoming request with a an inbound pipe
-            var invoker = new HttpMessageInvoker(outerHandler);
-            var request = new HttpRequestMessage(HttpMethod.Get, url);
-            await invoker.SendAsync(request, CancellationToken.None);
-#endif
-
-            // Wait for the LogAsync method to be invoked
-            Assert.IsTrue(loggingCalled.WaitOne(TimeSpan.FromSeconds(3)));
-            mockLogger.Verify();
-
-            // Tell the audience which tenant was logged on
-            return loggedTenant;
-        }
-
-        /// <summary>
-        /// Make sure <see cref="SaveConfiguration"/> propagates correlation id in case of any logging. 
-        /// </summary>
-        [TestMethod]
-        public async Task SavedConfigurationHandlesNoCorrelationId()
-        {
-            // Setup a mocked logger as the FullLogger so that we have full control
-            var mockLogger = new Mock<ISyncLogger>();
-            FulcrumApplication.Setup.SynchronousFastLogger = mockLogger.Object;
-            mockLogger.Setup(x => x.LogSync(It.IsAny<LogRecord>())).Verifiable();
-
-            // The expected correlation id propagated as a request header
-            const string corrId = "Qorrr";
-
-            var leverConfig = new Mock<ILeverServiceConfiguration>();
-#if NETCOREAPP
-            var innerHandler =
-                new SaveClientTenantConfiguration(async c =>
-                {
-                    _foundCorrelationId = FulcrumApplication.Context.CorrelationId;
-                    await Task.CompletedTask;
-                }, leverConfig.Object);
-            var outerHandler = new SaveClientTenant(innerHandler.InvokeAsync, SaveClientTenant.LegacyVersionPrefix);
-#else
-            // Simulate a pipe of DelegatingHandlers
-            var outerHandler = new SaveClientTenant(SaveClientTenant.LegacyVersionPrefix)
-            {
-                InnerHandler = new SaveClientTenantConfiguration(new Mock<ILeverServiceConfiguration>().Object)
-                {
-                    InnerHandler = new GetContextTestHandler
-                    {
-                        InnerHandler = new Mock<HttpMessageHandler>().Object
-                    }
-                }
-            };
-#endif
-            var url = "https://v-mock.org/v2/smoke-testing-company/ver/";
-
-            // Simulate an incoming request
-#if NETCOREAPP
-            var context = new DefaultHttpContext();
-            SetRequest(context, url);
-            context.Request.Headers.Add("X-Correlation-ID", corrId);
-            await outerHandler.InvokeAsync(context);
-#else
-            var invoker = new HttpMessageInvoker(outerHandler);
-            var request = new HttpRequestMessage(HttpMethod.Get, url);
-            request.Headers.Add("X-Correlation-ID", corrId);
-            await invoker.SendAsync(request, CancellationToken.None);
-#endif
-
-            // Check that LogAsync has NOT been invoked
-            mockLogger.VerifyNoOtherCalls();
-
-            Assert.AreEqual(corrId, _foundCorrelationId,
-                "When SaveConfiguration is run before SaveCorrelationId, we still expect X-Correlation-ID header to be handled");
-        }
-
-        [TestMethod]
-        public async Task BatchLogs()
-        {
-            _logCounter = 0;
-            var mockLogger = new Mock<ISyncLogger>();
-            mockLogger.Setup(logger =>
-                    logger.LogSync(
-                        It.IsAny<LogRecord>()))
-                .Callback((LogRecord lr) =>
-                {
-                    Assert.IsTrue(FulcrumApplication.Context.IsInBatchLogger);
-                    Interlocked.Increment(ref _logCounter);
-                })
-                .Verifiable();
-            FulcrumApplication.Setup.SynchronousFastLogger = new BatchLogger(mockLogger.Object);
-            FulcrumApplication.Setup.LogSeverityLevelThreshold = LogSeverityLevel.Information;
-
-#if NETCOREAPP
-            var doLogging = new LogFiveTimesHandler(async c => await Task.CompletedTask);
-            var batchLogsHandler = new BatchLogs(doLogging.InvokeAsync, LogSeverityLevel.Warning);
-            var context = new DefaultHttpContext();
-            Assert.IsFalse(FulcrumApplication.Context.IsInBatchLogger);
-            await batchLogsHandler.InvokeAsync(context);
-            Assert.IsFalse(FulcrumApplication.Context.IsInBatchLogger);
-#else
-            var handler = new BatchLogs(LogSeverityLevel.Warning)
-            {
-                InnerHandler = new LogFiveTimesHandler()
-            };
-            var invoker = new HttpMessageInvoker(handler);
-            var request = new HttpRequestMessage(HttpMethod.Get, "https://v-mock.org/v2/smoke-testing-company/ver");
-            Assert.IsFalse(FulcrumApplication.Context.IsInBatchLogger);
-            await invoker.SendAsync(request, CancellationToken.None);
-            Assert.IsFalse(FulcrumApplication.Context.IsInBatchLogger);
-#endif
-            mockLogger.Verify();
-        }
-
-        /// <summary>
-        /// LogRequestAndResponse must not come before BatchLogs in the pipe
-        /// </summary>
-        [TestMethod]
-        public async Task LogRequestAndResponseMustNotBeBeforeBatchLogs()
-        {
-            const string url = "https://v-mock.org/v2/smoke-testing-company/ver";
-#if NETCOREAPP
-            var innerHandler = new BatchLogs(async ctx => await Task.CompletedTask);
-            var outerHandler =
-                new LogRequestAndResponse(innerHandler.InvokeAsync);
-            var context = new DefaultHttpContext();
-            SetRequest(context, url);
-#else
-            var outerHandler = new LogRequestAndResponse()
-            {
-                InnerHandler = new BatchLogs
-                {
-                    InnerHandler = new GetContextTestHandler()
-                    {
-                        InnerHandler = new Mock<HttpMessageHandler>().Object
-                    }
-                }
-            };
-            var invoker = new HttpMessageInvoker(outerHandler);
-            var request = new HttpRequestMessage(HttpMethod.Get, url);
-#endif
-
-            try
-            {
-#if NETCOREAPP
-                await outerHandler.InvokeAsync(context);
-#else
-                await invoker.SendAsync(request, CancellationToken.None);
-#endif
-                Assert.Fail("Expected an exception");
-            }
-            catch (FulcrumContractException e)
-            {
-                Assert.IsTrue(e.Message.Contains("must not precede"));
-            }
-            catch (Exception e)
-            {
-                Assert.Fail(
-                    $"Expected an exception of type {nameof(FulcrumContractException)}, but caught exception {e.GetType().FullName}");
-            }
-        }
-
-        /// <summary>
-        /// SaveCorrelationId must not come before SaveClientTenantConfiguration in the pipe
-        /// </summary>
-        [TestMethod]
-        public async Task SaveCorrelationIdMustNotBeBeforeSaveClientTenantConfiguration()
-        {
-            const string url = "https://v-mock.org/v2/smoke-testing-company/ver";
-#if NETCOREAPP
-            var innerHandler = new SaveClientTenantConfiguration(async ctx => await Task.CompletedTask, new Mock<ILeverServiceConfiguration>().Object);
-            var middleHandler =
-                new SaveClientTenant(innerHandler.InvokeAsync, SaveClientTenant.LegacyVersionPrefix);
-            var outerHandler =
-                new SaveCorrelationId(middleHandler.InvokeAsync);
-            var context = new DefaultHttpContext();
-            SetRequest(context, url);
-#else
-            var outerHandler = new SaveCorrelationId
-            {
-                InnerHandler = new SaveClientTenant(SaveClientTenant.LegacyVersionPrefix)
-                {
-                    InnerHandler = new SaveClientTenantConfiguration(new Mock<ILeverServiceConfiguration>().Object)
-                    {
-                        InnerHandler = new GetContextTestHandler()
-                        {
-                            InnerHandler = new Mock<HttpMessageHandler>().Object
-                        }
-                    }
-                }
-            };
-            var invoker = new HttpMessageInvoker(outerHandler);
-            var request = new HttpRequestMessage(HttpMethod.Get, url);
-#endif
-
-            try
-            {
-#if NETCOREAPP
-                await outerHandler.InvokeAsync(context);
-#else
-                await invoker.SendAsync(request, CancellationToken.None);
-#endif
-                Assert.Fail("Expected an exception");
-            }
-            catch (FulcrumContractException e)
-            {
-                Assert.IsTrue(e.Message.Contains("must not precede"));
-            }
-            catch (Exception e)
-            {
-                Assert.Fail(
-                    $"Expected an exception of type {nameof(FulcrumContractException)}, but caught exception {e.GetType().FullName}");
-            }
-        }
-
-        /// <summary>
-        /// LogRequestAndResponse must not come before BatchLogs in the pipe
-        /// </summary>
-        [TestMethod]
-        public async Task SaveClientTenantMustRunBeforeSaveClientTenantConfiguration()
-        {
-            const string url = "https://v-mock.org/v2/smoke-testing-company/ver";
-#if NETCOREAPP
-            var outerHandler =
-                new SaveClientTenantConfiguration(async ctx => await Task.CompletedTask,
-                    new Mock<ILeverServiceConfiguration>().Object);
-            var context = new DefaultHttpContext();
-            SetRequest(context, url);
-#else
-            var outerHandler = new SaveClientTenantConfiguration(new Mock<ILeverServiceConfiguration>().Object)
-            {
-                InnerHandler = new GetContextTestHandler()
-                {
-                    InnerHandler = new Mock<HttpMessageHandler>().Object
-                }
-            };
-            var invoker = new HttpMessageInvoker(outerHandler);
-            var request = new HttpRequestMessage(HttpMethod.Get, url);
-#endif
-
-            try
-            {
-#if NETCOREAPP
-                await outerHandler.InvokeAsync(context);
-#else
-                await invoker.SendAsync(request, CancellationToken.None);
-#endif
-                Assert.Fail("Expected an exception");
-            }
-            catch (FulcrumContractException e)
-            {
-                Assert.IsTrue(e.Message.Contains("must be preceded by"));
-            }
-            catch (Exception e)
-            {
-                Assert.Fail(
-                    $"Expected an exception of type {nameof(FulcrumContractException)}, but caught exception {e.GetType().FullName}");
-            }
-        }
-
-#if NETCOREAPP
-        private class LogFiveTimesHandler
-        {
-            private readonly RequestDelegate _next;
-
-            /// <inheritdoc />
-            public LogFiveTimesHandler(RequestDelegate next)
-            {
-                _next = next;
-            }
-
-            public async Task InvokeAsync(HttpContext context)
-            {
-                Log.LogVerbose("Verbose");
-                Assert.AreEqual(0, _logCounter);
-                Log.LogInformation("Information");
-                Assert.AreEqual(0, _logCounter);
-                Log.LogWarning("Warning");
-                Assert.AreEqual(3, _logCounter);
-                Log.LogError("Error");
-                Assert.AreEqual(4, _logCounter);
-                Log.LogCritical("Critical");
-                Assert.AreEqual(5, _logCounter);
-                await _next(context);
-            }
-        }
-#else
-        private class LogFiveTimesHandler : DelegatingHandler
+        [ApiController]
+        [Route("api/Foos")]
+        private class FoosController : ControllerBase, IUpdateAndReturn<Foo, string>
         {
             /// <inheritdoc />
-            protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request,
-                CancellationToken cancellationToken)
+            [HttpPut]
+            [Route("{id}")]
+            public Task<Foo> UpdateAndReturnAsync([TranslationConcept("foo.id")]string id, Foo item,
+                CancellationToken token = default(CancellationToken))
             {
-                Log.LogVerbose("Verbose");
-                Assert.AreEqual(0, _logCounter);
-                Log.LogInformation("Information");
-                Assert.AreEqual(0, _logCounter);
-                Log.LogWarning("Warning");
-                Assert.AreEqual(3, _logCounter);
-                Log.LogError("Error");
-                Assert.AreEqual(4, _logCounter);
-                Log.LogCritical("Critical");
-                Assert.AreEqual(5, _logCounter);
-                return Task.FromResult((HttpResponseMessage)null);
+                InternalContract.RequireNotNullOrWhiteSpace(id, nameof(id));
+                InternalContract.RequireNotNull(item, nameof(item));
+                Assert.IsTrue(item.Id.StartsWith("(foo.id!"));
+                InternalContract.Require(id == item.Id, $"Expected {nameof(id)} to be identical to {nameof(item)}.{nameof(item.Id)}.");
+                return Task.FromResult(item);
             }
         }
-        private class GetContextTestHandler : DelegatingHandler
+
+        private class Foo : IUniquelyIdentifiable<string>
         {
             /// <inheritdoc />
-            protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request,
-                CancellationToken cancellationToken)
+            [TranslationConcept("foo.id")]
+            public string Id { get; set; }
+
+            public string Name { get; set; }
+
+            /// <inheritdoc />
+            public override bool Equals(object obj)
             {
-                _foundCorrelationId = FulcrumApplication.Context.CorrelationId;
-                _foundClientTenant = FulcrumApplication.Context.ClientTenant;
-                return Task.FromResult((HttpResponseMessage)null);
+                if (!(obj is Foo other)) return false;
+                return other.Id == Id && other.Name == Name;
             }
         }
-#endif
     }
 }
+#endif

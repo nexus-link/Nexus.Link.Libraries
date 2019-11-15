@@ -1,10 +1,11 @@
 ﻿
+#if NETCOREAPP
 using System;
 using System.Collections.Generic;
 using System.Reflection;
-#if NETCOREAPP
 using Microsoft.AspNetCore.Mvc.Filters;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Controllers;
 using Nexus.Link.Libraries.Core.Assert;
 using Nexus.Link.Libraries.Core.Translation;
@@ -35,7 +36,7 @@ namespace Nexus.Link.Libraries.Web.AspNet.Pipe.Inbound
 
             //Handle the request
             await next();
-            
+
             if (methodInfo != null)
             {
                 await DecorateResponseAsync(methodInfo.ReturnParameter, context, translator);
@@ -60,9 +61,9 @@ namespace Nexus.Link.Libraries.Web.AspNet.Pipe.Inbound
         private async Task DecorateResponseAsync(ParameterInfo parameterInfo, ActionExecutingContext context, Translator translator)
         {
             if (context?.Result == null) return;
-            await translator.Add(context.Result).ExecuteAsync();
-            context.Result = translator.Translate(context.Result);
-
+            if (!(context.Result is JsonResult jsonResult)) return;
+            await translator.Add(jsonResult.Value).ExecuteAsync();
+            jsonResult.Value = translator.Translate(jsonResult.Value);
         }
 
         private static void DecorateValue(IDictionary<string, object> arguments, Translator translator, ParameterInfo parameterInfo)
