@@ -17,6 +17,7 @@ using Nexus.Link.Libraries.Core.Logging;
 using Nexus.Link.Libraries.Web.AspNet.Pipe.Inbound;
 using Swashbuckle.AspNetCore.Swagger;
 using Microsoft.AspNetCore.Mvc.Authorization;
+using Nexus.Link.Libraries.Core.Translation;
 using Nexus.Link.Services.Contracts.Capabilities;
 namespace Nexus.Link.Libraries.Web.AspNet.Startup
 {
@@ -76,8 +77,11 @@ namespace Nexus.Link.Libraries.Web.AspNet.Startup
                 ConfigureServicesInitialUrgentPart(services);
                 FulcrumApplication.ValidateButNotInProduction();
                 InternalContract.RequireValidated(this, GetType().FullName);
+                var valueTranslatorFilter = new ValueTranslatorFilter(() =>
+                    FulcrumApplication.Context.ClientPrincipal.Identity.Name);
                 var mvc = services.AddMvc(opts =>
                 {
+                    opts.Filters.Add(valueTranslatorFilter);
                     if (!FulcrumApplication.IsInDevelopment) return;
                     Log.LogWarning($"Anonymous service usage is allowed, due to development mode.");
                     opts.Filters.Add(new AllowAnonymousFilter());
@@ -88,8 +92,16 @@ namespace Nexus.Link.Libraries.Web.AspNet.Startup
                         apm.FeatureProviders.Add(new RemoveRedundantControllers(_controllersToKeep)));
                 ConfigureServicesSwagger(services);
                 DependencyInjectServices(services);
-                DependencyInjectServicesAdvanced(services, mvc);
-                AddControllersToMvc(services, mvc);
+                using (var serviceScope = services.BuildServiceProvider().CreateScope())
+                {
+                    var serviceProvider = serviceScope.ServiceProvider;
+                    // TODO: Send the serviceProvider instead of the mvc
+                    DependencyInjectServicesAdvanced(services, mvc);
+                    valueTranslatorFilter.TranslatorService = serviceProvider.GetService<ITranslatorService>();
+                    // TODO: Send the serviceProvider instead of the mvc
+                    AddControllersToMvc(services, mvc);
+                }
+
                 Log.LogInformation($"{nameof(StartupBase)}.{nameof(ConfigureServices)} succeeded.");
             }
             catch (Exception e)

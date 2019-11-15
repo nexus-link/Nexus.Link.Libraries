@@ -1,0 +1,90 @@
+﻿
+using System;
+using System.Collections.Generic;
+using System.Reflection;
+#if NETCOREAPP
+using Microsoft.AspNetCore.Mvc.Filters;
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Mvc.Controllers;
+using Nexus.Link.Libraries.Core.Assert;
+using Nexus.Link.Libraries.Core.Translation;
+
+namespace Nexus.Link.Libraries.Web.AspNet.Pipe.Inbound
+{
+    public class ValueTranslatorFilter : IAsyncActionFilter
+    {
+        private readonly Func<string> _getClientNameMethod;
+        public ITranslatorService TranslatorService { get; set; }
+
+        public ValueTranslatorFilter(Func<string> getClientNameMethod, ITranslatorService translatorService = null)
+        {
+            TranslatorService = translatorService;
+            _getClientNameMethod = getClientNameMethod;
+        }
+
+        public async Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)
+        {
+            InternalContract.Require(TranslatorService != null, $"The property {nameof(TranslatorService)} must be non-null.");
+            var translator = new Translator(_getClientNameMethod(), TranslatorService);
+            var controllerActionDescriptor = context.ActionDescriptor as ControllerActionDescriptor;
+            var methodInfo = controllerActionDescriptor?.MethodInfo;
+            if (methodInfo != null)
+            {
+                DecorateArguments(methodInfo.GetParameters(), context.ActionArguments, translator);
+            }
+
+            //Handle the request
+            await next();
+            
+            if (methodInfo != null)
+            {
+                await DecorateResponseAsync(methodInfo.ReturnParameter, context, translator);
+            }
+        }
+
+        private void DecorateArguments(ParameterInfo[] parameters, IDictionary<string, object> arguments, Translator translator)
+        {
+            foreach (var parameterInfo in parameters)
+            {
+                if (parameterInfo.ParameterType == typeof(string))
+                {
+                    DecorateValue(arguments, translator, parameterInfo);
+                }
+                else if (parameterInfo.ParameterType.IsClass)
+                {
+                    DecorateObject(arguments, translator, parameterInfo);
+                }
+            }
+        }
+
+        private async Task DecorateResponseAsync(ParameterInfo parameterInfo, ActionExecutingContext context, Translator translator)
+        {
+            if (context?.Result == null) return;
+            await translator.Add(context.Result).ExecuteAsync();
+            context.Result = translator.Translate(context.Result);
+
+        }
+
+        private static void DecorateValue(IDictionary<string, object> arguments, Translator translator, ParameterInfo parameterInfo)
+        {
+            var parameterName = parameterInfo.Name;
+            var attribute = parameterInfo.GetCustomAttribute<TranslationConceptAttribute>();
+            var conceptName = attribute?.ConceptName;
+            if (string.IsNullOrWhiteSpace(conceptName)) return;
+            if (!arguments.ContainsKey(parameterName)) return;
+            var currentValue = arguments[parameterName] as string;
+            if (string.IsNullOrWhiteSpace(currentValue)) return;
+            arguments[parameterName] = translator.Decorate(conceptName, currentValue);
+        }
+
+        private static void DecorateObject(IDictionary<string, object> arguments, Translator translator, ParameterInfo parameterInfo)
+        {
+            var parameterName = parameterInfo.Name;
+            if (!arguments.ContainsKey(parameterName)) return;
+            var currentValue = arguments[parameterName];
+            if (currentValue == null) return;
+            arguments[parameterName] = translator.DecorateItem(currentValue);
+        }
+    }
+}
+#endif
