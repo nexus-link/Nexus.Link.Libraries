@@ -7,7 +7,6 @@ using Moq;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Nexus.Link.Libraries.Core.Application;
-using Nexus.Link.Libraries.Core.Context;
 using Nexus.Link.Libraries.Web.RestClientHelper;
 using Nexus.Link.Libraries.Web.Tests.Support.Models;
 

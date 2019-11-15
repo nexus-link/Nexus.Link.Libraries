@@ -1,5 +1,4 @@
 ﻿using Nexus.Link.Libraries.Core.Assert;
-using Nexus.Link.Libraries.Core.Logging;
 
 namespace Nexus.Link.Services.Contracts.Events
 {

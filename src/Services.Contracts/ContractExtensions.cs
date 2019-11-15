@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using Nexus.Link.Libraries.Core.Logging;
+﻿using Nexus.Link.Libraries.Core.Logging;
 using Nexus.Link.Services.Contracts.Events;
 
 namespace Nexus.Link.Services.Contracts
