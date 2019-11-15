@@ -20,7 +20,7 @@ namespace Nexus.Link.Libraries.Web.Tests.RestClientHelper
         {
             FulcrumApplicationHelper.UnitTestSetup(typeof(RestClientTest).FullName);
             HttpClientMock = new Mock<IHttpClient>();
-            RestClient.HttpClient = HttpClientMock.Object;
+            HttpSender.HttpClient = HttpClientMock.Object;
         }
 
         [TestMethod]
@@ -252,13 +252,14 @@ namespace Nexus.Link.Libraries.Web.Tests.RestClientHelper
 
             // Per default, the RestClient will try to parse dates, so our values will get scrambled a bit
             // This is our desired default value, so make sure to fail if it doesn't auto parse dates
-            var client = new RestClient("http://example.se");
+            var httpSender = new HttpSender("http://example.se");
+            var client = new RestClient(httpSender);
             var result = await client.PostAndReturnCreatedObjectAsync("path", input);
             Assert.AreNotEqual(dateTime1, result.Value<string>("DateTime1"));
             Assert.AreNotEqual(dateTime2, result.Value<string>("DateTime2"));
 
             // Make sure we have the possibility to change behaviour to not auto parse dates
-            client.DeserializationSettings.DateParseHandling = DateParseHandling.None;
+            httpSender.DeserializationSettings.DateParseHandling = DateParseHandling.None;
             PrepareMockPost(input);
             result = await client.PostAndReturnCreatedObjectAsync("path", input);
             Assert.AreEqual(dateTime1, result.Value<string>("DateTime1"));
