@@ -1,6 +1,5 @@
 ﻿using Microsoft.WindowsAzure.Storage.Queue;
 using Nexus.Link.Libraries.Azure.Storage.Queue;
-using Nexus.Link.Libraries.Core.Queue.Model;
 
 namespace Nexus.Link.Libraries.Azure.Storage.Test.Model
 {

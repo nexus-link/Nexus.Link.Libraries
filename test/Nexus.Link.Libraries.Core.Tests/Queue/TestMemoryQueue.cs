@@ -3,9 +3,7 @@ using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Moq;
 using Nexus.Link.Libraries.Core.Application;
-using Nexus.Link.Libraries.Core.Logging;
 using Nexus.Link.Libraries.Core.Queue.Logic;
 using UT = Microsoft.VisualStudio.TestTools.UnitTesting;
 

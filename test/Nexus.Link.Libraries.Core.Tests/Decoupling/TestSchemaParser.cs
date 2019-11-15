@@ -7,7 +7,6 @@ using Newtonsoft.Json.Linq;
 using Nexus.Link.Libraries.Core.Application;
 using Nexus.Link.Libraries.Core.Decoupling;
 using Nexus.Link.Libraries.Core.Error.Logic;
-using Nexus.Link.Libraries.Core.Tests.Queue;
 using UT = Microsoft.VisualStudio.TestTools.UnitTesting;
 #pragma warning disable 659
 

@@ -1,9 +1,9 @@
 ﻿using System.Threading.Tasks;
-using System.Threading;
 #if NETCOREAPP
 using Microsoft.AspNetCore.Http;
 #else
 using System.Net.Http;
+using System.Threading;
 #endif
 namespace Nexus.Link.Libraries.Web.AspNet.Pipe.Inbound
 {

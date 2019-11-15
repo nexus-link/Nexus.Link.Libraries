@@ -9,7 +9,6 @@ using Nexus.Link.Libraries.Core.Health.Model;
 using Nexus.Link.Libraries.Core.Json;
 using Nexus.Link.Libraries.Core.MultiTenant.Model;
 using Nexus.Link.Libraries.Core.Queue.Model;
-using Nexus.Link.Libraries.Core.Storage.Model;
 
 namespace Nexus.Link.Libraries.Azure.Storage.Queue
 {

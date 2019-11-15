@@ -1,5 +1,4 @@
 ﻿using System;
-using Nexus.Link.Libraries.Core.Application;
 #if NETCOREAPP
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Extensions;

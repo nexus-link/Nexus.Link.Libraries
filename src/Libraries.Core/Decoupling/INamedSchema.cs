@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace Nexus.Link.Libraries.Core.Decoupling
+﻿namespace Nexus.Link.Libraries.Core.Decoupling
 {
     /// <summary>
     /// This interface is typically used when more than one type of data is stored at the same place and therefore the type of data needs to be stored together with the data.

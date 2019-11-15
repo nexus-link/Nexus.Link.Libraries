@@ -1,16 +1,9 @@
 ﻿using System.Net;
-using System.Net.Http;
 using System.Threading.Tasks;
-using Microsoft.Rest;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Moq;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using Nexus.Link.Libraries.Core.Application;
 using Nexus.Link.Libraries.Web.Logging;
-using Nexus.Link.Libraries.Web.RestClientHelper;
 using Nexus.Link.Libraries.Web.Tests.RestClientHelper;
-using Nexus.Link.Libraries.Web.Tests.Support.Models;
 
 namespace Nexus.Link.Libraries.Web.Tests.Logging
 {

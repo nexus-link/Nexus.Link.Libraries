@@ -3,7 +3,6 @@ using System.Threading.Tasks;
 using Nexus.Link.Libraries.Core.Storage.Model;
 using Nexus.Link.Libraries.Crud.AspNet.Controllers;
 using Nexus.Link.Libraries.Crud.Interfaces;
-using Nexus.Link.Libraries.Crud.Model;
 #if NETCOREAPP
 using Microsoft.AspNetCore.Mvc;
 #else
