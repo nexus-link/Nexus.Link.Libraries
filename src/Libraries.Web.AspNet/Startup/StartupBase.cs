@@ -96,7 +96,7 @@ namespace Nexus.Link.Libraries.Web.AspNet.Startup
                     var serviceProvider = serviceScope.ServiceProvider;
                     // TODO: Send the serviceProvider instead of the mvc
                     DependencyInjectServicesAdvanced(services, mvc);
-                    valueTranslatorFilter.TranslatorSetup = new TranslatorSetup(
+                    valueTranslatorFilter.TranslatorFactory = new TranslatorFactory(
                         serviceProvider.GetService<ITranslatorService>(),
                         () => FulcrumApplication.Context.ClientPrincipal.Identity.Name);
                     // TODO: Send the serviceProvider instead of the mvc

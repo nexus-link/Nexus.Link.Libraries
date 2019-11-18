@@ -8,12 +8,15 @@ namespace Nexus.Link.Libraries.Core.Translation
     /// <summary>
     /// The information needed to do translation for a client
     /// </summary>
-    public class TranslatorSetup : IValidatable
+    public class TranslatorFactory : IValidatable
     {
         private readonly Func<string> _getClientNameMethod;
         private readonly string _clientName;
 
-        public TranslatorSetup(ITranslatorService translatorService, string clientName)
+        /// <summary>
+        /// A factory with a fixed client name
+        /// </summary>
+        public TranslatorFactory(ITranslatorService translatorService, string clientName)
         {
             InternalContract.RequireNotNull(translatorService, nameof(translatorService));
             InternalContract.RequireNotNullOrWhiteSpace(clientName, nameof(clientName));
@@ -21,7 +24,10 @@ namespace Nexus.Link.Libraries.Core.Translation
             TranslatorService = translatorService;
         }
 
-        public TranslatorSetup(ITranslatorService translatorService, Func<string> getClientNameMethod)
+        /// <summary>
+        /// A factory with a dynamic client name. The client name is set at the creation of the translator instance.
+        /// </summary>
+        public TranslatorFactory(ITranslatorService translatorService, Func<string> getClientNameMethod)
         {
             InternalContract.RequireNotNull(translatorService, nameof(translatorService));
             InternalContract.RequireNotNull(getClientNameMethod, nameof(getClientNameMethod));
@@ -33,7 +39,16 @@ namespace Nexus.Link.Libraries.Core.Translation
         /// </summary>
         public ITranslatorService TranslatorService { get; set; }
 
+        public Translator CreateTranslator()
+        {
+            return new Translator(ClientName, TranslatorService, DefaultConceptName);
+        }
+
+        /// <summary>
+        /// The client name.
+        /// </summary>
         public string ClientName => _clientName ?? _getClientNameMethod();
+
         public string DefaultConceptName { get; set; }
 
         /// <inheritdoc />

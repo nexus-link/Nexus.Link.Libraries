@@ -18,7 +18,9 @@ namespace Nexus.Link.Libraries.Core.Translation
     /// </summary>
     public class Translator
     {
-        private readonly TranslatorSetup _translatorSetup;
+        private readonly string _clientName;
+        private readonly ITranslatorService _service;
+        private readonly string _defaultConceptName;
         private readonly HashSet<string> _conceptValues;
         private IDictionary<string, string> _translations;
         private readonly Regex _conceptValueAndNothingElseInStringRegex;
@@ -27,20 +29,13 @@ namespace Nexus.Link.Libraries.Core.Translation
         /// <summary>
         /// A translator for a specific <paramref name="clientName"/> that will use the <paramref name="service"/> for the actual translations.
         /// </summary>
-        [Obsolete("Use the constructor with TranslatorSetup 2019-11-18")]
-        public Translator(string clientName, ITranslatorService service)
-        :this(new TranslatorSetup(service, clientName))
+        internal Translator(string clientName, ITranslatorService service, string defaultConceptName)
         {
-        }
-
-        /// <summary>
-        /// A translator with the specified setup
-        /// </summary>
-        public Translator(TranslatorSetup translatorSetup)
-        {
-            InternalContract.RequireNotNull(translatorSetup, nameof(translatorSetup));
-            InternalContract.RequireValidated(translatorSetup, nameof(translatorSetup));
-            _translatorSetup = translatorSetup;
+            InternalContract.RequireNotNullOrWhiteSpace(clientName, nameof(clientName));
+            InternalContract.RequireNotNull(service, nameof(service));
+            _clientName = clientName;
+            _service = service;
+            _defaultConceptName = defaultConceptName;
             _conceptValues = new HashSet<string>();
             _translations = new Dictionary<string, string>();
             _conceptValueRegex = new Regex(@"\(([^!]+)!([^!]+)!(.+)\)", RegexOptions.Compiled);
@@ -53,7 +48,7 @@ namespace Nexus.Link.Libraries.Core.Translation
         public string Decorate(string conceptName, string value)
         {
             if (value == null) return null;
-            return IsDecorated(value) ? value : Decorate(conceptName, _translatorSetup.ClientName, value);
+            return IsDecorated(value) ? value : Decorate(conceptName, _clientName, value);
         }
 
         /// <summary>
@@ -62,10 +57,11 @@ namespace Nexus.Link.Libraries.Core.Translation
         public string DecorateWithDefaultConceptName(string value)
         {
             if (value == null) return null;
-            InternalContract.Require(!string.IsNullOrWhiteSpace(_translatorSetup.DefaultConceptName), 
-                $"You must have set the {nameof(_translatorSetup.DefaultConceptName)} in translator setup to use this method.");
-            return IsDecorated(value) ? value : Decorate(_translatorSetup.DefaultConceptName, _translatorSetup.ClientName, value);
+            InternalContract.Require(!string.IsNullOrWhiteSpace(_defaultConceptName), 
+                $"You must have set the {nameof(_defaultConceptName)} in {nameof(TranslatorFactory)} to use this method.");
+            return IsDecorated(value) ? value : Decorate(_defaultConceptName, _clientName, value);
         }
+
 
         /// <summary>
         /// Decorate the <paramref name="id"/> with concept value paths.
@@ -222,9 +218,9 @@ namespace Nexus.Link.Libraries.Core.Translation
         /// Do the actual translation.
         /// </summary>
         /// <returns></returns>
-        public async Task ExecuteAsync(CancellationToken cancellationToken)
+        public async Task ExecuteAsync(CancellationToken cancellationToken = new CancellationToken())
         {
-            _translations = await _translatorSetup.TranslatorService.TranslateAsync(_conceptValues, _translatorSetup.ClientName, cancellationToken);
+            _translations = await _service.TranslateAsync(_conceptValues, _clientName, cancellationToken);
         }
 
         /// <summary>

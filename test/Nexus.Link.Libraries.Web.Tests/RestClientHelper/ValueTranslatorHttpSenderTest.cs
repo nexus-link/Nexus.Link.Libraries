@@ -45,7 +45,7 @@ namespace Nexus.Link.Libraries.Web.Tests.RestClientHelper
         public async Task TranslateRelativeUrl()
         {
             var httpSender = new HttpSender();
-            var translatorSetup = new TranslatorSetup(_translatorServiceMock.Object, "producer");
+            var translatorSetup = new TranslatorFactory(_translatorServiceMock.Object, "producer");
             var sender = new ValueTranslatorHttpSender(httpSender, translatorSetup);
             await sender.SendRequestAsync(HttpMethod.Get, $"Persons/{_decoratedConsumerId}");
             Assert.AreEqual($"Persons/{_producerId}", httpSender.RelativeUrl);
@@ -55,7 +55,7 @@ namespace Nexus.Link.Libraries.Web.Tests.RestClientHelper
         public async Task TranslateBody()
         {
             var httpSender = new HttpSender();
-            var translatorSetup = new TranslatorSetup(_translatorServiceMock.Object, "producer");
+            var translatorSetup = new TranslatorFactory(_translatorServiceMock.Object, "producer");
             var sender = new ValueTranslatorHttpSender(httpSender, translatorSetup);
             var inBody = new Foo {Id = _decoratedConsumerId, Name = "name"};
             await sender.SendRequestAsync(HttpMethod.Get, $"Persons/{_producerId}", inBody);
@@ -70,7 +70,7 @@ namespace Nexus.Link.Libraries.Web.Tests.RestClientHelper
         public async Task DecorateResult()
         {
             var httpSender = new HttpSender();
-            var translatorSetup = new TranslatorSetup(_translatorServiceMock.Object, "producer");
+            var translatorSetup = new TranslatorFactory(_translatorServiceMock.Object, "producer");
             translatorSetup.DefaultConceptName = "person.id";
             var sender = new ValueTranslatorHttpSender(httpSender, translatorSetup);
             var result = await sender.SendRequestAndDecorateResponseAsync(HttpMethod.Get, $"Persons/{_producerId}", (string) null);

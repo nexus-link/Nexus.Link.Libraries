@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Mvc.Filters;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Controllers;
+using Nexus.Link.Libraries.Core.Application;
 using Nexus.Link.Libraries.Core.Assert;
 using Nexus.Link.Libraries.Core.Translation;
 
@@ -15,26 +16,31 @@ namespace Nexus.Link.Libraries.Web.AspNet.Pipe.Inbound
 {
     public class ValueTranslatorFilter : IAsyncActionFilter
     {
-        public TranslatorSetup TranslatorSetup { get; set; }
+        public TranslatorFactory TranslatorFactory { get; set; }
 
         public ValueTranslatorFilter()
         {
         }
 
-        public ValueTranslatorFilter(TranslatorSetup translatorSetup)
+        public ValueTranslatorFilter(TranslatorFactory translatorFactory)
         {
-            InternalContract.RequireNotNull(translatorSetup, nameof(translatorSetup));
-            InternalContract.RequireValidated(translatorSetup, nameof(translatorSetup));
-            TranslatorSetup = translatorSetup;
+            InternalContract.RequireNotNull(translatorFactory, nameof(translatorFactory));
+            InternalContract.RequireValidated(translatorFactory, nameof(translatorFactory));
+            TranslatorFactory = translatorFactory;
         }
 
         public async Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)
         {
             Translator translator = null;
             MethodInfo methodInfo = null;
-            if (TranslatorSetup != null)
+            if (FulcrumApplication.IsInDevelopment)
             {
-                translator = new Translator(TranslatorSetup);
+                InternalContract.Require(TranslatorFactory != null, 
+                    $"You must set the {nameof(TranslatorFactory)} property of {nameof(ValueTranslatorFilter)}.");
+            }
+            if (TranslatorFactory != null)
+            {
+                translator = TranslatorFactory.CreateTranslator();
                 var controllerActionDescriptor = context.ActionDescriptor as ControllerActionDescriptor;
                 methodInfo = controllerActionDescriptor?.MethodInfo;
             }

@@ -21,18 +21,18 @@ namespace Nexus.Link.Libraries.Web.RestClientHelper
     /// </summary>
     public class ValueTranslatorHttpSender : IValueTranslatorHttpSender
     {
-        private readonly TranslatorSetup _translatorSetup;
+        private readonly TranslatorFactory _translatorFactory;
         public IHttpSender HttpSender { get; }
 
         /// <inheritdoc />
         public Uri BaseUri => HttpSender.BaseUri;
 
-        public ValueTranslatorHttpSender(IHttpSender httpSender, TranslatorSetup translatorSetup)
+        public ValueTranslatorHttpSender(IHttpSender httpSender, TranslatorFactory translatorFactory)
         {
-            _translatorSetup = translatorSetup;
+            _translatorFactory = translatorFactory;
             InternalContract.RequireNotNull(httpSender, nameof(httpSender));
-            InternalContract.RequireNotNull(translatorSetup, nameof(translatorSetup));
-            InternalContract.RequireValidated(translatorSetup, nameof(translatorSetup));
+            InternalContract.RequireNotNull(translatorFactory, nameof(translatorFactory));
+            InternalContract.RequireValidated(translatorFactory, nameof(translatorFactory));
             HttpSender = httpSender;
         }
 
@@ -42,7 +42,7 @@ namespace Nexus.Link.Libraries.Web.RestClientHelper
             CancellationToken cancellationToken = default(CancellationToken))
         {
             // TODO: Add translation and decoration
-            var translator = new Translator(_translatorSetup);
+            var translator = _translatorFactory.CreateTranslator();
             await translator.AddSubStrings(relativeUrl).Add(body).ExecuteAsync(cancellationToken);
             var result = await HttpSender.SendRequestAsync<TResponse, TBody>(
                 method,
@@ -58,9 +58,9 @@ namespace Nexus.Link.Libraries.Web.RestClientHelper
             TBody body = default(TBody), Dictionary<string, List<string>> customHeaders = null,
             CancellationToken cancellationToken = default(CancellationToken))
         {
-            InternalContract.Require(!string.IsNullOrWhiteSpace(_translatorSetup.DefaultConceptName), 
-                $"You must have set the {nameof(_translatorSetup.DefaultConceptName)} in translator setup to use this method.");
-            var translator = new Translator(_translatorSetup);
+            InternalContract.Require(!string.IsNullOrWhiteSpace(_translatorFactory.DefaultConceptName), 
+                $"You must have set the {nameof(_translatorFactory.DefaultConceptName)} in {nameof(TranslatorFactory)} to use this method.");
+            var translator = _translatorFactory.CreateTranslator();
             await translator.AddSubStrings(relativeUrl).Add(body).ExecuteAsync(cancellationToken);
             var result = await HttpSender.SendRequestAsync<string, TBody>(
                 method,
@@ -77,7 +77,7 @@ namespace Nexus.Link.Libraries.Web.RestClientHelper
             TBody body = default(TBody), Dictionary<string, List<string>> customHeaders = null,
             CancellationToken cancellationToken = default(CancellationToken))
         {
-            var translator = new Translator(_translatorSetup);
+            var translator = _translatorFactory.CreateTranslator();
             await translator.Add(relativeUrl).Add(body).ExecuteAsync(cancellationToken);
             var result = await HttpSender.SendRequestAsync(
                 method,
@@ -92,7 +92,7 @@ namespace Nexus.Link.Libraries.Web.RestClientHelper
         public async Task<HttpResponseMessage> SendRequestAsync(HttpMethod method, string relativeUrl,
             Dictionary<string, List<string>> customHeaders = null, CancellationToken cancellationToken = default(CancellationToken))
         {
-            var translator = new Translator(_translatorSetup);
+            var translator = _translatorFactory.CreateTranslator();
             await translator.AddSubStrings(relativeUrl).ExecuteAsync(cancellationToken);
             return await HttpSender.SendRequestAsync(method, translator.Translate(relativeUrl), customHeaders, cancellationToken);
         }

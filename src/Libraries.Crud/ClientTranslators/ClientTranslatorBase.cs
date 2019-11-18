@@ -8,6 +8,7 @@ namespace Nexus.Link.Libraries.Crud.ClientTranslators
     /// </summary>
     public abstract class ClientTranslatorBase
     {
+        private readonly TranslatorFactory _translatorFactory;
 
         /// <summary>
         /// The concept name for the id. Is used for translations of id parameters and id results.
@@ -39,6 +40,10 @@ namespace Nexus.Link.Libraries.Crud.ClientTranslators
             IdConceptName = idConceptName;
             GetClientNameMethod = getClientNameMethod;
             TranslatorService = translatorService;
+            _translatorFactory = new TranslatorFactory(TranslatorService, GetClientNameMethod)
+            {
+                DefaultConceptName = IdConceptName
+            };
         }
 
         /// <summary>
@@ -46,7 +51,7 @@ namespace Nexus.Link.Libraries.Crud.ClientTranslators
         /// </summary>
         protected Translator CreateTranslator()
         {
-            return new Translator(GetClientNameMethod(), TranslatorService);
+            return _translatorFactory.CreateTranslator();
         }
     }
 }
