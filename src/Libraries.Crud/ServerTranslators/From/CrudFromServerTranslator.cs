@@ -28,7 +28,7 @@ namespace Nexus.Link.Libraries.Crud.ServerTranslators.From
 
         /// <inheritdoc />
         public CrudFromServerTranslator(ICrudable<TModel, string> service, string idConceptName, System.Func<string> getServerNameMethod)
-            : base(idConceptName, getServerNameMethod)
+            : base(idConceptName, getServerNameMethod, new FakeTranslatorService())
         {
             InternalContract.RequireNotNull(service, nameof(service));
             InternalContract.RequireNotNullOrWhiteSpace(idConceptName, nameof(idConceptName));

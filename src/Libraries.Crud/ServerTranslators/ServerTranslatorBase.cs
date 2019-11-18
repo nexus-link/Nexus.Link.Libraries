@@ -30,8 +30,8 @@ namespace Nexus.Link.Libraries.Crud.ServerTranslators
         /// </summary>
         /// <param name="idConceptName">The <see cref="IdConceptName"/>.</param>
         /// <param name="getServerNameMethod">The <see cref="GetServerNameMethod"/>.</param>
-        /// <param name="translatorService">The <see cref="TranslatorService"/>. Expected to be null for translators from the server</param>
-        protected ServerTranslatorBase(string idConceptName, System.Func<string> getServerNameMethod, ITranslatorService translatorService = null)
+        /// <param name="translatorService">The <see cref="TranslatorService"/>. Originally expected to be null for translators from the server, but FakeTranslatorService was added for these obsolete classes.</param>
+        protected ServerTranslatorBase(string idConceptName, System.Func<string> getServerNameMethod, ITranslatorService translatorService)
         {
             IdConceptName = idConceptName;
             GetServerNameMethod = getServerNameMethod;

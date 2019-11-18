@@ -34,7 +34,7 @@ namespace Nexus.Link.Libraries.Crud.ServerTranslators.From
 
         /// <inheritdoc />
         public SlaveToMasterFromServerTranslator(ICrudable<TModel, string> service, string masterIdConceptName, string slaveIdConceptName, System.Func<string> getServerNameMethod)
-            : base(slaveIdConceptName, getServerNameMethod)
+            : base(slaveIdConceptName, getServerNameMethod, new FakeTranslatorService())
         {
             InternalContract.RequireNotNull(service, nameof(service));
             InternalContract.RequireNotNullOrWhiteSpace(masterIdConceptName, nameof(masterIdConceptName));

@@ -14,6 +14,7 @@ using Nexus.Link.Libraries.Core.Storage.Model;
 using Nexus.Link.Libraries.Core.Translation;
 using Nexus.Link.Libraries.Web.RestClientHelper;
 using Nexus.Link.Libraries.Web.Tests.Support.Models;
+#pragma warning disable 659
 
 namespace Nexus.Link.Libraries.Web.Tests.RestClientHelper
 {

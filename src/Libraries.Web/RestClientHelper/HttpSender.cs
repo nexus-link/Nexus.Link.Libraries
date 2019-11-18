@@ -194,8 +194,10 @@ namespace Nexus.Link.Libraries.Web.RestClientHelper
 
         #region Helpers
 
-        private static HttpRequestMessage CreateRequest(HttpMethod method, string url, Dictionary<string, List<string>> customHeaders)
+        private HttpRequestMessage CreateRequest(HttpMethod method, string relativeUrl, Dictionary<string, List<string>> customHeaders)
         {
+            var baseUri = BaseUri.AbsoluteUri;
+            var url = ConcatenateBaseUrlAndRelativeUrl(baseUri, relativeUrl);
             var request = new HttpRequestMessage(method, url);
             request.Headers.TryAddWithoutValidation("Accept", new List<string> {"application/json"});
             if (customHeaders != null)
@@ -216,10 +218,7 @@ namespace Nexus.Link.Libraries.Web.RestClientHelper
             CancellationToken cancellationToken)
         {
             InternalContract.RequireNotNull(relativeUrl, nameof(relativeUrl));
-            var baseUri = BaseUri.AbsoluteUri;
-            var url = ConcatenateBaseUrlAndRelativeUrl(baseUri, relativeUrl);
-
-            var request = CreateRequest(method, url, customHeaders);
+            var request = CreateRequest(method, relativeUrl, customHeaders);
 
             if (instance != null)
             {
