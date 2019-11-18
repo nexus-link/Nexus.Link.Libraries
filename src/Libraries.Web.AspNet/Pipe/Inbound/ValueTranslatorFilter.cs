@@ -14,19 +14,18 @@ namespace Nexus.Link.Libraries.Web.AspNet.Pipe.Inbound
 {
     public class ValueTranslatorFilter : IAsyncActionFilter
     {
-        private readonly Func<string> _getClientNameMethod;
-        public ITranslatorService TranslatorService { get; set; }
+        private readonly TranslatorSetup _translatorSetup;
 
-        public ValueTranslatorFilter(Func<string> getClientNameMethod, ITranslatorService translatorService = null)
+        public ValueTranslatorFilter(TranslatorSetup translatorSetup)
         {
-            TranslatorService = translatorService;
-            _getClientNameMethod = getClientNameMethod;
+            InternalContract.RequireNotNull(translatorSetup, nameof(translatorSetup));
+            InternalContract.RequireValidated(translatorSetup, nameof(translatorSetup));
+            _translatorSetup = translatorSetup;
         }
 
         public async Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)
         {
-            InternalContract.Require(TranslatorService != null, $"The property {nameof(TranslatorService)} must be non-null.");
-            var translator = new Translator(_getClientNameMethod(), TranslatorService);
+            var translator = new Translator(_translatorSetup);
             var controllerActionDescriptor = context.ActionDescriptor as ControllerActionDescriptor;
             var methodInfo = controllerActionDescriptor?.MethodInfo;
             if (methodInfo != null)

@@ -10,6 +10,7 @@ using Nexus.Link.Libraries.Core.Application;
 using Nexus.Link.Libraries.Core.Assert;
 using Nexus.Link.Libraries.Core.Error.Logic;
 using Nexus.Link.Libraries.Core.Logging;
+using Nexus.Link.Libraries.Core.Translation;
 using Nexus.Link.Libraries.Web.Logging;
 using Nexus.Link.Libraries.Web.Pipe.Outbound;
 
@@ -20,6 +21,7 @@ namespace Nexus.Link.Libraries.Web.RestClientHelper
     /// </summary>
     public class ValueTranslatorHttpSender : IValueTranslatorHttpSender
     {
+        private readonly TranslatorSetup _translatorSetup;
         public IHttpSender HttpSender { get; }
 
         /// <inheritdoc />
@@ -28,8 +30,12 @@ namespace Nexus.Link.Libraries.Web.RestClientHelper
         /// <inheritdoc />
         public ServiceClientCredentials Credentials => HttpSender.Credentials;
 
-        public ValueTranslatorHttpSender(IHttpSender httpSender)
+        public ValueTranslatorHttpSender(IHttpSender httpSender, TranslatorSetup translatorSetup)
         {
+            _translatorSetup = translatorSetup;
+            InternalContract.RequireNotNull(httpSender, nameof(httpSender));
+            InternalContract.RequireNotNull(translatorSetup, nameof(translatorSetup));
+            InternalContract.RequireValidated(translatorSetup, nameof(translatorSetup));
             HttpSender = httpSender;
         }
 
@@ -43,10 +49,12 @@ namespace Nexus.Link.Libraries.Web.RestClientHelper
                 cancellationToken);
         }
 
-        public Task<HttpOperationResponse<string>> SendRequestAsync<TBody>(HttpMethod method, string relativeUrl, string resultConceptName,
+        public Task<HttpOperationResponse<string>> SendRequestAndDecorateResponseAsync<TBody>(HttpMethod method, string relativeUrl,
             TBody body = default(TBody), Dictionary<string, List<string>> customHeaders = null,
             CancellationToken cancellationToken = default(CancellationToken))
         {
+            InternalContract.Require(!string.IsNullOrWhiteSpace(_translatorSetup.DefaultConceptName), 
+                $"You must have set the {nameof(_translatorSetup.DefaultConceptName)} in translator setup to use this method.");
             // TODO: Add translation and decoration
             return HttpSender.SendRequestAsync<string, TBody>(method, relativeUrl, body, customHeaders,
                 cancellationToken);

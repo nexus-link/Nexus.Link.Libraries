@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 namespace Nexus.Link.Libraries.Core.Translation
 {
     /// <summary>
-    /// What a translator service need to fulfil.
+    /// What a translator service need to fulfill.
     /// </summary>
     public interface ITranslatorService
     {
