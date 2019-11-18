@@ -77,8 +77,7 @@ namespace Nexus.Link.Libraries.Web.AspNet.Startup
                 ConfigureServicesInitialUrgentPart(services);
                 FulcrumApplication.ValidateButNotInProduction();
                 InternalContract.RequireValidated(this, GetType().FullName);
-                var valueTranslatorFilter = new ValueTranslatorFilter(() =>
-                    FulcrumApplication.Context.ClientPrincipal.Identity.Name);
+                var valueTranslatorFilter = new ValueTranslatorFilter();
                 var mvc = services.AddMvc(opts =>
                 {
                     opts.Filters.Add(valueTranslatorFilter);
@@ -97,7 +96,9 @@ namespace Nexus.Link.Libraries.Web.AspNet.Startup
                     var serviceProvider = serviceScope.ServiceProvider;
                     // TODO: Send the serviceProvider instead of the mvc
                     DependencyInjectServicesAdvanced(services, mvc);
-                    valueTranslatorFilter.TranslatorService = serviceProvider.GetService<ITranslatorService>();
+                    valueTranslatorFilter.TranslatorSetup = new TranslatorSetup(
+                        serviceProvider.GetService<ITranslatorService>(),
+                        () => FulcrumApplication.Context.ClientPrincipal.Identity.Name);
                     // TODO: Send the serviceProvider instead of the mvc
                     AddControllersToMvc(services, mvc);
                 }

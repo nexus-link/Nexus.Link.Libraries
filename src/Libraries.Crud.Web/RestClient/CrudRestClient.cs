@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
@@ -16,8 +17,10 @@ namespace Nexus.Link.Libraries.Crud.Web.RestClient
         CrudRestClient<TModel, TModel, TId>,
         ICrud<TModel, TId>
     {
+        #region Obsolete constructors
         /// <summary></summary>
         /// <param name="baseUri">The base URL that all HTTP calls methods will refer to.</param>
+        [Obsolete("Use constructor with IHttpSender. Obsolete since 2019-11-18")]
         public CrudRestClient(string baseUri)
             : base(baseUri)
         {
@@ -26,6 +29,7 @@ namespace Nexus.Link.Libraries.Crud.Web.RestClient
         /// <param name="baseUri">The base URL that all HTTP calls methods will refer to.</param>
         /// <param name="httpClient">The HttpClient used when making the HTTP calls.</param>
         /// <param name="credentials">The credentials used when making the HTTP calls.</param>
+        [Obsolete("Use constructor with IHttpSender. Obsolete since 2019-11-18")]
         public CrudRestClient(string baseUri, HttpClient httpClient, ServiceClientCredentials credentials)
             : base(baseUri, httpClient, credentials)
         {
@@ -34,8 +38,16 @@ namespace Nexus.Link.Libraries.Crud.Web.RestClient
         /// <summary></summary>
         /// <param name="baseUri">The base URL that all HTTP calls methods will refer to.</param>
         /// <param name="httpClient">The HttpClient used when making the HTTP calls.</param>
+        [Obsolete("Use constructor with IHttpSender. Obsolete since 2019-11-18")]
         public CrudRestClient(string baseUri, HttpClient httpClient)
             : base(baseUri, httpClient)
+        {
+        }
+        #endregion
+
+        /// <inheritdoc />
+        public CrudRestClient(IHttpSender httpSender)
+            : base(httpSender)
         {
         }
     }
@@ -45,9 +57,10 @@ namespace Nexus.Link.Libraries.Crud.Web.RestClient
         Libraries.Web.RestClientHelper.RestClient,
         ICrud<TModelCreate, TModel, TId> where TModel : TModelCreate
     {
-
+        #region Obsolete constructors
         /// <summary></summary>
         /// <param name="baseUri">The base URL that all HTTP calls methods will refer to.</param>
+        [Obsolete("Use constructor with IHttpSender. Obsolete since 2019-11-18")]
         public CrudRestClient(string baseUri)
             : base(baseUri)
         {
@@ -57,6 +70,7 @@ namespace Nexus.Link.Libraries.Crud.Web.RestClient
         /// <param name="baseUri">The base URL that all HTTP calls methods will refer to.</param>
         /// <param name="httpClient">The HttpClient used when making the HTTP calls.</param>
         /// <param name="credentials">The credentials used when making the HTTP calls.</param>
+        [Obsolete("Use constructor with IHttpSender. Obsolete since 2019-11-18")]
         public CrudRestClient(string baseUri, HttpClient httpClient, ServiceClientCredentials credentials)
             : base(baseUri, httpClient, credentials)
         {
@@ -65,8 +79,16 @@ namespace Nexus.Link.Libraries.Crud.Web.RestClient
         /// <summary></summary>
         /// <param name="baseUri">The base URL that all HTTP calls methods will refer to.</param>
         /// <param name="httpClient">The HttpClient used when making the HTTP calls.</param>
+        [Obsolete("Use constructor with IHttpSender. Obsolete since 2019-11-18")]
         public CrudRestClient(string baseUri, HttpClient httpClient)
             : base(baseUri, httpClient)
+        {
+        }
+        #endregion
+
+        /// <inheritdoc />
+        public CrudRestClient(IHttpSender httpSender)
+            : base(httpSender)
         {
         }
 

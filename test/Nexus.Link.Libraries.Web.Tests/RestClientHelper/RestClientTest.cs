@@ -26,14 +26,14 @@ namespace Nexus.Link.Libraries.Web.Tests.RestClientHelper
         [TestMethod]
         public void StringConstructor()
         {
-            var client = new RestClient("http://example.se");
+            var client = new RestClient(new HttpSender("http://example.se"));
             Assert.IsNotNull(client);
         }
 
         [TestMethod]
         public async Task PostNoResponseContentWithNullHttpClient()
         {
-            var client = new RestClient("http://example.se", (HttpClient) null);
+            var client = new RestClient(new HttpSender("http://example.se", (HttpClient) null));
             var person = new Person();
             await client.PostNoResponseContentAsync("", person);
         }
@@ -41,7 +41,7 @@ namespace Nexus.Link.Libraries.Web.Tests.RestClientHelper
         [TestMethod]
         public async Task PostWithNullHttpClient()
         {
-            var client = new RestClient("http://example.se", (HttpClient) null);
+            var client = new RestClient(new HttpSender("http://example.se", (HttpClient) null));
             var person = new Person();
             var id = await client.PostAsync<string, Person>("", person);
             Assert.IsNull(id);
@@ -50,7 +50,7 @@ namespace Nexus.Link.Libraries.Web.Tests.RestClientHelper
         [TestMethod]
         public async Task GetWithNullHttpClient()
         {
-            var client = new RestClient("http://example.se", (HttpClient) null);
+            var client = new RestClient(new HttpSender("http://example.se", (HttpClient) null));
             var person = await client.GetAsync<Person>("");
             Assert.IsNull(person);
         }
@@ -58,7 +58,7 @@ namespace Nexus.Link.Libraries.Web.Tests.RestClientHelper
         [TestMethod]
         public async Task PutWithNullHttpClient()
         {
-            var client = new RestClient("http://example.se", (HttpClient) null);
+            var client = new RestClient(new HttpSender("http://example.se", (HttpClient) null));
             var person = new Person();
             var personOut = await client.PutAsync<Person, Person>("1", person);
             Assert.IsNull(personOut);
@@ -67,7 +67,7 @@ namespace Nexus.Link.Libraries.Web.Tests.RestClientHelper
         [TestMethod]
         public async Task DeleteWithNullHttpClient()
         {
-            var client = new RestClient("http://example.se", (HttpClient) null);
+            var client = new RestClient(new HttpSender("http://example.se", (HttpClient) null));
             await client.DeleteAsync("1");
         }
 
@@ -78,7 +78,7 @@ namespace Nexus.Link.Libraries.Web.Tests.RestClientHelper
         {
             var person = new Person { GivenName = "GivenName", Surname = "Surname" };
             PrepareMockPost(person);
-            var client = new RestClient("http://example.se");
+            var client = new RestClient(new HttpSender("http://example.se"));
             Assert.IsNotNull(client);
             var result = await client.PostAndReturnCreatedObjectAsync("Persons", person);
             Assert.IsNotNull(result);
@@ -93,7 +93,7 @@ namespace Nexus.Link.Libraries.Web.Tests.RestClientHelper
             var person = new Person { GivenName = "GivenName", Surname = "Surname" };
             var content = "Resource could not be found, 307EEC28-22DE-4BE3-8803-0AB5BE9DEBD8";
             PrepareMockNotFound(HttpMethod.Post, content);
-            var client = new RestClient("http://example.se");
+            var client = new RestClient(new HttpSender("http://example.se"));
             Assert.IsNotNull(client);
             try
             {
@@ -117,7 +117,7 @@ namespace Nexus.Link.Libraries.Web.Tests.RestClientHelper
         {
             var person = new Person { GivenName = "GivenName", Surname = "Surname" };
             PrepareMockGet(person);
-            var client = new RestClient("http://example.se");
+            var client = new RestClient(new HttpSender("http://example.se"));
             Assert.IsNotNull(client);
             var result = await client.GetAsync<Person>("Persons/23");
             Assert.IsNotNull(result);
@@ -131,7 +131,7 @@ namespace Nexus.Link.Libraries.Web.Tests.RestClientHelper
         {
             var content = "Resource could not be found, 307EEC28-22DE-4BE3-8803-0AB5BE9DEBD8";
             PrepareMockNotFound(HttpMethod.Get, content);
-            var client = new RestClient("http://example.se");
+            var client = new RestClient(new HttpSender("http://example.se"));
             Assert.IsNotNull(client);
             try
             {
@@ -156,7 +156,7 @@ namespace Nexus.Link.Libraries.Web.Tests.RestClientHelper
         {
             var person = new Person { GivenName = "GivenName", Surname = "Surname" };
             PrepareMockPut(person);
-            var client = new RestClient("http://example.se");
+            var client = new RestClient(new HttpSender("http://example.se"));
             Assert.IsNotNull(client);
             var result = await client.PutAndReturnUpdatedObjectAsync("Persons/23", person);
             Assert.IsNotNull(result);
@@ -171,7 +171,7 @@ namespace Nexus.Link.Libraries.Web.Tests.RestClientHelper
             var person = new Person { GivenName = "GivenName", Surname = "Surname" };
             var content = "Resource could not be found, 307EEC28-22DE-4BE3-8803-0AB5BE9DEBD8";
             PrepareMockNotFound(HttpMethod.Put, content);
-            var client = new RestClient("http://example.se");
+            var client = new RestClient(new HttpSender("http://example.se"));
             Assert.IsNotNull(client);
             try
             {
@@ -195,7 +195,7 @@ namespace Nexus.Link.Libraries.Web.Tests.RestClientHelper
         {
             var person = new Person { GivenName = "GivenName", Surname = "Surname" };
             PrepareMockDelete(person);
-            var client = new RestClient("http://example.se");
+            var client = new RestClient(new HttpSender("http://example.se"));
             Assert.IsNotNull(client);
             await client.DeleteAsync("Persons/23");
             HttpClientMock.VerifyAll();
@@ -207,7 +207,7 @@ namespace Nexus.Link.Libraries.Web.Tests.RestClientHelper
         {
             var content = "Resource could not be found, 307EEC28-22DE-4BE3-8803-0AB5BE9DEBD8";
             PrepareMockNotFound(HttpMethod.Delete, content);
-            var client = new RestClient("http://example.se");
+            var client = new RestClient(new HttpSender("http://example.se"));
             Assert.IsNotNull(client);
             try
             {
@@ -234,7 +234,7 @@ namespace Nexus.Link.Libraries.Web.Tests.RestClientHelper
             var input = new DateParsingPoco { DateTime1 = dateTime1, DateTime2 = dateTime2 };
             PrepareMockPost(input);
 
-            var client = new RestClient("http://example.se");
+            var client = new RestClient(new HttpSender("http://example.se"));
             var result = await client.PostAndReturnCreatedObjectAsync("path", input);
             Assert.AreEqual(dateTime1, result.DateTime1);
             Assert.AreEqual(dateTime2, result.DateTime2);

@@ -41,7 +41,7 @@ namespace Nexus.Link.Libraries.Crud.ServerTranslators
         /// </summary>
         protected Translator CreateTranslator()
         {
-            return new Translator(GetServerNameMethod(), TranslatorService);
+            return new Translator(new TranslatorSetup(TranslatorService, GetServerNameMethod));
         }
     }
 }

@@ -70,7 +70,7 @@ namespace Nexus.Link.Libraries.Web.AspNet.Tests.InboundPipe
             };
 
             // Setup the filter
-            var filter = new ValueTranslatorFilter(() => "consumer", testServiceMock.Object);
+            var filter = new ValueTranslatorFilter(new TranslatorSetup(testServiceMock.Object, "consumer"));
 
             // Run the filter
             Assert.IsFalse(inFoo.Id.StartsWith("(foo.id!"));

@@ -14,20 +14,29 @@ namespace Nexus.Link.Libraries.Web.AspNet.Pipe.Inbound
 {
     public class ValueTranslatorFilter : IAsyncActionFilter
     {
-        private readonly TranslatorSetup _translatorSetup;
+        public TranslatorSetup TranslatorSetup { get; set; }
+
+        public ValueTranslatorFilter()
+        {
+        }
 
         public ValueTranslatorFilter(TranslatorSetup translatorSetup)
         {
             InternalContract.RequireNotNull(translatorSetup, nameof(translatorSetup));
             InternalContract.RequireValidated(translatorSetup, nameof(translatorSetup));
-            _translatorSetup = translatorSetup;
+            TranslatorSetup = translatorSetup;
         }
 
         public async Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)
         {
-            var translator = new Translator(_translatorSetup);
-            var controllerActionDescriptor = context.ActionDescriptor as ControllerActionDescriptor;
-            var methodInfo = controllerActionDescriptor?.MethodInfo;
+            Translator translator = null;
+            MethodInfo methodInfo = null;
+            if (TranslatorSetup != null)
+            {
+                translator = new Translator(TranslatorSetup);
+                var controllerActionDescriptor = context.ActionDescriptor as ControllerActionDescriptor;
+                methodInfo = controllerActionDescriptor?.MethodInfo;
+            }
             if (methodInfo != null)
             {
                 DecorateArguments(methodInfo.GetParameters(), context.ActionArguments, translator);
