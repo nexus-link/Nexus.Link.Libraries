@@ -20,7 +20,7 @@ namespace Nexus.Link.Libraries.Web.RestClientHelper
         /// </summary>
         /// <typeparam name="TResponse">The type for the response.</typeparam>
         /// <typeparam name="TBody">The type for the <paramref name="body"/>.</typeparam>
-        /// <param name="relativeUrl">The Url relative to <see cref="BaseUri"/>, including parameters, etc.</param>
+        /// <param name="relativeUrl">The Url relative to <see cref="IHttpSender.BaseUri"/>, including parameters, etc.</param>
         /// <param name="body">The POST body.</param>
         /// <param name="customHeaders">Optional headers.</param>
         /// <param name="cancellationToken">Optional cancellation token.</param>
@@ -35,7 +35,7 @@ namespace Nexus.Link.Libraries.Web.RestClientHelper
         /// Send POST to <paramref name="relativeUrl"/> with no body, but with a returned object.
         /// </summary>
         /// <typeparam name="TResponse">The type for the returned result.</typeparam>
-        /// <param name="relativeUrl">The Url relative to <see cref="BaseUri"/>, including parameters, etc.</param>
+        /// <param name="relativeUrl">The Url relative to <see cref="IHttpSender.BaseUri"/>, including parameters, etc.</param>
         /// <param name="customHeaders">Optional headers.</param>
         /// <param name="cancellationToken">Optional cancellation token.</param>
         /// <returns>An object.</returns>
@@ -48,7 +48,7 @@ namespace Nexus.Link.Libraries.Web.RestClientHelper
         /// Send POST to <paramref name="relativeUrl"/> with <paramref name="body"/> with the created object as the returned value.
         /// </summary>
         /// <typeparam name="TBodyAndResponse">The type for both the <paramref name="body"/> and the returned result.</typeparam>
-        /// <param name="relativeUrl">The Url relative to <see cref="BaseUri"/>, including parameters, etc.</param>
+        /// <param name="relativeUrl">The Url relative to <see cref="IHttpSender.BaseUri"/>, including parameters, etc.</param>
         /// <param name="body">The POST body.</param>
         /// <param name="customHeaders">Optional headers.</param>
         /// <param name="cancellationToken">Optional cancellation token.</param>
@@ -63,7 +63,7 @@ namespace Nexus.Link.Libraries.Web.RestClientHelper
         /// Send POST to <paramref name="relativeUrl"/> with <paramref name="body"/> with no returned value.
         /// </summary>
         /// <typeparam name="TBody">The type for the <paramref name="body"/>.</typeparam>
-        /// <param name="relativeUrl">The Url relative to <see cref="BaseUri"/>, including parameters, etc.</param>
+        /// <param name="relativeUrl">The Url relative to <see cref="IHttpSender.BaseUri"/>, including parameters, etc.</param>
         /// <param name="body">The POST body.</param>
         /// <param name="customHeaders">Optional headers.</param>
         /// <param name="cancellationToken">Optional cancellation token.</param>
@@ -76,7 +76,7 @@ namespace Nexus.Link.Libraries.Web.RestClientHelper
         /// <summary>
         /// Post to <paramref name="relativeUrl"/> with no body and no returned value.
         /// </summary>
-        /// <param name="relativeUrl">The Url relative to <see cref="BaseUri"/>, including parameters, etc.</param>
+        /// <param name="relativeUrl">The Url relative to <see cref="IHttpSender.BaseUri"/>, including parameters, etc.</param>
         /// <param name="customHeaders">Optional headers.</param>
         /// <param name="cancellationToken">Optional cancellation token.</param>
         Task PostNoResponseContentAsync(string relativeUrl,
@@ -90,7 +90,7 @@ namespace Nexus.Link.Libraries.Web.RestClientHelper
         /// Send GET to <paramref name="relativeUrl"/>.
         /// </summary>
         /// <typeparam name="TResponse">The type of the returned object.</typeparam>
-        /// <param name="relativeUrl">The Url relative to <see cref="BaseUri"/>, including parameters, etc.</param>
+        /// <param name="relativeUrl">The Url relative to <see cref="IHttpSender.BaseUri"/>, including parameters, etc.</param>
         /// <param name="customHeaders">Optional headers.</param>
         /// <param name="cancellationToken">Optional cancellation token.</param>
         /// <returns>The found object.</returns>
@@ -107,7 +107,7 @@ namespace Nexus.Link.Libraries.Web.RestClientHelper
         /// </summary>
         /// <typeparam name="TResponse">The type for the response.</typeparam>
         /// <typeparam name="TBody">The type for the <paramref name="body"/>.</typeparam>
-        /// <param name="relativeUrl">The Url relative to <see cref="BaseUri"/>, including parameters, etc.</param>
+        /// <param name="relativeUrl">The Url relative to <see cref="IHttpSender.BaseUri"/>, including parameters, etc.</param>
         /// <param name="body">The PUT body.</param>
         /// <param name="customHeaders">Optional headers.</param>
         /// <param name="cancellationToken">Optional cancellation token.</param>
@@ -121,7 +121,7 @@ namespace Nexus.Link.Libraries.Web.RestClientHelper
         /// Send PUT to <paramref name="relativeUrl"/> with <paramref name="body"/> with the updated object as the returned value.
         /// </summary>
         /// <typeparam name="TBodyAndResponse">The type for both the <paramref name="body"/> and the returned result.</typeparam>
-        /// <param name="relativeUrl">The Url relative to <see cref="BaseUri"/>, including parameters, etc.</param>
+        /// <param name="relativeUrl">The Url relative to <see cref="IHttpSender.BaseUri"/>, including parameters, etc.</param>
         /// <param name="body">The PUT body.</param>
         /// <param name="customHeaders">Optional headers.</param>
         /// <param name="cancellationToken">Optional cancellation token.</param>
@@ -136,7 +136,7 @@ namespace Nexus.Link.Libraries.Web.RestClientHelper
         /// Send PUT to <paramref name="relativeUrl"/> with <paramref name="body"/> with no returned value.
         /// </summary>
         /// <typeparam name="TBody">The type for the <paramref name="body"/>.</typeparam>
-        /// <param name="relativeUrl">The Url relative to <see cref="BaseUri"/>, including parameters, etc.</param>
+        /// <param name="relativeUrl">The Url relative to <see cref="IHttpSender.BaseUri"/>, including parameters, etc.</param>
         /// <param name="body">The PUT body.</param>
         /// <param name="customHeaders">Optional headers.</param>
         /// <param name="cancellationToken">Optional cancellation token.</param>
@@ -154,7 +154,7 @@ namespace Nexus.Link.Libraries.Web.RestClientHelper
         /// </summary>
         /// <typeparam name="TResponse">The type for the response.</typeparam>
         /// <typeparam name="TBody">The type for the <paramref name="body"/>.</typeparam>
-        /// <param name="relativeUrl">The Url relative to <see cref="BaseUri"/>, including parameters, etc.</param>
+        /// <param name="relativeUrl">The Url relative to <see cref="IHttpSender.BaseUri"/>, including parameters, etc.</param>
         /// <param name="body">The PUT body.</param>
         /// <param name="customHeaders">Optional headers.</param>
         /// <param name="cancellationToken">Optional cancellation token.</param>
@@ -168,7 +168,7 @@ namespace Nexus.Link.Libraries.Web.RestClientHelper
         /// Send PUT to <paramref name="relativeUrl"/> with <paramref name="body"/> with the updated object as the returned value.
         /// </summary>
         /// <typeparam name="TBodyAndResponse">The type for both the <paramref name="body"/> and the returned result.</typeparam>
-        /// <param name="relativeUrl">The Url relative to <see cref="BaseUri"/>, including parameters, etc.</param>
+        /// <param name="relativeUrl">The Url relative to <see cref="IHttpSender.BaseUri"/>, including parameters, etc.</param>
         /// <param name="body">The PUT body.</param>
         /// <param name="customHeaders">Optional headers.</param>
         /// <param name="cancellationToken">Optional cancellation token.</param>
@@ -183,7 +183,7 @@ namespace Nexus.Link.Libraries.Web.RestClientHelper
         /// Send PUT to <paramref name="relativeUrl"/> with <paramref name="body"/> with no returned value.
         /// </summary>
         /// <typeparam name="TBody">The type for the <paramref name="body"/>.</typeparam>
-        /// <param name="relativeUrl">The Url relative to <see cref="BaseUri"/>, including parameters, etc.</param>
+        /// <param name="relativeUrl">The Url relative to <see cref="IHttpSender.BaseUri"/>, including parameters, etc.</param>
         /// <param name="body">The PUT body.</param>
         /// <param name="customHeaders">Optional headers.</param>
         /// <param name="cancellationToken">Optional cancellation token.</param>
@@ -199,7 +199,7 @@ namespace Nexus.Link.Libraries.Web.RestClientHelper
         /// <summary>
         /// Send DELETE to <paramref name="relativeUrl"/>.
         /// </summary>
-        /// <param name="relativeUrl">The Url relative to <see cref="BaseUri"/>, including parameters, etc.</param>
+        /// <param name="relativeUrl">The Url relative to <see cref="IHttpSender.BaseUri"/>, including parameters, etc.</param>
         /// <param name="customHeaders">Optional headers.</param>
         /// <param name="cancellationToken">Optional cancellation token.</param>
         Task DeleteAsync(string relativeUrl,
