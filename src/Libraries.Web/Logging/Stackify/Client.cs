@@ -21,7 +21,7 @@ namespace Nexus.Link.Libraries.Web.Logging.Stackify
         {
             InternalContract.RequireNotNullOrWhiteSpace(serverKey, nameof(serverKey));
             _serverKey = serverKey;
-            _client = new RestClient(@"https://api.stackify.com/Log/Save");
+            _client = new RestClient(new HttpSender(@"https://api.stackify.com/Log/Save"));
         }
 
         public async Task LogOneMessageAsync(Envelope envelope, CancellationToken cancellationToken = default(CancellationToken))

@@ -40,42 +40,64 @@ namespace Nexus.Link.Libraries.Web.RestClientHelper
         }
 
         /// <inheritdoc />
-        public Task<HttpOperationResponse<TResponse>> SendRequestAsync<TResponse, TBody>(HttpMethod method, string relativeUrl,
+        public async Task<HttpOperationResponse<TResponse>> SendRequestAsync<TResponse, TBody>(HttpMethod method, string relativeUrl,
             TBody body = default(TBody), Dictionary<string, List<string>> customHeaders = null,
             CancellationToken cancellationToken = default(CancellationToken))
         {
             // TODO: Add translation and decoration
-            return HttpSender.SendRequestAsync<TResponse, TBody>(method, relativeUrl, body, customHeaders,
+            var translator = new Translator(_translatorSetup);
+            await translator.Add(relativeUrl).Add(body).ExecuteAsync();
+            var result = await HttpSender.SendRequestAsync<TResponse, TBody>(
+                method,
+                translator.Translate(relativeUrl),
+                translator.Translate(body), 
+                customHeaders,
                 cancellationToken);
+            result.Body = translator.DecorateItem(result.Body);
+            return result;
         }
 
-        public Task<HttpOperationResponse<string>> SendRequestAndDecorateResponseAsync<TBody>(HttpMethod method, string relativeUrl,
+        public async Task<HttpOperationResponse<string>> SendRequestAndDecorateResponseAsync<TBody>(HttpMethod method, string relativeUrl,
             TBody body = default(TBody), Dictionary<string, List<string>> customHeaders = null,
             CancellationToken cancellationToken = default(CancellationToken))
         {
             InternalContract.Require(!string.IsNullOrWhiteSpace(_translatorSetup.DefaultConceptName), 
                 $"You must have set the {nameof(_translatorSetup.DefaultConceptName)} in translator setup to use this method.");
-            // TODO: Add translation and decoration
-            return HttpSender.SendRequestAsync<string, TBody>(method, relativeUrl, body, customHeaders,
+            var translator = new Translator(_translatorSetup);
+            await translator.Add(relativeUrl).Add(body).ExecuteAsync();
+            var result = await HttpSender.SendRequestAsync<string, TBody>(
+                method,
+                translator.Translate(relativeUrl),
+                translator.Translate(body), 
+                customHeaders,
                 cancellationToken);
+            result.Body = translator.DecorateWithDefaultConceptName(result.Body);
+            return result;
         }
 
         /// <inheritdoc />
-        public Task<HttpResponseMessage> SendRequestAsync<TBody>(HttpMethod method, string relativeUrl,
+        public async Task<HttpResponseMessage> SendRequestAsync<TBody>(HttpMethod method, string relativeUrl,
             TBody body = default(TBody), Dictionary<string, List<string>> customHeaders = null,
             CancellationToken cancellationToken = default(CancellationToken))
         {
-            // TODO: Add translation
-            return HttpSender.SendRequestAsync(method, relativeUrl, body, customHeaders,
+            var translator = new Translator(_translatorSetup);
+            await translator.Add(relativeUrl).Add(body).ExecuteAsync();
+            var result = await HttpSender.SendRequestAsync(
+                method,
+                translator.Translate(relativeUrl),
+                translator.Translate(body), 
+                customHeaders,
                 cancellationToken);
+            return result;
         }
 
         /// <inheritdoc />
-        public Task<HttpResponseMessage> SendRequestAsync(HttpMethod method, string relativeUrl,
+        public async Task<HttpResponseMessage> SendRequestAsync(HttpMethod method, string relativeUrl,
             Dictionary<string, List<string>> customHeaders = null, CancellationToken cancellationToken = default(CancellationToken))
         {
-            // TODO: Add translation
-            return HttpSender.SendRequestAsync(method, relativeUrl, customHeaders, cancellationToken);
+            var translator = new Translator(_translatorSetup);
+            await translator.Add(relativeUrl).ExecuteAsync();
+            return await HttpSender.SendRequestAsync(method, translator.Translate(relativeUrl), customHeaders, cancellationToken);
         }
     }
 }

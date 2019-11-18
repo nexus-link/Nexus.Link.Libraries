@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
@@ -8,6 +9,7 @@ using Nexus.Link.Libraries.Core.Crud.Model;
 using Nexus.Link.Libraries.Core.Storage.Model;
 using Nexus.Link.Libraries.Crud.Interfaces;
 using Nexus.Link.Libraries.Crud.Model;
+using Nexus.Link.Libraries.Web.RestClientHelper;
 
 namespace Nexus.Link.Libraries.Crud.Web.RestClient
 {
@@ -16,10 +18,22 @@ namespace Nexus.Link.Libraries.Crud.Web.RestClient
         CrudSlaveToMasterRestClient<TModel, TModel, TId>,
         ICrudSlaveToMaster<TModel, TId>
     {
+
+        /// <summary></summary>
+        /// <param name="parentName">The name of the sub path that is the parent of the children. (Singular noun)</param>
+        /// <param name="childrenName">The name of the sub path that are the children. (Plural noun)</param>
+        /// <param name="httpSender">How to actually send HTTP requests.</param>
+        public CrudSlaveToMasterRestClient(string parentName, string childrenName, IHttpSender httpSender)
+            : base(parentName, childrenName, httpSender)
+        {
+        }
+
+        #region Obsolete constructors
         /// <summary></summary>
         /// <param name="baseUri">The base URL that all HTTP calls methods will refer to.</param>
         /// <param name="parentName">The name of the sub path that is the parent of the children. (Singular noun)</param>
         /// <param name="childrenName">The name of the sub path that are the children. (Plural noun)</param>
+        [Obsolete("Use constructor with IHttpSender. Obsolete since 2019-11-18")]
         public CrudSlaveToMasterRestClient(string baseUri, string parentName, string childrenName)
             : base(baseUri, parentName, childrenName)
         {
@@ -30,6 +44,7 @@ namespace Nexus.Link.Libraries.Crud.Web.RestClient
         /// <param name="credentials">The credentials used when making the HTTP calls</param>
         /// <param name="parentName">The name of the sub path that is the parent of the children. (Singular noun)</param>
         /// <param name="childrenName">The name of the sub path that are the children. (Plural noun)</param>
+        [Obsolete("Use constructor with IHttpSender. Obsolete since 2019-11-18")]
         public CrudSlaveToMasterRestClient(string baseUri, HttpClient httpClient, ServiceClientCredentials credentials, string parentName, string childrenName)
             : base(baseUri, httpClient, credentials, parentName, childrenName)
         {
@@ -40,13 +55,15 @@ namespace Nexus.Link.Libraries.Crud.Web.RestClient
         /// <param name="httpClient">The HttpClient used when making the HTTP calls.</param>
         /// <param name="parentName">The name of the sub path that is the parent of the children. (Singular noun)</param>
         /// <param name="childrenName">The name of the sub path that are the children. (Plural noun)</param>
+        [Obsolete("Use constructor with IHttpSender. Obsolete since 2019-11-18")]
         public CrudSlaveToMasterRestClient(string baseUri, HttpClient httpClient, string parentName, string childrenName)
             : base(baseUri, httpClient, parentName, childrenName)
         {
         }
+        #endregion
     }
 
-    /// <inheritdoc cref="RestClient" />
+    /// <inheritdoc cref="Nexus.Link.Libraries.Crud.Web.RestClient" />
     public class CrudSlaveToMasterRestClient<TManyModelCreate, TManyModel, TId> : 
         Libraries.Web.RestClientHelper.RestClient, 
         ICrudSlaveToMaster<TManyModelCreate, TManyModel, TId> 
@@ -63,9 +80,22 @@ namespace Nexus.Link.Libraries.Crud.Web.RestClient
         public string ChildrenName { get; }
 
         /// <summary></summary>
+        /// <param name="parentName">The name of the sub path that is the parent of the children. (Singular noun)</param>
+        /// <param name="childrenName">The name of the sub path that are the children. (Plural noun)</param>
+        /// <param name="httpSender">How to actually send HTTP requests.</param>
+        public CrudSlaveToMasterRestClient(string parentName, string childrenName, IHttpSender httpSender)
+            : base(httpSender)
+        {
+            ParentName = parentName;
+            ChildrenName = childrenName;
+        }
+
+        #region Obsolete constructors
+        /// <summary></summary>
         /// <param name="baseUri">The base URL that all HTTP calls methods will refer to.</param>
         /// <param name="parentName">The name of the sub path that is the parent of the children. (Singular noun)</param>
         /// <param name="childrenName">The name of the sub path that are the children. (Plural noun)</param>
+        [Obsolete("Use constructor with IHttpSender. Obsolete since 2019-11-18")]
         public CrudSlaveToMasterRestClient(string baseUri, string parentName, string childrenName)
             : base(baseUri)
         {
@@ -79,6 +109,7 @@ namespace Nexus.Link.Libraries.Crud.Web.RestClient
         /// <param name="credentials">The credentials used when making the HTTP calls</param>
         /// <param name="parentName">The name of the sub path that is the parent of the children. (Singular noun)</param>
         /// <param name="childrenName">The name of the sub path that are the children. (Plural noun)</param>
+        [Obsolete("Use constructor with IHttpSender. Obsolete since 2019-11-18")]
         public CrudSlaveToMasterRestClient(string baseUri, HttpClient httpClient, ServiceClientCredentials credentials, string parentName, string childrenName)
             : base(baseUri, httpClient, credentials)
         {
@@ -91,12 +122,14 @@ namespace Nexus.Link.Libraries.Crud.Web.RestClient
         /// <param name="httpClient">The HttpClient used when making the HTTP calls.</param>
         /// <param name="parentName">The name of the sub path that is the parent of the children. (Singular noun)</param>
         /// <param name="childrenName">The name of the sub path that are the children. (Plural noun)</param>
+        [Obsolete("Use constructor with IHttpSender. Obsolete since 2019-11-18")]
         public CrudSlaveToMasterRestClient(string baseUri, HttpClient httpClient, string parentName, string childrenName)
             : base(baseUri, httpClient)
         {
             ParentName = parentName;
             ChildrenName = childrenName;
         }
+        #endregion
 
         /// <inheritdoc />
         public Task<TId> CreateAsync(TId masterId, TManyModelCreate item, CancellationToken token = new CancellationToken())
