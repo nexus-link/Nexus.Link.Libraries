@@ -50,7 +50,7 @@ namespace Nexus.Link.Libraries.Crud.ClientTranslators
             var translator = CreateTranslator();
             parentId = translator.Decorate(_parentIdConceptName, parentId);
             var result = await _service.ReadChildrenWithPagingAsync(parentId, offset, limit, token);
-            await translator.Add(result).ExecuteAsync();
+            await translator.Add(result).ExecuteAsync(token);
             return translator.Translate(result);
         }
 
@@ -61,7 +61,7 @@ namespace Nexus.Link.Libraries.Crud.ClientTranslators
             parentId = translator.Decorate(_parentIdConceptName, parentId);
             var result = await _service.ReadChildrenAsync(parentId, limit, token);
             var array = result as TModel[] ?? result.ToArray();
-            await translator.Add(array).ExecuteAsync();
+            await translator.Add(array).ExecuteAsync(token);
             return translator.Translate(array);
         }
 

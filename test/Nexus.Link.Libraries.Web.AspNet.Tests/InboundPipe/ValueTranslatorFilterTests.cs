@@ -44,7 +44,7 @@ namespace Nexus.Link.Libraries.Web.AspNet.Tests.InboundPipe
             // Mock a translator
             var testServiceMock = new Mock<ITranslatorService>();
             testServiceMock
-                .Setup(service => service.TranslateAsync(It.IsAny<IEnumerable<string>>(),It.IsAny<string>()))
+                .Setup(service => service.TranslateAsync(It.IsAny<IEnumerable<string>>(),It.IsAny<string>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(() =>new Dictionary<string, string> {{$"(foo.id!~consumer!{inId})", outId}});
 
             // Prepare context

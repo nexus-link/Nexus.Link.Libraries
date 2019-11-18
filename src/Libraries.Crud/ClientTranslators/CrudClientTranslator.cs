@@ -49,7 +49,7 @@ namespace Nexus.Link.Libraries.Crud.ClientTranslators
             var translator = CreateTranslator();
             item = translator.DecorateItem(item);
             var decoratedId = await _service.CreateAsync(item, token);
-            await translator.Add(decoratedId).ExecuteAsync();
+            await translator.Add(decoratedId).ExecuteAsync(token);
             return translator.Translate(decoratedId);
         }
 
@@ -59,7 +59,7 @@ namespace Nexus.Link.Libraries.Crud.ClientTranslators
             var translator = CreateTranslator();
             item = translator.DecorateItem(item);
             var decoratedResult = await _service.CreateAndReturnAsync(item, token);
-            await translator.Add(decoratedResult).ExecuteAsync();
+            await translator.Add(decoratedResult).ExecuteAsync(token);
             return translator.Translate(decoratedResult);
         }
 
@@ -80,7 +80,7 @@ namespace Nexus.Link.Libraries.Crud.ClientTranslators
             id = translator.Decorate(IdConceptName, id);
             item = translator.DecorateItem(item);
             var decoratedResult = await _service.CreateWithSpecifiedIdAndReturnAsync(id, item, token);
-            await translator.Add(decoratedResult).ExecuteAsync();
+            await translator.Add(decoratedResult).ExecuteAsync(token);
             return translator.Translate(decoratedResult);
         }
 
@@ -90,7 +90,7 @@ namespace Nexus.Link.Libraries.Crud.ClientTranslators
             var translator = CreateTranslator();
             id = translator.Decorate(IdConceptName, id);
             var decoratedResult = await _service.ReadAsync(id, token);
-            await translator.Add(decoratedResult).ExecuteAsync();
+            await translator.Add(decoratedResult).ExecuteAsync(token);
             return translator.Translate(decoratedResult);
         }
 
@@ -99,7 +99,7 @@ namespace Nexus.Link.Libraries.Crud.ClientTranslators
         {
             var translator = CreateTranslator();
             var decoratedResult = await _service.ReadAllWithPagingAsync(offset, limit, token);
-            await translator.Add(decoratedResult).ExecuteAsync();
+            await translator.Add(decoratedResult).ExecuteAsync(token);
             return translator.Translate(decoratedResult);
         }
 
@@ -109,7 +109,7 @@ namespace Nexus.Link.Libraries.Crud.ClientTranslators
             var translator = CreateTranslator();
             var decoratedResult = await _service.ReadAllAsync(limit, token);
             var decoratedArray = decoratedResult as TModel[] ?? decoratedResult.ToArray();
-            await translator.Add(decoratedArray).ExecuteAsync();
+            await translator.Add(decoratedArray).ExecuteAsync(token);
             return translator.Translate(decoratedArray);
         }
 
@@ -129,7 +129,7 @@ namespace Nexus.Link.Libraries.Crud.ClientTranslators
             id = translator.Decorate(IdConceptName, id);
             item = translator.DecorateItem(item);
             var decoratedResult = await _service.UpdateAndReturnAsync(id, item, token);
-            await translator.Add(decoratedResult).ExecuteAsync();
+            await translator.Add(decoratedResult).ExecuteAsync(token);
             return translator.Translate(decoratedResult);
         }
 

@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Text.RegularExpressions;
+using System.Threading;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 using Nexus.Link.Libraries.Core.Assert;
@@ -20,7 +21,8 @@ namespace Nexus.Link.Libraries.Core.Translation
         private readonly TranslatorSetup _translatorSetup;
         private readonly HashSet<string> _conceptValues;
         private IDictionary<string, string> _translations;
-        private readonly Regex _conceptValueInStringRegex;
+        private readonly Regex _conceptValueAndNothingElseInStringRegex;
+        private readonly Regex _conceptValueRegex;
 
         /// <summary>
         /// A translator for a specific <paramref name="clientName"/> that will use the <paramref name="service"/> for the actual translations.
@@ -41,7 +43,8 @@ namespace Nexus.Link.Libraries.Core.Translation
             _translatorSetup = translatorSetup;
             _conceptValues = new HashSet<string>();
             _translations = new Dictionary<string, string>();
-            _conceptValueInStringRegex = new Regex("\"" + @"(\(([^!]+)!([^!]+)!(?:(?!\)" + "\"" + @").)+\)" + ")\"", RegexOptions.Compiled);
+            _conceptValueRegex = new Regex(@"\(([^!]+)!([^!]+)!(.+)\)", RegexOptions.Compiled);
+            _conceptValueAndNothingElseInStringRegex = new Regex("\"" + @"(\(([^!]+)!([^!]+)!(?:(?!\)" + "\"" + @").)+\))" + "\"", RegexOptions.Compiled);
         }
 
         /// <summary>
@@ -191,10 +194,24 @@ namespace Nexus.Link.Libraries.Core.Translation
         {
             if (item == null) return this;
             var jsonString = JsonConvert.SerializeObject(item);
-            foreach (Match match in _conceptValueInStringRegex.Matches(jsonString))
+            foreach (Match match in _conceptValueAndNothingElseInStringRegex.Matches(jsonString))
             {
                 FulcrumAssert.IsGreaterThanOrEqualTo(1, match.Groups.Count, null, "Expected match to have at least one group.");
                 var conceptPath = match.Groups[1].ToString();
+                _conceptValues.Add(conceptPath);
+            }
+            // TODO: Find all decorated strings and add them to the translation batch.
+            return this;
+        }
+        
+        /// <summary>
+        /// Add all concept values in the string <paramref name="s"/> to the list of values to be translated.
+        /// </summary>
+        public Translator AddSubStrings(string s)
+        {
+            foreach (Match match in _conceptValueRegex.Matches(s))
+            {
+                var conceptPath = match.Groups[0].ToString();
                 _conceptValues.Add(conceptPath);
             }
             // TODO: Find all decorated strings and add them to the translation batch.
@@ -205,9 +222,9 @@ namespace Nexus.Link.Libraries.Core.Translation
         /// Do the actual translation.
         /// </summary>
         /// <returns></returns>
-        public async Task ExecuteAsync()
+        public async Task ExecuteAsync(CancellationToken cancellationToken)
         {
-            _translations = await _translatorSetup.TranslatorService.TranslateAsync(_conceptValues, _translatorSetup.ClientName);
+            _translations = await _translatorSetup.TranslatorService.TranslateAsync(_conceptValues, _translatorSetup.ClientName, cancellationToken);
         }
 
         /// <summary>

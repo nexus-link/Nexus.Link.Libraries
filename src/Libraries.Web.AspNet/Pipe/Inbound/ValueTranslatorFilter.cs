@@ -3,6 +3,7 @@
 using System;
 using System.Collections.Generic;
 using System.Reflection;
+using System.Threading;
 using Microsoft.AspNetCore.Mvc.Filters;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
@@ -66,11 +67,11 @@ namespace Nexus.Link.Libraries.Web.AspNet.Pipe.Inbound
             }
         }
 
-        private async Task DecorateResponseAsync(ParameterInfo parameterInfo, ActionExecutingContext context, Translator translator)
+        private async Task DecorateResponseAsync(ParameterInfo parameterInfo, ActionExecutingContext context, Translator translator, CancellationToken cancellationToken = default(CancellationToken))
         {
             if (context?.Result == null) return;
             if (!(context.Result is JsonResult jsonResult)) return;
-            await translator.Add(jsonResult.Value).ExecuteAsync();
+            await translator.Add(jsonResult.Value).ExecuteAsync(cancellationToken);
             jsonResult.Value = translator.Translate(jsonResult.Value);
         }
 

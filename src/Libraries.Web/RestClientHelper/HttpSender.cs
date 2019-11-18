@@ -32,8 +32,10 @@ namespace Nexus.Link.Libraries.Web.RestClientHelper
         /// <inheritdoc />
         public Uri BaseUri { get; set; }
 
-        /// <inheritdoc />
-        public ServiceClientCredentials Credentials { get; }
+        /// <summary>
+        /// Credentials that are used when sending requests to the service.
+        /// </summary>
+        protected ServiceClientCredentials Credentials { get; }
 
         /// <summary>
         /// Json settings when serializing to strings

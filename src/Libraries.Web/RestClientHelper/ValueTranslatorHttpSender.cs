@@ -27,9 +27,6 @@ namespace Nexus.Link.Libraries.Web.RestClientHelper
         /// <inheritdoc />
         public Uri BaseUri => HttpSender.BaseUri;
 
-        /// <inheritdoc />
-        public ServiceClientCredentials Credentials => HttpSender.Credentials;
-
         public ValueTranslatorHttpSender(IHttpSender httpSender, TranslatorSetup translatorSetup)
         {
             _translatorSetup = translatorSetup;
@@ -46,7 +43,7 @@ namespace Nexus.Link.Libraries.Web.RestClientHelper
         {
             // TODO: Add translation and decoration
             var translator = new Translator(_translatorSetup);
-            await translator.Add(relativeUrl).Add(body).ExecuteAsync();
+            await translator.AddSubStrings(relativeUrl).Add(body).ExecuteAsync(cancellationToken);
             var result = await HttpSender.SendRequestAsync<TResponse, TBody>(
                 method,
                 translator.Translate(relativeUrl),
@@ -64,7 +61,7 @@ namespace Nexus.Link.Libraries.Web.RestClientHelper
             InternalContract.Require(!string.IsNullOrWhiteSpace(_translatorSetup.DefaultConceptName), 
                 $"You must have set the {nameof(_translatorSetup.DefaultConceptName)} in translator setup to use this method.");
             var translator = new Translator(_translatorSetup);
-            await translator.Add(relativeUrl).Add(body).ExecuteAsync();
+            await translator.AddSubStrings(relativeUrl).Add(body).ExecuteAsync(cancellationToken);
             var result = await HttpSender.SendRequestAsync<string, TBody>(
                 method,
                 translator.Translate(relativeUrl),
@@ -81,7 +78,7 @@ namespace Nexus.Link.Libraries.Web.RestClientHelper
             CancellationToken cancellationToken = default(CancellationToken))
         {
             var translator = new Translator(_translatorSetup);
-            await translator.Add(relativeUrl).Add(body).ExecuteAsync();
+            await translator.Add(relativeUrl).Add(body).ExecuteAsync(cancellationToken);
             var result = await HttpSender.SendRequestAsync(
                 method,
                 translator.Translate(relativeUrl),
@@ -96,7 +93,7 @@ namespace Nexus.Link.Libraries.Web.RestClientHelper
             Dictionary<string, List<string>> customHeaders = null, CancellationToken cancellationToken = default(CancellationToken))
         {
             var translator = new Translator(_translatorSetup);
-            await translator.Add(relativeUrl).ExecuteAsync();
+            await translator.AddSubStrings(relativeUrl).ExecuteAsync(cancellationToken);
             return await HttpSender.SendRequestAsync(method, translator.Translate(relativeUrl), customHeaders, cancellationToken);
         }
     }

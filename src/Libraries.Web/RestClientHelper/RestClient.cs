@@ -80,9 +80,6 @@ namespace Nexus.Link.Libraries.Web.RestClientHelper
         /// <inheritdoc />
         public Uri BaseUri => HttpSender.BaseUri;
 
-        /// <inheritdoc />
-        public ServiceClientCredentials Credentials => HttpSender.Credentials;
-
         #region POST
         /// <inheritdoc />
         public async Task<TResponse> PostAsync<TResponse, TBody>(string relativeUrl, TBody body, Dictionary<string, List<string>> customHeaders = null,

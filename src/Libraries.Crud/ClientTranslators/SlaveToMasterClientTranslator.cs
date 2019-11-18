@@ -55,7 +55,7 @@ namespace Nexus.Link.Libraries.Crud.ClientTranslators
             masterId = translator.Decorate(_masterIdConceptName, masterId);
             item = translator.DecorateItem(item);
             var decoratedResult = await _service.CreateAsync(masterId, item, token);
-            await translator.Add(decoratedResult).ExecuteAsync();
+            await translator.Add(decoratedResult).ExecuteAsync(token);
             return translator.Translate(decoratedResult);
         }
 
@@ -66,7 +66,7 @@ namespace Nexus.Link.Libraries.Crud.ClientTranslators
             masterId = translator.Decorate(_masterIdConceptName, masterId);
             item = translator.DecorateItem(item);
             var decoratedResult = await _service.CreateAndReturnAsync(masterId, item, token);
-            await translator.Add(decoratedResult).ExecuteAsync();
+            await translator.Add(decoratedResult).ExecuteAsync(token);
             return translator.Translate(decoratedResult);
         }
 
@@ -90,7 +90,7 @@ namespace Nexus.Link.Libraries.Crud.ClientTranslators
             slaveId = translator.Decorate(IdConceptName, slaveId);
             item = translator.DecorateItem(item);
             var decoratedResult = await _service.CreateWithSpecifiedIdAndReturnAsync(masterId, slaveId, item, token);
-            await translator.Add(decoratedResult).ExecuteAsync();
+            await translator.Add(decoratedResult).ExecuteAsync(token);
             return translator.Translate(decoratedResult);
         }
 
@@ -101,7 +101,7 @@ namespace Nexus.Link.Libraries.Crud.ClientTranslators
             masterId = translator.Decorate(_masterIdConceptName, masterId);
             slaveId = translator.Decorate(IdConceptName, slaveId);
             var decoratedResult = await _service.ReadAsync(masterId, slaveId, token);
-            await translator.Add(decoratedResult).ExecuteAsync();
+            await translator.Add(decoratedResult).ExecuteAsync(token);
             return translator.Translate(decoratedResult);
         }
 
@@ -118,7 +118,7 @@ namespace Nexus.Link.Libraries.Crud.ClientTranslators
             var translator = CreateTranslator();
             parentId = translator.Decorate(_masterIdConceptName, parentId);
             var decoratedResult = await _service.ReadChildrenWithPagingAsync(parentId, offset, limit, token);
-            await translator.Add(decoratedResult).ExecuteAsync();
+            await translator.Add(decoratedResult).ExecuteAsync(token);
             return translator.Translate(decoratedResult);
         }
 
@@ -129,7 +129,7 @@ namespace Nexus.Link.Libraries.Crud.ClientTranslators
             parentId = translator.Decorate(_masterIdConceptName, parentId);
             var decoratedResult = await _service.ReadChildrenAsync(parentId, limit, token);
             var array = decoratedResult as TModel[] ?? decoratedResult.ToArray();
-            await translator.Add(array).ExecuteAsync();
+            await translator.Add(array).ExecuteAsync(token);
             return translator.Translate(array);
         }
 
@@ -152,7 +152,7 @@ namespace Nexus.Link.Libraries.Crud.ClientTranslators
             slaveId = translator.Decorate(IdConceptName, slaveId);
             item = translator.DecorateItem(item);
             var decoratedResult = await _service.UpdateAndReturnAsync(masterId, slaveId, item, token);
-            await translator.Add(decoratedResult).ExecuteAsync();
+            await translator.Add(decoratedResult).ExecuteAsync(token);
             return translator.Translate(decoratedResult);
         }
 
@@ -180,7 +180,7 @@ namespace Nexus.Link.Libraries.Crud.ClientTranslators
             masterId = translator.Decorate(_masterIdConceptName, masterId);
             slaveId = translator.Decorate(IdConceptName, slaveId);
             var decoratedResult = await _service.ClaimLockAsync(masterId, slaveId, token);
-            await translator.Add(decoratedResult).ExecuteAsync();
+            await translator.Add(decoratedResult).ExecuteAsync(token);
             return translator.Translate(decoratedResult);
         }
 
