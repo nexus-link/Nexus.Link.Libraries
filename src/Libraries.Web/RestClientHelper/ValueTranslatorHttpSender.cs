@@ -18,7 +18,7 @@ namespace Nexus.Link.Libraries.Web.RestClientHelper
     /// <summary>
     /// Convenience client for making REST calls
     /// </summary>
-    public class ValueTranslatorHttpSender : IHttpSender
+    public class ValueTranslatorHttpSender : IValueTranslatorHttpSender
     {
         public IHttpSender HttpSender { get; }
 
@@ -40,6 +40,15 @@ namespace Nexus.Link.Libraries.Web.RestClientHelper
         {
             // TODO: Add translation and decoration
             return HttpSender.SendRequestAsync<TResponse, TBody>(method, relativeUrl, body, customHeaders,
+                cancellationToken);
+        }
+
+        public Task<HttpOperationResponse<string>> SendRequestAsync<TBody>(HttpMethod method, string relativeUrl, string resultConceptName,
+            TBody body = default(TBody), Dictionary<string, List<string>> customHeaders = null,
+            CancellationToken cancellationToken = default(CancellationToken))
+        {
+            // TODO: Add translation and decoration
+            return HttpSender.SendRequestAsync<string, TBody>(method, relativeUrl, body, customHeaders,
                 cancellationToken);
         }
 
