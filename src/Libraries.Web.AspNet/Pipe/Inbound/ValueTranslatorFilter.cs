@@ -54,11 +54,11 @@ namespace Nexus.Link.Libraries.Web.AspNet.Pipe.Inbound
 
             if (methodInfo != null)
             {
-                await DecorateResponseAsync(methodInfo.ReturnParameter, context, translator);
+                await DecorateResponseAsync(context, translator);
             }
         }
 
-        private void DecorateArguments(ParameterInfo[] parameters, IDictionary<string, object> arguments, ITranslator translator)
+        private static void DecorateArguments(IEnumerable<ParameterInfo> parameters, IDictionary<string, object> arguments, ITranslator translator)
         {
             foreach (var parameterInfo in parameters)
             {
@@ -73,7 +73,7 @@ namespace Nexus.Link.Libraries.Web.AspNet.Pipe.Inbound
             }
         }
 
-        private async Task DecorateResponseAsync(ParameterInfo parameterInfo, ActionExecutingContext context, ITranslator translator, CancellationToken cancellationToken = default(CancellationToken))
+        private static async Task DecorateResponseAsync(ActionExecutingContext context, ITranslator translator, CancellationToken cancellationToken = default(CancellationToken))
         {
             if (context?.Result == null) return;
             if (!(context.Result is JsonResult jsonResult)) return;

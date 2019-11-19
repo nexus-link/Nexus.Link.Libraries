@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Threading;
@@ -30,8 +31,8 @@ namespace Nexus.Link.Libraries.Web.Tests.RestClientHelper
         [TestInitialize]
         public void Initialize()
         {
-            _decoratedConsumerId = $"(person.id!~consumer!{_consumerId})";
-            _decoratedProducerId = $"(person.id!~producer!{_producerId})";
+            _decoratedConsumerId = $"(foo.id!~consumer!{_consumerId})";
+            _decoratedProducerId = $"(foo.id!~producer!{_producerId})";
             FulcrumApplicationHelper.UnitTestSetup(typeof(ValueTranslatorHttpSenderTest).FullName);
             _translatorServiceMock = new Mock<ITranslatorService>();
             _translatorServiceMock
@@ -45,29 +46,44 @@ namespace Nexus.Link.Libraries.Web.Tests.RestClientHelper
         [TestMethod]
         public async Task TranslateRelativeUrl()
         {
-            var httpSender = new HttpSender();
+            var httpSenderMock = new HttpSenderMock();
             var translatorSetup = new TranslatorFactory(_translatorServiceMock.Object, "producer");
-            var sender = new ValueTranslatorHttpSender(httpSender, translatorSetup);
-            await sender.SendRequestAsync(HttpMethod.Get, $"Persons/{_decoratedConsumerId}");
-            Assert.AreEqual($"Persons/{_producerId}", httpSender.RelativeUrl);
+            var sender = new ValueTranslatorHttpSender(httpSenderMock, translatorSetup);
+            await sender.SendRequestAsync(HttpMethod.Get, $"Foos/{_decoratedConsumerId}");
+            Assert.AreEqual($"Foos/{_producerId}", httpSenderMock.RelativeUrl);
         }
 
         [TestMethod]
         public async Task TranslateBody()
         {
-            var httpSender = new HttpSender();
+            var httpSenderMock = new HttpSenderMock();
             var translatorSetup = new TranslatorFactory(_translatorServiceMock.Object, "producer");
-            var sender = new ValueTranslatorHttpSender(httpSender, translatorSetup);
+            var sender = new ValueTranslatorHttpSender(httpSenderMock, translatorSetup);
             var inBody = new Foo {Id = _decoratedConsumerId, Name = "name"};
-            await sender.SendRequestAsync(HttpMethod.Get, $"Persons/{_producerId}", inBody);
-            Assert.IsNotNull(httpSender.Body);
-            var outBody = httpSender.Body as Foo;
+            await sender.SendRequestAsync(HttpMethod.Get, $"Foos/{_producerId}", inBody);
+            Assert.IsNotNull(httpSenderMock.Body);
+            var outBody = httpSenderMock.Body as Foo;
             Assert.IsNotNull(outBody);
             Assert.AreEqual(_producerId, outBody.Id);
             Assert.AreEqual(inBody.Name, outBody.Name);
         }
 
-        private class HttpSender : IHttpSender
+        [TestMethod]
+        public async Task TranslatePageContent()
+        {
+            var httpSenderMock = new HttpSenderMock();
+            var translatorSetup = new TranslatorFactory(_translatorServiceMock.Object, "producer");
+            var sender = new ValueTranslatorHttpSender(httpSenderMock, translatorSetup);
+            var inBody = new Foo {Id = _decoratedConsumerId, Name = "name"};
+            var result = await sender.SendRequestAsync<PageEnvelope<Foo>, Foo>(HttpMethod.Get, $"Foos/{_producerId}", inBody);
+            Assert.IsNotNull(result?.Body);
+            Assert.IsNotNull(result?.Body.Data);
+            Assert.AreEqual(1, result?.Body.Data.Count());
+            Assert.AreEqual(_decoratedProducerId, result.Body.Data.First().Id);
+            Assert.AreEqual(inBody.Name, result.Body.Data.First().Name);
+        }
+
+        private class HttpSenderMock : IHttpSender
         {
             public string RelativeUrl { get; private set; }
             public object Body { get; private set; }
@@ -99,9 +115,13 @@ namespace Nexus.Link.Libraries.Web.Tests.RestClientHelper
                 RelativeUrl = relativeUrl;
                 Body = body;
                 var httpOperationResponse = new HttpOperationResponse<TResponse>();
-                if (typeof(string) == typeof(TResponse))
+                if (typeof(TResponse) == typeof(string))
                 {
                     httpOperationResponse.Body = (TResponse)(object)_producerId;
+                }
+                else if (typeof(TResponse) == typeof(PageEnvelope<Foo>))
+                {
+                    httpOperationResponse.Body = (TResponse)(object)new PageEnvelope<Foo>(0, 1, 1, new List<Foo> {new Foo{Id = _producerId, Name = "name"}});
                 }
                 else
                 {
