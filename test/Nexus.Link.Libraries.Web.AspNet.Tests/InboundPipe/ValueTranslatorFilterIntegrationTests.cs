@@ -1,20 +1,15 @@
 ﻿
-using System.Net.Http.Formatting;
-using Microsoft.AspNetCore.Mvc.Testing;
+
+using System;
+using System.Net;
 #if NETCOREAPP
+using System.Net.Http.Formatting;
 using System.Net.Http;
-using Newtonsoft.Json.Linq;
 using Nexus.Link.Libraries.Web.AspNet.Tests.InboundPipe.Support;
 using System.Collections.Generic;
 using System.Threading;
-using Nexus.Link.Libraries.Web.AspNet.Pipe.Inbound;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc.Controllers;
-using Microsoft.AspNetCore.Mvc.Filters;
-using Microsoft.AspNetCore.Routing;
 using System.Diagnostics.CodeAnalysis;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using Newtonsoft.Json;
@@ -59,9 +54,11 @@ namespace Nexus.Link.Libraries.Web.AspNet.Tests.InboundPipe
                 Id = inId,
                 Name = "name"
             };
-            var response = await _httpClient.PutAsync($"/api/Foos/{inId}", new ObjectContent<Foo>(inFoo, new JsonMediaTypeFormatter()));
+            var response = await _httpClient.PutAsync($"http://localhost/api/Foos/{inId}", new ObjectContent<Foo>(inFoo, new JsonMediaTypeFormatter()));
+            Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
 
             var jsonString = await response.Content.ReadAsStringAsync();
+            Console.WriteLine(jsonString);
             var outFoo = JsonConvert.DeserializeObject<Foo>(jsonString);
 
             // Verify that the result has been translated

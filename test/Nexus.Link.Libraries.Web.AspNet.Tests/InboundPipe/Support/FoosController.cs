@@ -1,4 +1,8 @@
-﻿using System.Diagnostics.CodeAnalysis;
+﻿
+using System;
+#if NETCOREAPP
+using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
@@ -12,11 +16,18 @@ namespace Nexus.Link.Libraries.Web.AspNet.Tests.InboundPipe.Support
     [ApiController]
     [Route("api/Foos")]
     [SuppressMessage("ReSharper", "IdentifierTypo")]
-    internal class FoosController : ControllerBase, IUpdateAndReturn<Foo, string>
+    internal class FoosController : ControllerBase, IRead<Foo, string>, IUpdateAndReturn<Foo, string>
     {
         /// <inheritdoc />
-        [HttpPut]
-        [Route("{id}")]
+        [HttpGet("{id}")]
+        public Task<Foo> ReadAsync(string id, CancellationToken token = default(CancellationToken))
+        {
+            var item = new Foo {Id = id, Name = "name"};
+            return Task.FromResult(item);
+        }
+
+        /// <inheritdoc />
+        [HttpPut("{id}")]
         public Task<Foo> UpdateAndReturnAsync([TranslationConcept("foo.id")]string id, Foo item,
             CancellationToken token = default(CancellationToken))
         {
@@ -28,3 +39,4 @@ namespace Nexus.Link.Libraries.Web.AspNet.Tests.InboundPipe.Support
         }
     }
 }
+#endif
