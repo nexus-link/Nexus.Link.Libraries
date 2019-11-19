@@ -16,11 +16,10 @@ namespace Nexus.Link.Libraries.Core.Translation
     /// <summary>
     /// A convenience class for translations.
     /// </summary>
-    public class Translator
+    public class Translator : ITranslator
     {
         private readonly string _clientName;
         private readonly ITranslatorService _service;
-        private readonly string _defaultConceptName;
         private readonly HashSet<string> _conceptValues;
         private IDictionary<string, string> _translations;
         private readonly Regex _conceptValueAndNothingElseInStringRegex;
@@ -29,43 +28,26 @@ namespace Nexus.Link.Libraries.Core.Translation
         /// <summary>
         /// A translator for a specific <paramref name="clientName"/> that will use the <paramref name="service"/> for the actual translations.
         /// </summary>
-        internal Translator(string clientName, ITranslatorService service, string defaultConceptName)
+        internal Translator(string clientName, ITranslatorService service)
         {
             InternalContract.RequireNotNullOrWhiteSpace(clientName, nameof(clientName));
             InternalContract.RequireNotNull(service, nameof(service));
             _clientName = clientName;
             _service = service;
-            _defaultConceptName = defaultConceptName;
             _conceptValues = new HashSet<string>();
             _translations = new Dictionary<string, string>();
             _conceptValueRegex = new Regex(@"\(([^!]+)!([^!]+)!(.+)\)", RegexOptions.Compiled);
             _conceptValueAndNothingElseInStringRegex = new Regex("\"" + @"(\(([^!]+)!([^!]+)!(?:(?!\)" + "\"" + @").)+\))" + "\"", RegexOptions.Compiled);
         }
 
-        /// <summary>
-        /// Decorate the <paramref name="value"/> into a concept value path.
-        /// </summary>
+        /// <inheritdoc/>
         public string Decorate(string conceptName, string value)
         {
             if (value == null) return null;
             return IsDecorated(value) ? value : Decorate(conceptName, _clientName, value);
         }
 
-        /// <summary>
-        /// Decorate the <paramref name="value"/> into a concept value path.
-        /// </summary>
-        public string DecorateWithDefaultConceptName(string value)
-        {
-            if (value == null) return null;
-            InternalContract.Require(!string.IsNullOrWhiteSpace(_defaultConceptName), 
-                $"You must have set the {nameof(_defaultConceptName)} in {nameof(TranslatorFactory)} to use this method.");
-            return IsDecorated(value) ? value : Decorate(_defaultConceptName, _clientName, value);
-        }
-
-
-        /// <summary>
-        /// Decorate the <paramref name="id"/> with concept value paths.
-        /// </summary>
+        /// <inheritdoc/>
         public SlaveToMasterId<string> Decorate(string masterIdConceptName, string slaveIdConceptName, SlaveToMasterId<string> id)
         {
             if (id == null) return null;
@@ -74,14 +56,78 @@ namespace Nexus.Link.Libraries.Core.Translation
             return id;
         }
 
-        /// <summary>
-        /// Decorate the <paramref name="item"/> so that concept values are set to concept value paths.
-        /// </summary>
+        /// <inheritdoc/>
         public TModel DecorateItem<TModel>(TModel item)
         {
             if (Equals(item, default(TModel))) return item;
             DecoratePropertiesWithConceptAttribute(item);
             return item;
+        }
+
+        /// <inheritdoc/>
+        public IEnumerable<TModel> DecorateItems<TModel>(IEnumerable<TModel> items)
+        {
+            if (items == null) return null;
+            var array = items as TModel[] ?? items.ToArray();
+            foreach (var item in array)
+            {
+                DecorateItem(item);
+            }
+
+            return array;
+        }
+
+        /// <inheritdoc/>
+        public PageEnvelope<TModel> DecoratePage<TModel>(PageEnvelope<TModel> page)
+        {
+            if (page == null) return null;
+            page.Data = DecorateItems(page.Data);
+            return page;
+        }
+
+        /// <inheritdoc/>
+        public Translator Add<T>(T item)
+        {
+            if (item == null) return this;
+            var jsonString = JsonConvert.SerializeObject(item);
+            foreach (Match match in _conceptValueAndNothingElseInStringRegex.Matches(jsonString))
+            {
+                FulcrumAssert.IsGreaterThanOrEqualTo(1, match.Groups.Count, null, "Expected match to have at least one group.");
+                var conceptPath = match.Groups[1].ToString();
+                _conceptValues.Add(conceptPath);
+            }
+            // TODO: Find all decorated strings and add them to the translation batch.
+            return this;
+        }
+
+        /// <inheritdoc/>
+        public Translator AddSubStrings(string s)
+        {
+            foreach (Match match in _conceptValueRegex.Matches(s))
+            {
+                var conceptPath = match.Groups[0].ToString();
+                _conceptValues.Add(conceptPath);
+            }
+            // TODO: Find all decorated strings and add them to the translation batch.
+            return this;
+        }
+
+        /// <inheritdoc/>
+        public async Task ExecuteAsync(CancellationToken cancellationToken = new CancellationToken())
+        {
+            _translations = await _service.TranslateAsync(_conceptValues, _clientName, cancellationToken);
+        }
+
+        /// <inheritdoc/>
+        public T Translate<T>(T item)
+        {
+            if (item == null) return default(T);
+            var json = JsonConvert.SerializeObject(item);
+            foreach (var conceptValue in _conceptValues)
+            {
+                json = json.Replace(conceptValue, _translations[conceptValue]);
+            }
+            return JsonConvert.DeserializeObject<T>(json);
         }
 
         private void DecorateWithReflection(string conceptName, object o, PropertyInfo property)
@@ -150,31 +196,6 @@ namespace Nexus.Link.Libraries.Core.Translation
             return (TranslationConceptAttribute)property.GetCustomAttributes(false).FirstOrDefault(a => a is TranslationConceptAttribute);
         }
 
-        /// <summary>
-        ///  Decorate the <paramref name="items"/> so that concept values are set to concept value paths.
-        /// </summary>
-        public IEnumerable<TModel> DecorateItems<TModel>(IEnumerable<TModel> items)
-        {
-            if (items == null) return null;
-            var array = items as TModel[] ?? items.ToArray();
-            foreach (var item in array)
-            {
-                DecorateItem(item);
-            }
-
-            return array;
-        }
-
-        /// <summary>
-        /// Decorate the <paramref name="page"/> so that concept values are set to concept value paths.
-        /// </summary>
-        public PageEnvelope<TModel> DecoratePage<TModel>(PageEnvelope<TModel> page)
-        {
-            if (page == null) return null;
-            page.Data = DecorateItems(page.Data);
-            return page;
-        }
-
         private bool IsDecorated(string value)
         {
             return ConceptValue.TryParse(value, out _);
@@ -182,59 +203,5 @@ namespace Nexus.Link.Libraries.Core.Translation
 
         private static string Decorate(string conceptName, string clientName, string value) => value == null ? null :
             $"({conceptName}!~{clientName}!{value})";
-
-        /// <summary>
-        /// Add all concept values in the <paramref name="item"/> to the list of values to be translated.
-        /// </summary>
-        public Translator Add<T>(T item)
-        {
-            if (item == null) return this;
-            var jsonString = JsonConvert.SerializeObject(item);
-            foreach (Match match in _conceptValueAndNothingElseInStringRegex.Matches(jsonString))
-            {
-                FulcrumAssert.IsGreaterThanOrEqualTo(1, match.Groups.Count, null, "Expected match to have at least one group.");
-                var conceptPath = match.Groups[1].ToString();
-                _conceptValues.Add(conceptPath);
-            }
-            // TODO: Find all decorated strings and add them to the translation batch.
-            return this;
-        }
-        
-        /// <summary>
-        /// Add all concept values in the string <paramref name="s"/> to the list of values to be translated.
-        /// </summary>
-        public Translator AddSubStrings(string s)
-        {
-            foreach (Match match in _conceptValueRegex.Matches(s))
-            {
-                var conceptPath = match.Groups[0].ToString();
-                _conceptValues.Add(conceptPath);
-            }
-            // TODO: Find all decorated strings and add them to the translation batch.
-            return this;
-        }
-
-        /// <summary>
-        /// Do the actual translation.
-        /// </summary>
-        /// <returns></returns>
-        public async Task ExecuteAsync(CancellationToken cancellationToken = new CancellationToken())
-        {
-            _translations = await _service.TranslateAsync(_conceptValues, _clientName, cancellationToken);
-        }
-
-        /// <summary>
-        /// Find all concept values in the <paramref name="item"/>, translate them and return the result.
-        /// </summary>
-        public T Translate<T>(T item)
-        {
-            if (item == null) return default(T);
-            var json = JsonConvert.SerializeObject(item);
-            foreach (var conceptValue in _conceptValues)
-            {
-                json = json.Replace(conceptValue, _translations[conceptValue]);
-            }
-            return JsonConvert.DeserializeObject<T>(json);
-        }
     }
 }

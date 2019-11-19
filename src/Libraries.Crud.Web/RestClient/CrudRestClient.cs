@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Microsoft.Rest;
 using Nexus.Link.Libraries.Core.Assert;
 using Nexus.Link.Libraries.Core.Storage.Model;
+using Nexus.Link.Libraries.Core.Translation;
 using Nexus.Link.Libraries.Crud.Interfaces;
 using Nexus.Link.Libraries.Crud.Model;
 using Nexus.Link.Libraries.Web.RestClientHelper;
@@ -95,7 +96,9 @@ namespace Nexus.Link.Libraries.Crud.Web.RestClient
         /// <inheritdoc />
         public virtual async Task<TId> CreateAsync(TModelCreate item, CancellationToken token = default(CancellationToken))
         {
-            return await PostAsync<TId, TModelCreate>("", item, cancellationToken: token);
+            // TODO: PostAndDecorateResultAsync
+            var invoiceId = await PostAsync<TId, TModelCreate>("", item, cancellationToken: token);
+            return Translator.Decorate("invoice.id", "producer", invoiceId);
         }
 
         /// <inheritdoc />
