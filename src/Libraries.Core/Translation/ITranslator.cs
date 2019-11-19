@@ -14,12 +14,12 @@ namespace Nexus.Link.Libraries.Core.Translation
         /// <summary>
         /// Add all concept values in the <paramref name="item"/> to the list of values to be translated.
         /// </summary>
-        Translator Add<T>(T item);
+        ITranslator Add<T>(T item);
 
         /// <summary>
         /// Add all concept values in the string <paramref name="s"/> to the list of values to be translated.
         /// </summary>
-        Translator AddSubStrings(string s);
+        ITranslator AddSubStrings(string s);
 
         /// <summary>
         /// Decorate the <paramref name="value"/> into a concept value path.

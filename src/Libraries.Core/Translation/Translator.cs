@@ -26,6 +26,12 @@ namespace Nexus.Link.Libraries.Core.Translation
         private readonly Regex _conceptValueRegex;
 
         /// <summary>
+        /// Decorate a value
+        /// </summary>
+        public static string Decorate(string conceptName, string clientName, string value) => value == null ? null :
+            $"({conceptName}!~{clientName}!{value})";
+
+        /// <summary>
         /// A translator for a specific <paramref name="clientName"/> that will use the <paramref name="service"/> for the actual translations.
         /// </summary>
         internal Translator(string clientName, ITranslatorService service)
@@ -86,7 +92,7 @@ namespace Nexus.Link.Libraries.Core.Translation
         }
 
         /// <inheritdoc/>
-        public Translator Add<T>(T item)
+        public ITranslator Add<T>(T item)
         {
             if (item == null) return this;
             var jsonString = JsonConvert.SerializeObject(item);
@@ -101,7 +107,7 @@ namespace Nexus.Link.Libraries.Core.Translation
         }
 
         /// <inheritdoc/>
-        public Translator AddSubStrings(string s)
+        public ITranslator AddSubStrings(string s)
         {
             foreach (Match match in _conceptValueRegex.Matches(s))
             {
@@ -129,6 +135,8 @@ namespace Nexus.Link.Libraries.Core.Translation
             }
             return JsonConvert.DeserializeObject<T>(json);
         }
+
+        #region private methods
 
         private void DecorateWithReflection(string conceptName, object o, PropertyInfo property)
         {
@@ -200,8 +208,6 @@ namespace Nexus.Link.Libraries.Core.Translation
         {
             return ConceptValue.TryParse(value, out _);
         }
-
-        public static string Decorate(string conceptName, string clientName, string value) => value == null ? null :
-            $"({conceptName}!~{clientName}!{value})";
+        #endregion
     }
 }
