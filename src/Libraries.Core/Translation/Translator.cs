@@ -201,7 +201,7 @@ namespace Nexus.Link.Libraries.Core.Translation
             return ConceptValue.TryParse(value, out _);
         }
 
-        private static string Decorate(string conceptName, string clientName, string value) => value == null ? null :
+        public static string Decorate(string conceptName, string clientName, string value) => value == null ? null :
             $"({conceptName}!~{clientName}!{value})";
     }
 }

@@ -67,17 +67,6 @@ namespace Nexus.Link.Libraries.Web.Tests.RestClientHelper
             Assert.AreEqual(inBody.Name, outBody.Name);
         }
 
-        [TestMethod]
-        public async Task DecorateResult()
-        {
-            var httpSender = new HttpSender();
-            var translatorSetup = new TranslatorFactory(_translatorServiceMock.Object, "producer");
-            translatorSetup.DefaultConceptName = "person.id";
-            var sender = new ValueTranslatorHttpSender(httpSender, translatorSetup);
-            var result = await sender.SendRequestAndDecorateResponseAsync(HttpMethod.Get, $"Persons/{_producerId}", (string) null);
-            Assert.AreEqual(_decoratedProducerId, result?.Body);
-        }
-
         private class HttpSender : IHttpSender
         {
             public string RelativeUrl { get; private set; }

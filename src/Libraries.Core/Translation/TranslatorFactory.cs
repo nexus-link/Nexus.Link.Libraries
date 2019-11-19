@@ -39,17 +39,15 @@ namespace Nexus.Link.Libraries.Core.Translation
         /// </summary>
         public ITranslatorService TranslatorService { get; set; }
 
-        public Translator CreateTranslator()
+        public ITranslator CreateTranslator()
         {
-            return new Translator(ClientName, TranslatorService, DefaultConceptName);
+            return new Translator(ClientName, TranslatorService);
         }
 
         /// <summary>
         /// The client name.
         /// </summary>
         public string ClientName => _clientName ?? _getClientNameMethod();
-
-        public string DefaultConceptName { get; set; }
 
         /// <inheritdoc />
         public void Validate(string errorLocation, string propertyPath = "")

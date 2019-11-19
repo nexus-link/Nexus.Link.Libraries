@@ -31,7 +31,7 @@ namespace Nexus.Link.Libraries.Web.AspNet.Pipe.Inbound
 
         public async Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)
         {
-            Translator translator = null;
+            ITranslator translator = null;
             MethodInfo methodInfo = null;
             if (FulcrumApplication.IsInDevelopment)
             {
@@ -58,7 +58,7 @@ namespace Nexus.Link.Libraries.Web.AspNet.Pipe.Inbound
             }
         }
 
-        private void DecorateArguments(ParameterInfo[] parameters, IDictionary<string, object> arguments, Translator translator)
+        private void DecorateArguments(ParameterInfo[] parameters, IDictionary<string, object> arguments, ITranslator translator)
         {
             foreach (var parameterInfo in parameters)
             {
@@ -73,7 +73,7 @@ namespace Nexus.Link.Libraries.Web.AspNet.Pipe.Inbound
             }
         }
 
-        private async Task DecorateResponseAsync(ParameterInfo parameterInfo, ActionExecutingContext context, Translator translator, CancellationToken cancellationToken = default(CancellationToken))
+        private async Task DecorateResponseAsync(ParameterInfo parameterInfo, ActionExecutingContext context, ITranslator translator, CancellationToken cancellationToken = default(CancellationToken))
         {
             if (context?.Result == null) return;
             if (!(context.Result is JsonResult jsonResult)) return;
@@ -81,7 +81,7 @@ namespace Nexus.Link.Libraries.Web.AspNet.Pipe.Inbound
             jsonResult.Value = translator.Translate(jsonResult.Value);
         }
 
-        private static void DecorateValue(IDictionary<string, object> arguments, Translator translator, ParameterInfo parameterInfo)
+        private static void DecorateValue(IDictionary<string, object> arguments, ITranslator translator, ParameterInfo parameterInfo)
         {
             var parameterName = parameterInfo.Name;
             var attribute = parameterInfo.GetCustomAttribute<TranslationConceptAttribute>();
@@ -93,7 +93,7 @@ namespace Nexus.Link.Libraries.Web.AspNet.Pipe.Inbound
             arguments[parameterName] = translator.Decorate(conceptName, currentValue);
         }
 
-        private static void DecorateObject(IDictionary<string, object> arguments, Translator translator, ParameterInfo parameterInfo)
+        private static void DecorateObject(IDictionary<string, object> arguments, ITranslator translator, ParameterInfo parameterInfo)
         {
             var parameterName = parameterInfo.Name;
             if (!arguments.ContainsKey(parameterName)) return;

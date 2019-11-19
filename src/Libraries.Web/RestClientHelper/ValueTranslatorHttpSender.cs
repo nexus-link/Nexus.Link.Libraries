@@ -19,7 +19,7 @@ namespace Nexus.Link.Libraries.Web.RestClientHelper
     /// <summary>
     /// Convenience client for making REST calls
     /// </summary>
-    public class ValueTranslatorHttpSender : IValueTranslatorHttpSender
+    public class ValueTranslatorHttpSender : IHttpSender
     {
         private readonly TranslatorFactory _translatorFactory;
         public IHttpSender HttpSender { get; }
@@ -51,24 +51,6 @@ namespace Nexus.Link.Libraries.Web.RestClientHelper
                 customHeaders,
                 cancellationToken);
             result.Body = translator.DecorateItem(result.Body);
-            return result;
-        }
-
-        public async Task<HttpOperationResponse<string>> SendRequestAndDecorateResponseAsync<TBody>(HttpMethod method, string relativeUrl,
-            TBody body = default(TBody), Dictionary<string, List<string>> customHeaders = null,
-            CancellationToken cancellationToken = default(CancellationToken))
-        {
-            InternalContract.Require(!string.IsNullOrWhiteSpace(_translatorFactory.DefaultConceptName), 
-                $"You must have set the {nameof(_translatorFactory.DefaultConceptName)} in {nameof(TranslatorFactory)} to use this method.");
-            var translator = _translatorFactory.CreateTranslator();
-            await translator.AddSubStrings(relativeUrl).Add(body).ExecuteAsync(cancellationToken);
-            var result = await HttpSender.SendRequestAsync<string, TBody>(
-                method,
-                translator.Translate(relativeUrl),
-                translator.Translate(body), 
-                customHeaders,
-                cancellationToken);
-            result.Body = translator.DecorateWithDefaultConceptName(result.Body);
             return result;
         }
 

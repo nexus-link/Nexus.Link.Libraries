@@ -58,6 +58,41 @@ namespace Nexus.Link.Libraries.Crud.Web.RestClient
         Libraries.Web.RestClientHelper.RestClient,
         ICrud<TModelCreate, TModel, TId> where TModel : TModelCreate
     {
+        /// <summary>
+        /// The name of the system that is called. Used for decorating the string result from CreateAsync.
+        /// </summary>
+        protected readonly string ProducerName;
+        /// <summary>
+        /// The concept name for the string result from CreateAsync.
+        /// </summary>
+        protected readonly string IdConceptName;
+
+        /// <summary>
+        /// Constructor. 
+        /// </summary>
+        /// <param name="httpSender"></param>
+        /// <param name="idConceptName">The concept name for the string result from CreateAsync.</param>
+        /// <param name="producerName">The name of the system that is called. Used for decorating the string result from CreateAsync.</param>
+        /// <remarks>
+        /// If you want intend to decorate results from the CreateAsync method you must set <paramref name="idConceptName"/> and <paramref name="producerName"/>.
+        /// </remarks>
+        public CrudRestClient(IHttpSender httpSender, string idConceptName = null, string producerName = null)
+            : base(httpSender)
+        {
+            if (!string.IsNullOrWhiteSpace(producerName))
+            {
+                InternalContract.Require(!string.IsNullOrWhiteSpace(idConceptName),
+                    $"When the parameter {nameof(producerName)} is not null, then the parameter {nameof(idConceptName)} must be non-null too.");
+            }
+            if (!string.IsNullOrWhiteSpace(idConceptName))
+            {
+                InternalContract.Require(!string.IsNullOrWhiteSpace(idConceptName),
+                    $"When the parameter {nameof(idConceptName)} is not null, then the parameter {nameof(producerName)} must be non-null too.");
+            }
+            ProducerName = producerName;
+            IdConceptName = idConceptName;
+        }
+
         #region Obsolete constructors
         /// <summary></summary>
         /// <param name="baseUri">The base URL that all HTTP calls methods will refer to.</param>
@@ -88,17 +123,12 @@ namespace Nexus.Link.Libraries.Crud.Web.RestClient
         #endregion
 
         /// <inheritdoc />
-        public CrudRestClient(IHttpSender httpSender)
-            : base(httpSender)
-        {
-        }
-
-        /// <inheritdoc />
         public virtual async Task<TId> CreateAsync(TModelCreate item, CancellationToken token = default(CancellationToken))
         {
             // TODO: PostAndDecorateResultAsync
             var invoiceId = await PostAsync<TId, TModelCreate>("", item, cancellationToken: token);
-            return Translator.Decorate("invoice.id", "producer", invoiceId);
+            if (IdConceptName == null || ProducerName == null || typeof(TId) != typeof(string)) return invoiceId;
+            return (TId)(object) Translator.Decorate(IdConceptName, ProducerName, (string)(object)invoiceId);
         }
 
         /// <inheritdoc />

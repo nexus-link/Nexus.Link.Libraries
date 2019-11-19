@@ -19,10 +19,9 @@ namespace Nexus.Link.Libraries.Web.RestClientHelper
     /// <summary>
     /// Convenience client for making REST calls
     /// </summary>
-    public class RestClient : IValueTranslatorRestClient
+    public class RestClient : IRestClient
     {
         public IHttpSender HttpSender { get; }
-        public IValueTranslatorHttpSender ValueTranslatorHttpSender { get; }
 
         private static readonly HttpMethod PatchMethod = new HttpMethod("PATCH");
 
@@ -31,14 +30,6 @@ namespace Nexus.Link.Libraries.Web.RestClientHelper
         {
             InternalContract.RequireNotNull(httpSender, nameof(httpSender));
             HttpSender = httpSender;
-        }
-
-        /// <inheritdoc />
-        public RestClient(IValueTranslatorHttpSender httpSender)
-        :this((IHttpSender)httpSender)
-        {
-            InternalContract.RequireNotNull(httpSender, nameof(httpSender));
-            ValueTranslatorHttpSender = httpSender;
         }
 
         #region Obsolete constructors
@@ -87,17 +78,6 @@ namespace Nexus.Link.Libraries.Web.RestClientHelper
         {
             InternalContract.RequireNotNull(relativeUrl, nameof(relativeUrl));
             var response = await SendRequestAsync<TResponse, TBody>(HttpMethod.Post, relativeUrl, body, customHeaders, cancellationToken);
-            return response.Body;
-        }
-
-        /// <inheritdoc />
-        public async Task<string> PostAndDecorateResultAsync<TBody>(string relativeUrl, TBody body, Dictionary<string, List<string>> customHeaders = null,
-            CancellationToken cancellationToken = default(CancellationToken))
-        {
-            InternalContract.Require(ValueTranslatorHttpSender != null, 
-                $"This object ({nameof(RestClient)} must be initiated with the {nameof(IValueTranslatorHttpSender)} constructor if you want to call this method.");
-            InternalContract.RequireNotNull(relativeUrl, nameof(relativeUrl));
-            var response = await SendRequestAndDecorateResponseAsync(HttpMethod.Post, relativeUrl, body, customHeaders, cancellationToken);
             return response.Body;
         }
 
@@ -218,16 +198,6 @@ namespace Nexus.Link.Libraries.Web.RestClientHelper
         {
             return HttpSender.SendRequestAsync<TResponse, TBody>(method, relativeUrl, body, customHeaders,
                 cancellationToken);
-        }
-
-        /// <inheritdoc />
-        public Task<HttpOperationResponse<string>> SendRequestAndDecorateResponseAsync<TBody>(HttpMethod method, string relativeUrl, TBody body = default(TBody),
-            Dictionary<string, List<string>> customHeaders = null, CancellationToken cancellationToken = default(CancellationToken))
-        {
-            InternalContract.Require(ValueTranslatorHttpSender != null, 
-                $"This object ({nameof(RestClient)} must be initiated with the {nameof(IValueTranslatorHttpSender)} constructor if you want to call this method.");
-            return ValueTranslatorHttpSender?.SendRequestAndDecorateResponseAsync(method, relativeUrl, body,
-                customHeaders, cancellationToken);
         }
 
         /// <inheritdoc />

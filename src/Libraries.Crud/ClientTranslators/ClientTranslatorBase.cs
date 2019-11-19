@@ -40,16 +40,13 @@ namespace Nexus.Link.Libraries.Crud.ClientTranslators
             IdConceptName = idConceptName;
             GetClientNameMethod = getClientNameMethod;
             TranslatorService = translatorService;
-            _translatorFactory = new TranslatorFactory(TranslatorService, GetClientNameMethod)
-            {
-                DefaultConceptName = IdConceptName
-            };
+            _translatorFactory = new TranslatorFactory(TranslatorService, GetClientNameMethod);
         }
 
         /// <summary>
         /// Returns a new translator for a client. 
         /// </summary>
-        protected Translator CreateTranslator()
+        protected ITranslator CreateTranslator()
         {
             return _translatorFactory.CreateTranslator();
         }
