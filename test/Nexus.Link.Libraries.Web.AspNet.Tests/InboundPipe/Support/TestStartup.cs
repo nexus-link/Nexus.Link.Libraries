@@ -19,17 +19,19 @@ namespace Nexus.Link.Libraries.Web.AspNet.Tests.InboundPipe.Support
             services
                 .AddMvc(opts => { opts.Filters.Add(valueTranslatorFilter); })
                 .SetCompatibilityVersion(CompatibilityVersion.Version_2_1)
+                //.AddApplicationPart(typeof(TestStartup).Assembly)
+                ;
                 // Tried to use this to avoid 404 not found
                 // https://github.com/aspnet/AspNetCore/issues/8428
-                .ConfigureApplicationPartManager(p =>
-                {
-                    var assembly = typeof(TestStartup).Assembly;
-                    var partFactory = ApplicationPartFactory.GetApplicationPartFactory(assembly);
-                    foreach (var part in partFactory.GetApplicationParts(assembly))
-                    {
-                        p.ApplicationParts.Add(part);
-                    }
-                });
+                //.ConfigureApplicationPartManager(p =>
+                //{
+                //    var assembly = typeof(TestStartup).Assembly;
+                //    var partFactory = ApplicationPartFactory.GetApplicationPartFactory(assembly);
+                //    foreach (var part in partFactory.GetApplicationParts(assembly))
+                //    {
+                //        p.ApplicationParts.Add(part);
+                //    }
+                //});
             valueTranslatorFilter.TranslatorFactory = TranslatorFactory;
         }
 

@@ -33,6 +33,18 @@ namespace Nexus.Link.Libraries.Web.AspNet.Tests.InboundPipe
         }
 
         [TestMethod]
+        public async Task OwinSimpleTest()
+        {
+            const string inId = "in-1";
+
+            var factory = new CustomWebApplicationFactory();
+            _httpClient = factory.CreateClient();
+
+            var response = await _httpClient.GetAsync($"/api/Foos/{inId}");
+            Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
+        }
+
+        [TestMethod]
         public async Task ArgumentsAndResultAreTranslatedAsync()
         {
             const string inId = "in-1";
