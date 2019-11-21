@@ -11,7 +11,11 @@
 
   <PropertyGroup>
     <PackageId>Nexus.Link.Libraries.Crud</PackageId>
+<<<<<<< .mine
     <Version>2.1.0</Version>
+=======
+    <Version>2.0.10</Version>
+>>>>>>> .theirs
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <PackageTags>nexus;link;fulcrum;lever</PackageTags>
     <Authors>XLENT Link</Authors>
@@ -22,6 +26,7 @@
     <IncludeSymbols>true</IncludeSymbols>
     <PackageReleaseNotes>
       2.1.0 Refactored translation.
+      2.0.10 Fix: AutoCache delete timing issue
       2.0.9 Fix: PackageProjectUrl for this nuget package
       2.0.8 Added missing "virtual" on methods
       2.0.6 Bump
