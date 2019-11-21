@@ -22,6 +22,7 @@
     <IncludeSymbols>true</IncludeSymbols>
     <PackageReleaseNotes>
       2.2.0: Override release that was released by mistake.
+      2.0.10 Fix: AutoCache delete timing issue
       2.0.9 Fix: PackageProjectUrl for this nuget package
       2.0.8 Added missing "virtual" on methods
       2.0.6 Bump

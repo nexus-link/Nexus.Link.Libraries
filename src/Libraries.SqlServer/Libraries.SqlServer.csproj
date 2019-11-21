@@ -16,7 +16,7 @@
 
   <PropertyGroup>
     <PackageId>Nexus.Link.Libraries.SqlServer</PackageId>
-    <Version>2.0.6</Version>
+    <Version>2.0.7</Version>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <PackageTags>nexus;link;fulcrum;lever</PackageTags>
     <Authors>XLENT Link</Authors>
@@ -26,6 +26,7 @@
     <Copyright>Copyright ©2019 Xlent Link AB</Copyright>
     <IncludeSymbols>true</IncludeSymbols>
     <PackageReleaseNotes>
+      2.0.7 Fix: Wrong inheritence for ManyToOneSql
       2.0.6 Fix: PackageProjectUrl for this nuget package
       2.0.5 Bump
       2.0.1 Depends on major change in Libraries.Core

@@ -115,6 +115,7 @@ namespace Nexus.Link.Libraries.Crud.Cache
 
         private async Task RemoveCachedChildrenInBackgroundAsync(TId parentId, CancellationToken token = default(CancellationToken))
         {
+            await DelayUntilNoOperationActiveAsync(parentId);
             var key = CacheKeyForChildrenCollection(parentId);
             await RemoveCacheItemsInBackgroundAsync(key, async () => await CacheGetAsync(int.MaxValue, key, token));
         }
