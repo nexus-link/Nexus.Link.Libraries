@@ -134,7 +134,7 @@ namespace Nexus.Link.Libraries.Web.AspNet.Pipe.Inbound
             if (!arguments.ContainsKey(parameterName)) return;
             var currentValue = arguments[parameterName];
             if (currentValue == null) return;
-            arguments[parameterName] = translator.DecorateItem(currentValue);
+            arguments[parameterName] = translator.Decorate(currentValue);
         }
 
         private static void LogDecorationFailure(ActionExecutingContext context, Exception exception)

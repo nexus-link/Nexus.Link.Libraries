@@ -35,7 +35,7 @@ namespace Nexus.Link.Libraries.Web.AspNet.Tests.InboundPipe
         }
 
         [TestMethod]
-        public async Task JsonDeserialize()
+        public void JsonDeserialize()
         {
             var inFoo = new Foo
             {

@@ -46,7 +46,7 @@ namespace Nexus.Link.Libraries.Crud.ServerTranslators.From
         {
             var result = await _service.ReadChildrenWithPagingAsync(parentId, offset, limit, token);
             var translator = CreateTranslator();
-            return translator.DecorateItem(result);
+            return translator.Decorate(result);
         }
 
         /// <inheritdoc />
@@ -54,7 +54,7 @@ namespace Nexus.Link.Libraries.Crud.ServerTranslators.From
         {
             var result = await _service.ReadChildrenAsync(parentId, limit, token);
             var translator = CreateTranslator();
-            return translator.DecorateItems(result);
+            return translator.Decorate(result);
         }
 
         /// <inheritdoc />

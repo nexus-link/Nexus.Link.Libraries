@@ -35,16 +35,39 @@ namespace Nexus.Link.Libraries.Core.Translation
         /// <summary>
         /// Decorate the <paramref name="item"/> so that concept values are set to concept value paths.
         /// </summary>
+        [Obsolete("Use the method Decorate<T>(T). Obsolete since 2019-11-21.")]
         TModel DecorateItem<TModel>(TModel item);
+
+        /// <summary>
+        /// Decorate the <paramref name="item"/> so that concept values are set to concept value paths.
+        /// </summary>
+        T Decorate<T>(T item);
+
+        /// <summary>
+        /// Decorate the <paramref name="item"/> so that concept values are set to concept value paths.
+        /// </summary>
+        object Decorate(object item, Type type);
+
+        /// <summary>
+        /// Decorate the <paramref name="items"/> so that concept values are set to concept value paths.
+        /// </summary>
+        IEnumerable<T> Decorate<T>(IEnumerable<T> items);
+
+        /// <summary>
+        /// Decorate the <paramref name="items"/> so that concept values are set to concept value paths.
+        /// </summary>
+        IEnumerable<object> Decorate(IEnumerable<object> items, Type type);
 
         /// <summary>
         ///  Decorate the <paramref name="items"/> so that concept values are set to concept value paths.
         /// </summary>
+        [Obsolete("Use the method Decorate<T>(T). Obsolete since 2019-11-21.")]
         IEnumerable<TModel> DecorateItems<TModel>(IEnumerable<TModel> items);
 
         /// <summary>
         /// Decorate the <paramref name="page"/> so that concept values are set to concept value paths.
         /// </summary>
+        [Obsolete("Use the method Decorate<T>(T). Obsolete since 2019-11-21.")]
         PageEnvelope<TModel> DecoratePage<TModel>(PageEnvelope<TModel> page);
 
         /// <summary>

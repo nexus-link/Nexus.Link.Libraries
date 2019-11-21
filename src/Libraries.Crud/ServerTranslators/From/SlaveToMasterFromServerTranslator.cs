@@ -58,7 +58,7 @@ namespace Nexus.Link.Libraries.Crud.ServerTranslators.From
             var result = await _service.CreateAndReturnAsync(masterId, item, token);
             var translator = CreateTranslator();
             FulcrumAssert.IsNotNull(result);
-            return translator.DecorateItem(result);
+            return translator.Decorate(result);
         }
 
         /// <inheritdoc />
@@ -75,7 +75,7 @@ namespace Nexus.Link.Libraries.Crud.ServerTranslators.From
             var result = await _service.CreateWithSpecifiedIdAndReturnAsync(masterId, slaveId, item, token);
             var translator = CreateTranslator();
             FulcrumAssert.IsNotNull(result);
-            return translator.DecorateItem(result);
+            return translator.Decorate(result);
         }
 
         /// <inheritdoc />
@@ -84,7 +84,7 @@ namespace Nexus.Link.Libraries.Crud.ServerTranslators.From
             var result = await _service.ReadAsync(masterId, slaveId, token);
             var translator = CreateTranslator();
             FulcrumAssert.IsNotNull(result);
-            return translator.DecorateItem(result);
+            return translator.Decorate(result);
         }
 
         /// <inheritdoc />
@@ -99,7 +99,7 @@ namespace Nexus.Link.Libraries.Crud.ServerTranslators.From
         {
             var result = await _service.ReadChildrenWithPagingAsync(parentId, offset, limit, token);
             var translator = CreateTranslator();
-            return translator.DecorateItem(result);
+            return translator.Decorate(result);
         }
 
         /// <inheritdoc />
@@ -107,7 +107,7 @@ namespace Nexus.Link.Libraries.Crud.ServerTranslators.From
         {
             var result = await _service.ReadChildrenAsync(parentId, limit, token);
             var translator = CreateTranslator();
-            return translator.DecorateItems(result);
+            return translator.Decorate(result);
         }
 
         /// <inheritdoc />
@@ -123,7 +123,7 @@ namespace Nexus.Link.Libraries.Crud.ServerTranslators.From
             var result = await _service.UpdateAndReturnAsync(masterId, slaveId, item, token);
             var translator = CreateTranslator();
             FulcrumAssert.IsNotNull(result);
-            return translator.DecorateItem(result);
+            return translator.Decorate(result);
         }
 
         /// <inheritdoc />
