@@ -36,12 +36,18 @@ namespace Nexus.Link.Libraries.Web.AspNet.Tests.InboundPipe
         [TestMethod]
         public async Task OwinSimpleTest()
         {
-            const string inId = "in-1";
+            // Mock a translator
+            var translatorServiceMock = new Mock<ITranslatorService>();
+            var decoratedProducerId1 = Translator.Decorate(Foo.IdConceptName, Foo.ProducerName, Foo.ProducerId1);
+            translatorServiceMock
+                .Setup(service => service.TranslateAsync(It.IsAny<IEnumerable<string>>(),It.IsAny<string>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(() =>new Dictionary<string, string> {{decoratedProducerId1, Foo.ConsumerId1}});
 
+            TestStartup.TranslatorFactory = new TranslatorFactory(translatorServiceMock.Object, () => Foo.ConsumerName);
             var factory = new CustomWebApplicationFactory();
             _httpClient = factory.CreateClient();
 
-            var response = await _httpClient.GetAsync($"/api/Foos/{inId}");
+            var response = await _httpClient.GetAsync($"/api/Foos/{Foo.ConsumerId1}");
             Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
         }
 
