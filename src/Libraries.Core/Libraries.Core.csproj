@@ -43,7 +43,7 @@
     <Copyright>Copyright ©2019 Xlent Link AB</Copyright>
     <IncludeSymbols>true</IncludeSymbols>
     <PackageReleaseNotes>
-      4.9.0 Refactored Translator and based it on ITranslator.
+      4.9.0-alfa Refactored Translator and based it on ITranslator.
       4.8.1 Fix: PackageProjectUrl for this nuget package
       4.8.0 More overloads in JsonHelper.
       4.7.1 Bump
