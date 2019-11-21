@@ -131,6 +131,7 @@ namespace Nexus.Link.Libraries.Core.Translation
             var json = JsonConvert.SerializeObject(item);
             foreach (var conceptValue in _conceptValues)
             {
+                if (!_translations.ContainsKey(conceptValue)) continue;
                 json = json.Replace(conceptValue, _translations[conceptValue]);
             }
             return JsonConvert.DeserializeObject<T>(json);

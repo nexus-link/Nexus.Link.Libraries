@@ -14,6 +14,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using Newtonsoft.Json;
 using Nexus.Link.Libraries.Core.Application;
+using Nexus.Link.Libraries.Core.Error.Logic;
 using Nexus.Link.Libraries.Core.Translation;
 
 namespace Nexus.Link.Libraries.Web.AspNet.Tests.InboundPipe
@@ -47,35 +48,58 @@ namespace Nexus.Link.Libraries.Web.AspNet.Tests.InboundPipe
         [TestMethod]
         public async Task ArgumentsAndResultAreTranslatedAsync()
         {
-            const string inId = "in-1";
-            const string outId = "out-1";
 
             // Mock a translator
             var translatorServiceMock = new Mock<ITranslatorService>();
+            var decoratedProducerId1 = Translator.Decorate(Foo.IdConceptName, Foo.ProducerName, Foo.ProducerId1);
             translatorServiceMock
                 .Setup(service => service.TranslateAsync(It.IsAny<IEnumerable<string>>(),It.IsAny<string>(), It.IsAny<CancellationToken>()))
-                .ReturnsAsync(() =>new Dictionary<string, string> {{$"(foo.id!~consumer!{inId})", outId}});
+                .ReturnsAsync(() =>new Dictionary<string, string> {{decoratedProducerId1, Foo.ConsumerId1}});
 
-            TestStartup.TranslatorFactory = new TranslatorFactory(translatorServiceMock.Object, () => "consumer");
+            TestStartup.TranslatorFactory = new TranslatorFactory(translatorServiceMock.Object, () => Foo.ConsumerName);
             var factory = new CustomWebApplicationFactory();
             _httpClient = factory.CreateClient();
 
             // Call method
             var inFoo = new Foo
             {
-                Id = inId,
+                Id = Foo.ConsumerId1,
                 Name = "name"
             };
-            var response = await _httpClient.PutAsync($"http://localhost/api/Foos/{inId}", new ObjectContent<Foo>(inFoo, new JsonMediaTypeFormatter()));
+            var response = await _httpClient.PutAsync($"http://localhost/api/Foos/{Foo.ConsumerId1}", new ObjectContent<Foo>(inFoo, new JsonMediaTypeFormatter()));
             Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
-
             var jsonString = await response.Content.ReadAsStringAsync();
+            Assert.IsFalse(string.IsNullOrWhiteSpace(jsonString));
             Console.WriteLine(jsonString);
             var outFoo = JsonConvert.DeserializeObject<Foo>(jsonString);
 
             // Verify that the result has been translated
             Assert.IsNotNull(outFoo);
-            Assert.AreEqual(outId, outFoo.Id);
+            Assert.AreEqual(Foo.ConsumerId1, outFoo.Id);
+        }
+
+        [TestMethod]
+        public async Task TranslatorResourceException()
+        {
+
+            // Mock a translator
+            var translatorServiceMock = new Mock<ITranslatorService>();
+            var decoratedProducerId1 = Translator.Decorate(Foo.IdConceptName, Foo.ProducerName, Foo.ProducerId1);
+            translatorServiceMock
+                .Setup(service => service.TranslateAsync(It.IsAny<IEnumerable<string>>(),It.IsAny<string>(), It.IsAny<CancellationToken>()))
+                .ThrowsAsync(new FulcrumResourceException("Fail"));
+
+            TestStartup.TranslatorFactory = new TranslatorFactory(translatorServiceMock.Object, () => Foo.ConsumerName);
+            var factory = new CustomWebApplicationFactory();
+            _httpClient = factory.CreateClient();
+
+            // Call method
+            var inFoo = new Foo
+            {
+                Id = Foo.ConsumerId1,
+                Name = "name"
+            };
+            var response = await _httpClient.PutAsync($"http://localhost/api/Foos/{Foo.ConsumerId1}", new ObjectContent<Foo>(inFoo, new JsonMediaTypeFormatter()));
         }
     }
 }
