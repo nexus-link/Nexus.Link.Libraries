@@ -11,7 +11,7 @@
 
   <PropertyGroup>
     <PackageId>Nexus.Link.Libraries.Crud</PackageId>
-    <Version>2.0.9</Version>
+    <Version>2.1.0</Version>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <PackageTags>nexus;link;fulcrum;lever</PackageTags>
     <Authors>XLENT Link</Authors>
@@ -21,6 +21,7 @@
     <Copyright>Copyright ©2019 Xlent Link AB</Copyright>
     <IncludeSymbols>true</IncludeSymbols>
     <PackageReleaseNotes>
+      2.1.0 Refactored translation.
       2.0.9 Fix: PackageProjectUrl for this nuget package
       2.0.8 Added missing "virtual" on methods
       2.0.6 Bump
