@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Nexus.Link.Libraries.Core.Assert;
@@ -11,6 +12,7 @@ using Nexus.Link.Libraries.Crud.PassThrough;
 namespace Nexus.Link.Libraries.Crud.ServerTranslators.From
 {
     /// <inheritdoc cref="SlaveToMasterFromServerTranslator{TModelCreate, TModel}" />
+    [Obsolete("Use Libraries.Web ValueTranslatorHttpSender. Obsolete since 2019-11-21.")]
     public class SlaveToMasterFromServerTranslator<TModel> : 
         SlaveToMasterFromServerTranslator<TModel, TModel>,
         ICrudSlaveToMaster<TModel, string>
@@ -24,6 +26,7 @@ namespace Nexus.Link.Libraries.Crud.ServerTranslators.From
     }
 
     /// <inheritdoc cref="ServerTranslatorBase" />
+    [Obsolete("Use Libraries.Web ValueTranslatorHttpSender. Obsolete since 2019-11-21.")]
     public class SlaveToMasterFromServerTranslator<TModelCreate, TModel> : 
         ServerTranslatorBase,
         ICrudSlaveToMaster<TModelCreate, TModel, string>

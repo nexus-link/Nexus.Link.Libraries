@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -11,6 +12,7 @@ using Nexus.Link.Libraries.Crud.PassThrough;
 namespace Nexus.Link.Libraries.Crud.ClientTranslators
 {
     /// <inheritdoc cref="CrudClientTranslator{TModel}" />
+    [Obsolete("Use Libraries.Web.AspNet ValueTranslatorFilter. Obsolete since 2019-11-21.")]
     public class ManyToOneClientTranslator<TModel> : 
         ManyToOneClientTranslator<TModel, TModel>,
         ICrudManyToOne<TModel, string>
@@ -24,6 +26,7 @@ namespace Nexus.Link.Libraries.Crud.ClientTranslators
     }
 
     /// <inheritdoc cref="CrudClientTranslator{TModel}" />
+    [Obsolete("Use Libraries.Web.AspNet ValueTranslatorFilter. Obsolete since 2019-11-21.")]
     public class ManyToOneClientTranslator<TModelCreate, TModel> :
         CrudClientTranslator<TModelCreate, TModel>, 
         ICrudManyToOne<TModelCreate, TModel, string>

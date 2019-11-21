@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Nexus.Link.Libraries.Core.Assert;
@@ -9,6 +10,7 @@ using Nexus.Link.Libraries.Crud.PassThrough;
 namespace Nexus.Link.Libraries.Crud.ServerTranslators.From
 {
     /// <inheritdoc cref="ManyToOneFromServerTranslator{TModelCreate, TModel}" />
+    [Obsolete("Use Libraries.Web ValueTranslatorHttpSender. Obsolete since 2019-11-21.")]
     public class ManyToOneFromServerTranslator<TModel> :
         ManyToOneFromServerTranslator<TModel, TModel>,
         ICrudManyToOne<TModel, string>
@@ -23,6 +25,7 @@ namespace Nexus.Link.Libraries.Crud.ServerTranslators.From
     }
 
     /// <inheritdoc cref="CrudFromServerTranslator{TModelCreate, TModel}" />
+    [Obsolete("Use Libraries.Web ValueTranslatorHttpSender. Obsolete since 2019-11-21.")]
     public class ManyToOneFromServerTranslator<TModelCreate, TModel> :
         CrudFromServerTranslator<TModelCreate, TModel>,
         ICrudManyToOne<TModelCreate, TModel, string>

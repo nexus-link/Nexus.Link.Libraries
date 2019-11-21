@@ -18,6 +18,20 @@ namespace Nexus.Link.Libraries.Crud.Web.RestClient
         CrudRestClient<TModel, TModel, TId>,
         ICrud<TModel, TId>
     {
+        /// <summary>
+        /// Constructor. 
+        /// </summary>
+        /// <param name="httpSender"></param>
+        /// <param name="idConceptName">The concept name for the string result from CreateAsync.</param>
+        /// <param name="producerName">The name of the system that is called. Used for decorating the string result from CreateAsync.</param>
+        /// <remarks>
+        /// If you intend to decorate results from the CreateAsync method you must set <paramref name="idConceptName"/> and <paramref name="producerName"/>.
+        /// </remarks>
+        public CrudRestClient(IHttpSender httpSender, string idConceptName = null, string producerName = null)
+            : base(httpSender, idConceptName, producerName)
+        {
+        }
+
         #region Obsolete constructors
         /// <summary></summary>
         /// <param name="baseUri">The base URL that all HTTP calls methods will refer to.</param>
@@ -45,12 +59,6 @@ namespace Nexus.Link.Libraries.Crud.Web.RestClient
         {
         }
         #endregion
-
-        /// <inheritdoc />
-        public CrudRestClient(IHttpSender httpSender)
-            : base(httpSender)
-        {
-        }
     }
 
     /// <inheritdoc cref="RestClient" />
@@ -74,7 +82,7 @@ namespace Nexus.Link.Libraries.Crud.Web.RestClient
         /// <param name="idConceptName">The concept name for the string result from CreateAsync.</param>
         /// <param name="producerName">The name of the system that is called. Used for decorating the string result from CreateAsync.</param>
         /// <remarks>
-        /// If you want intend to decorate results from the CreateAsync method you must set <paramref name="idConceptName"/> and <paramref name="producerName"/>.
+        /// If you intend to decorate results from the CreateAsync method you must set <paramref name="idConceptName"/> and <paramref name="producerName"/>.
         /// </remarks>
         public CrudRestClient(IHttpSender httpSender, string idConceptName = null, string producerName = null)
             : base(httpSender)
