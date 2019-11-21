@@ -79,6 +79,7 @@ namespace Nexus.Link.Libraries.Web.AspNet.Tests.InboundPipe
         }
 
         [TestMethod]
+        [ExpectedException(typeof(FulcrumResourceException))]
         public async Task TranslatorResourceException()
         {
 
@@ -99,7 +100,7 @@ namespace Nexus.Link.Libraries.Web.AspNet.Tests.InboundPipe
                 Id = Foo.ConsumerId1,
                 Name = "name"
             };
-            var response = await _httpClient.PutAsync($"http://localhost/api/Foos/{Foo.ConsumerId1}", new ObjectContent<Foo>(inFoo, new JsonMediaTypeFormatter()));
+            await _httpClient.PutAsync($"http://localhost/api/Foos/{Foo.ConsumerId1}", new ObjectContent<Foo>(inFoo, new JsonMediaTypeFormatter()));
         }
     }
 }

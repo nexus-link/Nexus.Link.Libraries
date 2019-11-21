@@ -1,9 +1,8 @@
 ﻿
-
+#if NETCOREAPP
 using Newtonsoft.Json;
 using Nexus.Link.Libraries.Core.Logging;
 using Nexus.Link.Libraries.Web.AspNet.Logging;
-#if NETCOREAPP
 using System;
 using System.Collections.Generic;
 using System.Reflection;
@@ -14,7 +13,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Controllers;
 using Nexus.Link.Libraries.Core.Application;
 using Nexus.Link.Libraries.Core.Assert;
-using Nexus.Link.Libraries.Core.Json;
 using Nexus.Link.Libraries.Core.Translation;
 
 namespace Nexus.Link.Libraries.Web.AspNet.Pipe.Inbound
@@ -59,7 +57,7 @@ namespace Nexus.Link.Libraries.Web.AspNet.Pipe.Inbound
                 }
                 catch (Exception exception)
                 {
-                    await LogDecorationFailure(context, exception);
+                    LogDecorationFailure(context, exception);
                 }
             }
 
@@ -173,8 +171,11 @@ namespace Nexus.Link.Libraries.Web.AspNet.Pipe.Inbound
             if (context?.Result == null) return;
             if (!(context.Result is ObjectResult objectResult)) return;
 
-            await translator.Add(objectResult.Value).ExecuteAsync(cancellationToken);
-            objectResult.Value = translator.Translate(objectResult.Value);
+            var itemBeforeTranslation = objectResult.Value;
+
+            await translator.Add(itemBeforeTranslation).ExecuteAsync(cancellationToken);
+            var itemAfterTranslation = translator.Translate(itemBeforeTranslation,itemBeforeTranslation.GetType());
+            context.Result = new ObjectResult(itemAfterTranslation);
         }
 
         private static async Task LogTranslationFailureAsync(ResultExecutingContext context, Exception exception)

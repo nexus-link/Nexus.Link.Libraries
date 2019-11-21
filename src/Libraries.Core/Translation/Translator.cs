@@ -127,14 +127,22 @@ namespace Nexus.Link.Libraries.Core.Translation
         /// <inheritdoc/>
         public T Translate<T>(T item)
         {
-            if (item == null) return default(T);
+           return (T) Translate(item, typeof(T));
+        }
+
+        /// <inheritdoc />
+        public object Translate(object item, Type type)
+        {
+            if (item == null) return null;
             var json = JsonConvert.SerializeObject(item);
             foreach (var conceptValue in _conceptValues)
             {
                 if (!_translations.ContainsKey(conceptValue)) continue;
                 json = json.Replace(conceptValue, _translations[conceptValue]);
             }
-            return JsonConvert.DeserializeObject<T>(json);
+            var translatedItem = JsonConvert.DeserializeObject(json, type);
+            FulcrumAssert.AreEqual(translatedItem.GetType(), type);
+            return translatedItem;
         }
 
         #region private methods

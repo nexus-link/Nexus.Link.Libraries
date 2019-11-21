@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Nexus.Link.Libraries.Core.Crud.Model;
@@ -55,6 +56,12 @@ namespace Nexus.Link.Libraries.Core.Translation
         /// <summary>
         /// Find all concept values in the <paramref name="item"/>, translate them and return the result.
         /// </summary>
+        /// <remarks>Convenience function for <see cref="Translate"/></remarks>
         T Translate<T>(T item);
+
+        /// <summary>
+        /// Find all concept values in the <paramref name="item"/>, translate them and return the result.
+        /// </summary>
+        object Translate(object item, Type type);
     }
 }
