@@ -28,7 +28,7 @@
 
   <PropertyGroup>
     <PackageId>Nexus.Link.Libraries.Web.AspNet</PackageId>
-    <Version>2.12.7</Version>
+    <Version>2.14.0</Version>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <PackageTags>nexus;link;fulcrum;lever</PackageTags>
     <Authors>XLENT Link</Authors>
@@ -38,6 +38,7 @@
     <Copyright>Copyright ©2019 Xlent Link AB</Copyright>
     <IncludeSymbols>true</IncludeSymbols>
     <PackageReleaseNotes>
+      2.14.0: Override release that was released by mistake.
       2.12.7 Fix: PackageProjectUrl for this nuget package
       2.12.6 Support more local hosts. Also LoadConfiguration => LoadConfigurationAsync in NexusWebApiApplication.
       2.12.4 Bump
