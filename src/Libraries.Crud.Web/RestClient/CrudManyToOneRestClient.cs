@@ -20,8 +20,13 @@ namespace Nexus.Link.Libraries.Crud.Web.RestClient
         /// <param name="parentName">The name of the sub path that is the parent of the children. (Singular noun)</param>
         /// <param name="childrenName">The name of the sub path that are the children. (Plural noun)</param>
         /// <param name="httpSender">How to actually send HTTP requests.</param>
-        public CrudManyToOneRestClient(IHttpSender httpSender, string parentName = "Parent", string childrenName = "Children")
-            : base(httpSender, parentName, childrenName)
+        /// <param name="idConceptName">The concept name for the string result from CreateAsync.</param>
+        /// <param name="producerName">The name of the system that is called. Used for decorating the string result from CreateAsync.</param>
+        /// <remarks>
+        /// If you intend to decorate results from the CreateAsync method you must set <paramref name="idConceptName"/> and <paramref name="producerName"/>.
+        /// </remarks>
+        public CrudManyToOneRestClient(IHttpSender httpSender, string parentName = "Parent", string childrenName = "Children", string idConceptName = null, string producerName = null)
+            : base(httpSender, parentName, childrenName, idConceptName, producerName)
         {
         }
 
@@ -81,8 +86,13 @@ namespace Nexus.Link.Libraries.Crud.Web.RestClient
         /// <param name="httpSender">How to actually send HTTP requests.</param>
         /// <param name="parentName">The name of the sub path that is the parent of the children. (Singular noun)</param>
         /// <param name="childrenName">The name of the sub path that are the children. (Plural noun)</param>
-        public CrudManyToOneRestClient(IHttpSender httpSender, string parentName = "Parent", string childrenName = "Children")
-            : base(httpSender)
+        /// <param name="idConceptName">The concept name for the string result from CreateAsync.</param>
+        /// <param name="producerName">The name of the system that is called. Used for decorating the string result from CreateAsync.</param>
+        /// <remarks>
+        /// If you intend to decorate results from the CreateAsync method you must set <paramref name="idConceptName"/> and <paramref name="producerName"/>.
+        /// </remarks>
+        public CrudManyToOneRestClient(IHttpSender httpSender, string parentName = "Parent", string childrenName = "Children", string idConceptName = null, string producerName = null)
+            : base(httpSender, idConceptName, producerName)
         {
             ParentName = parentName;
             ChildrenName = childrenName;

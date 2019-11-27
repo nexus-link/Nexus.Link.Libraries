@@ -62,15 +62,41 @@ namespace Nexus.Link.Libraries.Core.Translation
             return id;
         }
 
-        /// <inheritdoc/>
-        public TModel DecorateItem<TModel>(TModel item)
+        /// <inheritdoc />
+        public T Decorate<T>(T item)
         {
-            if (Equals(item, default(TModel))) return item;
+            return (T) Decorate(item, typeof(T));
+        }
+
+        /// <inheritdoc />
+        public object Decorate(object item, Type type)
+        {
+            if (item == null) return null;
             DecoratePropertiesWithConceptAttribute(item);
             return item;
         }
 
+        /// <inheritdoc />
+        public IEnumerable<T> Decorate<T>(IEnumerable<T> items)
+        {
+            return items?.Select(Decorate);
+        }
+
+        /// <inheritdoc />
+        public IEnumerable<object> Decorate(IEnumerable<object> items, Type type)
+        {
+            return items?.Select(i => Decorate(i, type));
+        }
+
         /// <inheritdoc/>
+        [Obsolete("Use the method Decorate<T>(T). Obsolete since 2019-11-21.")]
+        public TModel DecorateItem<TModel>(TModel item)
+        {
+            return Decorate(item);
+        }
+
+        /// <inheritdoc/>
+        [Obsolete("Use the method Decorate<T>(T). Obsolete since 2019-11-21.")]
         public IEnumerable<TModel> DecorateItems<TModel>(IEnumerable<TModel> items)
         {
             if (items == null) return null;
@@ -84,6 +110,7 @@ namespace Nexus.Link.Libraries.Core.Translation
         }
 
         /// <inheritdoc/>
+        [Obsolete("Use the method Decorate<T>(T). Obsolete since 2019-11-21.")]
         public PageEnvelope<TModel> DecoratePage<TModel>(PageEnvelope<TModel> page)
         {
             if (page == null) return null;
@@ -127,13 +154,22 @@ namespace Nexus.Link.Libraries.Core.Translation
         /// <inheritdoc/>
         public T Translate<T>(T item)
         {
-            if (item == null) return default(T);
+           return (T) Translate(item, typeof(T));
+        }
+
+        /// <inheritdoc />
+        public object Translate(object item, Type type)
+        {
+            if (item == null) return null;
             var json = JsonConvert.SerializeObject(item);
             foreach (var conceptValue in _conceptValues)
             {
+                if (!_translations.ContainsKey(conceptValue)) continue;
                 json = json.Replace(conceptValue, _translations[conceptValue]);
             }
-            return JsonConvert.DeserializeObject<T>(json);
+            var translatedItem = JsonConvert.DeserializeObject(json, type);
+            FulcrumAssert.AreEqual(translatedItem.GetType(), type);
+            return translatedItem;
         }
 
         #region private methods

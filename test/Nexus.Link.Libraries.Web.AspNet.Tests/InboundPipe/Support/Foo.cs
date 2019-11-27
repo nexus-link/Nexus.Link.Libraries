@@ -4,10 +4,16 @@ using Nexus.Link.Libraries.Core.Translation;
 
 namespace Nexus.Link.Libraries.Web.AspNet.Tests.InboundPipe.Support
 {
-    internal class Foo : IUniquelyIdentifiable<string>
+    public class Foo : IUniquelyIdentifiable<string>
     {
+        public const string IdConceptName = "foo.id";
+        public const string ConsumerName = "consumer";
+        public const string ProducerName = "producer";
+        public const string ConsumerId1 = "consumer-1";
+        public const string ProducerId1 = "producer-1";
+
         /// <inheritdoc />
-        [TranslationConcept("foo.id")]
+        [TranslationConcept(IdConceptName)]
         public string Id { get; set; }
 
         public string Name { get; set; }

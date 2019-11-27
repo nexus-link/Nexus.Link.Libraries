@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -12,6 +13,7 @@ using Nexus.Link.Libraries.Crud.PassThrough;
 namespace Nexus.Link.Libraries.Crud.ClientTranslators
 {
     /// <inheritdoc cref="CrudClientTranslator{TModelCreate, TModel}" />
+    [Obsolete("Use Libraries.Web.AspNet ValueTranslatorFilter. Obsolete since 2019-11-21.")]
     public class CrudClientTranslator<TModel> : 
         CrudClientTranslator<TModel, TModel>, 
         ICrud<TModel, string>
@@ -25,6 +27,7 @@ namespace Nexus.Link.Libraries.Crud.ClientTranslators
     }
 
     /// <inheritdoc cref="ClientTranslatorBase" />
+    [Obsolete("Use Libraries.Web.AspNet ValueTranslatorFilter. Obsolete since 2019-11-21.")]
     public class CrudClientTranslator<TModelCreate, TModel> : 
         ClientTranslatorBase, 
         ICrud<TModelCreate, TModel, string>
@@ -47,7 +50,7 @@ namespace Nexus.Link.Libraries.Crud.ClientTranslators
         public async Task<string> CreateAsync(TModelCreate item, CancellationToken token = default(CancellationToken))
         {
             var translator = CreateTranslator();
-            item = translator.DecorateItem(item);
+            item = translator.Decorate(item);
             var decoratedId = await _service.CreateAsync(item, token);
             await translator.Add(decoratedId).ExecuteAsync(token);
             return translator.Translate(decoratedId);
@@ -57,7 +60,7 @@ namespace Nexus.Link.Libraries.Crud.ClientTranslators
         public async Task<TModel> CreateAndReturnAsync(TModelCreate item, CancellationToken token = default(CancellationToken))
         {
             var translator = CreateTranslator();
-            item = translator.DecorateItem(item);
+            item = translator.Decorate(item);
             var decoratedResult = await _service.CreateAndReturnAsync(item, token);
             await translator.Add(decoratedResult).ExecuteAsync(token);
             return translator.Translate(decoratedResult);
@@ -68,7 +71,7 @@ namespace Nexus.Link.Libraries.Crud.ClientTranslators
         {
             var translator = CreateTranslator();
             id = translator.Decorate(IdConceptName, id);
-            item = translator.DecorateItem(item);
+            item = translator.Decorate(item);
             await _service.CreateWithSpecifiedIdAsync(id, item, token);
         }
 
@@ -78,7 +81,7 @@ namespace Nexus.Link.Libraries.Crud.ClientTranslators
         {
             var translator = CreateTranslator();
             id = translator.Decorate(IdConceptName, id);
-            item = translator.DecorateItem(item);
+            item = translator.Decorate(item);
             var decoratedResult = await _service.CreateWithSpecifiedIdAndReturnAsync(id, item, token);
             await translator.Add(decoratedResult).ExecuteAsync(token);
             return translator.Translate(decoratedResult);
@@ -118,7 +121,7 @@ namespace Nexus.Link.Libraries.Crud.ClientTranslators
         {
             var translator = CreateTranslator();
             id = translator.Decorate(IdConceptName, id);
-            item = translator.DecorateItem(item);
+            item = translator.Decorate(item);
             await _service.UpdateAsync(id, item, token);
         }
 
@@ -127,7 +130,7 @@ namespace Nexus.Link.Libraries.Crud.ClientTranslators
         {
             var translator = CreateTranslator();
             id = translator.Decorate(IdConceptName, id);
-            item = translator.DecorateItem(item);
+            item = translator.Decorate(item);
             var decoratedResult = await _service.UpdateAndReturnAsync(id, item, token);
             await translator.Add(decoratedResult).ExecuteAsync(token);
             return translator.Translate(decoratedResult);

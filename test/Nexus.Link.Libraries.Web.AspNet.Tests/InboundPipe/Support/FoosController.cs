@@ -16,7 +16,7 @@ namespace Nexus.Link.Libraries.Web.AspNet.Tests.InboundPipe.Support
     [ApiController]
     [Route("api/Foos")]
     [SuppressMessage("ReSharper", "IdentifierTypo")]
-    internal class FoosController : ControllerBase, IRead<Foo, string>, IUpdateAndReturn<Foo, string>
+    public class FoosController : ControllerBase, IRead<Foo, string>, IUpdateAndReturn<Foo, string>
     {
         /// <inheritdoc />
         [HttpGet("{id}")]
@@ -28,13 +28,17 @@ namespace Nexus.Link.Libraries.Web.AspNet.Tests.InboundPipe.Support
 
         /// <inheritdoc />
         [HttpPut("{id}")]
-        public Task<Foo> UpdateAndReturnAsync([TranslationConcept("foo.id")]string id, Foo item,
+        public Task<Foo> UpdateAndReturnAsync([TranslationConcept(Foo.IdConceptName)]string id, Foo item,
             CancellationToken token = default(CancellationToken))
         {
             InternalContract.RequireNotNullOrWhiteSpace(id, nameof(id));
             InternalContract.RequireNotNull(item, nameof(item));
-            Assert.IsTrue(item.Id.StartsWith("(foo.id!"));
+            var success = ConceptValue.TryParse(item.Id, out var conceptValue);
+            FulcrumAssert.IsTrue(success);
+            FulcrumAssert.AreEqual(Foo.IdConceptName, conceptValue.ConceptName);
+            FulcrumAssert.AreEqual(Foo.ConsumerName, conceptValue.ClientName);
             InternalContract.Require(id == item.Id, $"Expected {nameof(id)} to be identical to {nameof(item)}.{nameof(item.Id)}.");
+            item.Id = Translator.Decorate(Foo.IdConceptName, Foo.ProducerName, Foo.ProducerId1);
             return Task.FromResult(item);
         }
     }

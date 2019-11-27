@@ -1,13 +1,15 @@
-﻿using Nexus.Link.Libraries.Core.Translation;
+﻿using System;
+using Nexus.Link.Libraries.Core.Translation;
 
 namespace Nexus.Link.Libraries.Crud.ServerTranslators
 {
     /// <summary>
     /// Decorate values from server and translate concept values to server.
     /// </summary>
+    [Obsolete("Use Libraries.Web ValueTranslatorHttpSender. Obsolete since 2019-11-21.")]
     public abstract class ServerTranslatorBase
     {
-        private TranslatorFactory _translatorFactory;
+        private readonly TranslatorFactory _translatorFactory;
 
         /// <summary>
         /// The concept name for the id. Is used for translations of id parameters and id results.
