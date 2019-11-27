@@ -1,18 +1,15 @@
 ﻿using System;
+using System.Collections.Generic;
 using Nexus.Link.Libraries.Core.Assert;
 
 namespace Nexus.Link.Services.Contracts.Events.SynchronizedEntity
 {
-    /// <summary>
-    /// This event is published whenever a new Invoices has been published.
-    /// </summary>
-    public class DataSyncEntityWasUpdated : IPublishableEvent
+    public class DataSyncEntityWasAssociated : IPublishableEvent
     {
         /// <inheritdoc />
-        public EventMetadata Metadata { get; set; } = 
-            new EventMetadata("DataSyncEntity", "Updated", 1, 0);
+        public EventMetadata Metadata { get; set; } = new EventMetadata("DataSyncEntity", "Associated", 1, 0);
 
-        public SyncKey Key { get; } = new SyncKey();
+        public List<SyncKey> AssociatedKeys { get; set; }
 
         /// <summary>
         /// The time (ISO8061) when the object was updated.
@@ -29,8 +26,12 @@ namespace Nexus.Link.Services.Contracts.Events.SynchronizedEntity
         {
             FulcrumValidate.IsNotNull(Metadata, nameof(Metadata), errorLocation);
             FulcrumValidate.IsValidated(Metadata, $"{propertyPath}.{nameof(Metadata)}", nameof(Metadata), errorLocation);
-            FulcrumValidate.IsNotNull(Key, nameof(Key), errorLocation);
-            FulcrumValidate.IsValidated(Key, $"{propertyPath}.{nameof(Key)}", nameof(Key), errorLocation);
+            FulcrumValidate.IsNotNull(AssociatedKeys, nameof(AssociatedKeys), errorLocation);
+            var i = 0;
+            foreach (var associatedKey in AssociatedKeys)
+            {
+                FulcrumValidate.IsValidated(associatedKey, $"{propertyPath}[{i++}]", nameof(associatedKey), errorLocation);
+            }
         }
     }
 }
