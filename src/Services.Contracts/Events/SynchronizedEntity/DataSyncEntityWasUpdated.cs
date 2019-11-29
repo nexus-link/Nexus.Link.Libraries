@@ -1,5 +1,6 @@
 ﻿using System;
 using Nexus.Link.Libraries.Core.Assert;
+using Nexus.Link.Libraries.Core.Platform.DataSyncEngine;
 
 namespace Nexus.Link.Services.Contracts.Events.SynchronizedEntity
 {

@@ -1,6 +1,6 @@
 ﻿using Nexus.Link.Libraries.Core.Assert;
 
-namespace Nexus.Link.Services.Contracts.Events.SynchronizedEntity
+namespace Nexus.Link.Libraries.Core.Platform.DataSyncEngine
 {
     public class SyncKey : IValidatable
     {
