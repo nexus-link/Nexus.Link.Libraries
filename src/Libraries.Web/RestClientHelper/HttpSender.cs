@@ -122,7 +122,6 @@ namespace Nexus.Link.Libraries.Web.RestClientHelper
             if (!FulcrumApplication.IsInDevelopment) InternalContract.RequireNotNull(httpClient, nameof(httpClient));
             try
             {
-
                 BaseUri = new Uri(baseUri);
             }
             catch (UriFormatException e)
@@ -133,23 +132,6 @@ namespace Nexus.Link.Libraries.Web.RestClientHelper
             lock (LockClass)
             {
                 HttpClient = new HttpClientWrapper(httpClient);
-            }
-        }
-
-        /// <summary></summary>
-        /// <param name="httpSender">The HttpSender that we will base the new sender on, but change the BaseUri using the <paramref name="relativeUrl"/></param>
-        /// <param name="relativeUrl">The base URL that all HTTP calls methods will refer to.</param>
-        public HttpSender(IHttpSender httpSender, string relativeUrl)
-        {
-            InternalContract.RequireNotNull(httpSender, nameof(httpSender));
-            InternalContract.RequireNotNullOrWhiteSpace(relativeUrl, nameof(relativeUrl));
-            try
-            {
-                BaseUri = new Uri(httpSender.BaseUri, relativeUrl);
-            }
-            catch (UriFormatException e)
-            {
-                InternalContract.Fail($"The format of {nameof(relativeUrl)} ({relativeUrl}) is not correct: {e.Message}");
             }
         }
 
@@ -185,6 +167,22 @@ namespace Nexus.Link.Libraries.Web.RestClientHelper
             finally
             {
                 request?.Dispose();
+            }
+        }
+
+        /// <inheritdoc />
+        public IHttpSender CreateHttpSender(string relativeUrl)
+        {
+            InternalContract.RequireNotNull(relativeUrl, nameof(relativeUrl));
+            try
+            {
+                var newUri = new Uri(BaseUri, relativeUrl);
+                return new HttpSender(newUri.AbsoluteUri, HttpClient.ActualHttpClient, Credentials);
+            }
+            catch (UriFormatException e)
+            {
+                InternalContract.Fail($"The format of {nameof(relativeUrl)} ({relativeUrl}) is not correct: {e.Message}");
+                return null;
             }
         }
 

@@ -8,6 +8,7 @@ namespace Nexus.Link.Libraries.Web.RestClientHelper
 {
     public interface IHttpClient
     {
+        HttpClient ActualHttpClient { get; }
         Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken);
     }
 }

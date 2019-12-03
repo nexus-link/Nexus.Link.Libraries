@@ -18,6 +18,13 @@ namespace Nexus.Link.Libraries.Web.RestClientHelper
         Uri BaseUri { get; }
 
         /// <summary>
+        /// Create a copy of this IHttpSender, but update the <see cref="BaseUri"/> by adding <paramref name="relativeUrl"/>.
+        /// </summary>
+        /// <param name="relativeUrl"></param>
+        /// <returns></returns>
+        IHttpSender CreateHttpSender(string relativeUrl);
+
+        /// <summary>
         /// Send a request with method <paramref name="method"/> to <paramref name="relativeUrl"/>.
         /// </summary>
         /// <param name="method">POST, GET, etc.</param>

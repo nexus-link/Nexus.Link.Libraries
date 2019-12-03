@@ -10,12 +10,12 @@ using Nexus.Link.Libraries.Web.Logging;
 namespace Nexus.Link.Libraries.Web.RestClientHelper
 {
     /// <summary>
-    /// This class is used in conjunction with <see cref="IHttpClient"/> to add an interface to the <see cref="HttpClient"/> class.
-    /// Use this class instead of using <see cref="HttpClient"/> to create a client and use the <see cref="IHttpClient"/> interface to reference it.
+    /// This class is used in conjunction with <see cref="IHttpClient"/> to add an interface to the <see cref="ActualHttpClient"/> class.
+    /// Use this class instead of using <see cref="ActualHttpClient"/> to create a client and use the <see cref="IHttpClient"/> interface to reference it.
     /// </summary>
     public class HttpClientWrapper : IHttpClient
     {
-        private readonly HttpClient _httpClient;
+        public HttpClient ActualHttpClient { get; }
 
         /// <summary>
         /// Constructor
@@ -23,13 +23,13 @@ namespace Nexus.Link.Libraries.Web.RestClientHelper
         /// <param name="httpClient">The real HttpClient to use</param>
         public HttpClientWrapper(HttpClient httpClient)
         {
-            _httpClient = httpClient;
+            ActualHttpClient = httpClient;
         }
 
         /// <inheritdoc />
         public async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
         {
-            if (FulcrumApplication.IsInDevelopment && _httpClient == null)
+            if (FulcrumApplication.IsInDevelopment && ActualHttpClient == null)
             {
                 Log.LogInformation($"Request was swallowed because the application has run time level Development: {request.ToLogString()}");
                 return new HttpResponseMessage(HttpStatusCode.OK)
@@ -40,8 +40,8 @@ namespace Nexus.Link.Libraries.Web.RestClientHelper
             }
             else
             {
-                FulcrumAssert.IsNotNull(_httpClient);
-                return await _httpClient.SendAsync(request, cancellationToken);
+                FulcrumAssert.IsNotNull(ActualHttpClient);
+                return await ActualHttpClient.SendAsync(request, cancellationToken);
             }
         }
     }

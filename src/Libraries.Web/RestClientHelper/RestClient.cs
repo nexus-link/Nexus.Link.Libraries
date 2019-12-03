@@ -210,6 +210,22 @@ namespace Nexus.Link.Libraries.Web.RestClientHelper
         }
 
         /// <inheritdoc />
+        public IHttpSender CreateHttpSender(string relativeUrl)
+        {
+            InternalContract.RequireNotNull(relativeUrl, nameof(relativeUrl));
+            try
+            {
+                var newUri = new Uri(BaseUri, relativeUrl);
+                return new RestClient(HttpSender.CreateHttpSender(relativeUrl));
+            }
+            catch (UriFormatException e)
+            {
+                InternalContract.Fail($"The format of {nameof(relativeUrl)} ({relativeUrl}) is not correct: {e.Message}");
+                return null;
+            }
+        }
+
+        /// <inheritdoc />
         public Task<HttpResponseMessage> SendRequestAsync(HttpMethod method, string relativeUrl,
             Dictionary<string, List<string>> customHeaders = null, CancellationToken cancellationToken = default(CancellationToken))
         {
