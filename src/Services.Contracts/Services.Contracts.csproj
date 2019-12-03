@@ -8,7 +8,7 @@
 
   <PropertyGroup>
     <PackageId>Nexus.Link.Services.Contracts</PackageId>
-    <Version>3.2.1</Version>
+    <Version>3.2.2</Version>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <PackageTags>nexus;link</PackageTags>
     <Authors>XLENT Link</Authors>
@@ -18,6 +18,7 @@
     <Copyright>Copyright ©2019 Xlent Link AB</Copyright>
     <IncludeSymbols>true</IncludeSymbols>
     <PackageReleaseNotes>
+      3.2.2 Bump
       3.2.1 Moved SyncKey to core
       3.2.0 Added event DataSyncEntityWasAssociated
       3.1.1 Fix: PackageProjectUrl for this nuget package
