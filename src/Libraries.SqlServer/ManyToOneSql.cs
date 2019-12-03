@@ -48,7 +48,7 @@ namespace Nexus.Link.Libraries.SqlServer
             var selectRest = $"FROM [{TableMetadata.TableName}] AS many" +
                              $" JOIN [{OneTableHandler.TableName}] AS one ON (one.Id = many.[{ParentColumnName}])" +
                              $" WHERE [{groupColumnName}] = @ColumnValue";
-            return await OneTableHandler.SearchAdvancedAsync("SELECT COUNT(one.[Id])", "SELECT one.*", selectRest, TableMetadata.GetOrderBy("many."), new { ColumnValue = groupColumnValue }, offset, limit, token);
+            return await OneTableHandler.SearchAdvancedAsync("SELECT COUNT(one.[Id])", "SELECT one.*", selectRest, TableMetadata.GetOrderBy("many"), new { ColumnValue = groupColumnValue }, offset, limit, token);
         }
 
         /// <summary>
@@ -125,7 +125,7 @@ namespace Nexus.Link.Libraries.SqlServer
             var selectRest = $"FROM [{TableMetadata.TableName}] AS many" +
                              $" JOIN [{OneTableHandler.TableName}] AS one ON (one.Id = many.[{ParentColumnName}])" +
                              $" WHERE [{groupColumnName}] = @ColumnValue";
-            return await OneTableHandler.SearchAdvancedAsync("SELECT COUNT(one.[Id])", "SELECT one.*", selectRest, TableMetadata.GetOrderBy("many."), new { ColumnValue = groupColumnValue }, offset, limit, token);
+            return await OneTableHandler.SearchAdvancedAsync("SELECT COUNT(one.[Id])", "SELECT one.*", selectRest, TableMetadata.GetOrderBy("many"), new { ColumnValue = groupColumnValue }, offset, limit, token);
         }
 
         /// <summary>
