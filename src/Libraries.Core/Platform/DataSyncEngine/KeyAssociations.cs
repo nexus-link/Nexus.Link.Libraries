@@ -5,6 +5,14 @@ namespace Nexus.Link.Libraries.Core.Platform.DataSyncEngine
 {
     public class KeyAssociations : IValidatable
     {
+        /// <summary>
+        /// The key that logging etc will be based upon
+        /// </summary>
+        public SyncKey Key { get; set; }
+
+        /// <summary>
+        /// Keys associated with <see cref="Key"/>, pointing to the same object
+        /// </summary>
         public List<SyncKey> AssociatedKeys { get; set; }
 
         /// <inheritdoc />
