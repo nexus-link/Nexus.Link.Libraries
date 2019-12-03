@@ -75,8 +75,14 @@ namespace Nexus.Link.Libraries.Web.RestClientHelper
         // ReSharper disable once UnusedParameter.Local
         public HttpSender(string baseUri)
         {
-            InternalContract.RequireNotNullOrWhiteSpace(baseUri, nameof(baseUri));
-            BaseUri = new Uri(baseUri);
+            InternalContract.RequireNotNullOrWhiteSpace(baseUri, nameof(baseUri));try
+            {
+                BaseUri = new Uri(baseUri);
+            }
+            catch (UriFormatException e)
+            {
+                InternalContract.Fail($"The format of {nameof(baseUri)} ({baseUri}) is not correct: {e.Message}");
+            }
             lock (LockClass)
             {
                 if (HttpClient == null)
@@ -127,6 +133,23 @@ namespace Nexus.Link.Libraries.Web.RestClientHelper
             lock (LockClass)
             {
                 HttpClient = new HttpClientWrapper(httpClient);
+            }
+        }
+
+        /// <summary></summary>
+        /// <param name="httpSender">The HttpSender that we will base the new sender on, but change the BaseUri using the <paramref name="relativeUrl"/></param>
+        /// <param name="relativeUrl">The base URL that all HTTP calls methods will refer to.</param>
+        public HttpSender(IHttpSender httpSender, string relativeUrl)
+        {
+            InternalContract.RequireNotNull(httpSender, nameof(httpSender));
+            InternalContract.RequireNotNullOrWhiteSpace(relativeUrl, nameof(relativeUrl));
+            try
+            {
+                BaseUri = new Uri(httpSender.BaseUri, relativeUrl);
+            }
+            catch (UriFormatException e)
+            {
+                InternalContract.Fail($"The format of {nameof(relativeUrl)} ({relativeUrl}) is not correct: {e.Message}");
             }
         }
 
