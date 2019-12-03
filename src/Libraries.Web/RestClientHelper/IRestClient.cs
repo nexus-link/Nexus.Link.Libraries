@@ -10,17 +10,8 @@ namespace Nexus.Link.Libraries.Web.RestClientHelper
     /// <summary>
     /// Support for calling a REST service.
     /// </summary>
-    public interface IRestClient
+    public interface IRestClient : IHttpSender
     {
-        /// <summary>
-        /// The URI for the service. Separate methods in the service are called by using URL:s relative to this path.
-        /// </summary>
-        Uri BaseUri { get; }
-
-        /// <summary>
-        /// Credentials that are used when sending requests to the service.
-        /// </summary>
-        ServiceClientCredentials Credentials { get; }
 
         #region POST
 
@@ -29,7 +20,7 @@ namespace Nexus.Link.Libraries.Web.RestClientHelper
         /// </summary>
         /// <typeparam name="TResponse">The type for the response.</typeparam>
         /// <typeparam name="TBody">The type for the <paramref name="body"/>.</typeparam>
-        /// <param name="relativeUrl">The Url relative to <see cref="BaseUri"/>, including parameters, etc.</param>
+        /// <param name="relativeUrl">The Url relative to <see cref="IHttpSender.BaseUri"/>, including parameters, etc.</param>
         /// <param name="body">The POST body.</param>
         /// <param name="customHeaders">Optional headers.</param>
         /// <param name="cancellationToken">Optional cancellation token.</param>
@@ -44,7 +35,7 @@ namespace Nexus.Link.Libraries.Web.RestClientHelper
         /// Send POST to <paramref name="relativeUrl"/> with no body, but with a returned object.
         /// </summary>
         /// <typeparam name="TResponse">The type for the returned result.</typeparam>
-        /// <param name="relativeUrl">The Url relative to <see cref="BaseUri"/>, including parameters, etc.</param>
+        /// <param name="relativeUrl">The Url relative to <see cref="IHttpSender.BaseUri"/>, including parameters, etc.</param>
         /// <param name="customHeaders">Optional headers.</param>
         /// <param name="cancellationToken">Optional cancellation token.</param>
         /// <returns>An object.</returns>
@@ -57,7 +48,7 @@ namespace Nexus.Link.Libraries.Web.RestClientHelper
         /// Send POST to <paramref name="relativeUrl"/> with <paramref name="body"/> with the created object as the returned value.
         /// </summary>
         /// <typeparam name="TBodyAndResponse">The type for both the <paramref name="body"/> and the returned result.</typeparam>
-        /// <param name="relativeUrl">The Url relative to <see cref="BaseUri"/>, including parameters, etc.</param>
+        /// <param name="relativeUrl">The Url relative to <see cref="IHttpSender.BaseUri"/>, including parameters, etc.</param>
         /// <param name="body">The POST body.</param>
         /// <param name="customHeaders">Optional headers.</param>
         /// <param name="cancellationToken">Optional cancellation token.</param>
@@ -72,7 +63,7 @@ namespace Nexus.Link.Libraries.Web.RestClientHelper
         /// Send POST to <paramref name="relativeUrl"/> with <paramref name="body"/> with no returned value.
         /// </summary>
         /// <typeparam name="TBody">The type for the <paramref name="body"/>.</typeparam>
-        /// <param name="relativeUrl">The Url relative to <see cref="BaseUri"/>, including parameters, etc.</param>
+        /// <param name="relativeUrl">The Url relative to <see cref="IHttpSender.BaseUri"/>, including parameters, etc.</param>
         /// <param name="body">The POST body.</param>
         /// <param name="customHeaders">Optional headers.</param>
         /// <param name="cancellationToken">Optional cancellation token.</param>
@@ -85,7 +76,7 @@ namespace Nexus.Link.Libraries.Web.RestClientHelper
         /// <summary>
         /// Post to <paramref name="relativeUrl"/> with no body and no returned value.
         /// </summary>
-        /// <param name="relativeUrl">The Url relative to <see cref="BaseUri"/>, including parameters, etc.</param>
+        /// <param name="relativeUrl">The Url relative to <see cref="IHttpSender.BaseUri"/>, including parameters, etc.</param>
         /// <param name="customHeaders">Optional headers.</param>
         /// <param name="cancellationToken">Optional cancellation token.</param>
         Task PostNoResponseContentAsync(string relativeUrl,
@@ -99,7 +90,7 @@ namespace Nexus.Link.Libraries.Web.RestClientHelper
         /// Send GET to <paramref name="relativeUrl"/>.
         /// </summary>
         /// <typeparam name="TResponse">The type of the returned object.</typeparam>
-        /// <param name="relativeUrl">The Url relative to <see cref="BaseUri"/>, including parameters, etc.</param>
+        /// <param name="relativeUrl">The Url relative to <see cref="IHttpSender.BaseUri"/>, including parameters, etc.</param>
         /// <param name="customHeaders">Optional headers.</param>
         /// <param name="cancellationToken">Optional cancellation token.</param>
         /// <returns>The found object.</returns>
@@ -116,7 +107,7 @@ namespace Nexus.Link.Libraries.Web.RestClientHelper
         /// </summary>
         /// <typeparam name="TResponse">The type for the response.</typeparam>
         /// <typeparam name="TBody">The type for the <paramref name="body"/>.</typeparam>
-        /// <param name="relativeUrl">The Url relative to <see cref="BaseUri"/>, including parameters, etc.</param>
+        /// <param name="relativeUrl">The Url relative to <see cref="IHttpSender.BaseUri"/>, including parameters, etc.</param>
         /// <param name="body">The PUT body.</param>
         /// <param name="customHeaders">Optional headers.</param>
         /// <param name="cancellationToken">Optional cancellation token.</param>
@@ -130,7 +121,7 @@ namespace Nexus.Link.Libraries.Web.RestClientHelper
         /// Send PUT to <paramref name="relativeUrl"/> with <paramref name="body"/> with the updated object as the returned value.
         /// </summary>
         /// <typeparam name="TBodyAndResponse">The type for both the <paramref name="body"/> and the returned result.</typeparam>
-        /// <param name="relativeUrl">The Url relative to <see cref="BaseUri"/>, including parameters, etc.</param>
+        /// <param name="relativeUrl">The Url relative to <see cref="IHttpSender.BaseUri"/>, including parameters, etc.</param>
         /// <param name="body">The PUT body.</param>
         /// <param name="customHeaders">Optional headers.</param>
         /// <param name="cancellationToken">Optional cancellation token.</param>
@@ -145,7 +136,7 @@ namespace Nexus.Link.Libraries.Web.RestClientHelper
         /// Send PUT to <paramref name="relativeUrl"/> with <paramref name="body"/> with no returned value.
         /// </summary>
         /// <typeparam name="TBody">The type for the <paramref name="body"/>.</typeparam>
-        /// <param name="relativeUrl">The Url relative to <see cref="BaseUri"/>, including parameters, etc.</param>
+        /// <param name="relativeUrl">The Url relative to <see cref="IHttpSender.BaseUri"/>, including parameters, etc.</param>
         /// <param name="body">The PUT body.</param>
         /// <param name="customHeaders">Optional headers.</param>
         /// <param name="cancellationToken">Optional cancellation token.</param>
@@ -163,7 +154,7 @@ namespace Nexus.Link.Libraries.Web.RestClientHelper
         /// </summary>
         /// <typeparam name="TResponse">The type for the response.</typeparam>
         /// <typeparam name="TBody">The type for the <paramref name="body"/>.</typeparam>
-        /// <param name="relativeUrl">The Url relative to <see cref="BaseUri"/>, including parameters, etc.</param>
+        /// <param name="relativeUrl">The Url relative to <see cref="IHttpSender.BaseUri"/>, including parameters, etc.</param>
         /// <param name="body">The PUT body.</param>
         /// <param name="customHeaders">Optional headers.</param>
         /// <param name="cancellationToken">Optional cancellation token.</param>
@@ -177,7 +168,7 @@ namespace Nexus.Link.Libraries.Web.RestClientHelper
         /// Send PUT to <paramref name="relativeUrl"/> with <paramref name="body"/> with the updated object as the returned value.
         /// </summary>
         /// <typeparam name="TBodyAndResponse">The type for both the <paramref name="body"/> and the returned result.</typeparam>
-        /// <param name="relativeUrl">The Url relative to <see cref="BaseUri"/>, including parameters, etc.</param>
+        /// <param name="relativeUrl">The Url relative to <see cref="IHttpSender.BaseUri"/>, including parameters, etc.</param>
         /// <param name="body">The PUT body.</param>
         /// <param name="customHeaders">Optional headers.</param>
         /// <param name="cancellationToken">Optional cancellation token.</param>
@@ -192,7 +183,7 @@ namespace Nexus.Link.Libraries.Web.RestClientHelper
         /// Send PUT to <paramref name="relativeUrl"/> with <paramref name="body"/> with no returned value.
         /// </summary>
         /// <typeparam name="TBody">The type for the <paramref name="body"/>.</typeparam>
-        /// <param name="relativeUrl">The Url relative to <see cref="BaseUri"/>, including parameters, etc.</param>
+        /// <param name="relativeUrl">The Url relative to <see cref="IHttpSender.BaseUri"/>, including parameters, etc.</param>
         /// <param name="body">The PUT body.</param>
         /// <param name="customHeaders">Optional headers.</param>
         /// <param name="cancellationToken">Optional cancellation token.</param>
@@ -208,55 +199,12 @@ namespace Nexus.Link.Libraries.Web.RestClientHelper
         /// <summary>
         /// Send DELETE to <paramref name="relativeUrl"/>.
         /// </summary>
-        /// <param name="relativeUrl">The Url relative to <see cref="BaseUri"/>, including parameters, etc.</param>
+        /// <param name="relativeUrl">The Url relative to <see cref="IHttpSender.BaseUri"/>, including parameters, etc.</param>
         /// <param name="customHeaders">Optional headers.</param>
         /// <param name="cancellationToken">Optional cancellation token.</param>
         Task DeleteAsync(string relativeUrl,
             Dictionary<string, List<string>> customHeaders = null,
             CancellationToken cancellationToken = default(CancellationToken));
-        #endregion
-
-        #region Send 
-
-        /// <summary>
-        /// Send a request with method <paramref name="method"/> to <paramref name="relativeUrl"/>.
-        /// </summary>
-        /// <param name="method">POST, GET, etc.</param>
-        /// <param name="relativeUrl">The Url relative to <see cref="BaseUri"/>, including parameters, etc.</param>
-        /// <param name="customHeaders">Optional headers.</param>
-        /// <param name="cancellationToken">Optional cancellation token.</param>
-        /// <returns></returns>
-        Task<HttpResponseMessage> SendRequestAsync(HttpMethod method, string relativeUrl, Dictionary<string, List<string>> customHeaders = null, CancellationToken cancellationToken = default(CancellationToken));
-
-        /// <summary>
-        /// Send a request with method <paramref name="method"/> to <paramref name="relativeUrl"/> with <paramref name="body"/>.
-        /// </summary>
-        /// <typeparam name="TBody">The type for the <paramref name="body"/>.</typeparam>
-        /// <param name="method">POST, GET, etc.</param>
-        /// <param name="relativeUrl">The Url relative to <see cref="BaseUri"/>, including parameters, etc.</param>
-        /// <param name="body">The body (content) for the request.</param>
-        /// <param name="customHeaders">Optional headers.</param>
-        /// <param name="cancellationToken">Optional cancellation token.</param>
-        /// <returns></returns>
-        Task<HttpResponseMessage> SendRequestAsync<TBody>(HttpMethod method, string relativeUrl, TBody body = default(TBody),
-            Dictionary<string, List<string>> customHeaders = null,
-            CancellationToken cancellationToken = default(CancellationToken));
-
-        /// <summary>
-        /// Send a request with method <paramref name="method"/> to <paramref name="relativeUrl"/> with <paramref name="body"/> and expect a result of a specific type.
-        /// </summary>
-        /// <typeparam name="TResponse">The type for the result.</typeparam>
-        /// <typeparam name="TBody">The type for the <paramref name="body"/>.</typeparam>
-        /// <param name="method">POST, GET, etc.</param>
-        /// <param name="relativeUrl">The Url relative to <see cref="BaseUri"/>, including parameters, etc.</param>
-        /// <param name="body">The body (content) for the request.</param>
-        /// <param name="customHeaders">Optional headers.</param>
-        /// <param name="cancellationToken">Optional cancellation token.</param>
-        /// <returns></returns>
-        Task<HttpOperationResponse<TResponse>> SendRequestAsync<TResponse, TBody>(HttpMethod method, string relativeUrl,
-            TBody body = default(TBody), Dictionary<string, List<string>> customHeaders = null,
-            CancellationToken cancellationToken = default(CancellationToken));
-
         #endregion
     }
 }

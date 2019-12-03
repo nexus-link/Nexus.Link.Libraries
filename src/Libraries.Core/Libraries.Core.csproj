@@ -33,7 +33,7 @@
 
   <PropertyGroup>
     <PackageId>Nexus.Link.Libraries.Core</PackageId>
-    <Version>4.11.0</Version>
+    <Version>4.12.0</Version>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <PackageTags>nexus;link;fulcrum;lever</PackageTags>
     <Authors>XLENT Link</Authors>
@@ -43,6 +43,7 @@
     <Copyright>Copyright ©2019 Xlent Link AB</Copyright>
     <IncludeSymbols>true</IncludeSymbols>
     <PackageReleaseNotes>
+      4.12.0 Refactored Translator and based it on ITranslator.
       4.11.0 Added KeyAssociations model for Data Sync Engine
       4.10.0 Override release that was released by mistake.
       4.8.1 Fix: PackageProjectUrl for this nuget package

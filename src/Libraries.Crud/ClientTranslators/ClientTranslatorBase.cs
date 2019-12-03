@@ -1,4 +1,5 @@
-﻿using Nexus.Link.Libraries.Core.Assert;
+﻿using System;
+using Nexus.Link.Libraries.Core.Assert;
 using Nexus.Link.Libraries.Core.Translation;
 
 namespace Nexus.Link.Libraries.Crud.ClientTranslators
@@ -6,8 +7,10 @@ namespace Nexus.Link.Libraries.Crud.ClientTranslators
     /// <summary>
     /// Decorate values from client and translate concept values to client.
     /// </summary>
+    [Obsolete("Use Libraries.Web.AspNet ValueTranslatorFilter. Obsolete since 2019-11-21.")]
     public abstract class ClientTranslatorBase
     {
+        private readonly TranslatorFactory _translatorFactory;
 
         /// <summary>
         /// The concept name for the id. Is used for translations of id parameters and id results.
@@ -39,14 +42,15 @@ namespace Nexus.Link.Libraries.Crud.ClientTranslators
             IdConceptName = idConceptName;
             GetClientNameMethod = getClientNameMethod;
             TranslatorService = translatorService;
+            _translatorFactory = new TranslatorFactory(TranslatorService, GetClientNameMethod);
         }
 
         /// <summary>
         /// Returns a new translator for a client. 
         /// </summary>
-        protected Translator CreateTranslator()
+        protected ITranslator CreateTranslator()
         {
-            return new Translator(GetClientNameMethod(), TranslatorService);
+            return _translatorFactory.CreateTranslator();
         }
     }
 }

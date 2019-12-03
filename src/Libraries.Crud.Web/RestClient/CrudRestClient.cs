@@ -1,10 +1,12 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Rest;
 using Nexus.Link.Libraries.Core.Assert;
 using Nexus.Link.Libraries.Core.Storage.Model;
+using Nexus.Link.Libraries.Core.Translation;
 using Nexus.Link.Libraries.Crud.Interfaces;
 using Nexus.Link.Libraries.Crud.Model;
 using Nexus.Link.Libraries.Web.RestClientHelper;
@@ -16,8 +18,24 @@ namespace Nexus.Link.Libraries.Crud.Web.RestClient
         CrudRestClient<TModel, TModel, TId>,
         ICrud<TModel, TId>
     {
+        /// <summary>
+        /// Constructor. 
+        /// </summary>
+        /// <param name="httpSender"></param>
+        /// <param name="idConceptName">The concept name for the string result from CreateAsync.</param>
+        /// <param name="producerName">The name of the system that is called. Used for decorating the string result from CreateAsync.</param>
+        /// <remarks>
+        /// If you intend to decorate results from the CreateAsync method you must set <paramref name="idConceptName"/> and <paramref name="producerName"/>.
+        /// </remarks>
+        public CrudRestClient(IHttpSender httpSender, string idConceptName = null, string producerName = null)
+            : base(httpSender, idConceptName, producerName)
+        {
+        }
+
+        #region Obsolete constructors
         /// <summary></summary>
         /// <param name="baseUri">The base URL that all HTTP calls methods will refer to.</param>
+        [Obsolete("Use constructor with IHttpSender. Obsolete since 2019-11-18")]
         public CrudRestClient(string baseUri)
             : base(baseUri)
         {
@@ -26,6 +44,7 @@ namespace Nexus.Link.Libraries.Crud.Web.RestClient
         /// <param name="baseUri">The base URL that all HTTP calls methods will refer to.</param>
         /// <param name="httpClient">The HttpClient used when making the HTTP calls.</param>
         /// <param name="credentials">The credentials used when making the HTTP calls.</param>
+        [Obsolete("Use constructor with IHttpSender. Obsolete since 2019-11-18")]
         public CrudRestClient(string baseUri, HttpClient httpClient, ServiceClientCredentials credentials)
             : base(baseUri, httpClient, credentials)
         {
@@ -34,10 +53,12 @@ namespace Nexus.Link.Libraries.Crud.Web.RestClient
         /// <summary></summary>
         /// <param name="baseUri">The base URL that all HTTP calls methods will refer to.</param>
         /// <param name="httpClient">The HttpClient used when making the HTTP calls.</param>
+        [Obsolete("Use constructor with IHttpSender. Obsolete since 2019-11-18")]
         public CrudRestClient(string baseUri, HttpClient httpClient)
             : base(baseUri, httpClient)
         {
         }
+        #endregion
     }
 
     /// <inheritdoc cref="RestClient" />
@@ -45,9 +66,45 @@ namespace Nexus.Link.Libraries.Crud.Web.RestClient
         Libraries.Web.RestClientHelper.RestClient,
         ICrud<TModelCreate, TModel, TId> where TModel : TModelCreate
     {
+        /// <summary>
+        /// The name of the system that is called. Used for decorating the string result from CreateAsync.
+        /// </summary>
+        protected readonly string ProducerName;
+        /// <summary>
+        /// The concept name for the string result from CreateAsync.
+        /// </summary>
+        protected readonly string IdConceptName;
 
+        /// <summary>
+        /// Constructor. 
+        /// </summary>
+        /// <param name="httpSender"></param>
+        /// <param name="idConceptName">The concept name for the string result from CreateAsync.</param>
+        /// <param name="producerName">The name of the system that is called. Used for decorating the string result from CreateAsync.</param>
+        /// <remarks>
+        /// If you intend to decorate results from the CreateAsync method you must set <paramref name="idConceptName"/> and <paramref name="producerName"/>.
+        /// </remarks>
+        public CrudRestClient(IHttpSender httpSender, string idConceptName = null, string producerName = null)
+            : base(httpSender)
+        {
+            if (!string.IsNullOrWhiteSpace(producerName))
+            {
+                InternalContract.Require(!string.IsNullOrWhiteSpace(idConceptName),
+                    $"When the parameter {nameof(producerName)} is not null, then the parameter {nameof(idConceptName)} must be non-null too.");
+            }
+            if (!string.IsNullOrWhiteSpace(idConceptName))
+            {
+                InternalContract.Require(!string.IsNullOrWhiteSpace(idConceptName),
+                    $"When the parameter {nameof(idConceptName)} is not null, then the parameter {nameof(producerName)} must be non-null too.");
+            }
+            ProducerName = producerName;
+            IdConceptName = idConceptName;
+        }
+
+        #region Obsolete constructors
         /// <summary></summary>
         /// <param name="baseUri">The base URL that all HTTP calls methods will refer to.</param>
+        [Obsolete("Use constructor with IHttpSender. Obsolete since 2019-11-18")]
         public CrudRestClient(string baseUri)
             : base(baseUri)
         {
@@ -57,6 +114,7 @@ namespace Nexus.Link.Libraries.Crud.Web.RestClient
         /// <param name="baseUri">The base URL that all HTTP calls methods will refer to.</param>
         /// <param name="httpClient">The HttpClient used when making the HTTP calls.</param>
         /// <param name="credentials">The credentials used when making the HTTP calls.</param>
+        [Obsolete("Use constructor with IHttpSender. Obsolete since 2019-11-18")]
         public CrudRestClient(string baseUri, HttpClient httpClient, ServiceClientCredentials credentials)
             : base(baseUri, httpClient, credentials)
         {
@@ -65,15 +123,20 @@ namespace Nexus.Link.Libraries.Crud.Web.RestClient
         /// <summary></summary>
         /// <param name="baseUri">The base URL that all HTTP calls methods will refer to.</param>
         /// <param name="httpClient">The HttpClient used when making the HTTP calls.</param>
+        [Obsolete("Use constructor with IHttpSender. Obsolete since 2019-11-18")]
         public CrudRestClient(string baseUri, HttpClient httpClient)
             : base(baseUri, httpClient)
         {
         }
+        #endregion
 
         /// <inheritdoc />
         public virtual async Task<TId> CreateAsync(TModelCreate item, CancellationToken token = default(CancellationToken))
         {
-            return await PostAsync<TId, TModelCreate>("", item, cancellationToken: token);
+            // TODO: PostAndDecorateResultAsync
+            var invoiceId = await PostAsync<TId, TModelCreate>("", item, cancellationToken: token);
+            if (IdConceptName == null || ProducerName == null || typeof(TId) != typeof(string)) return invoiceId;
+            return (TId)(object) Translator.Decorate(IdConceptName, ProducerName, (string)(object)invoiceId);
         }
 
         /// <inheritdoc />

@@ -28,9 +28,9 @@ namespace Nexus.Link.Libraries.Crud.Web.Test.RestClientTests
         {
             FulcrumApplicationHelper.UnitTestSetup(typeof(CrudManyToOneRecursiveRestClientTest).FullName);
             HttpClientMock = new Mock<IHttpClient>();
-            Libraries.Web.RestClientHelper.RestClient.HttpClient = HttpClientMock.Object;
-            _parentChildrenClient = new CrudManyToOneRestClient<Person, Guid>(ResourcePath);
-            _oneManyClient = new CrudManyToOneRestClient<Person, Guid>(ResourcePath, "One", "Many");
+            Libraries.Web.RestClientHelper.HttpSender.HttpClient = HttpClientMock.Object;
+            _parentChildrenClient = new CrudManyToOneRestClient<Person, Guid>(new HttpSender(ResourcePath));
+            _oneManyClient = new CrudManyToOneRestClient<Person, Guid>(new HttpSender(ResourcePath), "One", "Many");
             _person = new Person()
             {
                 GivenName = "Kalle",

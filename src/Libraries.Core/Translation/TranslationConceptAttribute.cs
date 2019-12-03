@@ -5,7 +5,7 @@ namespace Nexus.Link.Libraries.Core.Translation
     /// <summary>
     /// Information about a translation concept
     /// </summary>
-    [AttributeUsage(AttributeTargets.Property)]
+    [AttributeUsage(AttributeTargets.Property | AttributeTargets.Parameter)]
     public class TranslationConceptAttribute : Attribute
     {
         /// <summary>

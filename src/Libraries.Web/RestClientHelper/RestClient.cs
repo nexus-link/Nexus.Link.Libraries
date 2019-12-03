@@ -10,6 +10,7 @@ using Nexus.Link.Libraries.Core.Application;
 using Nexus.Link.Libraries.Core.Assert;
 using Nexus.Link.Libraries.Core.Error.Logic;
 using Nexus.Link.Libraries.Core.Logging;
+using Nexus.Link.Libraries.Core.Translation;
 using Nexus.Link.Libraries.Web.Logging;
 using Nexus.Link.Libraries.Web.Pipe.Outbound;
 
@@ -20,112 +21,55 @@ namespace Nexus.Link.Libraries.Web.RestClientHelper
     /// </summary>
     public class RestClient : IRestClient
     {
-        /// <summary>
-        /// Json settings when serializing to strings
-        /// </summary>
-        public JsonSerializerSettings SerializationSettings { get; set; } = new JsonSerializerSettings
+        public IHttpSender HttpSender { get; }
+
+        private static readonly HttpMethod PatchMethod = new HttpMethod("PATCH");
+
+        /// <inheritdoc />
+        public RestClient(IHttpSender httpSender)
         {
-            Formatting = Formatting.Indented,
-            DateFormatHandling = DateFormatHandling.IsoDateFormat,
-            DateTimeZoneHandling = DateTimeZoneHandling.Utc,
-            NullValueHandling = NullValueHandling.Ignore,
-            ReferenceLoopHandling = ReferenceLoopHandling.Serialize,
-            ContractResolver = new Microsoft.Rest.Serialization.ReadOnlyJsonContractResolver(),
-            Converters = new List<JsonConverter>
-            {
-                new Microsoft.Rest.Serialization.Iso8601TimeSpanConverter()
-            }
-        };
+            InternalContract.RequireNotNull(httpSender, nameof(httpSender));
+            HttpSender = httpSender;
+        }
 
-        /// <summary>
-        /// Json settings when de-serializing from strings
-        /// </summary>
-        public JsonSerializerSettings DeserializationSettings { get; set; } = new JsonSerializerSettings
-        {
-            DateFormatHandling = DateFormatHandling.IsoDateFormat,
-            DateTimeZoneHandling = DateTimeZoneHandling.Utc,
-            NullValueHandling = NullValueHandling.Ignore,
-            ReferenceLoopHandling = ReferenceLoopHandling.Serialize,
-            ContractResolver = new Microsoft.Rest.Serialization.ReadOnlyJsonContractResolver(),
-            Converters = new List<JsonConverter>
-            {
-                new Microsoft.Rest.Serialization.Iso8601TimeSpanConverter()
-            }
-        };
-
-        private static readonly object LockClass = new object();
-        private static HttpMethod _patchMethod = new HttpMethod("PATCH");
-
-        /// <summary>
-        /// The HttpClient that is used for all HTTP calls.
-        /// </summary>
-        /// <remarks>Is set to <see cref="HttpClient"/> by default. Typically only set to other values for unit test purposes.</remarks>
-        public static IHttpClient HttpClient { get; set; }
-
+        #region Obsolete constructors
         /// <summary></summary>
         /// <param name="baseUri">The base URL that all HTTP calls methods will refer to.</param>
         // ReSharper disable once UnusedParameter.Local
-        public RestClient(string baseUri)
+        [Obsolete("Use the RestClient(IHttpSender) constructor. Obsolete since 2019-11-15.")]
+        public RestClient(string baseUri) : this(new HttpSender(baseUri))
         {
-            InternalContract.RequireNotNullOrWhiteSpace(baseUri, nameof(baseUri));
-            BaseUri = new Uri(baseUri);
-            lock (LockClass)
-            {
-                if (HttpClient == null)
-                {
-                    var handlers = OutboundPipeFactory.CreateDelegatingHandlers();
-                    var httpClient = HttpClientFactory.Create(handlers);
-                    HttpClient = new HttpClientWrapper(httpClient);
-                }
-            }
-            Log.LogVerbose($"Created REST client {GetType().FullName}: {baseUri}");
         }
 
         /// <summary></summary>
         /// <param name="baseUri">The base URL that all HTTP calls methods will refer to.</param>
         /// <param name="credentials">The credentials used when making the HTTP calls.</param>
-        public RestClient(string baseUri, ServiceClientCredentials credentials) : this(baseUri)
+        [Obsolete("Use the RestClient(IHttpSender) constructor. Obsolete since 2019-11-15.")]
+        public RestClient(string baseUri, ServiceClientCredentials credentials) : this(new HttpSender(baseUri, credentials))
         {
-            Credentials = credentials;
         }
 
         /// <summary></summary>
         /// <param name="baseUri">The base URL that all HTTP calls methods will refer to.</param>
         /// <param name="httpClient">The HttpClient used when making the HTTP calls.</param>
         /// <param name="credentials">The credentials used when making the HTTP calls.</param>
-        public RestClient(string baseUri, HttpClient httpClient, ServiceClientCredentials credentials) : this(baseUri, httpClient)
+        [Obsolete("Use the RestClient(IHttpSender) constructor. Obsolete since 2019-11-15.")]
+        public RestClient(string baseUri, HttpClient httpClient, ServiceClientCredentials credentials) : this(new HttpSender(baseUri, httpClient, credentials))
         {
-            Credentials = credentials;
         }
 
 
         /// <summary></summary>
         /// <param name="baseUri">The base URL that all HTTP calls methods will refer to.</param>
-        public RestClient(string baseUri, HttpClient httpClient)
+        /// <param name="httpClient">The HttpClient used when making the HTTP calls.</param>
+        [Obsolete("Use the RestClient(IHttpSender) constructor. Obsolete since 2019-11-15.")]
+        public RestClient(string baseUri, HttpClient httpClient) : this(new HttpSender(baseUri, httpClient))
         {
-            InternalContract.RequireNotNullOrWhiteSpace(baseUri, nameof(baseUri));
-            if (!FulcrumApplication.IsInDevelopment) InternalContract.RequireNotNull(httpClient, nameof(httpClient));
-            try
-            {
-
-                BaseUri = new Uri(baseUri);
-            }
-            catch (UriFormatException e)
-            {
-                InternalContract.Fail($"The format of {nameof(baseUri)} ({baseUri}) is not correct: {e.Message}");
-            }
-
-            lock (LockClass)
-            {
-                HttpClient = new HttpClientWrapper(httpClient);
-            }
         }
+        #endregion
 
         /// <inheritdoc />
-        public Uri BaseUri { get; set; }
-
-        /// <inheritdoc />
-        public ServiceClientCredentials Credentials { get; }
+        public Uri BaseUri => HttpSender.BaseUri;
 
         #region POST
         /// <inheritdoc />
@@ -215,21 +159,21 @@ namespace Nexus.Link.Libraries.Web.RestClientHelper
         public Task<TResponse> PatchAsync<TResponse, TBody>(string relativeUrl, TBody body, Dictionary<string, List<string>> customHeaders = null,
             CancellationToken cancellationToken = new CancellationToken())
         {
-            return PutOrPatchAsync<TResponse, TBody>(_patchMethod, relativeUrl, body, customHeaders, cancellationToken);
+            return PutOrPatchAsync<TResponse, TBody>(PatchMethod, relativeUrl, body, customHeaders, cancellationToken);
         }
 
         /// <inheritdoc />
         public Task<TBodyAndResponse> PatchAndReturnUpdatedObjectAsync<TBodyAndResponse>(string relativeUrl, TBodyAndResponse body,
             Dictionary<string, List<string>> customHeaders = null, CancellationToken cancellationToken = new CancellationToken())
         {
-            return PutOrPatchAndReturnUpdatedObjectAsync(_patchMethod, relativeUrl, body, customHeaders, cancellationToken);
+            return PutOrPatchAndReturnUpdatedObjectAsync(PatchMethod, relativeUrl, body, customHeaders, cancellationToken);
         }
 
         /// <inheritdoc />
         public Task PatchNoResponseContentAsync<TBody>(string relativeUrl, TBody body, Dictionary<string, List<string>> customHeaders = null,
             CancellationToken cancellationToken = new CancellationToken())
         {
-            return PutOrPatchNoResponseContentAsync(_patchMethod, relativeUrl, body, customHeaders, cancellationToken);
+            return PutOrPatchNoResponseContentAsync(PatchMethod, relativeUrl, body, customHeaders, cancellationToken);
         }
 
         #endregion
@@ -244,53 +188,32 @@ namespace Nexus.Link.Libraries.Web.RestClientHelper
             var response = await SendRequestAsync(HttpMethod.Delete, relativeUrl, customHeaders, cancellationToken);
             await VerifySuccessAsync(response);
         }
-
         #endregion
 
         #region Send
         /// <inheritdoc />
-        public async Task<HttpOperationResponse<TResponse>> SendRequestAsync<TResponse, TBody>(HttpMethod method, string relativeUrl,
+        public Task<HttpOperationResponse<TResponse>> SendRequestAsync<TResponse, TBody>(HttpMethod method, string relativeUrl,
             TBody body = default(TBody), Dictionary<string, List<string>> customHeaders = null,
             CancellationToken cancellationToken = default(CancellationToken))
         {
-            HttpResponseMessage response = null;
-            try
-            {
-                response = await SendRequestAsync(method, relativeUrl, body, customHeaders, cancellationToken).ConfigureAwait(false);
-                var request = response.RequestMessage;
-                return await HandleResponseWithBody<TResponse>(method, response, request);
-            }
-            finally
-            {
-                response?.Dispose();
-            }
+            return HttpSender.SendRequestAsync<TResponse, TBody>(method, relativeUrl, body, customHeaders,
+                cancellationToken);
         }
 
         /// <inheritdoc />
-        public async Task<HttpResponseMessage> SendRequestAsync<TBody>(HttpMethod method, string relativeUrl,
+        public Task<HttpResponseMessage> SendRequestAsync<TBody>(HttpMethod method, string relativeUrl,
             TBody body = default(TBody), Dictionary<string, List<string>> customHeaders = null,
             CancellationToken cancellationToken = default(CancellationToken))
         {
-            HttpRequestMessage request = null;
-            try
-            {
-                request = await CreateRequest(method, relativeUrl, body, customHeaders, cancellationToken);
-                cancellationToken.ThrowIfCancellationRequested();
-                var response = await HttpClient.SendAsync(request, cancellationToken).ConfigureAwait(false);
-                FulcrumAssert.IsNotNull(response);
-                return response;
-            }
-            finally
-            {
-                request?.Dispose();
-            }
+            return HttpSender.SendRequestAsync(method, relativeUrl, body, customHeaders,
+                cancellationToken);
         }
 
         /// <inheritdoc />
-        public async Task<HttpResponseMessage> SendRequestAsync(HttpMethod method, string relativeUrl,
+        public Task<HttpResponseMessage> SendRequestAsync(HttpMethod method, string relativeUrl,
             Dictionary<string, List<string>> customHeaders = null, CancellationToken cancellationToken = default(CancellationToken))
         {
-            return await SendRequestAsync<string>(method, relativeUrl, null, customHeaders, cancellationToken);
+            return HttpSender.SendRequestAsync(method, relativeUrl, customHeaders, cancellationToken);
         }
         #endregion
 
@@ -317,59 +240,6 @@ namespace Nexus.Link.Libraries.Web.RestClientHelper
             InternalContract.RequireNotNull(relativeUrl, nameof(relativeUrl));
             var response = await SendRequestAsync(method, relativeUrl, body, customHeaders, cancellationToken);
             await VerifySuccessAsync(response);
-        }
-
-        private static HttpRequestMessage CreateRequest(HttpMethod method, string url, Dictionary<string, List<string>> customHeaders)
-        {
-            var request = new HttpRequestMessage(method, url);
-            request.Headers.TryAddWithoutValidation("Accept", new List<string> {"application/json"});
-            if (customHeaders != null)
-            {
-                foreach (var header in customHeaders)
-                {
-                    if (request.Headers.Contains(header.Key))
-                    {
-                        request.Headers.Remove(header.Key);
-                    }
-                    request.Headers.TryAddWithoutValidation(header.Key, header.Value);
-                }
-            }
-            return request;
-        }
-
-        private async Task<HttpOperationResponse<TResponse>> HandleResponseWithBody<TResponse>(HttpMethod method, HttpResponseMessage response,
-            HttpRequestMessage request)
-        {
-            await VerifySuccessAsync(response);
-            var result = new HttpOperationResponse<TResponse>
-            {
-                Request = request,
-                Response = response,
-                Body = default(TResponse)
-            };
-
-            if (method == HttpMethod.Get || method == HttpMethod.Put || method == HttpMethod.Post)
-            {
-                if ((method == HttpMethod.Get || method == HttpMethod.Put) && response.StatusCode != HttpStatusCode.OK)
-                {
-                    throw new FulcrumResourceException($"The response to request {request.ToLogString()} was expected to have HttpStatusCode {HttpStatusCode.OK}, but had {response.StatusCode.ToLogString()}.");
-                }
-                if (method == HttpMethod.Post && response.StatusCode != HttpStatusCode.OK && response.StatusCode != HttpStatusCode.Created)
-                {
-                    throw new FulcrumResourceException($"The response to request {request.ToLogString()} was expected to have HttpStatusCode {HttpStatusCode.OK} or {HttpStatusCode.Created}, but had {response.StatusCode.ToLogString()}.");
-                }
-                var responseContent = await TryGetContentAsString(response.Content, false);
-                if (responseContent == null) return result;
-                try
-                {
-                    result.Body = JsonConvert.DeserializeObject<TResponse>(responseContent, DeserializationSettings);
-                }
-                catch (Exception e)
-                {
-                    throw new FulcrumResourceException($"The response to request {request.ToLogString()} could not be deserialized to the type {typeof(TResponse).FullName}. The content was:\r{responseContent}.", e);
-                }
-            }
-            return result;
         }
 
         private async Task VerifySuccessAsync(HttpResponseMessage response)
@@ -402,47 +272,6 @@ namespace Nexus.Link.Libraries.Web.RestClientHelper
                 if (!silentlyIgnoreExceptions) throw new FulcrumAssertionFailedException("Expected to be able to read an HttpContent.", e);
             }
             return null;
-        }
-
-        private async Task<HttpRequestMessage> CreateRequest<TBody>(HttpMethod method, string relativeUrl, TBody instance, Dictionary<string, List<string>> customHeaders,
-            CancellationToken cancellationToken)
-        {
-            InternalContract.RequireNotNull(relativeUrl, nameof(relativeUrl));
-            var baseUri = BaseUri.AbsoluteUri;
-            var url = ConcatenateBaseUrlAndRelativeUrl(baseUri, relativeUrl);
-
-            var request = CreateRequest(method, url, customHeaders);
-
-            if (instance != null)
-            {
-                var requestContent = JsonConvert.SerializeObject(instance, SerializationSettings);
-                request.Content = new StringContent(requestContent, System.Text.Encoding.UTF8);
-                request.Content.Headers.ContentType =
-                    System.Net.Http.Headers.MediaTypeHeaderValue.Parse("application/json; charset=utf-8");
-            }
-
-            if (Credentials == null) return request;
-
-            cancellationToken.ThrowIfCancellationRequested();
-            await Credentials.ProcessHttpRequestAsync(request, cancellationToken).ConfigureAwait(false);
-            return request;
-        }
-
-        private static string ConcatenateBaseUrlAndRelativeUrl(string baseUri, string relativeUrl)
-        {
-            var relativeUrlBeginsWithSpecialCharacter = relativeUrl.StartsWith("/") || relativeUrl.StartsWith("?");
-            var slashIsRequired = !string.IsNullOrWhiteSpace(relativeUrl) && !relativeUrlBeginsWithSpecialCharacter;
-            if (baseUri.EndsWith("/"))
-            {
-                // Maybe remove the /
-                if (relativeUrlBeginsWithSpecialCharacter) baseUri = baseUri.Substring(0, baseUri.Length - 1);
-            }
-            else
-            {
-                if (slashIsRequired) baseUri += "/";
-            }
-
-            return baseUri + relativeUrl;
         }
         #endregion
     }
