@@ -18,6 +18,8 @@ namespace Nexus.Link.Libraries.Core.Platform.DataSyncEngine
         /// <inheritdoc />
         public void Validate(string errorLocation, string propertyPath = "")
         {
+            FulcrumValidate.IsNotNull(Key, nameof(Key), errorLocation);
+            FulcrumValidate.IsValidated(Key, propertyPath, nameof(Key), errorLocation);
             FulcrumValidate.IsNotNull(AssociatedKeys, nameof(AssociatedKeys), errorLocation);
             FulcrumValidate.IsValidated(AssociatedKeys, propertyPath, nameof(AssociatedKeys), errorLocation);
         }
