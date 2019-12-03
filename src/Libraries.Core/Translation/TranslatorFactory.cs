@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 using Nexus.Link.Libraries.Core.Assert;
 
 namespace Nexus.Link.Libraries.Core.Translation
@@ -41,13 +39,13 @@ namespace Nexus.Link.Libraries.Core.Translation
 
         public ITranslator CreateTranslator()
         {
-            return new Translator(ClientName, TranslatorService);
+            return new Translator(TargetClientName, TranslatorService);
         }
 
         /// <summary>
         /// The client name.
         /// </summary>
-        public string ClientName => _clientName ?? _getClientNameMethod();
+        public string TargetClientName => _clientName ?? _getClientNameMethod();
 
         /// <inheritdoc />
         public void Validate(string errorLocation, string propertyPath = "")

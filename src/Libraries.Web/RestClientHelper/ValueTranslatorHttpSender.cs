@@ -19,10 +19,13 @@ namespace Nexus.Link.Libraries.Web.RestClientHelper
     /// <summary>
     /// Convenience client for making REST calls
     /// </summary>
-    public class ValueTranslatorHttpSender : IHttpSender
+    public class ValueTranslatorHttpSender : IHttpSender, ITranslationTargetClientName
     {
         private readonly ITranslatorFactory _translatorFactory;
         public IHttpSender HttpSender { get; }
+
+        /// <inheritdoc />
+        public string TargetClientName => _translatorFactory.TargetClientName;
 
         /// <inheritdoc />
         public Uri BaseUri => HttpSender.BaseUri;

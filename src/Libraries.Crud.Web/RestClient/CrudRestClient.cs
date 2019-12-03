@@ -22,13 +22,8 @@ namespace Nexus.Link.Libraries.Crud.Web.RestClient
         /// Constructor. 
         /// </summary>
         /// <param name="httpSender"></param>
-        /// <param name="idConceptName">The concept name for the string result from CreateAsync.</param>
-        /// <param name="producerName">The name of the system that is called. Used for decorating the string result from CreateAsync.</param>
-        /// <remarks>
-        /// If you intend to decorate results from the CreateAsync method you must set <paramref name="idConceptName"/> and <paramref name="producerName"/>.
-        /// </remarks>
-        public CrudRestClient(IHttpSender httpSender, string idConceptName = null, string producerName = null)
-            : base(httpSender, idConceptName, producerName)
+        public CrudRestClient(IHttpSender httpSender)
+            : base(httpSender)
         {
         }
 
@@ -67,38 +62,12 @@ namespace Nexus.Link.Libraries.Crud.Web.RestClient
         ICrud<TModelCreate, TModel, TId> where TModel : TModelCreate
     {
         /// <summary>
-        /// The name of the system that is called. Used for decorating the string result from CreateAsync.
-        /// </summary>
-        protected readonly string ProducerName;
-        /// <summary>
-        /// The concept name for the string result from CreateAsync.
-        /// </summary>
-        protected readonly string IdConceptName;
-
-        /// <summary>
         /// Constructor. 
         /// </summary>
         /// <param name="httpSender"></param>
-        /// <param name="idConceptName">The concept name for the string result from CreateAsync.</param>
-        /// <param name="producerName">The name of the system that is called. Used for decorating the string result from CreateAsync.</param>
-        /// <remarks>
-        /// If you intend to decorate results from the CreateAsync method you must set <paramref name="idConceptName"/> and <paramref name="producerName"/>.
-        /// </remarks>
-        public CrudRestClient(IHttpSender httpSender, string idConceptName = null, string producerName = null)
+        public CrudRestClient(IHttpSender httpSender)
             : base(httpSender)
         {
-            if (!string.IsNullOrWhiteSpace(producerName))
-            {
-                InternalContract.Require(!string.IsNullOrWhiteSpace(idConceptName),
-                    $"When the parameter {nameof(producerName)} is not null, then the parameter {nameof(idConceptName)} must be non-null too.");
-            }
-            if (!string.IsNullOrWhiteSpace(idConceptName))
-            {
-                InternalContract.Require(!string.IsNullOrWhiteSpace(idConceptName),
-                    $"When the parameter {nameof(idConceptName)} is not null, then the parameter {nameof(producerName)} must be non-null too.");
-            }
-            ProducerName = producerName;
-            IdConceptName = idConceptName;
         }
 
         #region Obsolete constructors
@@ -135,8 +104,23 @@ namespace Nexus.Link.Libraries.Crud.Web.RestClient
         {
             // TODO: PostAndDecorateResultAsync
             var invoiceId = await PostAsync<TId, TModelCreate>("", item, cancellationToken: token);
-            if (IdConceptName == null || ProducerName == null || typeof(TId) != typeof(string)) return invoiceId;
-            return (TId)(object) Translator.Decorate(IdConceptName, ProducerName, (string)(object)invoiceId);
+            return MaybeDecorate(invoiceId);
+        }
+
+        private TId MaybeDecorate(TId invoiceId)
+        {
+            if (typeof(TId) != typeof(string)) return invoiceId;
+            if (!(HttpSender is ITranslationTargetClientName translationTargetClientName)) return invoiceId;
+            if (!typeof(IUniquelyIdentifiable<string>).IsAssignableFrom(typeof(TModel))) return invoiceId;
+
+            var idPropertyInfo = typeof(TModel).GetProperty(nameof(IUniquelyIdentifiable<string>.Id));
+            var translationConcept = Translator.GetConceptAttribute(idPropertyInfo);
+            if (translationConcept == null) return invoiceId;
+
+            return (TId)(object) Translator.Decorate(
+                translationConcept.ConceptName,
+                translationTargetClientName.TargetClientName, 
+                (string)(object)invoiceId);
         }
 
         /// <inheritdoc />

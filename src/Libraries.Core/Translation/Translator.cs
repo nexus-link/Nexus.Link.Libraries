@@ -197,7 +197,7 @@ namespace Nexus.Link.Libraries.Core.Translation
                 }
                 if (property.MemberType != MemberTypes.Property) continue;
                 if (currentValue == null) continue;
-                var conceptAttribute = GetConceptAttribute(o, property);
+                var conceptAttribute = GetConceptAttribute(property);
                 if (conceptAttribute == null)
                 {
                     if (!(currentValue is ICollection collection)) continue;
@@ -235,9 +235,9 @@ namespace Nexus.Link.Libraries.Core.Translation
             }
         }
 
-        private TranslationConceptAttribute GetConceptAttribute(object o, PropertyInfo property)
+        public static TranslationConceptAttribute GetConceptAttribute(PropertyInfo property)
         {
-            return (TranslationConceptAttribute)property.GetCustomAttributes(false).FirstOrDefault(a => a is TranslationConceptAttribute);
+            return (TranslationConceptAttribute)property?.GetCustomAttributes(false).FirstOrDefault(a => a is TranslationConceptAttribute);
         }
 
         private bool IsDecorated(string value)
