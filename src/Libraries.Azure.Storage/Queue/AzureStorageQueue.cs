@@ -12,7 +12,7 @@ using Nexus.Link.Libraries.Core.Queue.Model;
 
 namespace Nexus.Link.Libraries.Azure.Storage.Queue
 {
-    public class AzureStorageQueue<T> : IAzureStorageQueue<T> where T : IAzureStorageQueueMessage
+    public class AzureStorageQueue<T> : ICompleteQueue<T>
     {
         public string Name { get; }
 
@@ -40,12 +40,9 @@ namespace Nexus.Link.Libraries.Azure.Storage.Queue
         public async Task<T> GetOneMessageNoBlockAsync()
         {
             var message = await (await _cloudQueueTask).GetMessageAsync();
-            var response = message == null ? default(T) : FromByteArray(message.AsBytes);
-            if (response != null)
-            {
-                response.QueueMessage = message;
-            }
-
+            if (message == null) return default(T);
+            var response = FromByteArray(message.AsBytes);
+            await (await _cloudQueueTask).DeleteMessageAsync(message.Id, message.PopReceipt);
             return response;
         }
 
@@ -53,18 +50,7 @@ namespace Nexus.Link.Libraries.Azure.Storage.Queue
         {
             var message = await (await _cloudQueueTask).PeekMessageAsync();
             var response = message == null ? default(T) : FromByteArray(message.AsBytes);
-
-            if (response != null)
-            {
-                response.QueueMessage = message;
-            }
-
             return response;
-        }
-
-        public async Task DeleteMessageAsync(T message)
-        {
-            await (await _cloudQueueTask).DeleteMessageAsync(message.QueueMessage.Id, message.QueueMessage.PopReceipt);
         }
 
         public async Task<HealthResponse> GetResourceHealthAsync()

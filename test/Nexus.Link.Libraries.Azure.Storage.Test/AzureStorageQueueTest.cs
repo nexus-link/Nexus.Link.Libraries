@@ -75,7 +75,6 @@ namespace Nexus.Link.Libraries.Azure.Storage.Test
             Assert.IsNull(await getTask);
         }
 
-        //TODO: Does this work?
         [TestMethod]
         public async Task DeleteMessageAsync()
         {
@@ -87,7 +86,6 @@ namespace Nexus.Link.Libraries.Azure.Storage.Test
             result = await _queue.GetOneMessageNoBlockAsync();
             Assert.IsNotNull(result);
             Assert.AreEqual(message.Name, result.Name);
-            await _queue.DeleteMessageAsync(result);
 
             result = await _queue.GetOneMessageNoBlockAsync();
             Assert.IsNull(result);
