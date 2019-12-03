@@ -21,13 +21,13 @@ namespace Nexus.Link.Libraries.Web.RestClientHelper
     /// </summary>
     public class ValueTranslatorHttpSender : IHttpSender
     {
-        private readonly TranslatorFactory _translatorFactory;
+        private readonly ITranslatorFactory _translatorFactory;
         public IHttpSender HttpSender { get; }
 
         /// <inheritdoc />
         public Uri BaseUri => HttpSender.BaseUri;
 
-        public ValueTranslatorHttpSender(IHttpSender httpSender, TranslatorFactory translatorFactory)
+        public ValueTranslatorHttpSender(IHttpSender httpSender, ITranslatorFactory translatorFactory)
         {
             _translatorFactory = translatorFactory;
             InternalContract.RequireNotNull(httpSender, nameof(httpSender));

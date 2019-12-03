@@ -19,7 +19,7 @@ namespace Nexus.Link.Libraries.Web.AspNet.Pipe.Inbound
 {
     public class ValueTranslatorFilter : IAsyncActionFilter, IAsyncResultFilter
     {
-        public TranslatorFactory TranslatorFactory { get; set; }
+        public ITranslatorFactory TranslatorFactory { get; set; }
 
         public ValueTranslatorFilter()
         {

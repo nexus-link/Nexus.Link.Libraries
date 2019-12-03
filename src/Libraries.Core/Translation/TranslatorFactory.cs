@@ -8,7 +8,7 @@ namespace Nexus.Link.Libraries.Core.Translation
     /// <summary>
     /// The information needed to do translation for a client
     /// </summary>
-    public class TranslatorFactory : IValidatable
+    public class TranslatorFactory : IValidatable, ITranslatorFactory
     {
         private readonly Func<string> _getClientNameMethod;
         private readonly string _clientName;

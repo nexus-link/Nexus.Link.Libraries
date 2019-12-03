@@ -10,7 +10,7 @@ namespace Nexus.Link.Libraries.Crud.ClientTranslators
     [Obsolete("Use Libraries.Web.AspNet ValueTranslatorFilter. Obsolete since 2019-11-21.")]
     public abstract class ClientTranslatorBase
     {
-        private readonly TranslatorFactory _translatorFactory;
+        private readonly ITranslatorFactory _translatorFactory;
 
         /// <summary>
         /// The concept name for the id. Is used for translations of id parameters and id results.
