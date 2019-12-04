@@ -28,7 +28,8 @@ namespace Nexus.Link.Libraries.Crud.Web.Test.RestClientTests
             FulcrumApplicationHelper.UnitTestSetup(typeof(CrudManyToOneRestClientTest).FullName);
             HttpClientMock = new Mock<IHttpClient>();
             Libraries.Web.RestClientHelper.HttpSender.DefaultHttpClient = HttpClientMock.Object;
-            _client = new CrudManyToOneRestClient<Address, Guid>(new HttpSender(ResourcePath), "Person", "Addresses");
+            var httpSender = new HttpSender(ResourcePath) {HttpClient = HttpClientMock.Object};
+            _client = new CrudManyToOneRestClient<Address, Guid>(httpSender, "Person", "Addresses");
             _address = new Address()
             {
                 Street = "Paradisäppelvägen 111",
