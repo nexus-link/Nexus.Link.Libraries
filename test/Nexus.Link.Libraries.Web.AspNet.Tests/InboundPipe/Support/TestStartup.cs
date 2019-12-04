@@ -16,17 +16,17 @@ namespace Nexus.Link.Libraries.Web.AspNet.Tests.InboundPipe.Support
 {
     public class TestStartup
     {
-        public static TranslatorFactory TranslatorFactory { get; set; }
+        public static ITranslatorService TranslatorService{ get; set; }
+        public static Func<string> GetTranslatorClientName { get; set; }
 
         public virtual void ConfigureServices(IServiceCollection services)
         {
-            var valueTranslatorFilter = new ValueTranslatorFilter();
+            var valueTranslatorFilter = new ValueTranslatorFilter(GetTranslatorClientName);
             var mvc = services
                 .AddMvc(opts => { opts.Filters.Add(valueTranslatorFilter); });
             mvc
                 .SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
-            ;
-            valueTranslatorFilter.TranslatorFactory = TranslatorFactory;
+            ValueTranslatorFilter.TranslatorService = TranslatorService;
         }
 
         public virtual void Configure(IApplicationBuilder app, IHostingEnvironment env)

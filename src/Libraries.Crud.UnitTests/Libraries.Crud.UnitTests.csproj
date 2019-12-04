@@ -17,7 +17,7 @@
 
   <PropertyGroup>
     <PackageId>Nexus.Link.Libraries.Crud.UnitTests</PackageId>
-    <Version>1.0.11</Version>
+    <Version>1.0.12</Version>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <PackageTags>nexus;link;fulcrum;lever</PackageTags>
     <Authors>XLENT Link</Authors>
@@ -27,7 +27,7 @@
     <Copyright>Copyright ©2019 Xlent Link AB</Copyright>
     <IncludeSymbols>true</IncludeSymbols>
     <PackageReleaseNotes>
-      1.0.11 Bump
+      1.0.12 Bump
       1.0.10 Fix: PackageProjectUrl for this nuget package
       1.0.9 Bumped version
       1.0.3 Bumped version. New solution and build pipeline.

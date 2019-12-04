@@ -9,8 +9,6 @@ namespace Nexus.Link.Libraries.Crud.ServerTranslators
     [Obsolete("Use Libraries.Web ValueTranslatorHttpSender. Obsolete since 2019-11-21.")]
     public abstract class ServerTranslatorBase
     {
-        private readonly TranslatorFactory _translatorFactory;
-
         /// <summary>
         /// The concept name for the id. Is used for translations of id parameters and id results.
         /// </summary>
@@ -38,7 +36,6 @@ namespace Nexus.Link.Libraries.Crud.ServerTranslators
             IdConceptName = idConceptName;
             GetServerNameMethod = getServerNameMethod;
             TranslatorService = translatorService;
-            _translatorFactory = new TranslatorFactory(TranslatorService, GetServerNameMethod);
         }
 
         /// <summary>
@@ -46,7 +43,7 @@ namespace Nexus.Link.Libraries.Crud.ServerTranslators
         /// </summary>
         protected ITranslator CreateTranslator()
         {
-            return _translatorFactory.CreateTranslator();
+            return new Translator(GetServerNameMethod(), TranslatorService);
         }
     }
 }

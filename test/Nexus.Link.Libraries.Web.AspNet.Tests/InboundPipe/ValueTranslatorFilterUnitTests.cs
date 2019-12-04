@@ -1,8 +1,6 @@
-﻿
+﻿#if NETCOREAPP
 using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using Nexus.Link.Libraries.Web.AspNet.Tests.InboundPipe.Support;
-#if NETCOREAPP
 using System.Collections.Generic;
 using System.Threading;
 using Nexus.Link.Libraries.Web.AspNet.Pipe.Inbound;
@@ -76,7 +74,8 @@ namespace Nexus.Link.Libraries.Web.AspNet.Tests.InboundPipe
                 new Dictionary<string, object> {{"id", inFoo.Id}, {"item", inFoo}}, foosController);
 
             // Setup the filter
-            var filter = new ValueTranslatorFilter(new TranslatorFactory(testServiceMock.Object, Foo.ConsumerName));
+            ValueTranslatorFilter.TranslatorService = testServiceMock.Object;
+            var filter = new ValueTranslatorFilter(() => Foo.ConsumerName);
 
             // Run the filter
             Assert.IsFalse(inFoo.Id.StartsWith("(foo.id!"));
@@ -114,7 +113,8 @@ namespace Nexus.Link.Libraries.Web.AspNet.Tests.InboundPipe
             var executingContext = new ResultExecutingContext(actionContext, new List<IFilterMetadata>(), new ObjectResult(foo), foosController);
 
             // Setup the filter
-            var filter = new ValueTranslatorFilter(new TranslatorFactory(testServiceMock.Object, Foo.ConsumerName));
+            ValueTranslatorFilter.TranslatorService = testServiceMock.Object;
+            var filter = new ValueTranslatorFilter(() => Foo.ConsumerName);
 
             // Run the filter
             await filter.OnResultExecutionAsync(executingContext, () => Task.FromResult(new ResultExecutedContext(actionContext, new List<IFilterMetadata>(), executingContext.Result, foosController)));

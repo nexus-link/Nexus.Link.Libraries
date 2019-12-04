@@ -1,5 +1,4 @@
-﻿
-#if NETCOREAPP
+﻿#if NETCOREAPP
 using Newtonsoft.Json;
 using Nexus.Link.Libraries.Core.Logging;
 using Nexus.Link.Libraries.Web.AspNet.Logging;
@@ -19,17 +18,17 @@ namespace Nexus.Link.Libraries.Web.AspNet.Pipe.Inbound
 {
     public class ValueTranslatorFilter : IAsyncActionFilter, IAsyncResultFilter
     {
-        public TranslatorFactory TranslatorFactory { get; set; }
+        /// <summary>
+        /// The service that does the actual translation.
+        /// </summary>
+        public static ITranslatorService TranslatorService { get; set; }
 
-        public ValueTranslatorFilter()
-        {
-        }
+        private readonly Func<string> _getClientNameMethod;
 
-        public ValueTranslatorFilter(TranslatorFactory translatorFactory)
+        public ValueTranslatorFilter(Func<string> getClientNameMethod)
         {
-            InternalContract.RequireNotNull(translatorFactory, nameof(translatorFactory));
-            InternalContract.RequireValidated(translatorFactory, nameof(translatorFactory));
-            TranslatorFactory = translatorFactory;
+            InternalContract.RequireNotNull(getClientNameMethod, nameof(getClientNameMethod));
+            _getClientNameMethod = getClientNameMethod;
         }
 
         public async Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)
@@ -38,13 +37,13 @@ namespace Nexus.Link.Libraries.Web.AspNet.Pipe.Inbound
             MethodInfo methodInfo = null;
             if (FulcrumApplication.IsInDevelopment)
             {
-                InternalContract.Require(TranslatorFactory != null,
-                    $"You must set the {nameof(TranslatorFactory)} property of {nameof(ValueTranslatorFilter)}.");
+                InternalContract.Require(TranslatorService != null,
+                    $"You must set the {nameof(TranslatorService)} property of {nameof(ValueTranslatorFilter)}.");
             }
 
-            if (TranslatorFactory != null)
+            if (TranslatorService != null)
             {
-                translator = TranslatorFactory.CreateTranslator();
+                translator = new Translator(_getClientNameMethod(), TranslatorService);
                 var controllerActionDescriptor = context.ActionDescriptor as ControllerActionDescriptor;
                 methodInfo = controllerActionDescriptor?.MethodInfo;
             }
@@ -71,13 +70,13 @@ namespace Nexus.Link.Libraries.Web.AspNet.Pipe.Inbound
             MethodInfo methodInfo = null;
             if (FulcrumApplication.IsInDevelopment)
             {
-                InternalContract.Require(TranslatorFactory != null,
-                    $"You must set the {nameof(TranslatorFactory)} property of {nameof(ValueTranslatorFilter)}.");
+                InternalContract.Require(TranslatorService != null,
+                    $"You must set the {nameof(TranslatorService)} property of {nameof(ValueTranslatorFilter)}.");
             }
 
-            if (TranslatorFactory != null)
+            if (TranslatorService != null)
             {
-                translator = TranslatorFactory.CreateTranslator();
+                translator = new Translator(_getClientNameMethod(), TranslatorService);
                 var controllerActionDescriptor = context.ActionDescriptor as ControllerActionDescriptor;
                 methodInfo = controllerActionDescriptor?.MethodInfo;
             }
