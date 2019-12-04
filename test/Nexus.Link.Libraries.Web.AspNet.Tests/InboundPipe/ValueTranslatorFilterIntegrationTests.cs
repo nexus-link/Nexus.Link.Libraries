@@ -1,5 +1,4 @@
 ﻿
-
 using System;
 using System.Net;
 #if NETCOREAPP
@@ -42,8 +41,9 @@ namespace Nexus.Link.Libraries.Web.AspNet.Tests.InboundPipe
             translatorServiceMock
                 .Setup(service => service.TranslateAsync(It.IsAny<IEnumerable<string>>(),It.IsAny<string>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(() =>new Dictionary<string, string> {{decoratedProducerId1, Foo.ConsumerId1}});
-
-            TestStartup.TranslatorFactory = new TranslatorFactory(translatorServiceMock.Object, () => Foo.ConsumerName);
+            
+            TestStartup.TranslatorService = translatorServiceMock.Object;
+            TestStartup.GetTranslatorClientName = () => Foo.ConsumerName;
             var factory = new CustomWebApplicationFactory();
             _httpClient = factory.CreateClient();
 
@@ -62,8 +62,8 @@ namespace Nexus.Link.Libraries.Web.AspNet.Tests.InboundPipe
                 .Setup(service => service.TranslateAsync(It.IsAny<IEnumerable<string>>(),It.IsAny<string>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(() =>new Dictionary<string, string> {{decoratedProducerId1, Foo.ConsumerId1}});
 
-            TestStartup.TranslatorFactory = new TranslatorFactory(translatorServiceMock.Object, () => Foo.ConsumerName);
-            var factory = new CustomWebApplicationFactory();
+            TestStartup.TranslatorService = translatorServiceMock.Object;
+            TestStartup.GetTranslatorClientName = () => Foo.ConsumerName;            var factory = new CustomWebApplicationFactory();
             _httpClient = factory.CreateClient();
 
             // Call method
@@ -96,7 +96,9 @@ namespace Nexus.Link.Libraries.Web.AspNet.Tests.InboundPipe
                 .Setup(service => service.TranslateAsync(It.IsAny<IEnumerable<string>>(),It.IsAny<string>(), It.IsAny<CancellationToken>()))
                 .ThrowsAsync(new FulcrumResourceException("Fail"));
 
-            TestStartup.TranslatorFactory = new TranslatorFactory(translatorServiceMock.Object, () => Foo.ConsumerName);
+            TestStartup.TranslatorService = translatorServiceMock.Object;
+            TestStartup.GetTranslatorClientName = () => Foo.ConsumerName;
+            
             var factory = new CustomWebApplicationFactory();
             _httpClient = factory.CreateClient();
 

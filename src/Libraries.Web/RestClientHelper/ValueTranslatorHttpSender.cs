@@ -1,58 +1,45 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Net;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Rest;
-using Newtonsoft.Json;
-using Nexus.Link.Libraries.Core.Application;
 using Nexus.Link.Libraries.Core.Assert;
-using Nexus.Link.Libraries.Core.Error.Logic;
-using Nexus.Link.Libraries.Core.Logging;
 using Nexus.Link.Libraries.Core.Translation;
-using Nexus.Link.Libraries.Web.Logging;
-using Nexus.Link.Libraries.Web.Pipe.Outbound;
 
 namespace Nexus.Link.Libraries.Web.RestClientHelper
 {
     /// <summary>
     /// Convenience client for making REST calls
     /// </summary>
-    public class ValueTranslatorHttpSender : IHttpSender, ITranslationTargetClientName
+    public class ValueTranslatorHttpSender : IHttpSender, ITranslationClientName
     {
-        private readonly ITranslatorFactory _translatorFactory;
+        /// <summary>
+        /// The service to use for translation
+        /// </summary>
+        public static ITranslatorService TranslatorService { get; set; }
+
         public IHttpSender HttpSender { get; }
 
         /// <inheritdoc />
-        public string TargetClientName => _translatorFactory.TargetClientName;
+        public string TranslationClientName { get; }
 
         /// <inheritdoc />
         public Uri BaseUri => HttpSender.BaseUri;
 
-        public ValueTranslatorHttpSender(IHttpSender httpSender, ITranslatorFactory translatorFactory)
+        public ValueTranslatorHttpSender(IHttpSender httpSender, string translationClientName)
         {
-            _translatorFactory = translatorFactory;
             InternalContract.RequireNotNull(httpSender, nameof(httpSender));
-            InternalContract.RequireNotNull(translatorFactory, nameof(translatorFactory));
-            InternalContract.RequireValidated(translatorFactory, nameof(translatorFactory));
+            InternalContract.RequireNotNullOrWhiteSpace(translationClientName, nameof(translationClientName));
             HttpSender = httpSender;
+            TranslationClientName = translationClientName;
         }
 
         /// <inheritdoc />
         public IHttpSender CreateHttpSender(string relativeUrl)
         {
             InternalContract.RequireNotNull(relativeUrl, nameof(relativeUrl));
-            try
-            {
-                var newUri = new Uri(BaseUri, relativeUrl);
-                return new ValueTranslatorHttpSender(HttpSender.CreateHttpSender(relativeUrl), _translatorFactory);
-            }
-            catch (UriFormatException e)
-            {
-                InternalContract.Fail($"The format of {nameof(relativeUrl)} ({relativeUrl}) is not correct: {e.Message}");
-                return null;
-            }
+            return new ValueTranslatorHttpSender(HttpSender.CreateHttpSender(relativeUrl), TranslationClientName);
         }
 
         /// <inheritdoc />
@@ -60,8 +47,7 @@ namespace Nexus.Link.Libraries.Web.RestClientHelper
             TBody body = default(TBody), Dictionary<string, List<string>> customHeaders = null,
             CancellationToken cancellationToken = default(CancellationToken))
         {
-            // TODO: Add translation and decoration
-            var translator = _translatorFactory.CreateTranslator();
+            var translator = CreateTranslator();
             await translator.AddSubStrings(relativeUrl).Add(body).ExecuteAsync(cancellationToken);
             var result = await HttpSender.SendRequestAsync<TResponse, TBody>(
                 method,
@@ -78,7 +64,7 @@ namespace Nexus.Link.Libraries.Web.RestClientHelper
             TBody body = default(TBody), Dictionary<string, List<string>> customHeaders = null,
             CancellationToken cancellationToken = default(CancellationToken))
         {
-            var translator = _translatorFactory.CreateTranslator();
+            var translator = CreateTranslator();
             await translator.Add(relativeUrl).Add(body).ExecuteAsync(cancellationToken);
             var result = await HttpSender.SendRequestAsync(
                 method,
@@ -93,9 +79,16 @@ namespace Nexus.Link.Libraries.Web.RestClientHelper
         public async Task<HttpResponseMessage> SendRequestAsync(HttpMethod method, string relativeUrl,
             Dictionary<string, List<string>> customHeaders = null, CancellationToken cancellationToken = default(CancellationToken))
         {
-            var translator = _translatorFactory.CreateTranslator();
+            var translator = CreateTranslator();
             await translator.AddSubStrings(relativeUrl).ExecuteAsync(cancellationToken);
             return await HttpSender.SendRequestAsync(method, translator.Translate(relativeUrl), customHeaders, cancellationToken);
+        }
+
+        private ITranslator CreateTranslator()
+        {
+            InternalContract.Require(TranslatorService != null,
+                $"{nameof(ValueTranslatorHttpSender)}.{nameof(TranslatorService)} must be set. It is a static property, so you normally set it once when your app starts up.");
+            return new Translator(TranslationClientName, TranslatorService);
         }
     }
 }

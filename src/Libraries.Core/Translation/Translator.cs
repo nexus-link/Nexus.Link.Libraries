@@ -34,7 +34,7 @@ namespace Nexus.Link.Libraries.Core.Translation
         /// <summary>
         /// A translator for a specific <paramref name="clientName"/> that will use the <paramref name="service"/> for the actual translations.
         /// </summary>
-        internal Translator(string clientName, ITranslatorService service)
+        public Translator(string clientName, ITranslatorService service)
         {
             InternalContract.RequireNotNullOrWhiteSpace(clientName, nameof(clientName));
             InternalContract.RequireNotNull(service, nameof(service));

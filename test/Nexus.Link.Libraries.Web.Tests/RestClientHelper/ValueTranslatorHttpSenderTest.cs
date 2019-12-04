@@ -8,14 +8,11 @@ using System.Threading.Tasks;
 using Microsoft.Rest;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using Nexus.Link.Libraries.Core.Application;
-using Nexus.Link.Libraries.Core.Assert;
 using Nexus.Link.Libraries.Core.Storage.Model;
 using Nexus.Link.Libraries.Core.Translation;
 using Nexus.Link.Libraries.Web.RestClientHelper;
-using Nexus.Link.Libraries.Web.Tests.Support.Models;
+
 #pragma warning disable 659
 
 namespace Nexus.Link.Libraries.Web.Tests.RestClientHelper
@@ -42,14 +39,14 @@ namespace Nexus.Link.Libraries.Web.Tests.RestClientHelper
                     It.IsAny<string>(),
                     It.IsAny<CancellationToken>()))
                 .ReturnsAsync(new Dictionary<string, string>{{$"{_decoratedConsumerId}", _producerId}});
+            ValueTranslatorHttpSender.TranslatorService = _translatorServiceMock.Object;
         }
 
         [TestMethod]
         public async Task TranslateRelativeUrl()
         {
             var httpSenderMock = new HttpSenderMock();
-            var translatorSetup = new TranslatorFactory(_translatorServiceMock.Object, "producer");
-            var sender = new ValueTranslatorHttpSender(httpSenderMock, translatorSetup);
+            var sender = new ValueTranslatorHttpSender(httpSenderMock, "producer");
             await sender.SendRequestAsync(HttpMethod.Get, $"Foos/{_decoratedConsumerId}");
             Assert.AreEqual($"Foos/{_producerId}", httpSenderMock.RelativeUrl);
         }
@@ -58,8 +55,7 @@ namespace Nexus.Link.Libraries.Web.Tests.RestClientHelper
         public async Task TranslateBody()
         {
             var httpSenderMock = new HttpSenderMock();
-            var translatorSetup = new TranslatorFactory(_translatorServiceMock.Object, "producer");
-            var sender = new ValueTranslatorHttpSender(httpSenderMock, translatorSetup);
+            var sender = new ValueTranslatorHttpSender(httpSenderMock, "producer");
             var inBody = new Foo {Id = _decoratedConsumerId, Name = "name"};
             await sender.SendRequestAsync(HttpMethod.Get, $"Foos/{_producerId}", inBody);
             Assert.IsNotNull(httpSenderMock.Body);
@@ -73,8 +69,7 @@ namespace Nexus.Link.Libraries.Web.Tests.RestClientHelper
         public async Task TranslatePageContent()
         {
             var httpSenderMock = new HttpSenderMock();
-            var translatorSetup = new TranslatorFactory(_translatorServiceMock.Object, "producer");
-            var sender = new ValueTranslatorHttpSender(httpSenderMock, translatorSetup);
+            var sender = new ValueTranslatorHttpSender(httpSenderMock, "producer");
             var inBody = new Foo {Id = _decoratedConsumerId, Name = "name"};
             var result = await sender.SendRequestAsync<PageEnvelope<Foo>, Foo>(HttpMethod.Get, $"Foos/{_producerId}", inBody);
             Assert.IsNotNull(result?.Body);

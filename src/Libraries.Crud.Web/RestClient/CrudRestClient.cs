@@ -110,7 +110,7 @@ namespace Nexus.Link.Libraries.Crud.Web.RestClient
         private TId MaybeDecorate(TId invoiceId)
         {
             if (typeof(TId) != typeof(string)) return invoiceId;
-            if (!(HttpSender is ITranslationTargetClientName translationTargetClientName)) return invoiceId;
+            if (!(HttpSender is ITranslationClientName translationTargetClientName)) return invoiceId;
             if (!typeof(IUniquelyIdentifiable<string>).IsAssignableFrom(typeof(TModel))) return invoiceId;
 
             var idPropertyInfo = typeof(TModel).GetProperty(nameof(IUniquelyIdentifiable<string>.Id));
@@ -119,7 +119,7 @@ namespace Nexus.Link.Libraries.Crud.Web.RestClient
 
             return (TId)(object) Translator.Decorate(
                 translationConcept.ConceptName,
-                translationTargetClientName.TargetClientName, 
+                translationTargetClientName.TranslationClientName, 
                 (string)(object)invoiceId);
         }
 
