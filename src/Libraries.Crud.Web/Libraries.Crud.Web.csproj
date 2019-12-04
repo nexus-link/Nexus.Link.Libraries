@@ -9,7 +9,7 @@
 
   <PropertyGroup>
     <PackageId>Nexus.Link.Libraries.Crud.Web</PackageId>
-    <Version>2.1.17</Version>
+    <Version>2.1.18</Version>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <PackageTags>nexus;link;fulcrum;lever</PackageTags>
     <Authors>XLENT Link</Authors>
@@ -19,7 +19,7 @@
     <Copyright>Copyright ©2019 Xlent Link AB</Copyright>
     <IncludeSymbols>true</IncludeSymbols>
     <PackageReleaseNotes>
-      2.1.17 Bump
+      2.1.18 Bump
       2.1.13 Fix: PackageProjectUrl for this nuget package
       2.1.12 Bump
       2.1.7 Added missing CrudSlaveToMasterRestClient{TModel, TId}

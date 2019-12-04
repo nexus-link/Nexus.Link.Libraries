@@ -20,7 +20,7 @@ namespace Nexus.Link.Libraries.Web.Tests.RestClientHelper
         {
             FulcrumApplicationHelper.UnitTestSetup(typeof(RestClientTest).FullName);
             HttpClientMock = new Mock<IHttpClient>();
-            HttpSender.HttpClient = HttpClientMock.Object;
+            HttpSender.DefaultHttpClient = HttpClientMock.Object;
         }
 
         [TestMethod]
@@ -33,7 +33,7 @@ namespace Nexus.Link.Libraries.Web.Tests.RestClientHelper
         [TestMethod]
         public async Task PostNoResponseContentWithNullHttpClient()
         {
-            HttpSender.HttpClient = new HttpClientWrapper(null);
+            HttpSender.DefaultHttpClient = new HttpClientWrapper(null);
             var client = new RestClient(new HttpSender("http://example.se"));
             var person = new Person();
             await client.PostNoResponseContentAsync("", person);
@@ -42,7 +42,7 @@ namespace Nexus.Link.Libraries.Web.Tests.RestClientHelper
         [TestMethod]
         public async Task PostWithNullHttpClient()
         {
-            HttpSender.HttpClient = new HttpClientWrapper(null);
+            HttpSender.DefaultHttpClient = new HttpClientWrapper(null);
             var client = new RestClient(new HttpSender("http://example.se"));
             var person = new Person();
             var id = await client.PostAsync<string, Person>("", person);
@@ -52,7 +52,7 @@ namespace Nexus.Link.Libraries.Web.Tests.RestClientHelper
         [TestMethod]
         public async Task GetWithNullHttpClient()
         {
-            HttpSender.HttpClient = new HttpClientWrapper(null);
+            HttpSender.DefaultHttpClient = new HttpClientWrapper(null);
             var client = new RestClient(new HttpSender("http://example.se"));
             var person = await client.GetAsync<Person>("");
             Assert.IsNull(person);
@@ -61,7 +61,7 @@ namespace Nexus.Link.Libraries.Web.Tests.RestClientHelper
         [TestMethod]
         public async Task PutWithNullHttpClient()
         {
-            HttpSender.HttpClient = new HttpClientWrapper(null);
+            HttpSender.DefaultHttpClient = new HttpClientWrapper(null);
             var client = new RestClient(new HttpSender("http://example.se"));
             var person = new Person();
             var personOut = await client.PutAsync<Person, Person>("1", person);
@@ -71,7 +71,7 @@ namespace Nexus.Link.Libraries.Web.Tests.RestClientHelper
         [TestMethod]
         public async Task DeleteWithNullHttpClient()
         {
-            HttpSender.HttpClient = new HttpClientWrapper(null);
+            HttpSender.DefaultHttpClient = new HttpClientWrapper(null);
             var client = new RestClient(new HttpSender("http://example.se"));
             await client.DeleteAsync("1");
         }

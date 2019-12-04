@@ -24,11 +24,17 @@ namespace Nexus.Link.Libraries.Web.RestClientHelper
         private static readonly object LockClass = new object();
 
         /// <summary>
-        /// The HttpClient that is used for all HTTP calls.
+        /// This is the default <see cref="IHttpClient"/> that is used for all HTTP calls.
         /// </summary>
-        /// <remarks>This is by default set to an HTTP client that has all outgoing pipes actived (logging, error handling, etc).
+        /// <remarks>This is by default set to an HTTP client that has all outgoing pipes activated (logging, error handling, etc).
         /// Typically only set this yourself for unit test purposes.</remarks>
-        public static IHttpClient HttpClient { get; set; }
+        public static IHttpClient DefaultHttpClient { get; set; }
+
+        /// <summary>
+        /// This is the <see cref="IHttpClient"/> that is used for all HTTP calls.
+        /// </summary>
+        /// <remarks>It is always initialized to a clone of <see cref="DefaultHttpClient"/>, but can be customized if needed.</remarks>
+        public IHttpClient HttpClient { get; set; }
 
         /// <inheritdoc />
         public Uri BaseUri { get; set; }
@@ -86,13 +92,18 @@ namespace Nexus.Link.Libraries.Web.RestClientHelper
             }
             lock (LockClass)
             {
-                if (HttpClient == null)
+                if (DefaultHttpClient == null)
                 {
                     var handlers = OutboundPipeFactory.CreateDelegatingHandlers();
                     var httpClient = HttpClientFactory.Create(handlers);
-                    HttpClient = new HttpClientWrapper(httpClient);
+                    DefaultHttpClient = new HttpClientWrapper(httpClient);
                 }
             }
+
+            HttpClient = new HttpClientWrapper(DefaultHttpClient.ActualHttpClient)
+            {
+                SimulateOutgoingCalls = DefaultHttpClient.SimulateOutgoingCalls
+            };
             Log.LogVerbose($"Created REST client {GetType().FullName}: {baseUri}");
         }
 
@@ -172,7 +183,7 @@ namespace Nexus.Link.Libraries.Web.RestClientHelper
             }
         }
 
-        private static async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request,
+        private async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request,
             CancellationToken cancellationToken)
         {
             cancellationToken.ThrowIfCancellationRequested();
