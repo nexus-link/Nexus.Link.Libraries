@@ -17,6 +17,19 @@ namespace Nexus.Link.Libraries.Web.RestClientHelper
     {
         public HttpClient ActualHttpClient { get; }
 
+        private bool _simulateOutgoingCalls;
+        /// <inheritdoc />
+        public bool SimulateOutgoingCalls
+        {
+            get => _simulateOutgoingCalls;
+            set
+            {
+                InternalContract.Require(FulcrumApplication.IsInDevelopment,
+                    $"The property {nameof(SimulateOutgoingCalls)} can only be set when {nameof(FulcrumApplication)}.{nameof(FulcrumApplication.IsInDevelopment)} is true.");
+                _simulateOutgoingCalls = value;
+            }
+        }
+
         /// <summary>
         /// Constructor
         /// </summary>
@@ -24,25 +37,30 @@ namespace Nexus.Link.Libraries.Web.RestClientHelper
         public HttpClientWrapper(HttpClient httpClient)
         {
             ActualHttpClient = httpClient;
+            if (ActualHttpClient == null)
+            {
+                InternalContract.Require(FulcrumApplication.IsInDevelopment,
+                    $"The parameter {nameof(httpClient)} can only be null when {nameof(FulcrumApplication)}.{nameof(FulcrumApplication.IsInDevelopment)} is true.");
+            }
+            SimulateOutgoingCalls = ActualHttpClient == null;
         }
 
         /// <inheritdoc />
-        public async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
+        public async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request,
+            CancellationToken cancellationToken)
         {
-            if (FulcrumApplication.IsInDevelopment && ActualHttpClient == null)
+            if (FulcrumApplication.IsInDevelopment && SimulateOutgoingCalls)
             {
-                Log.LogInformation($"Request was swallowed because the application has run time level Development: {request.ToLogString()}");
+                Log.LogInformation($"Request will be simulated : {request.ToLogString()}");
                 return new HttpResponseMessage(HttpStatusCode.OK)
                 {
                     Content = null,
-                    RequestMessage =  request
+                    RequestMessage = request
                 };
             }
-            else
-            {
-                FulcrumAssert.IsNotNull(ActualHttpClient);
-                return await ActualHttpClient.SendAsync(request, cancellationToken);
-            }
+
+            FulcrumAssert.IsNotNull(ActualHttpClient);
+            return await ActualHttpClient.SendAsync(request, cancellationToken);
         }
     }
 }

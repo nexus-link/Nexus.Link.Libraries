@@ -26,7 +26,8 @@ namespace Nexus.Link.Libraries.Web.RestClientHelper
         /// <summary>
         /// The HttpClient that is used for all HTTP calls.
         /// </summary>
-        /// <remarks>Is set to <see cref="HttpClient"/> by default. Typically only set to other values for unit test purposes.</remarks>
+        /// <remarks>This is by default set to an HTTP client that has all outgoing pipes actived (logging, error handling, etc).
+        /// Typically only set this yourself for unit test purposes.</remarks>
         public static IHttpClient HttpClient { get; set; }
 
         /// <inheritdoc />
@@ -103,38 +104,6 @@ namespace Nexus.Link.Libraries.Web.RestClientHelper
             Credentials = credentials;
         }
 
-        /// <summary></summary>
-        /// <param name="baseUri">The base URL that all HTTP calls methods will refer to.</param>
-        /// <param name="httpClient">The HttpClient used when making the HTTP calls.</param>
-        /// <param name="credentials">The credentials used when making the HTTP calls.</param>
-        public HttpSender(string baseUri, HttpClient httpClient, ServiceClientCredentials credentials) : this(baseUri, httpClient)
-        {
-            Credentials = credentials;
-        }
-
-
-        /// <summary></summary>
-        /// <param name="baseUri">The base URL that all HTTP calls methods will refer to.</param>
-        /// <param name="httpClient">The HttpClient used when making the HTTP calls.</param>
-        public HttpSender(string baseUri, HttpClient httpClient)
-        {
-            InternalContract.RequireNotNullOrWhiteSpace(baseUri, nameof(baseUri));
-            if (!FulcrumApplication.IsInDevelopment) InternalContract.RequireNotNull(httpClient, nameof(httpClient));
-            try
-            {
-                BaseUri = new Uri(baseUri);
-            }
-            catch (UriFormatException e)
-            {
-                InternalContract.Fail($"The format of {nameof(baseUri)} ({baseUri}) is not correct: {e.Message}");
-            }
-
-            lock (LockClass)
-            {
-                HttpClient = new HttpClientWrapper(httpClient);
-            }
-        }
-
         /// <inheritdoc />
         public async Task<HttpOperationResponse<TResponse>> SendRequestAsync<TResponse, TBody>(HttpMethod method, string relativeUrl,
             TBody body = default(TBody), Dictionary<string, List<string>> customHeaders = null,
@@ -177,7 +146,7 @@ namespace Nexus.Link.Libraries.Web.RestClientHelper
             try
             {
                 var newUri = new Uri(BaseUri, relativeUrl);
-                return new HttpSender(newUri.AbsoluteUri, HttpClient.ActualHttpClient, Credentials);
+                return new HttpSender(newUri.AbsoluteUri, Credentials);
             }
             catch (UriFormatException e)
             {
