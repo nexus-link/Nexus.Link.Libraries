@@ -157,7 +157,10 @@ namespace Nexus.Link.Libraries.Web.RestClientHelper
             try
             {
                 var newUri = new Uri(BaseUri, relativeUrl);
-                return new HttpSender(newUri.AbsoluteUri, Credentials);
+                return new HttpSender(newUri.AbsoluteUri, Credentials)
+                {
+                    HttpClient = HttpClient
+                };
             }
             catch (UriFormatException e)
             {
