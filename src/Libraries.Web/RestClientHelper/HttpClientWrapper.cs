@@ -24,8 +24,8 @@ namespace Nexus.Link.Libraries.Web.RestClientHelper
             get => _simulateOutgoingCalls;
             set
             {
-                InternalContract.Require(FulcrumApplication.IsInDevelopment,
-                    $"The property {nameof(SimulateOutgoingCalls)} can only be set when {nameof(FulcrumApplication)}.{nameof(FulcrumApplication.IsInDevelopment)} is true.");
+                InternalContract.Require(!value || FulcrumApplication.IsInDevelopment,
+                    $"The property {nameof(SimulateOutgoingCalls)} can only be set to true when {nameof(FulcrumApplication)}.{nameof(FulcrumApplication.IsInDevelopment)} is true.");
                 _simulateOutgoingCalls = value;
             }
         }
