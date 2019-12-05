@@ -36,19 +36,23 @@ namespace Nexus.Link.Libraries.Web.AspNet.Pipe.Inbound
         {
             if (context != null && TranslatorService != null)
             {
-                ITranslator translator = new Translator(_getClientNameMethod(), TranslatorService);
-                var controllerActionDescriptor = context.ActionDescriptor as ControllerActionDescriptor;
-                var methodInfo = controllerActionDescriptor?.MethodInfo;
-
-                if (methodInfo != null)
+                var clientName = _getClientNameMethod();
+                if (clientName != null)
                 {
-                    try
+                    ITranslator translator = new Translator(clientName, TranslatorService);
+                    var controllerActionDescriptor = context.ActionDescriptor as ControllerActionDescriptor;
+                    var methodInfo = controllerActionDescriptor?.MethodInfo;
+
+                    if (methodInfo != null)
                     {
-                        DecorateArguments(methodInfo.GetParameters(), context.ActionArguments, translator);
-                    }
-                    catch (Exception exception)
-                    {
-                        LogDecorationFailure(context, exception);
+                        try
+                        {
+                            DecorateArguments(methodInfo.GetParameters(), context.ActionArguments, translator);
+                        }
+                        catch (Exception exception)
+                        {
+                            LogDecorationFailure(context, exception);
+                        }
                     }
                 }
             }

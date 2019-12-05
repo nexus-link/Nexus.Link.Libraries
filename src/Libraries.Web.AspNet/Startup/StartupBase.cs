@@ -97,7 +97,7 @@ namespace Nexus.Link.Libraries.Web.AspNet.Startup
                             ValueTranslatorHttpSender.TranslatorService = translatorService;
                             valueTranslatorFilter = new ValueTranslatorFilter(
                                 translatorService,
-                                () => FulcrumApplication.Context.ClientPrincipal.Identity.Name);
+                                () => FulcrumApplication.Context?.ClientPrincipal?.Identity?.Name);
                         }
                     }
                     var mvc = services.AddMvc(opts =>
