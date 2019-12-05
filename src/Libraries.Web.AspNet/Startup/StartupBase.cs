@@ -84,24 +84,27 @@ namespace Nexus.Link.Libraries.Web.AspNet.Startup
                 {
                     var serviceProvider = serviceScope.ServiceProvider;
                     DependencyInjectServicesAdvanced(services, serviceProvider);
+                    if (IsBusinessApi)
+                    {
+                        _translatorService = serviceProvider.GetService<ITranslatorService>();
+                        if (_translatorService == null)
+                        {
+                            Log.LogWarning($"Could not resolve {nameof(ITranslatorService)}");
+                        }
+                        else
+                        {
+                            ValueTranslatorHttpSender.TranslatorService = _translatorService;
+                        }
+                    }
                     var mvc = services.AddMvc(opts =>
                     {
-                        if (IsBusinessApi)
+                        if (IsBusinessApi && _translatorService != null)
                         {
-                            var translatorService = serviceProvider.GetService<ITranslatorService>();
-                            if (translatorService == null)
-                            {
-                                Log.LogWarning($"Could not resolve {nameof(ITranslatorService)}");
-                            }
-                            else
-                            {
-                                ValueTranslatorHttpSender.TranslatorService = translatorService;
-                                var valueTranslatorFilter = new ValueTranslatorFilter(translatorService,
-                                    () => FulcrumApplication.Context.ClientPrincipal.Identity.Name);
-                                opts.Filters.Add(valueTranslatorFilter);
-                            }
+                            var valueTranslatorFilter = new ValueTranslatorFilter(
+                                _translatorService,
+                                () => FulcrumApplication.Context.ClientPrincipal.Identity.Name);
+                            opts.Filters.Add(valueTranslatorFilter);
                         }
-
                         if (!FulcrumApplication.IsInDevelopment) return;
                         Log.LogWarning($"Anonymous service usage is allowed, due to development mode.");
                         opts.Filters.Add(new AllowAnonymousFilter());
@@ -126,6 +129,7 @@ namespace Nexus.Link.Libraries.Web.AspNet.Startup
 
         private readonly IDictionary<Type, IEnumerable<Type>> _capabilityInterfaceToControllerClasses = new Dictionary<Type, IEnumerable<Type>>();
         private readonly HashSet<Type> _controllersToKeep = new HashSet<Type>();
+        private ITranslatorService _translatorService;
 
         // https://docs.microsoft.com/en-us/aspnet/core/mvc/advanced/app-parts?view=aspnetcore-2.2
         // When we need a controller, this code will add all controllers in the same assembly.
@@ -328,9 +332,9 @@ namespace Nexus.Link.Libraries.Web.AspNet.Startup
         /// This is where the application injects its own services.
         /// </summary>
         /// <param name="services">From the parameter to Startup.ConfigureServices.</param>
-        /// <param name="mvcBuild"></param>
+        /// <param name="serviceProvider"></param>
         /// <remarks>Always override this to inject your services.</remarks>
-        protected virtual void DependencyInjectServicesAdvanced(IServiceCollection services, IServiceProvider mvcBuild)
+        protected virtual void DependencyInjectServicesAdvanced(IServiceCollection services, IServiceProvider serviceProvider)
         {
 
         }
