@@ -34,25 +34,21 @@ namespace Nexus.Link.Libraries.Web.AspNet.Pipe.Inbound
 
         public async Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)
         {
-            if (context != null && TranslatorService != null)
+            var translator = GetTranslator(context);
+            if (translator != null)
             {
-                var clientName = _getClientNameMethod();
-                if (clientName != null)
-                {
-                    ITranslator translator = new Translator(clientName, TranslatorService);
-                    var controllerActionDescriptor = context.ActionDescriptor as ControllerActionDescriptor;
-                    var methodInfo = controllerActionDescriptor?.MethodInfo;
+                var controllerActionDescriptor = context.ActionDescriptor as ControllerActionDescriptor;
+                var methodInfo = controllerActionDescriptor?.MethodInfo;
 
-                    if (methodInfo != null)
+                if (methodInfo != null)
+                {
+                    try
                     {
-                        try
-                        {
-                            DecorateArguments(methodInfo.GetParameters(), context.ActionArguments, translator);
-                        }
-                        catch (Exception exception)
-                        {
-                            LogDecorationFailure(context, exception);
-                        }
+                        DecorateArguments(methodInfo.GetParameters(), context.ActionArguments, translator);
+                    }
+                    catch (Exception exception)
+                    {
+                        LogDecorationFailure(context, exception);
                     }
                 }
             }
@@ -63,27 +59,28 @@ namespace Nexus.Link.Libraries.Web.AspNet.Pipe.Inbound
         /// <inheritdoc />
         public async Task OnResultExecutionAsync(ResultExecutingContext context, ResultExecutionDelegate next)
         {
-            if (context != null && TranslatorService != null)
+            var translator = GetTranslator(context);
+            if (translator != null)
             {
-                ITranslator translator = new Translator(_getClientNameMethod(), TranslatorService);
-                var controllerActionDescriptor = context.ActionDescriptor as ControllerActionDescriptor;
-                var methodInfo = controllerActionDescriptor?.MethodInfo;
-
-                if (methodInfo != null)
+                try
                 {
-                    try
-                    {
-                        await TranslateResponseAsync(context, translator);
-                    }
-                    catch (Exception exception)
-                    {
-                        await LogTranslationFailureAsync(context, exception);
-                        throw;
-                    }
+                    await TranslateResponseAsync(context, translator);
+                }
+                catch (Exception exception)
+                {
+                    await LogTranslationFailureAsync(context, exception);
+                    throw;
                 }
             }
 
             await next();
+        }
+
+        private ITranslator GetTranslator(FilterContext context)
+        {
+            if (context == null || TranslatorService != null) return null;
+            var clientName = _getClientNameMethod();
+            return clientName == null ? null : new Translator(clientName, TranslatorService);
         }
 
         private static void DecorateArguments(IEnumerable<ParameterInfo> parameters,
