@@ -14,7 +14,7 @@
 
   <PropertyGroup>
     <PackageId>Nexus.Link.Services.Controllers</PackageId>
-    <Version>2.2.10</Version>
+    <Version>2.2.11</Version>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <PackageTags>nexus;link</PackageTags>
     <Authors>XLENT Link</Authors>
@@ -24,7 +24,7 @@
     <Copyright>Copyright ©2019 Xlent Link AB</Copyright>
     <IncludeSymbols>true</IncludeSymbols>
     <PackageReleaseNotes>
-      2.2.10 Bump
+      2.2.11 Bump
       2.2.3 Fix: PackageProjectUrl for this nuget package
       2.2.2 Bump
       2.2.1 Added explicit event for IEventReceiver.

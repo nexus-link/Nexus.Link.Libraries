@@ -16,7 +16,7 @@
 
   <PropertyGroup>
     <PackageId>Nexus.Link.Libraries.Web</PackageId>
-    <Version>2.9.5</Version>
+    <Version>2.9.6</Version>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <PackageTags>nexus;link;fulcrum;lever</PackageTags>
     <Authors>XLENT Link</Authors>
@@ -26,7 +26,7 @@
     <Copyright>Copyright ©2019 Xlent Link AB</Copyright>
     <IncludeSymbols>true</IncludeSymbols>
     <PackageReleaseNotes>
-      2.9.5 Refactored translation.
+      2.9.6 Refactored translation.
       2.8.0: Override release that was released by mistake.
       2.6.4 Fix: PackageProjectUrl for this nuget package
       2.6.3 Now logs when creating a REST client.

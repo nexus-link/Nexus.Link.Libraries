@@ -154,19 +154,12 @@ namespace Nexus.Link.Libraries.Web.RestClientHelper
         public IHttpSender CreateHttpSender(string relativeUrl)
         {
             InternalContract.RequireNotNull(relativeUrl, nameof(relativeUrl));
-            try
+
+            var newUri = ConcatenateBaseUrlAndRelativeUrl(relativeUrl);
+            return new HttpSender(newUri, Credentials)
             {
-                var newUri = new Uri(BaseUri, relativeUrl);
-                return new HttpSender(newUri.AbsoluteUri, Credentials)
-                {
-                    HttpClient = HttpClient
-                };
-            }
-            catch (UriFormatException e)
-            {
-                InternalContract.Fail($"The format of {nameof(relativeUrl)} ({relativeUrl}) is not correct: {e.Message}");
-                return null;
-            }
+                HttpClient = HttpClient
+            };
         }
 
         /// <inheritdoc />
@@ -200,8 +193,7 @@ namespace Nexus.Link.Libraries.Web.RestClientHelper
 
         private HttpRequestMessage CreateRequest(HttpMethod method, string relativeUrl, Dictionary<string, List<string>> customHeaders)
         {
-            var baseUri = BaseUri.AbsoluteUri;
-            var url = ConcatenateBaseUrlAndRelativeUrl(baseUri, relativeUrl);
+            var url = ConcatenateBaseUrlAndRelativeUrl(relativeUrl);
             var request = new HttpRequestMessage(method, url);
             request.Headers.TryAddWithoutValidation("Accept", new List<string> {"application/json"});
             if (customHeaders != null)
@@ -306,8 +298,9 @@ namespace Nexus.Link.Libraries.Web.RestClientHelper
             return null;
         }
 
-        private static string ConcatenateBaseUrlAndRelativeUrl(string baseUri, string relativeUrl)
+        private string ConcatenateBaseUrlAndRelativeUrl(string relativeUrl)
         {
+            var baseUri = BaseUri.AbsoluteUri;
             var relativeUrlBeginsWithSpecialCharacter = relativeUrl.StartsWith("/") || relativeUrl.StartsWith("?");
             var slashIsRequired = !string.IsNullOrWhiteSpace(relativeUrl) && !relativeUrlBeginsWithSpecialCharacter;
             if (baseUri.EndsWith("/"))
