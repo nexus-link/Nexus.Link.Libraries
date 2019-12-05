@@ -74,8 +74,7 @@ namespace Nexus.Link.Libraries.Web.AspNet.Tests.InboundPipe
                 new Dictionary<string, object> {{"id", inFoo.Id}, {"item", inFoo}}, foosController);
 
             // Setup the filter
-            ValueTranslatorFilter.TranslatorService = testServiceMock.Object;
-            var filter = new ValueTranslatorFilter(() => Foo.ConsumerName);
+            var filter = new ValueTranslatorFilter(testServiceMock.Object, () => Foo.ConsumerName);
 
             // Run the filter
             Assert.IsFalse(inFoo.Id.StartsWith("(foo.id!"));
@@ -101,9 +100,10 @@ namespace Nexus.Link.Libraries.Web.AspNet.Tests.InboundPipe
                 Id = decoratedProducerId1,
                 Name = "name"
             };
-            var controllerActionDescriptor = new ControllerActionDescriptor();
-            controllerActionDescriptor.MethodInfo =
-                foosController.GetType().GetMethod(nameof(foosController.UpdateAndReturnAsync));
+            var controllerActionDescriptor = new ControllerActionDescriptor
+            {
+                MethodInfo = foosController.GetType().GetMethod(nameof(foosController.UpdateAndReturnAsync))
+            };
             var actionContext = new ActionContext
             {
                 HttpContext = new DefaultHttpContext(),
@@ -113,8 +113,7 @@ namespace Nexus.Link.Libraries.Web.AspNet.Tests.InboundPipe
             var executingContext = new ResultExecutingContext(actionContext, new List<IFilterMetadata>(), new ObjectResult(foo), foosController);
 
             // Setup the filter
-            ValueTranslatorFilter.TranslatorService = testServiceMock.Object;
-            var filter = new ValueTranslatorFilter(() => Foo.ConsumerName);
+            var filter = new ValueTranslatorFilter(testServiceMock.Object, () => Foo.ConsumerName);
 
             // Run the filter
             await filter.OnResultExecutionAsync(executingContext, () => Task.FromResult(new ResultExecutedContext(actionContext, new List<IFilterMetadata>(), executingContext.Result, foosController)));

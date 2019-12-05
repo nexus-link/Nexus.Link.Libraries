@@ -21,42 +21,36 @@ namespace Nexus.Link.Libraries.Web.AspNet.Pipe.Inbound
         /// <summary>
         /// The service that does the actual translation.
         /// </summary>
-        public static ITranslatorService TranslatorService { get; set; }
+        public ITranslatorService TranslatorService { get;  }
 
         private readonly Func<string> _getClientNameMethod;
 
-        public ValueTranslatorFilter(Func<string> getClientNameMethod)
+        public ValueTranslatorFilter(ITranslatorService translatorService, Func<string> getClientNameMethod)
         {
+            InternalContract.RequireNotNull(translatorService, nameof(translatorService));
             InternalContract.RequireNotNull(getClientNameMethod, nameof(getClientNameMethod));
+            this.TranslatorService = translatorService;
             _getClientNameMethod = getClientNameMethod;
         }
 
         public async Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)
         {
-            ITranslator translator = null;
-            MethodInfo methodInfo = null;
-            if (FulcrumApplication.IsInDevelopment)
-            {
-                InternalContract.Require(TranslatorService != null,
-                    $"You must set the {nameof(TranslatorService)} property of {nameof(ValueTranslatorFilter)}.");
-            }
-
             if (TranslatorService != null)
             {
-                translator = new Translator(_getClientNameMethod(), TranslatorService);
+                ITranslator translator = new Translator(_getClientNameMethod(), TranslatorService);
                 var controllerActionDescriptor = context.ActionDescriptor as ControllerActionDescriptor;
-                methodInfo = controllerActionDescriptor?.MethodInfo;
-            }
+                var methodInfo = controllerActionDescriptor?.MethodInfo;
 
-            if (methodInfo != null)
-            {
-                try
+                if (methodInfo != null)
                 {
-                    DecorateArguments(methodInfo.GetParameters(), context.ActionArguments, translator);
-                }
-                catch (Exception exception)
-                {
-                    LogDecorationFailure(context, exception);
+                    try
+                    {
+                        DecorateArguments(methodInfo.GetParameters(), context.ActionArguments, translator);
+                    }
+                    catch (Exception exception)
+                    {
+                        LogDecorationFailure(context, exception);
+                    }
                 }
             }
 
@@ -66,31 +60,23 @@ namespace Nexus.Link.Libraries.Web.AspNet.Pipe.Inbound
         /// <inheritdoc />
         public async Task OnResultExecutionAsync(ResultExecutingContext context, ResultExecutionDelegate next)
         {
-            ITranslator translator = null;
-            MethodInfo methodInfo = null;
-            if (FulcrumApplication.IsInDevelopment)
-            {
-                InternalContract.Require(TranslatorService != null,
-                    $"You must set the {nameof(TranslatorService)} property of {nameof(ValueTranslatorFilter)}.");
-            }
-
             if (TranslatorService != null)
             {
-                translator = new Translator(_getClientNameMethod(), TranslatorService);
+                ITranslator translator = new Translator(_getClientNameMethod(), TranslatorService);
                 var controllerActionDescriptor = context.ActionDescriptor as ControllerActionDescriptor;
-                methodInfo = controllerActionDescriptor?.MethodInfo;
-            }
+                var methodInfo = controllerActionDescriptor?.MethodInfo;
 
-            if (methodInfo != null)
-            {
-                try
+                if (methodInfo != null)
                 {
-                    await TranslateResponseAsync(context, translator);
-                }
-                catch (Exception exception)
-                {
-                    await LogTranslationFailureAsync(context, exception);
-                    throw;
+                    try
+                    {
+                        await TranslateResponseAsync(context, translator);
+                    }
+                    catch (Exception exception)
+                    {
+                        await LogTranslationFailureAsync(context, exception);
+                        throw;
+                    }
                 }
             }
 

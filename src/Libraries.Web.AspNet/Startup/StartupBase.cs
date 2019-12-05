@@ -78,28 +78,38 @@ namespace Nexus.Link.Libraries.Web.AspNet.Startup
                 ConfigureServicesInitialUrgentPart(services);
                 FulcrumApplication.ValidateButNotInProduction();
                 InternalContract.RequireValidated(this, GetType().FullName);
-                var valueTranslatorFilter = new ValueTranslatorFilter(() => FulcrumApplication.Context.ClientPrincipal.Identity.Name);
-                var mvc = services.AddMvc(opts =>
-                {
-                    opts.Filters.Add(valueTranslatorFilter);
-                    if (!FulcrumApplication.IsInDevelopment) return;
-                    Log.LogWarning($"Anonymous service usage is allowed, due to development mode.");
-                    opts.Filters.Add(new AllowAnonymousFilter());
-                });
-                mvc
-                    .SetCompatibilityVersion(CompatibilityVersion)
-                    .ConfigureApplicationPartManager(apm =>
-                        apm.FeatureProviders.Add(new RemoveRedundantControllers(_controllersToKeep)));
                 ConfigureServicesSwagger(services);
                 DependencyInjectServices(services);
                 using (var serviceScope = services.BuildServiceProvider().CreateScope())
                 {
                     var serviceProvider = serviceScope.ServiceProvider;
-                    // TODO: Send the serviceProvider instead of the mvc
-                    DependencyInjectServicesAdvanced(services, mvc);
-                    ValueTranslatorFilter.TranslatorService = serviceProvider.GetService<ITranslatorService>();
-                    ValueTranslatorHttpSender.TranslatorService = ValueTranslatorFilter.TranslatorService;
-                    // TODO: Send the serviceProvider instead of the mvc
+                    DependencyInjectServicesAdvanced(services, serviceProvider);
+                    var mvc = services.AddMvc(opts =>
+                    {
+                        if (IsBusinessApi)
+                        {
+                            var translatorService = serviceProvider.GetService<ITranslatorService>();
+                            if (translatorService == null)
+                            {
+                                Log.LogWarning($"Could not resolve {nameof(ITranslatorService)}");
+                            }
+                            else
+                            {
+                                ValueTranslatorHttpSender.TranslatorService = translatorService;
+                                var valueTranslatorFilter = new ValueTranslatorFilter(translatorService,
+                                    () => FulcrumApplication.Context.ClientPrincipal.Identity.Name);
+                                opts.Filters.Add(valueTranslatorFilter);
+                            }
+                        }
+
+                        if (!FulcrumApplication.IsInDevelopment) return;
+                        Log.LogWarning($"Anonymous service usage is allowed, due to development mode.");
+                        opts.Filters.Add(new AllowAnonymousFilter());
+                    });
+                    mvc
+                        .SetCompatibilityVersion(CompatibilityVersion)
+                        .ConfigureApplicationPartManager(apm =>
+                            apm.FeatureProviders.Add(new RemoveRedundantControllers(_controllersToKeep)));
                     AddControllersToMvc(services, mvc);
                 }
 
@@ -320,7 +330,7 @@ namespace Nexus.Link.Libraries.Web.AspNet.Startup
         /// <param name="services">From the parameter to Startup.ConfigureServices.</param>
         /// <param name="mvcBuild"></param>
         /// <remarks>Always override this to inject your services.</remarks>
-        protected virtual void DependencyInjectServicesAdvanced(IServiceCollection services, IMvcBuilder mvcBuild)
+        protected virtual void DependencyInjectServicesAdvanced(IServiceCollection services, IServiceProvider mvcBuild)
         {
 
         }
