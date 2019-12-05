@@ -10,7 +10,6 @@ using Microsoft.AspNetCore.Mvc.Filters;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Controllers;
-using Nexus.Link.Libraries.Core.Application;
 using Nexus.Link.Libraries.Core.Assert;
 using Nexus.Link.Libraries.Core.Translation;
 
@@ -29,13 +28,13 @@ namespace Nexus.Link.Libraries.Web.AspNet.Pipe.Inbound
         {
             InternalContract.RequireNotNull(translatorService, nameof(translatorService));
             InternalContract.RequireNotNull(getClientNameMethod, nameof(getClientNameMethod));
-            this.TranslatorService = translatorService;
+            TranslatorService = translatorService;
             _getClientNameMethod = getClientNameMethod;
         }
 
         public async Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)
         {
-            if (TranslatorService != null)
+            if (context != null && TranslatorService != null)
             {
                 ITranslator translator = new Translator(_getClientNameMethod(), TranslatorService);
                 var controllerActionDescriptor = context.ActionDescriptor as ControllerActionDescriptor;
@@ -60,7 +59,7 @@ namespace Nexus.Link.Libraries.Web.AspNet.Pipe.Inbound
         /// <inheritdoc />
         public async Task OnResultExecutionAsync(ResultExecutingContext context, ResultExecutionDelegate next)
         {
-            if (TranslatorService != null)
+            if (context != null && TranslatorService != null)
             {
                 ITranslator translator = new Translator(_getClientNameMethod(), TranslatorService);
                 var controllerActionDescriptor = context.ActionDescriptor as ControllerActionDescriptor;
