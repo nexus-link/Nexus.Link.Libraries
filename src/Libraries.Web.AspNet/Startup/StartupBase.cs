@@ -18,6 +18,7 @@ using Nexus.Link.Libraries.Web.AspNet.Pipe.Inbound;
 using Swashbuckle.AspNetCore.Swagger;
 using Microsoft.AspNetCore.Mvc.Authorization;
 using Nexus.Link.Libraries.Core.Translation;
+using Nexus.Link.Libraries.Web.RestClientHelper;
 using Nexus.Link.Services.Contracts.Capabilities;
 namespace Nexus.Link.Libraries.Web.AspNet.Startup
 {
@@ -97,6 +98,7 @@ namespace Nexus.Link.Libraries.Web.AspNet.Startup
                     // TODO: Send the serviceProvider instead of the mvc
                     DependencyInjectServicesAdvanced(services, mvc);
                     ValueTranslatorFilter.TranslatorService = serviceProvider.GetService<ITranslatorService>();
+                    ValueTranslatorHttpSender.TranslatorService = ValueTranslatorFilter.TranslatorService;
                     // TODO: Send the serviceProvider instead of the mvc
                     AddControllersToMvc(services, mvc);
                 }
@@ -309,7 +311,6 @@ namespace Nexus.Link.Libraries.Web.AspNet.Startup
         /// This is where the application injects its own services.
         /// </summary>
         /// <param name="services">From the parameter to Startup.ConfigureServices.</param>
-        /// <param name="mvc"></param>
         /// <remarks>Always override this to inject your services.</remarks>
         protected abstract void DependencyInjectServices(IServiceCollection services);
 
@@ -317,7 +318,7 @@ namespace Nexus.Link.Libraries.Web.AspNet.Startup
         /// This is where the application injects its own services.
         /// </summary>
         /// <param name="services">From the parameter to Startup.ConfigureServices.</param>
-        /// <param name="mvc"></param>
+        /// <param name="mvcBuild"></param>
         /// <remarks>Always override this to inject your services.</remarks>
         protected virtual void DependencyInjectServicesAdvanced(IServiceCollection services, IMvcBuilder mvcBuild)
         {
