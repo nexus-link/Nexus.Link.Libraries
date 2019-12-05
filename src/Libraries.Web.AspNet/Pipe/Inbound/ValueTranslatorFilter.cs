@@ -78,7 +78,7 @@ namespace Nexus.Link.Libraries.Web.AspNet.Pipe.Inbound
 
         private ITranslator GetTranslator(FilterContext context)
         {
-            if (context == null || TranslatorService != null) return null;
+            if (context == null || TranslatorService == null) return null;
             var clientName = _getClientNameMethod();
             return clientName == null ? null : new Translator(clientName, TranslatorService);
         }
