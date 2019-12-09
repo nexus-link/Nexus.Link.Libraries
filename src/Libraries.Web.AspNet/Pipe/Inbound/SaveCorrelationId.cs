@@ -46,6 +46,7 @@ namespace Nexus.Link.Libraries.Web.AspNet.Pipe.Inbound
         /// <inheritdoc />
         protected override async Task InvokeAsync(CompabilityInvocationContext context)
         {
+            InternalContract.Require(!DelegateState.HasStarted, $"{nameof(SaveCorrelationId)} has already been started in this http request.");
             InternalContract.Require(!BatchLogs.HasStarted,
                 $"{nameof(BatchLogs)} must not precede {nameof(SaveCorrelationId)}");
             InternalContract.Require(!LogRequestAndResponse.HasStarted,
