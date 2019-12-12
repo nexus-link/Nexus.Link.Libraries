@@ -72,7 +72,7 @@ namespace Nexus.Link.Libraries.Core.Translation
         public object Decorate(object item, Type type)
         {
             if (item == null) return null;
-            DecoratePropertiesWithConceptAttribute(item);
+            DecorateInternal(item);
             return item;
         }
 
@@ -173,65 +173,48 @@ namespace Nexus.Link.Libraries.Core.Translation
         }
 
         #region private methods
-
-        private void DecorateWithReflection(string conceptName, object o, PropertyInfo property)
+        private void DecorateInternal(object o)
         {
-            var oldValue = (string)property.GetValue(o);
-            var newValue = Decorate(conceptName, oldValue);
-            property.SetValue(o, newValue);
-        }
-
-        private void DecoratePropertiesWithConceptAttribute(object o)
-        {
-            if (o == null) return;
-            var objectType = o.GetType();
-            if (!objectType.IsClass) return;
-            foreach (var property in objectType.GetProperties())
+            switch (o)
             {
-                var currentValue = property.GetValue(o);
-                if (property.MemberType == MemberTypes.NestedType)
+                case null:
+                    return;
+                case ICollection collection:
                 {
-                    // Recursive call
-                    DecoratePropertiesWithConceptAttribute(currentValue);
-                    continue;
-                }
-                if (property.MemberType != MemberTypes.Property) continue;
-                if (currentValue == null) continue;
-                var conceptAttribute = GetConceptAttribute(property);
-                if (conceptAttribute == null)
-                {
-                    if (!(currentValue is ICollection collection)) continue;
                     foreach (var item in collection)
                     {
                         // Recursive call
-                        DecoratePropertiesWithConceptAttribute(item);
+                        DecorateInternal(item);
                     }
-                    continue;
+                    return;
                 }
+            }
 
-                if (currentValue is string)
-                {
-                    DecorateWithReflection(conceptAttribute.ConceptName, o, property);
-                }
-                // ReSharper disable once SuspiciousTypeConversion.Global
+            var objectType = o.GetType();
+            if (objectType.IsPrimitive)
+            {
+                return;
+            }
+            foreach (var property in objectType.GetProperties())
+            {
+                DecorateProperty(o, property);
+            }
+        }
 
-                if (currentValue is ICollection<string> stringCollection)
-                {
-                    var newValue = stringCollection.Select(v => Decorate(conceptAttribute.ConceptName, v));
-                    switch (stringCollection)
-                    {
-                        case string[] _:
-                            property.SetValue(o, newValue.ToArray());
-                            break;
-                        case List<string> _:
-                            property.SetValue(o, newValue.ToList());
-                            break;
-                        default:
-                            FulcrumAssert.Fail(
-                                $"Failed to decorate class {objectType.FullName}: A collection can only have the {nameof(TranslationConceptAttribute)} attribute if it is of type  {typeof(string[]).Name} or {typeof(List<string>).Name}, which was not true for property {property.Name} ({property.PropertyType.Name}).");
-                            break;
-                    }
-                }
+        private void DecorateProperty(object o, PropertyInfo property)
+        {
+            if (property.PropertyType.IsPrimitive)
+            {
+                return;
+            }
+            var conceptAttribute = GetConceptAttribute(property);
+            if (conceptAttribute != null)
+            {
+                DecorateWithReflection(conceptAttribute.ConceptName, o, property);
+            }
+            else
+            {
+                DecorateInternal(property.GetValue(o));
             }
         }
 
@@ -244,6 +227,42 @@ namespace Nexus.Link.Libraries.Core.Translation
         {
             return ConceptValue.TryParse(value, out _);
         }
+
+        private void DecorateWithReflection(string conceptName, object o, PropertyInfo property)
+        {
+            var currentValue = property.GetValue(o);
+            switch (currentValue)
+            {
+                case null:
+                    break;
+                case ICollection<string> strings:
+                {
+                    var newValue = strings.Select(s => Decorate(conceptName, s));
+                    switch (strings)
+                    {
+                        case string[] _:
+                            property.SetValue(o, newValue.ToArray());
+                            break;
+                        case List<string> _:
+                            property.SetValue(o, newValue.ToList());
+                            break;
+                        default:
+                            FulcrumAssert.Fail(
+                                $"Failed to decorate a collection of strings; no translation method for collections of type {currentValue.GetType().FullName}:" + 
+                                $" Currently a collection can only have the {nameof(TranslationConceptAttribute)} attribute if it is of type  {typeof(string[]).Name} or {typeof(List<string>).Name}, which was not true for property {property.Name} ({property.PropertyType.Name}).");
+                            break;
+                    }
+                    break;
+                }
+                case string s:
+                {
+                    var newValue = Decorate(conceptName, s);
+                    property.SetValue(o, newValue);
+                    break;
+                }
+            }
+        }
+
         #endregion
     }
 }

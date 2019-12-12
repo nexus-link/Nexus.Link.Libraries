@@ -44,14 +44,14 @@ namespace Nexus.Link.Libraries.Core.Translation
         T Decorate<T>(T item);
 
         /// <summary>
-        /// Decorate the <paramref name="item"/> so that concept values are set to concept value paths.
-        /// </summary>
-        object Decorate(object item, Type type);
-
-        /// <summary>
         /// Decorate the <paramref name="items"/> so that concept values are set to concept value paths.
         /// </summary>
         IEnumerable<T> Decorate<T>(IEnumerable<T> items);
+
+        /// <summary>
+        /// Decorate the <paramref name="item"/> so that concept values are set to concept value paths.
+        /// </summary>
+        object Decorate(object item, Type type);
 
         /// <summary>
         /// Decorate the <paramref name="items"/> so that concept values are set to concept value paths.
