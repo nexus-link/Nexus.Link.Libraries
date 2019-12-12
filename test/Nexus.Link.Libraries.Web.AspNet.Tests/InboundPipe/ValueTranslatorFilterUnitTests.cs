@@ -71,7 +71,7 @@ namespace Nexus.Link.Libraries.Web.AspNet.Tests.InboundPipe
                 Id = Foo.ConsumerId1,
                 Name = "name"
             };
-            var parameters = new Dictionary<string, object> { { "id", inFoo.Id }, { "item", inFoo } };
+            var parameters = new Dictionary<string, object> { { "id", inFoo.Id }, { "item", inFoo }, { "token", default(CancellationToken) } };
 
 #if NETCOREAPP
             var foosController = new FoosController();
@@ -101,7 +101,7 @@ namespace Nexus.Link.Libraries.Web.AspNet.Tests.InboundPipe
 #else
             await filter.OnActionExecutingAsync(contextMock, new CancellationToken());
 #endif
-            Assert.IsTrue(inFoo.Id.StartsWith("(foo.id!"));
+            Assert.IsTrue(inFoo.Id.StartsWith("(foo.id!"), inFoo.Id);
         }
 
         [TestMethod]

@@ -2,6 +2,7 @@
 using Nexus.Link.Libraries.Core.Logging;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net.Http;
 using System.Reflection;
 using System.Text;
@@ -96,9 +97,7 @@ namespace Nexus.Link.Libraries.Web.AspNet.Pipe.Inbound
             var translator = GetTranslator(actionContext);
             if (translator != null)
             {
-                var actionName = actionContext.ActionDescriptor.ActionName;
-                var methodInfo = actionContext.ControllerContext.Controller.GetType()
-                    .GetMethod(actionName, BindingFlags.Public | BindingFlags.Instance);
+                var methodInfo = FindControllerMethod(actionContext);
 
                 if (methodInfo != null)
                 {
@@ -114,6 +113,46 @@ namespace Nexus.Link.Libraries.Web.AspNet.Pipe.Inbound
             }
 
             return Task.CompletedTask;
+        }
+
+        private static MethodInfo FindControllerMethod(HttpActionContext actionContext)
+        {
+            MethodInfo methodInfo = null;
+            try
+            {
+                var methodInfos = actionContext.ControllerContext.Controller.GetType().GetMethods(BindingFlags.Public | BindingFlags.Instance);
+                foreach (var info in methodInfos)
+                {
+                    var parameterInfos = info.GetParameters();
+                    if (info.Name == actionContext.ActionDescriptor.ActionName &&
+                        parameterInfos?.Length == actionContext.ActionArguments.Count)
+                    {
+                        var i = 0;
+                        var allGood = true;
+                        foreach (var parameterInfo in parameterInfos)
+                        {
+                            var argType = actionContext.ActionArguments.ElementAt(i).Value.GetType();
+                            if (parameterInfo.ParameterType != argType)
+                            {
+                                allGood = false;
+                                break;
+                            }
+                            i++;
+                        }
+
+                        if (allGood)
+                        {
+                            methodInfo = info;
+                            break;
+                        }
+                    }
+                }
+            }
+            catch
+            {
+                Log.LogWarning($"Unable to find Controller method {actionContext.ControllerContext.ControllerDescriptor.ControllerName}.{actionContext.ActionDescriptor.ActionName}");
+            }
+            return methodInfo;
         }
 
         public override async Task OnActionExecutedAsync(HttpActionExecutedContext actionExecutedContext, CancellationToken cancellationToken)
