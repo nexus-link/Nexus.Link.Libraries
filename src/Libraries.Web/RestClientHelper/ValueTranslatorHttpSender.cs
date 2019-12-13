@@ -55,7 +55,7 @@ namespace Nexus.Link.Libraries.Web.RestClientHelper
                 translator.Translate(body), 
                 customHeaders,
                 cancellationToken);
-            result.Body = translator.Decorate(result.Body);
+            result.Body = (TResponse) translator.Decorate(result.Body, typeof(TResponse));
             return result;
         }
 

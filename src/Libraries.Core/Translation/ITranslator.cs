@@ -44,6 +44,12 @@ namespace Nexus.Link.Libraries.Core.Translation
         T Decorate<T>(T item);
 
         /// <summary>
+        /// Decorate the <paramref name="items"/> so that concept values are set to concept value paths.
+        /// </summary>
+        [Obsolete("Use the method Decorate<T>(T). Obsolete since 2019-12-13.")]
+        IEnumerable<T> Decorate<T>(IEnumerable<T> items);
+
+        /// <summary>
         /// Decorate the <paramref name="item"/> so that concept values are set to concept value paths.
         /// </summary>
         object Decorate(object item, Type type);
@@ -51,11 +57,7 @@ namespace Nexus.Link.Libraries.Core.Translation
         /// <summary>
         /// Decorate the <paramref name="items"/> so that concept values are set to concept value paths.
         /// </summary>
-        IEnumerable<T> Decorate<T>(IEnumerable<T> items);
-
-        /// <summary>
-        /// Decorate the <paramref name="items"/> so that concept values are set to concept value paths.
-        /// </summary>
+        [Obsolete("Use the method Decorate(object, Type). Obsolete since 2019-12-13.")]
         IEnumerable<object> Decorate(IEnumerable<object> items, Type type);
 
         /// <summary>
