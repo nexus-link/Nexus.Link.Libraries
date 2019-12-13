@@ -1,26 +1,40 @@
-﻿#if NETCOREAPP
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 using Nexus.Link.Libraries.Core.Logging;
-using Nexus.Link.Libraries.Web.AspNet.Logging;
 using System;
 using System.Collections.Generic;
 using System.Reflection;
 using System.Threading;
-using Microsoft.AspNetCore.Mvc.Filters;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Controllers;
 using Nexus.Link.Libraries.Core.Assert;
 using Nexus.Link.Libraries.Core.Translation;
+#if NETCOREAPP
+using Nexus.Link.Libraries.Web.AspNet.Logging;
+using Microsoft.AspNetCore.Mvc.Filters;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Controllers;
+#else
+using System.Web.Http.Filters;
+using System.Web.Http.Controllers;
+using Newtonsoft.Json.Linq;
+using Nexus.Link.Libraries.Core.Json;
+using System.Linq;
+using System.Net.Http;
+using System.Text;
+using Nexus.Link.Libraries.Web.Logging;
+#endif
 
 namespace Nexus.Link.Libraries.Web.AspNet.Pipe.Inbound
 {
+#if NETCOREAPP
     public class ValueTranslatorFilter : IAsyncActionFilter, IAsyncResultFilter
+#else
+    public class ValueTranslatorFilter : ActionFilterAttribute
+#endif
     {
         /// <summary>
         /// The service that does the actual translation.
         /// </summary>
-        public ITranslatorService TranslatorService { get;  }
+        public ITranslatorService TranslatorService { get; }
 
         private readonly Func<string> _getClientNameMethod;
 
@@ -32,6 +46,7 @@ namespace Nexus.Link.Libraries.Web.AspNet.Pipe.Inbound
             _getClientNameMethod = getClientNameMethod;
         }
 
+#if NETCOREAPP
         public async Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)
         {
             var translator = GetTranslator(context);
@@ -75,9 +90,90 @@ namespace Nexus.Link.Libraries.Web.AspNet.Pipe.Inbound
 
             await next();
         }
-
-        private ITranslator GetTranslator(FilterContext context)
+#else
+        public override async Task OnActionExecutingAsync(HttpActionContext actionContext, CancellationToken cancellationToken)
         {
+            var translator = GetTranslator(actionContext);
+            if (translator != null)
+            {
+                var methodInfo = FindControllerMethod(actionContext);
+
+                // TODO: Generalize to Decorate() method
+                if (methodInfo != null)
+                {
+                    try
+                    {
+                        DecorateArguments(methodInfo.GetParameters(), actionContext.ActionArguments, translator);
+                    }
+                    catch (Exception exception)
+                    {
+                        await LogFailureAsync(actionContext.Request, actionContext.Response, exception);
+                    }
+                }
+            }
+        }
+
+        private static MethodInfo FindControllerMethod(HttpActionContext actionContext)
+        {
+            MethodInfo methodInfo = null;
+            try
+            {
+                var methodInfos = actionContext.ControllerContext.Controller.GetType().GetMethods(BindingFlags.Public | BindingFlags.Instance);
+                foreach (var info in methodInfos)
+                {
+                    var parameterInfos = info.GetParameters();
+                    if (info.Name == actionContext.ActionDescriptor.ActionName &&
+                        parameterInfos?.Length == actionContext.ActionArguments.Count)
+                    {
+                        var i = 0;
+                        var allGood = true;
+                        foreach (var parameterInfo in parameterInfos)
+                        {
+                            var argType = actionContext.ActionArguments.ElementAt(i).Value.GetType();
+                            if (parameterInfo.ParameterType != argType)
+                            {
+                                allGood = false;
+                                break;
+                            }
+                            i++;
+                        }
+
+                        if (allGood)
+                        {
+                            methodInfo = info;
+                            break;
+                        }
+                    }
+                }
+            }
+            catch
+            {
+                Log.LogWarning($"Unable to find Controller method {actionContext.ControllerContext.ControllerDescriptor.ControllerName}.{actionContext.ActionDescriptor.ActionName}");
+            }
+            return methodInfo;
+        }
+
+        public override async Task OnActionExecutedAsync(HttpActionExecutedContext actionExecutedContext, CancellationToken cancellationToken)
+        {
+            var translator = GetTranslator(actionExecutedContext);
+            if (translator != null)
+            {
+                try
+                {
+                    await TranslateResponseAsync(actionExecutedContext, translator, cancellationToken);
+                }
+                catch (Exception exception)
+                {
+                    await LogFailureAsync(actionExecutedContext.Request, actionExecutedContext.Response, exception);
+                    throw;
+                }
+            }
+        }
+#endif
+
+        private ITranslator GetTranslator(object context)
+        {
+            // TODO: Context not needed
             if (context == null || TranslatorService == null) return null;
             var clientName = _getClientNameMethod();
             return clientName == null ? null : new Translator(clientName, TranslatorService);
@@ -122,6 +218,8 @@ namespace Nexus.Link.Libraries.Web.AspNet.Pipe.Inbound
             arguments[parameterName] = translator.Decorate(currentValue);
         }
 
+#if NETCOREAPP
+
         private static void LogDecorationFailure(ActionExecutingContext context, Exception exception)
         {
             string requestAsLog;
@@ -154,49 +252,13 @@ namespace Nexus.Link.Libraries.Web.AspNet.Pipe.Inbound
             CancellationToken cancellationToken = default(CancellationToken))
         {
             if (context?.Result == null) return;
-            object itemBeforeTranslation;
-            switch (context.Result)
-            {
-                case ObjectResult objectResult:
-                    itemBeforeTranslation = objectResult.Value;
-                    break;
-                //// This serves as an example, se below for details
-                //case JsonResult jsonResult:
-                //    itemBeforeTranslation = jsonResult.Value;
-                //    break;
-                default:
-                    // Hairy! This branch of the execution flow is a bit hairy. See further text below.
-                    itemBeforeTranslation = context.Result;
-                    break;
-            }
+            if (!(context.Result is ObjectResult objectResult)) return;
+
+            var itemBeforeTranslation = objectResult.Value;
 
             await translator.Add(itemBeforeTranslation).ExecuteAsync(cancellationToken);
             var itemAfterTranslation = translator.Translate(itemBeforeTranslation,itemBeforeTranslation.GetType());
-
-            switch (context.Result)
-            {
-                case ObjectResult _:
-                    context.Result = new ObjectResult(itemAfterTranslation);
-                    break; 
-                //// This serves as an example, se below for details
-                //case JsonResult jsonResult2:
-                //    context.Result = new JsonResult(itemAfterTranslation, jsonResult2.SerializerSettings);
-                //    break;
-                default:
-                    // Hairy part continues.
-                    //
-                    // What we would like to do is to serialize and deserialize the actual HttpResponse content,
-                    // i.e. the thing that is returned. This is what we do for ObjectResult above, as we only take the actual ObjectResult.Value
-                    // and create a new ObjectResult from the itemAfterTranslation.
-                    //
-                    // In this "cover everything else" (because IActionResult has a LOT of implementations) we have actually
-                    // serialized and deserialized the entire IActionResult object. We might run into implementations that doesn't
-                    // gracefully survive such an operation. If that happens, this is our suggested method:
-                    //
-                    // We have made a commented out section for JsonResult that could serve as an example.
-                    context.Result = (IActionResult) itemAfterTranslation;
-                    break;
-            }
+            context.Result = new ObjectResult(itemAfterTranslation);
         }
 
         private static async Task LogTranslationFailureAsync(ResultExecutingContext context, Exception exception)
@@ -226,6 +288,49 @@ namespace Nexus.Link.Libraries.Web.AspNet.Pipe.Inbound
                 $"Failed to translate the response for the request {requestAsLog}. Result:\r{resultAsLog}",
                 exception);
         }
+#else
+        private static async Task LogFailureAsync(HttpRequestMessage request, HttpResponseMessage response, Exception exception)
+        {
+            string requestAsLog;
+            string resultAsLog;
+
+            try
+            {
+                await response.Content.LoadIntoBufferAsync();
+                resultAsLog = await response.Content.ReadAsStringAsync();
+            }
+            catch (Exception e)
+            {
+                resultAsLog = $"Failed to serialize: {e.Message}";
+            }
+
+            try
+            {
+                requestAsLog = await request.ToLogStringAsync(response);
+            }
+            catch (Exception)
+            {
+                requestAsLog = request.RequestUri?.ToString();
+            }
+
+            Log.LogError($"Failed to decorate the arguments for the request {requestAsLog}. Result:\r{resultAsLog}", exception);
+        }
+
+        private static async Task TranslateResponseAsync(HttpActionExecutedContext context, ITranslator translator, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            if (context.ActionContext?.Response?.Content == null) return;
+            await context.ActionContext?.Response.Content.LoadIntoBufferAsync();
+            var asString = await context.ActionContext?.Response?.Content?.ReadAsStringAsync();
+            if (string.IsNullOrWhiteSpace(asString)) return;
+
+            var objectResult = JsonHelper.SafeDeserializeObject<JObject>(asString);
+            if (objectResult == null) return;
+            var itemBeforeTranslation = objectResult;
+
+            await translator.Add(itemBeforeTranslation).ExecuteAsync(cancellationToken);
+            var itemAfterTranslation = translator.Translate(itemBeforeTranslation, itemBeforeTranslation.GetType());
+            context.ActionContext.Response.Content = new StringContent(JsonConvert.SerializeObject(itemAfterTranslation), Encoding.UTF8, "application/json");
+        }
+#endif
     }
 }
-#endif
