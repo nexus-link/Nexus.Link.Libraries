@@ -9,6 +9,9 @@ using System.Threading.Tasks;
 using Newtonsoft.Json;
 using Nexus.Link.Libraries.Core.Assert;
 using Nexus.Link.Libraries.Core.Crud.Model;
+using Nexus.Link.Libraries.Core.Json;
+using Nexus.Link.Libraries.Core.Logging;
+using Nexus.Link.Libraries.Core.Misc;
 using Nexus.Link.Libraries.Core.Storage.Model;
 
 namespace Nexus.Link.Libraries.Core.Translation
@@ -77,12 +80,14 @@ namespace Nexus.Link.Libraries.Core.Translation
         }
 
         /// <inheritdoc />
+        [Obsolete("Use the method Decorate<T>(T). Obsolete since 2019-12-13.")]
         public IEnumerable<T> Decorate<T>(IEnumerable<T> items)
         {
             return items?.Select(Decorate);
         }
 
         /// <inheritdoc />
+        [Obsolete("Use the method Decorate(object, Type). Obsolete since 2019-12-13.")]
         public IEnumerable<object> Decorate(IEnumerable<object> items, Type type)
         {
             return items?.Select(i => Decorate(i, type));
@@ -175,29 +180,40 @@ namespace Nexus.Link.Libraries.Core.Translation
         #region private methods
         private void DecorateInternal(object o)
         {
-            switch (o)
+            try
             {
-                case null:
-                    return;
-                case ICollection collection:
+                switch (o)
                 {
-                    foreach (var item in collection)
+                    case null:
+                        return;
+                    case ICollection collection:
                     {
-                        // Recursive call
-                        DecorateInternal(item);
+                        foreach (var item in collection)
+                        {
+                            // Recursive call
+                            DecorateInternal(item);
+                        }
+
+                        return;
                     }
+                }
+
+                var objectType = o.GetType();
+                if (objectType.IsPrimitive)
+                {
                     return;
                 }
-            }
 
-            var objectType = o.GetType();
-            if (objectType.IsPrimitive)
-            {
-                return;
+                foreach (var property in objectType.GetProperties())
+                {
+                    DecorateProperty(o, property);
+                }
             }
-            foreach (var property in objectType.GetProperties())
+            catch (Exception e)
             {
-                DecorateProperty(o, property);
+                var objectAsJson = JsonConvert.SerializeObject(o, Formatting.Indented);
+                Log.LogCritical($"Could not decorate object.\rObject: {objectAsJson}\rException: {e.Message}", e);
+                throw;
             }
         }
 
