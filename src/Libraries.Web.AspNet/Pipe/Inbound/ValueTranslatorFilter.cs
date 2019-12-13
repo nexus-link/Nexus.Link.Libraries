@@ -2,16 +2,11 @@
 using Nexus.Link.Libraries.Core.Logging;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Net.Http;
 using System.Reflection;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.Rest;
 using Nexus.Link.Libraries.Core.Assert;
 using Nexus.Link.Libraries.Core.Translation;
-using Nexus.Link.Libraries.Web.Logging;
 #if NETCOREAPP
 using Nexus.Link.Libraries.Web.AspNet.Logging;
 using Microsoft.AspNetCore.Mvc.Filters;
@@ -21,7 +16,11 @@ using Microsoft.AspNetCore.Mvc.Controllers;
 using System.Web.Http.Filters;
 using System.Web.Http.Controllers;
 using Newtonsoft.Json.Linq;
-
+using Nexus.Link.Libraries.Core.Json;
+using System.Linq;
+using System.Net.Http;
+using System.Text;
+using Nexus.Link.Libraries.Web.Logging;
 #endif
 
 namespace Nexus.Link.Libraries.Web.AspNet.Pipe.Inbound
@@ -92,13 +91,14 @@ namespace Nexus.Link.Libraries.Web.AspNet.Pipe.Inbound
             await next();
         }
 #else
-        public override Task OnActionExecutingAsync(HttpActionContext actionContext, CancellationToken cancellationToken)
+        public override async Task OnActionExecutingAsync(HttpActionContext actionContext, CancellationToken cancellationToken)
         {
             var translator = GetTranslator(actionContext);
             if (translator != null)
             {
                 var methodInfo = FindControllerMethod(actionContext);
 
+                // TODO: Generalize to Decorate() method
                 if (methodInfo != null)
                 {
                     try
@@ -107,12 +107,10 @@ namespace Nexus.Link.Libraries.Web.AspNet.Pipe.Inbound
                     }
                     catch (Exception exception)
                     {
-                        LogFailure(actionContext.Request, actionContext.Response, exception);
+                        await LogFailureAsync(actionContext.Request, actionContext.Response, exception);
                     }
                 }
             }
-
-            return Task.CompletedTask;
         }
 
         private static MethodInfo FindControllerMethod(HttpActionContext actionContext)
@@ -166,7 +164,7 @@ namespace Nexus.Link.Libraries.Web.AspNet.Pipe.Inbound
                 }
                 catch (Exception exception)
                 {
-                    LogFailure(actionExecutedContext.Request, actionExecutedContext.Response, exception);
+                    await LogFailureAsync(actionExecutedContext.Request, actionExecutedContext.Response, exception);
                     throw;
                 }
             }
@@ -175,6 +173,7 @@ namespace Nexus.Link.Libraries.Web.AspNet.Pipe.Inbound
 
         private ITranslator GetTranslator(object context)
         {
+            // TODO: Context not needed
             if (context == null || TranslatorService == null) return null;
             var clientName = _getClientNameMethod();
             return clientName == null ? null : new Translator(clientName, TranslatorService);
@@ -290,14 +289,15 @@ namespace Nexus.Link.Libraries.Web.AspNet.Pipe.Inbound
                 exception);
         }
 #else
-        private static void LogFailure(HttpRequestMessage request, HttpResponseMessage response, Exception exception)
+        private static async Task LogFailureAsync(HttpRequestMessage request, HttpResponseMessage response, Exception exception)
         {
             string requestAsLog;
             string resultAsLog;
 
             try
             {
-                resultAsLog = response?.Content?.AsString();
+                await response.Content.LoadIntoBufferAsync();
+                resultAsLog = await response.Content.ReadAsStringAsync();
             }
             catch (Exception e)
             {
@@ -306,11 +306,11 @@ namespace Nexus.Link.Libraries.Web.AspNet.Pipe.Inbound
 
             try
             {
-                requestAsLog = request?.ToLogString();
+                requestAsLog = await request.ToLogStringAsync(response);
             }
             catch (Exception)
             {
-                requestAsLog = request?.RequestUri.ToString();
+                requestAsLog = request.RequestUri?.ToString();
             }
 
             Log.LogError($"Failed to decorate the arguments for the request {requestAsLog}. Result:\r{resultAsLog}", exception);
@@ -319,23 +319,17 @@ namespace Nexus.Link.Libraries.Web.AspNet.Pipe.Inbound
         private static async Task TranslateResponseAsync(HttpActionExecutedContext context, ITranslator translator, CancellationToken cancellationToken = default(CancellationToken))
         {
             if (context.ActionContext?.Response?.Content == null) return;
-            var asString = context.ActionContext?.Response?.Content?.AsString();
+            await context.ActionContext?.Response.Content.LoadIntoBufferAsync();
+            var asString = await context.ActionContext?.Response?.Content?.ReadAsStringAsync();
             if (string.IsNullOrWhiteSpace(asString)) return;
 
-            try
-            {
-                var objectResult = JObject.Parse(asString);
-                var itemBeforeTranslation = objectResult;
+            var objectResult = JsonHelper.SafeDeserializeObject<JObject>(asString);
+            if (objectResult == null) return;
+            var itemBeforeTranslation = objectResult;
 
-                await translator.Add(itemBeforeTranslation).ExecuteAsync(cancellationToken);
-                var itemAfterTranslation = translator.Translate(itemBeforeTranslation, itemBeforeTranslation.GetType());
-                context.ActionContext.Response.Content = new StringContent(JsonConvert.SerializeObject(itemAfterTranslation), Encoding.UTF8, "application/json");
-
-            }
-            catch (JsonReaderException)
-            {
-                // This is ok; the content might not be JSON
-            }
+            await translator.Add(itemBeforeTranslation).ExecuteAsync(cancellationToken);
+            var itemAfterTranslation = translator.Translate(itemBeforeTranslation, itemBeforeTranslation.GetType());
+            context.ActionContext.Response.Content = new StringContent(JsonConvert.SerializeObject(itemAfterTranslation), Encoding.UTF8, "application/json");
         }
 #endif
     }
