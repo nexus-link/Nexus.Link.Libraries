@@ -46,7 +46,7 @@ namespace Nexus.Link.Libraries.Web.AspNet.Tests.InboundPipe.Support
 #if NETCOREAPP
         [HttpPut("{id}")]
 #else
-        [HttpGet]
+        [HttpPut]
 #endif
         [Route("{id}")]
         public Task<Foo> UpdateAndReturnAsync([TranslationConcept(Foo.IdConceptName)]string id, Foo item,
