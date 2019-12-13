@@ -154,13 +154,11 @@ namespace Nexus.Link.Libraries.Web.AspNet.Pipe.Inbound
             CancellationToken cancellationToken = default(CancellationToken))
         {
             if (context?.Result == null) return;
-            if (!(context.Result is ObjectResult objectResult)) return;
 
-            var itemBeforeTranslation = objectResult.Value;
-
+            var itemBeforeTranslation = context.Result;
             await translator.Add(itemBeforeTranslation).ExecuteAsync(cancellationToken);
             var itemAfterTranslation = translator.Translate(itemBeforeTranslation,itemBeforeTranslation.GetType());
-            context.Result = new ObjectResult(itemAfterTranslation);
+            context.Result = (IActionResult) itemAfterTranslation;
         }
 
         private static async Task LogTranslationFailureAsync(ResultExecutingContext context, Exception exception)

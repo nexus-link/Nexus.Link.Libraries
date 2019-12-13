@@ -13,6 +13,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using Newtonsoft.Json.Linq;
 using Nexus.Link.Libraries.Core.Application;
 using Nexus.Link.Libraries.Core.Translation;
 
@@ -122,6 +123,7 @@ namespace Nexus.Link.Libraries.Web.AspNet.Tests.InboundPipe
             var objectResult = executingContext.Result as ObjectResult;
             Assert.IsNotNull(objectResult);
             var outFoo = objectResult.Value as Foo;
+            if (outFoo == null && objectResult.Value is JObject jObject) outFoo = jObject.ToObject<Foo>();
             Assert.IsNotNull(outFoo);
             Assert.AreEqual(Foo.ConsumerId1, outFoo.Id);
         }

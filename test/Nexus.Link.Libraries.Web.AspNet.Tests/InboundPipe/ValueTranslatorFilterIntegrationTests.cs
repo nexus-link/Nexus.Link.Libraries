@@ -1,7 +1,6 @@
-﻿
+﻿#if NETCOREAPP
 using System;
 using System.Net;
-#if NETCOREAPP
 using System.Net.Http.Formatting;
 using System.Net.Http;
 using Nexus.Link.Libraries.Web.AspNet.Tests.InboundPipe.Support;
