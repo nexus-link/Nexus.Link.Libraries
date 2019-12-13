@@ -9,6 +9,9 @@ using System.Threading.Tasks;
 using Newtonsoft.Json;
 using Nexus.Link.Libraries.Core.Assert;
 using Nexus.Link.Libraries.Core.Crud.Model;
+using Nexus.Link.Libraries.Core.Json;
+using Nexus.Link.Libraries.Core.Logging;
+using Nexus.Link.Libraries.Core.Misc;
 using Nexus.Link.Libraries.Core.Storage.Model;
 
 namespace Nexus.Link.Libraries.Core.Translation
@@ -72,17 +75,19 @@ namespace Nexus.Link.Libraries.Core.Translation
         public object Decorate(object item, Type type)
         {
             if (item == null) return null;
-            DecoratePropertiesWithConceptAttribute(item);
+            DecorateInternal(item);
             return item;
         }
 
         /// <inheritdoc />
+        [Obsolete("Use the method Decorate<T>(T). Obsolete since 2019-12-13.")]
         public IEnumerable<T> Decorate<T>(IEnumerable<T> items)
         {
             return items?.Select(Decorate);
         }
 
         /// <inheritdoc />
+        [Obsolete("Use the method Decorate(object, Type). Obsolete since 2019-12-13.")]
         public IEnumerable<object> Decorate(IEnumerable<object> items, Type type)
         {
             return items?.Select(i => Decorate(i, type));
@@ -173,65 +178,59 @@ namespace Nexus.Link.Libraries.Core.Translation
         }
 
         #region private methods
-
-        private void DecorateWithReflection(string conceptName, object o, PropertyInfo property)
+        private void DecorateInternal(object o)
         {
-            var oldValue = (string)property.GetValue(o);
-            var newValue = Decorate(conceptName, oldValue);
-            property.SetValue(o, newValue);
+            try
+            {
+                switch (o)
+                {
+                    case null:
+                        return;
+                    case ICollection collection:
+                    {
+                        foreach (var item in collection)
+                        {
+                            // Recursive call
+                            DecorateInternal(item);
+                        }
+
+                        return;
+                    }
+                }
+
+                var objectType = o.GetType();
+                if (objectType.IsPrimitive)
+                {
+                    return;
+                }
+
+                foreach (var property in objectType.GetProperties())
+                {
+                    DecorateProperty(o, property);
+                }
+            }
+            catch (Exception e)
+            {
+                var objectAsJson = JsonConvert.SerializeObject(o, Formatting.Indented);
+                Log.LogCritical($"Could not decorate object.\rObject: {objectAsJson}\rException: {e.Message}", e);
+                throw;
+            }
         }
 
-        private void DecoratePropertiesWithConceptAttribute(object o)
+        private void DecorateProperty(object o, PropertyInfo property)
         {
-            if (o == null) return;
-            var objectType = o.GetType();
-            if (!objectType.IsClass) return;
-            foreach (var property in objectType.GetProperties())
+            if (property.PropertyType.IsPrimitive)
             {
-                var currentValue = property.GetValue(o);
-                if (property.MemberType == MemberTypes.NestedType)
-                {
-                    // Recursive call
-                    DecoratePropertiesWithConceptAttribute(currentValue);
-                    continue;
-                }
-                if (property.MemberType != MemberTypes.Property) continue;
-                if (currentValue == null) continue;
-                var conceptAttribute = GetConceptAttribute(property);
-                if (conceptAttribute == null)
-                {
-                    if (!(currentValue is ICollection collection)) continue;
-                    foreach (var item in collection)
-                    {
-                        // Recursive call
-                        DecoratePropertiesWithConceptAttribute(item);
-                    }
-                    continue;
-                }
-
-                if (currentValue is string)
-                {
-                    DecorateWithReflection(conceptAttribute.ConceptName, o, property);
-                }
-                // ReSharper disable once SuspiciousTypeConversion.Global
-
-                if (currentValue is ICollection<string> stringCollection)
-                {
-                    var newValue = stringCollection.Select(v => Decorate(conceptAttribute.ConceptName, v));
-                    switch (stringCollection)
-                    {
-                        case string[] _:
-                            property.SetValue(o, newValue.ToArray());
-                            break;
-                        case List<string> _:
-                            property.SetValue(o, newValue.ToList());
-                            break;
-                        default:
-                            FulcrumAssert.Fail(
-                                $"Failed to decorate class {objectType.FullName}: A collection can only have the {nameof(TranslationConceptAttribute)} attribute if it is of type  {typeof(string[]).Name} or {typeof(List<string>).Name}, which was not true for property {property.Name} ({property.PropertyType.Name}).");
-                            break;
-                    }
-                }
+                return;
+            }
+            var conceptAttribute = GetConceptAttribute(property);
+            if (conceptAttribute != null)
+            {
+                DecorateWithReflection(conceptAttribute.ConceptName, o, property);
+            }
+            else
+            {
+                DecorateInternal(property.GetValue(o));
             }
         }
 
@@ -244,6 +243,42 @@ namespace Nexus.Link.Libraries.Core.Translation
         {
             return ConceptValue.TryParse(value, out _);
         }
+
+        private void DecorateWithReflection(string conceptName, object o, PropertyInfo property)
+        {
+            var currentValue = property.GetValue(o);
+            switch (currentValue)
+            {
+                case null:
+                    break;
+                case ICollection<string> strings:
+                {
+                    var newValue = strings.Select(s => Decorate(conceptName, s));
+                    switch (strings)
+                    {
+                        case string[] _:
+                            property.SetValue(o, newValue.ToArray());
+                            break;
+                        case List<string> _:
+                            property.SetValue(o, newValue.ToList());
+                            break;
+                        default:
+                            FulcrumAssert.Fail(
+                                $"Failed to decorate a collection of strings; no translation method for collections of type {currentValue.GetType().FullName}:" + 
+                                $" Currently a collection can only have the {nameof(TranslationConceptAttribute)} attribute if it is of type  {typeof(string[]).Name} or {typeof(List<string>).Name}, which was not true for property {property.Name} ({property.PropertyType.Name}).");
+                            break;
+                    }
+                    break;
+                }
+                case string s:
+                {
+                    var newValue = Decorate(conceptName, s);
+                    property.SetValue(o, newValue);
+                    break;
+                }
+            }
+        }
+
         #endregion
     }
 }
