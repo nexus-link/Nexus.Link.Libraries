@@ -75,7 +75,7 @@ namespace Nexus.Link.Libraries.Core.Translation
         public object Decorate(object item, Type type)
         {
             if (item == null) return null;
-            DecorateInternal(item);
+            DecorateClassOrCollection(item);
             return item;
         }
 
@@ -178,7 +178,7 @@ namespace Nexus.Link.Libraries.Core.Translation
         }
 
         #region private methods
-        private void DecorateInternal(object o)
+        private void DecorateClassOrCollection(object o)
         {
             try
             {
@@ -191,7 +191,7 @@ namespace Nexus.Link.Libraries.Core.Translation
                         foreach (var item in collection)
                         {
                             // Recursive call
-                            DecorateInternal(item);
+                            DecorateClassOrCollection(item);
                         }
 
                         return;
@@ -199,14 +199,16 @@ namespace Nexus.Link.Libraries.Core.Translation
                 }
 
                 var objectType = o.GetType();
-                if (objectType.IsPrimitive)
+                if (!objectType.IsClass)
                 {
                     return;
                 }
 
-                foreach (var property in objectType.GetProperties())
+                var properties = objectType.GetProperties(BindingFlags.Instance | BindingFlags.Public);
+                var readableProperties = properties.Where(p => p.CanRead);
+                foreach (var property in readableProperties)
                 {
-                    DecorateProperty(o, property);
+                    DecorateClassProperty(o, property);
                 }
             }
             catch (Exception e)
@@ -217,20 +219,20 @@ namespace Nexus.Link.Libraries.Core.Translation
             }
         }
 
-        private void DecorateProperty(object o, PropertyInfo property)
+        private void DecorateClassProperty(object o, PropertyInfo property)
         {
             if (property.PropertyType.IsPrimitive)
             {
                 return;
             }
             var conceptAttribute = GetConceptAttribute(property);
-            if (conceptAttribute != null)
+            if (property.CanWrite && conceptAttribute != null)
             {
-                DecorateWithReflection(conceptAttribute.ConceptName, o, property);
+                DecoratePropertyWithConceptName(conceptAttribute.ConceptName, o, property);
             }
             else
             {
-                DecorateInternal(property.GetValue(o));
+                DecorateClassOrCollection(property.GetValue(o));
             }
         }
 
@@ -244,14 +246,20 @@ namespace Nexus.Link.Libraries.Core.Translation
             return ConceptValue.TryParse(value, out _);
         }
 
-        private void DecorateWithReflection(string conceptName, object o, PropertyInfo property)
+        private void DecoratePropertyWithConceptName(string conceptName, object o, PropertyInfo property)
         {
             var currentValue = property.GetValue(o);
             switch (currentValue)
             {
                 case null:
                     break;
-                case ICollection<string> strings:
+                case string s:
+                {
+                    var newValue = Decorate(conceptName, s);
+                    property.SetValue(o, newValue);
+                    break;
+                }
+                case IEnumerable<string> strings:
                 {
                     var newValue = strings.Select(s => Decorate(conceptName, s));
                     switch (strings)
@@ -263,17 +271,12 @@ namespace Nexus.Link.Libraries.Core.Translation
                             property.SetValue(o, newValue.ToList());
                             break;
                         default:
-                            FulcrumAssert.Fail(
+                            Log.LogWarning(
                                 $"Failed to decorate a collection of strings; no translation method for collections of type {currentValue.GetType().FullName}:" + 
-                                $" Currently a collection can only have the {nameof(TranslationConceptAttribute)} attribute if it is of type  {typeof(string[]).Name} or {typeof(List<string>).Name}, which was not true for property {property.Name} ({property.PropertyType.Name}).");
+                                $" Currently a collection can only be decorated if it is of one of the types ({typeof(string[]).Name}, {typeof(List<string>).Name})," +
+                                $" which was not true for property {property.Name} ({property.PropertyType.Name}).");
                             break;
                     }
-                    break;
-                }
-                case string s:
-                {
-                    var newValue = Decorate(conceptName, s);
-                    property.SetValue(o, newValue);
                     break;
                 }
             }
