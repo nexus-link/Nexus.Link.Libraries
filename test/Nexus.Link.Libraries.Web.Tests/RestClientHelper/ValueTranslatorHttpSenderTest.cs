@@ -106,7 +106,7 @@ namespace Nexus.Link.Libraries.Web.Tests.RestClientHelper
             var result = await sender.SendRequestAsync<PageEnvelope<Foo>, Foo>(HttpMethod.Get, $"Foos/{_producerId}", inBody);
             Assert.IsNotNull(result?.Body);
             Assert.IsNotNull(result.Body.Data);
-            Assert.IsTrue(result.Body.Data.Count() > 1);
+            Assert.IsTrue(result.Body.Data.Count() > 0);
             foreach (var foo in result.Body.Data)
             {
                 VerifyFoo(foo);

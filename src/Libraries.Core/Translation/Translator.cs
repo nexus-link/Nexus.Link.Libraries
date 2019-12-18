@@ -231,10 +231,16 @@ namespace Nexus.Link.Libraries.Core.Translation
             {
                 DecoratePropertyWithConceptName(conceptAttribute.ConceptName, o, property);
             }
-            else if (property.CanRead)
+            else if (CanGetPropertyValue(property))
             {
                 DecorateClassOrCollection(property.GetValue(o), depth);
             }
+        }
+
+        // https://stackoverflow.com/questions/6156577/targetparametercountexception-when-enumerating-through-properties-of-string
+        private static bool CanGetPropertyValue(PropertyInfo property)
+        {
+            return property.CanRead && property.GetIndexParameters().Length == 0;
         }
 
         public static TranslationConceptAttribute GetConceptAttribute(PropertyInfo property)
@@ -249,7 +255,7 @@ namespace Nexus.Link.Libraries.Core.Translation
 
         private void DecoratePropertyWithConceptName(string conceptName, object o, PropertyInfo property)
         {
-            if (!property.CanRead)
+            if (!CanGetPropertyValue(property))
             {
                 Log.LogWarning($"Can't decorate property {property.Name} (concept {conceptName}), because the property is not readable.");
                 return;
