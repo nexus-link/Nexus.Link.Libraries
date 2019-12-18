@@ -68,14 +68,14 @@ namespace Nexus.Link.Libraries.Core.Translation
         /// <inheritdoc />
         public T Decorate<T>(T item)
         {
-            return (T) Decorate(item, typeof(T));
+            return (T)Decorate(item, typeof(T));
         }
 
         /// <inheritdoc />
         public object Decorate(object item, Type type)
         {
             if (item == null) return null;
-            DecorateInternal(item);
+            DecorateClassOrCollection(item, 0);
             return item;
         }
 
@@ -159,7 +159,7 @@ namespace Nexus.Link.Libraries.Core.Translation
         /// <inheritdoc/>
         public T Translate<T>(T item)
         {
-           return (T) Translate(item, typeof(T));
+            return (T)Translate(item, typeof(T));
         }
 
         /// <inheritdoc />
@@ -178,8 +178,14 @@ namespace Nexus.Link.Libraries.Core.Translation
         }
 
         #region private methods
-        private void DecorateInternal(object o)
+        private void DecorateClassOrCollection(object o, int depth)
         {
+            if (depth > 20)
+            {
+                var objectAsJson = JsonConvert.SerializeObject(o, Formatting.Indented);
+                Log.LogWarning($"Will not decorate object deeper than level {depth - 1}.\r Remaining levels to decorate: {objectAsJson}");
+                return;
+            }
             try
             {
                 switch (o)
@@ -187,50 +193,47 @@ namespace Nexus.Link.Libraries.Core.Translation
                     case null:
                         return;
                     case ICollection collection:
-                    {
-                        foreach (var item in collection)
                         {
-                            // Recursive call
-                            DecorateInternal(item);
-                        }
+                            foreach (var item in collection)
+                            {
+                                // Recursive call
+                                DecorateClassOrCollection(item, depth + 1);
+                            }
 
-                        return;
-                    }
+                            return;
+                        }
                 }
 
                 var objectType = o.GetType();
-                if (objectType.IsPrimitive)
+                if (!objectType.IsClass)
                 {
                     return;
                 }
 
-                foreach (var property in objectType.GetProperties())
+                var properties = objectType.GetProperties(BindingFlags.Instance | BindingFlags.Public);
+                foreach (var property in properties)
                 {
-                    DecorateProperty(o, property);
+                    DecorateClassProperty(o, property, depth + 1);
                 }
             }
             catch (Exception e)
             {
+                if (depth > 0) throw;
                 var objectAsJson = JsonConvert.SerializeObject(o, Formatting.Indented);
-                Log.LogCritical($"Could not decorate object.\rObject: {objectAsJson}\rException: {e.Message}", e);
-                throw;
+                Log.LogWarning($"Could not decorate object. Parts of the object may have been decorated. \rObject: {objectAsJson}\rException: {e.Message}", e);
             }
         }
 
-        private void DecorateProperty(object o, PropertyInfo property)
+        private void DecorateClassProperty(object o, PropertyInfo property, int depth)
         {
-            if (property.PropertyType.IsPrimitive)
-            {
-                return;
-            }
             var conceptAttribute = GetConceptAttribute(property);
             if (conceptAttribute != null)
             {
-                DecorateWithReflection(conceptAttribute.ConceptName, o, property);
+                DecoratePropertyWithConceptName(conceptAttribute.ConceptName, o, property);
             }
-            else
+            else if (property.CanRead)
             {
-                DecorateInternal(property.GetValue(o));
+                DecorateClassOrCollection(property.GetValue(o), depth);
             }
         }
 
@@ -244,38 +247,48 @@ namespace Nexus.Link.Libraries.Core.Translation
             return ConceptValue.TryParse(value, out _);
         }
 
-        private void DecorateWithReflection(string conceptName, object o, PropertyInfo property)
+        private void DecoratePropertyWithConceptName(string conceptName, object o, PropertyInfo property)
         {
+            if (!property.CanRead)
+            {
+                Log.LogWarning($"Can't decorate property {property.Name} (concept {conceptName}), because the property is not readable.");
+                return;
+            }
             var currentValue = property.GetValue(o);
             switch (currentValue)
             {
                 case null:
                     break;
-                case ICollection<string> strings:
-                {
-                    var newValue = strings.Select(s => Decorate(conceptName, s));
-                    switch (strings)
+                case string s:
                     {
-                        case string[] _:
-                            property.SetValue(o, newValue.ToArray());
-                            break;
-                        case List<string> _:
-                            property.SetValue(o, newValue.ToList());
-                            break;
-                        default:
-                            FulcrumAssert.Fail(
-                                $"Failed to decorate a collection of strings; no translation method for collections of type {currentValue.GetType().FullName}:" + 
-                                $" Currently a collection can only have the {nameof(TranslationConceptAttribute)} attribute if it is of type  {typeof(string[]).Name} or {typeof(List<string>).Name}, which was not true for property {property.Name} ({property.PropertyType.Name}).");
-                            break;
+                        if (!property.CanWrite)
+                        {
+                            Log.LogWarning($"Can't decorate property {property.Name} (concept {conceptName}), because the property is not writable.");
+                            return;
+                        }
+                        var newValue = Decorate(conceptName, s);
+                        property.SetValue(o, newValue);
+                        break;
+                    }
+                case string[] stringArray:
+                    for (var i = 0; i < stringArray.Length; i++)
+                    {
+                        stringArray[i] = Decorate(conceptName, stringArray[i]);
                     }
                     break;
-                }
-                case string s:
-                {
-                    var newValue = Decorate(conceptName, s);
-                    property.SetValue(o, newValue);
+                case IList<string> stringList:
+                    var length = stringList.Count;
+                    for (var i = 0; i < length; i++)
+                    {
+                        stringList[i] = Decorate(conceptName, stringList[i]);
+                    }
                     break;
-                }
+                default:
+                    Log.LogWarning(
+                        $"{typeof(Translator).FullName} can't decorate the property {property.Name}" + 
+                        $" because its type ({property.PropertyType.Name}) is currently not supported." + 
+                        " The types that are supported are: string, string[] and IList<string>.");
+                    break;
             }
         }
 

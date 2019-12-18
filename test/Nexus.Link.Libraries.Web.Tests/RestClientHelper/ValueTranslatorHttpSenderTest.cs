@@ -178,11 +178,18 @@ namespace Nexus.Link.Libraries.Web.Tests.RestClientHelper
 
         private class Foo : IUniquelyIdentifiable<string>
         {
+            public Foo()
+            {
+                When = DateTimeOffset.Now;
+            }
+
             /// <inheritdoc />
             [TranslationConcept("foo.id")]
             public string Id { get; set; }
 
             public string Name { get; set; }
+
+            public DateTimeOffset When { get; }
 
             /// <inheritdoc />
             public override bool Equals(object obj)

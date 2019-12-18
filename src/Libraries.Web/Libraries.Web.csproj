@@ -26,6 +26,7 @@
     <Copyright>Copyright ©2019 Xlent Link AB</Copyright>
     <IncludeSymbols>true</IncludeSymbols>
     <PackageReleaseNotes>
+      2.9.11 Bump
       2.9.10 RestClient now respects HttpClient parameter in the obsolete constructors to be backwards compatible.
       2.9.9 Bump
       2.9.7 Refactored translation.
