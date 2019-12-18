@@ -75,7 +75,7 @@ namespace Nexus.Link.Libraries.Core.Translation
         public object Decorate(object item, Type type)
         {
             if (item == null) return null;
-            DecorateClassOrCollection(item);
+            DecorateClassOrCollection(item, 0);
             return item;
         }
 
@@ -178,8 +178,14 @@ namespace Nexus.Link.Libraries.Core.Translation
         }
 
         #region private methods
-        private void DecorateClassOrCollection(object o)
+        private void DecorateClassOrCollection(object o, int depth)
         {
+            if (depth > 20)
+            {
+                var objectAsJson = JsonConvert.SerializeObject(o, Formatting.Indented);
+                Log.LogWarning($"Will not decorate object deeper than level {depth-1}.\r Remaining levels to decorate: {objectAsJson}");
+                return;
+            }
             try
             {
                 switch (o)
@@ -191,7 +197,7 @@ namespace Nexus.Link.Libraries.Core.Translation
                         foreach (var item in collection)
                         {
                             // Recursive call
-                            DecorateClassOrCollection(item);
+                            DecorateClassOrCollection(item, depth+1);
                         }
 
                         return;
@@ -208,18 +214,18 @@ namespace Nexus.Link.Libraries.Core.Translation
                 var readableProperties = properties.Where(p => p.CanRead);
                 foreach (var property in readableProperties)
                 {
-                    DecorateClassProperty(o, property);
+                    DecorateClassProperty(o, property, depth+1);
                 }
             }
             catch (Exception e)
             {
+                if (depth > 0) throw;
                 var objectAsJson = JsonConvert.SerializeObject(o, Formatting.Indented);
-                Log.LogCritical($"Could not decorate object.\rObject: {objectAsJson}\rException: {e.Message}", e);
-                throw;
+                Log.LogWarning($"Could not decorate object. Parts of the object may have been decorated. \rObject: {objectAsJson}\rException: {e.Message}", e);
             }
         }
 
-        private void DecorateClassProperty(object o, PropertyInfo property)
+        private void DecorateClassProperty(object o, PropertyInfo property, int depth)
         {
             if (property.PropertyType.IsPrimitive)
             {
@@ -230,9 +236,9 @@ namespace Nexus.Link.Libraries.Core.Translation
             {
                 DecoratePropertyWithConceptName(conceptAttribute.ConceptName, o, property);
             }
-            else
+            else if (property.CanRead)
             {
-                DecorateClassOrCollection(property.GetValue(o));
+                DecorateClassOrCollection(property.GetValue(o), depth);
             }
         }
 
