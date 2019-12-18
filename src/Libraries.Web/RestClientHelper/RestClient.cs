@@ -47,7 +47,8 @@ namespace Nexus.Link.Libraries.Web.RestClientHelper
         /// <param name="httpClient">The HttpClient used when making the HTTP calls.</param>
         /// <param name="credentials">The credentials used when making the HTTP calls.</param>
         [Obsolete("Use the RestClient(IHttpSender) constructor. Obsolete since 2019-11-15.")]
-        public RestClient(string baseUri, HttpClient httpClient, ServiceClientCredentials credentials) : this(new HttpSender(baseUri, credentials))
+        public RestClient(string baseUri, HttpClient httpClient, ServiceClientCredentials credentials)
+            : this(new HttpSender(baseUri, credentials){HttpClient = new HttpClientWrapper(httpClient)})
         {
         }
 
@@ -56,7 +57,8 @@ namespace Nexus.Link.Libraries.Web.RestClientHelper
         /// <param name="baseUri">The base URL that all HTTP calls methods will refer to.</param>
         /// <param name="httpClient">The HttpClient used when making the HTTP calls.</param>
         [Obsolete("Use the RestClient(IHttpSender) constructor. Obsolete since 2019-11-15.")]
-        public RestClient(string baseUri, HttpClient httpClient) : this(new HttpSender(baseUri))
+        public RestClient(string baseUri, HttpClient httpClient) 
+            : this(new HttpSender(baseUri){HttpClient = new HttpClientWrapper(httpClient)})
         {
         }
         #endregion
