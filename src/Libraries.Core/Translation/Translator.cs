@@ -68,7 +68,7 @@ namespace Nexus.Link.Libraries.Core.Translation
         /// <inheritdoc />
         public T Decorate<T>(T item)
         {
-            return (T) Decorate(item, typeof(T));
+            return (T)Decorate(item, typeof(T));
         }
 
         /// <inheritdoc />
@@ -159,7 +159,7 @@ namespace Nexus.Link.Libraries.Core.Translation
         /// <inheritdoc/>
         public T Translate<T>(T item)
         {
-           return (T) Translate(item, typeof(T));
+            return (T)Translate(item, typeof(T));
         }
 
         /// <inheritdoc />
@@ -183,7 +183,7 @@ namespace Nexus.Link.Libraries.Core.Translation
             if (depth > 20)
             {
                 var objectAsJson = JsonConvert.SerializeObject(o, Formatting.Indented);
-                Log.LogWarning($"Will not decorate object deeper than level {depth-1}.\r Remaining levels to decorate: {objectAsJson}");
+                Log.LogWarning($"Will not decorate object deeper than level {depth - 1}.\r Remaining levels to decorate: {objectAsJson}");
                 return;
             }
             try
@@ -193,15 +193,15 @@ namespace Nexus.Link.Libraries.Core.Translation
                     case null:
                         return;
                     case ICollection collection:
-                    {
-                        foreach (var item in collection)
                         {
-                            // Recursive call
-                            DecorateClassOrCollection(item, depth+1);
-                        }
+                            foreach (var item in collection)
+                            {
+                                // Recursive call
+                                DecorateClassOrCollection(item, depth + 1);
+                            }
 
-                        return;
-                    }
+                            return;
+                        }
                 }
 
                 var objectType = o.GetType();
@@ -214,7 +214,7 @@ namespace Nexus.Link.Libraries.Core.Translation
                 var readableProperties = properties.Where(p => p.CanRead);
                 foreach (var property in readableProperties)
                 {
-                    DecorateClassProperty(o, property, depth+1);
+                    DecorateClassProperty(o, property, depth + 1);
                 }
             }
             catch (Exception e)
@@ -260,31 +260,31 @@ namespace Nexus.Link.Libraries.Core.Translation
                 case null:
                     break;
                 case string s:
-                {
-                    var newValue = Decorate(conceptName, s);
-                    property.SetValue(o, newValue);
-                    break;
-                }
-                case IEnumerable<string> strings:
-                {
-                    var newValue = strings.Select(s => Decorate(conceptName, s));
-                    switch (strings)
                     {
-                        case string[] _:
-                            property.SetValue(o, newValue.ToArray());
-                            break;
-                        case List<string> _:
-                            property.SetValue(o, newValue.ToList());
-                            break;
-                        default:
-                            Log.LogWarning(
-                                $"Failed to decorate a collection of strings; no translation method for collections of type {currentValue.GetType().FullName}:" + 
-                                $" Currently a collection can only be decorated if it is of one of the types ({typeof(string[]).Name}, {typeof(List<string>).Name})," +
-                                $" which was not true for property {property.Name} ({property.PropertyType.Name}).");
-                            break;
+                        var newValue = Decorate(conceptName, s);
+                        property.SetValue(o, newValue);
+                        break;
                     }
-                    break;
-                }
+                case IEnumerable<string> strings:
+                    {
+                        var newValue = strings.Select(s => Decorate(conceptName, s));
+                        switch (strings)
+                        {
+                            case string[] _:
+                                property.SetValue(o, newValue.ToArray());
+                                break;
+                            case List<string> _:
+                                property.SetValue(o, newValue.ToList());
+                                break;
+                            default:
+                                Log.LogWarning(
+                                    $"Failed to decorate a collection of strings; no translation method for collections of type {currentValue.GetType().FullName}:" +
+                                    $" Currently a collection can only be decorated if it is of one of the types ({typeof(string[]).Name}, {typeof(List<string>).Name})," +
+                                    $" which was not true for property {property.Name} ({property.PropertyType.Name}).");
+                                break;
+                        }
+                        break;
+                    }
             }
         }
 
