@@ -41,9 +41,9 @@ namespace Nexus.Link.Libraries.Web.AspNet.Tests.InboundPipe
             var translatorServiceMock = new Mock<ITranslatorService>();
             var decoratedProducerId1 = Translator.Decorate(Foo.IdConceptName, Foo.ProducerName, Foo.ProducerId1);
             translatorServiceMock
-                .Setup(service => service.TranslateAsync(It.IsAny<IEnumerable<string>>(),It.IsAny<string>(), It.IsAny<CancellationToken>()))
-                .ReturnsAsync(() =>new Dictionary<string, string> {{decoratedProducerId1, Foo.ConsumerId1}});
-            
+                .Setup(service => service.TranslateAsync(It.IsAny<IEnumerable<string>>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(() => new Dictionary<string, string> { { decoratedProducerId1, Foo.ConsumerId1 } });
+
             TestStartup.TranslatorService = translatorServiceMock.Object;
             TestStartup.GetTranslatorClientName = () => Foo.ConsumerName;
 #if NETCOREAPP
@@ -64,8 +64,8 @@ namespace Nexus.Link.Libraries.Web.AspNet.Tests.InboundPipe
             var translatorServiceMock = new Mock<ITranslatorService>();
             var decoratedProducerId1 = Translator.Decorate(Foo.IdConceptName, Foo.ProducerName, Foo.ProducerId1);
             translatorServiceMock
-                .Setup(service => service.TranslateAsync(It.IsAny<IEnumerable<string>>(),It.IsAny<string>(), It.IsAny<CancellationToken>()))
-                .ReturnsAsync(() =>new Dictionary<string, string> {{decoratedProducerId1, Foo.ConsumerId1}});
+                .Setup(service => service.TranslateAsync(It.IsAny<IEnumerable<string>>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(() => new Dictionary<string, string> { { decoratedProducerId1, Foo.ConsumerId1 } });
 
             TestStartup.TranslatorService = translatorServiceMock.Object;
             TestStartup.GetTranslatorClientName = () => Foo.ConsumerName;
@@ -102,7 +102,7 @@ namespace Nexus.Link.Libraries.Web.AspNet.Tests.InboundPipe
             var translatorServiceMock = new Mock<ITranslatorService>();
             var decoratedProducerId1 = Translator.Decorate(Foo.IdConceptName, Foo.ProducerName, Foo.ProducerId1);
             translatorServiceMock
-                .Setup(service => service.TranslateAsync(It.IsAny<IEnumerable<string>>(),It.IsAny<string>(), It.IsAny<CancellationToken>()))
+                .Setup(service => service.TranslateAsync(It.IsAny<IEnumerable<string>>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
                 .ThrowsAsync(new FulcrumResourceException("Fail"));
 
             TestStartup.TranslatorService = translatorServiceMock.Object;
@@ -130,12 +130,17 @@ namespace Nexus.Link.Libraries.Web.AspNet.Tests.InboundPipe
                 Assert.AreEqual(HttpStatusCode.BadGateway, response.StatusCode);
 #endif
             }
+#if NETCOREAPP
             catch (Exception e)
             {
-#if NETCOREAPP
+
                 Assert.IsTrue(e is FulcrumResourceException);
-#endif
             }
+#else
+            catch (Exception)
+            {
+            }
+#endif
         }
     }
 }
