@@ -211,8 +211,7 @@ namespace Nexus.Link.Libraries.Core.Translation
                 }
 
                 var properties = objectType.GetProperties(BindingFlags.Instance | BindingFlags.Public);
-                var readableProperties = properties.Where(p => p.CanRead);
-                foreach (var property in readableProperties)
+                foreach (var property in properties)
                 {
                     DecorateClassProperty(o, property, depth + 1);
                 }
@@ -227,12 +226,8 @@ namespace Nexus.Link.Libraries.Core.Translation
 
         private void DecorateClassProperty(object o, PropertyInfo property, int depth)
         {
-            if (property.PropertyType.IsPrimitive)
-            {
-                return;
-            }
             var conceptAttribute = GetConceptAttribute(property);
-            if (property.CanWrite && conceptAttribute != null)
+            if (conceptAttribute != null)
             {
                 DecoratePropertyWithConceptName(conceptAttribute.ConceptName, o, property);
             }
@@ -254,6 +249,11 @@ namespace Nexus.Link.Libraries.Core.Translation
 
         private void DecoratePropertyWithConceptName(string conceptName, object o, PropertyInfo property)
         {
+            if (!property.CanRead)
+            {
+                Log.LogWarning($"Can't decorate property {property.Name} (concept {conceptName}), because the property is not readable.");
+                return;
+            }
             var currentValue = property.GetValue(o);
             switch (currentValue)
             {
@@ -261,30 +261,34 @@ namespace Nexus.Link.Libraries.Core.Translation
                     break;
                 case string s:
                     {
+                        if (!property.CanWrite)
+                        {
+                            Log.LogWarning($"Can't decorate property {property.Name} (concept {conceptName}), because the property is not writable.");
+                            return;
+                        }
                         var newValue = Decorate(conceptName, s);
                         property.SetValue(o, newValue);
                         break;
                     }
-                case IEnumerable<string> strings:
+                case string[] stringArray:
+                    for (var i = 0; i < stringArray.Length; i++)
                     {
-                        var newValue = strings.Select(s => Decorate(conceptName, s));
-                        switch (strings)
-                        {
-                            case string[] _:
-                                property.SetValue(o, newValue.ToArray());
-                                break;
-                            case List<string> _:
-                                property.SetValue(o, newValue.ToList());
-                                break;
-                            default:
-                                Log.LogWarning(
-                                    $"Failed to decorate a collection of strings; no translation method for collections of type {currentValue.GetType().FullName}:" +
-                                    $" Currently a collection can only be decorated if it is of one of the types ({typeof(string[]).Name}, {typeof(List<string>).Name})," +
-                                    $" which was not true for property {property.Name} ({property.PropertyType.Name}).");
-                                break;
-                        }
-                        break;
+                        stringArray[i] = Decorate(conceptName, stringArray[i]);
                     }
+                    break;
+                case IList<string> stringList:
+                    var length = stringList.Count;
+                    for (var i = 0; i < length; i++)
+                    {
+                        stringList[i] = Decorate(conceptName, stringList[i]);
+                    }
+                    break;
+                default:
+                    Log.LogWarning(
+                        $"{typeof(Translator).FullName} can't decorate the property {property.Name}" + 
+                        $" because its type ({property.PropertyType.Name}) is currently not supported." + 
+                        " The types that are supported are: string, string[] and IList<string>.");
+                    break;
             }
         }
 
