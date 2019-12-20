@@ -5,13 +5,17 @@ using System.Collections.Generic;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
+using Nexus.Link.Libraries.Core.Application;
 using Nexus.Link.Libraries.Core.Assert;
 using Nexus.Link.Libraries.Core.Translation;
+using Microsoft.Extensions.DependencyInjection;
 #if NETCOREAPP
 using Nexus.Link.Libraries.Web.AspNet.Logging;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Controllers;
+using Microsoft.Extensions.Options;
+
 #else
 using System.Web.Http.Filters;
 using System.Web.Http.Controllers;
@@ -333,4 +337,43 @@ namespace Nexus.Link.Libraries.Web.AspNet.Pipe.Inbound
         }
 #endif
     }
+    #if NETCOREAPP
+    /// <summary>
+    /// https://stackoverflow.com/questions/55990151/is-adding-addmvc-service-twice-in-configureservices-a-good-practice-in-asp-n
+    /// </summary>
+    public class ValueTranslatorFilterConfigureOptions : IConfigureOptions<MvcOptions>
+    {
+        private readonly ITranslatorService _translatorService;
+
+        public ValueTranslatorFilterConfigureOptions(ITranslatorService translatorService)
+        {
+            _translatorService = translatorService;
+        }
+        /// <inheritdoc />
+        public void Configure(MvcOptions options)
+        {
+            var valueTranslatorFilter = new ValueTranslatorFilter(
+                _translatorService,
+                GetClientName);
+            options.Filters.Add(valueTranslatorFilter);
+        }
+
+        private static string GetClientName() => FulcrumApplication.Context?.ClientPrincipal?.Identity?.Name;
+    }
+
+    /// <summary>
+    /// Convenience method for adding the <see cref="ValueTranslatorFilter"/>.
+    /// </summary>
+    public static class ValueTranslatorFilterExtensions
+    {
+        /// <summary>
+        /// Add the <see cref="ValueTranslatorFilter"/> to MVC.
+        /// </summary>
+        public static IServiceCollection AddValueTranslatorFilter(this IServiceCollection services)
+        {
+            services.ConfigureOptions<ValueTranslatorFilterConfigureOptions>();
+            return services;
+        }
+    }
+    #endif
 }
