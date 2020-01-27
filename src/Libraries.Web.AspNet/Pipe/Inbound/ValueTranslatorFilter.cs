@@ -8,8 +8,8 @@ using System.Threading.Tasks;
 using Nexus.Link.Libraries.Core.Application;
 using Nexus.Link.Libraries.Core.Assert;
 using Nexus.Link.Libraries.Core.Translation;
-using Microsoft.Extensions.DependencyInjection;
 #if NETCOREAPP
+using Microsoft.Extensions.DependencyInjection;
 using Nexus.Link.Libraries.Web.AspNet.Logging;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.AspNetCore.Mvc;
