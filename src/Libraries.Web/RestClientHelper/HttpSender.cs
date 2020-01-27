@@ -170,7 +170,7 @@ namespace Nexus.Link.Libraries.Web.RestClientHelper
             HttpRequestMessage request = null;
             try
             {
-                request = CreateRequest(method, relativeUrl, customHeaders);
+                request = await CreateRequest(method, relativeUrl, customHeaders);
                 return await SendAsync(request, cancellationToken);
             }
             finally
@@ -191,7 +191,7 @@ namespace Nexus.Link.Libraries.Web.RestClientHelper
 
         #region Helpers
 
-        private HttpRequestMessage CreateRequest(HttpMethod method, string relativeUrl, Dictionary<string, List<string>> customHeaders)
+        private async Task<HttpRequestMessage> CreateRequest(HttpMethod method, string relativeUrl, Dictionary<string, List<string>> customHeaders)
         {
             var url = ConcatenateBaseUrlAndRelativeUrl(relativeUrl);
             var request = new HttpRequestMessage(method, url);
@@ -207,6 +207,10 @@ namespace Nexus.Link.Libraries.Web.RestClientHelper
                     request.Headers.TryAddWithoutValidation(header.Key, header.Value);
                 }
             }
+
+            if (Credentials == null) return request;
+
+            await Credentials.ProcessHttpRequestAsync(request, default).ConfigureAwait(false);
             return request;
         }
 
@@ -214,7 +218,7 @@ namespace Nexus.Link.Libraries.Web.RestClientHelper
             CancellationToken cancellationToken)
         {
             InternalContract.RequireNotNull(relativeUrl, nameof(relativeUrl));
-            var request = CreateRequest(method, relativeUrl, customHeaders);
+            var request = await CreateRequest(method, relativeUrl, customHeaders);
 
             if (instance != null)
             {

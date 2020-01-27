@@ -32,6 +32,7 @@ namespace Nexus.Link.Libraries.Web.RestClientHelper
             InternalContract.RequireNotNull(httpSender, nameof(httpSender));
             InternalContract.RequireNotNullOrWhiteSpace(translationClientName, nameof(translationClientName));
             HttpSender = httpSender;
+            
             TranslationClientName = translationClientName;
         }
 
