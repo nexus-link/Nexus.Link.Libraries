@@ -1,5 +1,6 @@
 ﻿
 using Nexus.Link.Libraries.Core.Misc;
+using Nexus.Link.Libraries.Core.Platform.Services;
 #if NETCOREAPP
 using System;
 using System.Reflection;
@@ -19,7 +20,6 @@ using Swashbuckle.AspNetCore.Swagger;
 using Microsoft.AspNetCore.Mvc.Authorization;
 using Nexus.Link.Libraries.Core.Translation;
 using Nexus.Link.Libraries.Web.RestClientHelper;
-using Nexus.Link.Services.Contracts.Capabilities;
 namespace Nexus.Link.Libraries.Web.AspNet.Startup
 {
     /// <summary>

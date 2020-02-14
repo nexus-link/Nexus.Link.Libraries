@@ -1,22 +1,41 @@
 ﻿
-#if NETCOREAPP
 using System.Diagnostics.CodeAnalysis;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
+using System.Web.Http;
 using Nexus.Link.Libraries.Core.Assert;
 using Nexus.Link.Libraries.Core.Translation;
 using Nexus.Link.Libraries.Crud.Interfaces;
 
+#if NETCOREAPP
+using Microsoft.AspNetCore.Mvc;
+#else
+#endif
+
 namespace Nexus.Link.Libraries.Web.AspNet.Tests.InboundPipe.Support
 {
+#if NETCOREAPP
     [ApiController]
     [Route("api/Foos")]
+#else
+    [RoutePrefix("api/Foos")]
+#endif
     [SuppressMessage("ReSharper", "IdentifierTypo")]
-    public class FoosController : ControllerBase, IRead<Foo, string>, IUpdateAndReturn<Foo, string>
+    public class FoosController :
+#if NETCOREAPP
+        ControllerBase
+#else
+        ApiController
+#endif
+        , IRead<Foo, string>, IUpdateAndReturn<Foo, string>
     {
         /// <inheritdoc />
+#if NETCOREAPP
         [HttpGet("{id}")]
+#else
+        [HttpGet]
+        [Route("{id}")]
+#endif
         public Task<Foo> ReadAsync(string id, CancellationToken token = default(CancellationToken))
         {
             var item = new Foo {Id = id, Name = "name"};
@@ -24,7 +43,12 @@ namespace Nexus.Link.Libraries.Web.AspNet.Tests.InboundPipe.Support
         }
 
         /// <inheritdoc />
+#if NETCOREAPP
         [HttpPut("{id}")]
+#else
+        [HttpPut]
+#endif
+        [Route("{id}")]
         public Task<Foo> UpdateAndReturnAsync([TranslationConcept(Foo.IdConceptName)]string id, Foo item,
             CancellationToken token = default(CancellationToken))
         {
@@ -40,4 +64,3 @@ namespace Nexus.Link.Libraries.Web.AspNet.Tests.InboundPipe.Support
         }
     }
 }
-#endif

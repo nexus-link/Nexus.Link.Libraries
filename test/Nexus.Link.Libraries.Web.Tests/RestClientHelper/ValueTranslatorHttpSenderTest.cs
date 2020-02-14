@@ -52,17 +52,49 @@ namespace Nexus.Link.Libraries.Web.Tests.RestClientHelper
         }
 
         [TestMethod]
-        public async Task TranslateBody()
+        public async Task DoNotTranslateBody()
         {
             var httpSenderMock = new HttpSenderMock();
             var sender = new ValueTranslatorHttpSender(httpSenderMock, "producer");
             var inBody = new Foo {Id = _decoratedConsumerId, Name = "name"};
             await sender.SendRequestAsync(HttpMethod.Get, $"Foos/{_producerId}", inBody);
-            Assert.IsNotNull(httpSenderMock.Body);
-            var outBody = httpSenderMock.Body as Foo;
+            Assert.IsNotNull(httpSenderMock.ReceivedBody);
+            var outBody = httpSenderMock.ReceivedBody as Foo;
             Assert.IsNotNull(outBody);
             Assert.AreEqual(_producerId, outBody.Id);
             Assert.AreEqual(inBody.Name, outBody.Name);
+        }
+
+        [TestMethod]
+        public async Task TranslateObjectBody()
+        {
+            var httpSenderMock = new HttpSenderMock();
+            var sender = new ValueTranslatorHttpSender(httpSenderMock, "producer");
+            var sentBody = new Foo {Id = _decoratedConsumerId, Name = "name"};
+            var result = await sender.SendRequestAsync<Foo,Foo>(HttpMethod.Get, $"Foos/{_producerId}", sentBody);
+            Assert.IsNotNull(httpSenderMock.ReceivedBody);
+            var receivedBody = httpSenderMock.ReceivedBody as Foo;
+            Assert.IsNotNull(receivedBody);
+            Assert.AreEqual(_producerId, receivedBody.Id);
+            Assert.AreEqual(sentBody.Name, receivedBody.Name);
+            Assert.IsNotNull(result.Body);
+            var resultBody = result.Body;
+            Assert.IsNotNull(resultBody);
+            VerifyFoo(resultBody);
+        }
+
+        [TestMethod]
+        public async Task TranslateListBody()
+        {
+            var httpSenderMock = new HttpSenderMock();
+            var sender = new ValueTranslatorHttpSender(httpSenderMock, "producer");
+            var sentBody = new Foo {Id = _decoratedConsumerId, Name = "name"};
+            var result = await sender.SendRequestAsync<IEnumerable<Foo>,Foo>(HttpMethod.Get, $"Foos", sentBody);
+            var resultBody = result.Body;
+            Assert.IsNotNull(resultBody);
+            var foo = resultBody.FirstOrDefault();
+            Assert.IsNotNull(foo);
+            VerifyFoo(foo);
         }
 
         [TestMethod]
@@ -73,16 +105,26 @@ namespace Nexus.Link.Libraries.Web.Tests.RestClientHelper
             var inBody = new Foo {Id = _decoratedConsumerId, Name = "name"};
             var result = await sender.SendRequestAsync<PageEnvelope<Foo>, Foo>(HttpMethod.Get, $"Foos/{_producerId}", inBody);
             Assert.IsNotNull(result?.Body);
-            Assert.IsNotNull(result?.Body.Data);
-            Assert.AreEqual(1, result?.Body.Data.Count());
-            Assert.AreEqual(_decoratedProducerId, result.Body.Data.First().Id);
-            Assert.AreEqual(inBody.Name, result.Body.Data.First().Name);
+            Assert.IsNotNull(result.Body.Data);
+            Assert.IsTrue(result.Body.Data.Count() > 0);
+            foreach (var foo in result.Body.Data)
+            {
+                VerifyFoo(foo);
+            }
+        }
+
+        private void VerifyFoo(Foo foo)
+        {
+            Assert.AreEqual(_decoratedProducerId, foo.Id);
+            Assert.AreEqual("out-name", foo.Name);
+            Assert.AreEqual(_decoratedProducerId, foo.IdList[0]);
+            Assert.AreEqual(_decoratedProducerId, foo.IdArray[0]);
         }
 
         private class HttpSenderMock : IHttpSender
         {
             public string RelativeUrl { get; private set; }
-            public object Body { get; private set; }
+            public object ReceivedBody { get; private set; }
 
             /// <inheritdoc />
             public Uri BaseUri => new Uri("http://localhost");
@@ -106,7 +148,7 @@ namespace Nexus.Link.Libraries.Web.Tests.RestClientHelper
                 Dictionary<string, List<string>> customHeaders = null, CancellationToken cancellationToken = default(CancellationToken))
             {
                 RelativeUrl = relativeUrl;
-                Body = body;
+                ReceivedBody = body;
                 return Task.FromResult(new HttpResponseMessage(HttpStatusCode.OK));
             }
 
@@ -115,15 +157,30 @@ namespace Nexus.Link.Libraries.Web.Tests.RestClientHelper
                 Dictionary<string, List<string>> customHeaders = null, CancellationToken cancellationToken = default(CancellationToken))
             {
                 RelativeUrl = relativeUrl;
-                Body = body;
+                ReceivedBody = body;
                 var httpOperationResponse = new HttpOperationResponse<TResponse>();
+                var foo = new Foo
+                {
+                    Id = _producerId, Name = "out-name"
+                };
+                foo.IdList.Add(_producerId);
+                foo.IdArray[0] = _producerId;
                 if (typeof(TResponse) == typeof(string))
                 {
                     httpOperationResponse.Body = (TResponse)(object)_producerId;
                 }
+                else if (typeof(TResponse) == typeof(Foo))
+                {
+                    httpOperationResponse.Body = (TResponse) (object) foo;
+                }
+                else if (typeof(TResponse) == typeof(IEnumerable<Foo>))
+                {
+                    httpOperationResponse.Body =
+                        (TResponse) (object) new List<Foo> {foo};
+                }
                 else if (typeof(TResponse) == typeof(PageEnvelope<Foo>))
                 {
-                    httpOperationResponse.Body = (TResponse)(object)new PageEnvelope<Foo>(0, 1, 1, new List<Foo> {new Foo{Id = _producerId, Name = "name"}});
+                    httpOperationResponse.Body = (TResponse)(object)new PageEnvelope<Foo>(0, 1, 1, new List<Foo> {foo});
                 }
                 else
                 {
@@ -139,7 +196,15 @@ namespace Nexus.Link.Libraries.Web.Tests.RestClientHelper
             [TranslationConcept("foo.id")]
             public string Id { get; set; }
 
+            [TranslationConcept("foo.id")] 
+            public List<string> IdList { get; } = new List<string>();
+
+            [TranslationConcept("foo.id")] 
+            public string[] IdArray { get; } = new string[1];
+
             public string Name { get; set; }
+
+            public DateTimeOffset When { get; } = DateTimeOffset.Now;
 
             /// <inheritdoc />
             public override bool Equals(object obj)

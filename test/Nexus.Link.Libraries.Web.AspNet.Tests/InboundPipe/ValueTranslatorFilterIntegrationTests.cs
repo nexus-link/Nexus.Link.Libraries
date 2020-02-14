@@ -1,7 +1,5 @@
-﻿
-using System;
+﻿using System;
 using System.Net;
-#if NETCOREAPP
 using System.Net.Http.Formatting;
 using System.Net.Http;
 using Nexus.Link.Libraries.Web.AspNet.Tests.InboundPipe.Support;
@@ -15,6 +13,10 @@ using Newtonsoft.Json;
 using Nexus.Link.Libraries.Core.Application;
 using Nexus.Link.Libraries.Core.Error.Logic;
 using Nexus.Link.Libraries.Core.Translation;
+#if NETCOREAPP
+#else
+using Microsoft.Owin.Testing;
+#endif
 
 namespace Nexus.Link.Libraries.Web.AspNet.Tests.InboundPipe
 {
@@ -39,14 +41,17 @@ namespace Nexus.Link.Libraries.Web.AspNet.Tests.InboundPipe
             var translatorServiceMock = new Mock<ITranslatorService>();
             var decoratedProducerId1 = Translator.Decorate(Foo.IdConceptName, Foo.ProducerName, Foo.ProducerId1);
             translatorServiceMock
-                .Setup(service => service.TranslateAsync(It.IsAny<IEnumerable<string>>(),It.IsAny<string>(), It.IsAny<CancellationToken>()))
-                .ReturnsAsync(() =>new Dictionary<string, string> {{decoratedProducerId1, Foo.ConsumerId1}});
-            
+                .Setup(service => service.TranslateAsync(It.IsAny<IEnumerable<string>>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(() => new Dictionary<string, string> { { decoratedProducerId1, Foo.ConsumerId1 } });
+
             TestStartup.TranslatorService = translatorServiceMock.Object;
             TestStartup.GetTranslatorClientName = () => Foo.ConsumerName;
+#if NETCOREAPP
             var factory = new CustomWebApplicationFactory();
             _httpClient = factory.CreateClient();
-
+#else
+            _httpClient = TestServer.Create<TestStartup>().HttpClient;
+#endif
             var response = await _httpClient.GetAsync($"/api/Foos/{Foo.ConsumerId1}");
             Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
         }
@@ -59,12 +64,17 @@ namespace Nexus.Link.Libraries.Web.AspNet.Tests.InboundPipe
             var translatorServiceMock = new Mock<ITranslatorService>();
             var decoratedProducerId1 = Translator.Decorate(Foo.IdConceptName, Foo.ProducerName, Foo.ProducerId1);
             translatorServiceMock
-                .Setup(service => service.TranslateAsync(It.IsAny<IEnumerable<string>>(),It.IsAny<string>(), It.IsAny<CancellationToken>()))
-                .ReturnsAsync(() =>new Dictionary<string, string> {{decoratedProducerId1, Foo.ConsumerId1}});
+                .Setup(service => service.TranslateAsync(It.IsAny<IEnumerable<string>>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(() => new Dictionary<string, string> { { decoratedProducerId1, Foo.ConsumerId1 } });
 
             TestStartup.TranslatorService = translatorServiceMock.Object;
-            TestStartup.GetTranslatorClientName = () => Foo.ConsumerName;            var factory = new CustomWebApplicationFactory();
+            TestStartup.GetTranslatorClientName = () => Foo.ConsumerName;
+#if NETCOREAPP
+            var factory = new CustomWebApplicationFactory();
             _httpClient = factory.CreateClient();
+#else
+            _httpClient = TestServer.Create<TestStartup>().HttpClient;
+#endif
 
             // Call method
             var inFoo = new Foo
@@ -85,7 +95,6 @@ namespace Nexus.Link.Libraries.Web.AspNet.Tests.InboundPipe
         }
 
         [TestMethod]
-        [ExpectedException(typeof(FulcrumResourceException))]
         public async Task TranslatorResourceException()
         {
 
@@ -93,14 +102,18 @@ namespace Nexus.Link.Libraries.Web.AspNet.Tests.InboundPipe
             var translatorServiceMock = new Mock<ITranslatorService>();
             var decoratedProducerId1 = Translator.Decorate(Foo.IdConceptName, Foo.ProducerName, Foo.ProducerId1);
             translatorServiceMock
-                .Setup(service => service.TranslateAsync(It.IsAny<IEnumerable<string>>(),It.IsAny<string>(), It.IsAny<CancellationToken>()))
+                .Setup(service => service.TranslateAsync(It.IsAny<IEnumerable<string>>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
                 .ThrowsAsync(new FulcrumResourceException("Fail"));
 
             TestStartup.TranslatorService = translatorServiceMock.Object;
             TestStartup.GetTranslatorClientName = () => Foo.ConsumerName;
-            
+
+#if NETCOREAPP
             var factory = new CustomWebApplicationFactory();
             _httpClient = factory.CreateClient();
+#else
+            _httpClient = TestServer.Create<TestStartup>().HttpClient;
+#endif
 
             // Call method
             var inFoo = new Foo
@@ -108,8 +121,26 @@ namespace Nexus.Link.Libraries.Web.AspNet.Tests.InboundPipe
                 Id = Foo.ConsumerId1,
                 Name = "name"
             };
-            await _httpClient.PutAsync($"http://localhost/api/Foos/{Foo.ConsumerId1}", new ObjectContent<Foo>(inFoo, new JsonMediaTypeFormatter()));
+            try
+            {
+                var response = await _httpClient.PutAsync($"http://localhost/api/Foos/{Foo.ConsumerId1}", new ObjectContent<Foo>(inFoo, new JsonMediaTypeFormatter()));
+#if NETCOREAPP
+                Assert.Fail("Expected exception to be thrown");
+#else
+                Assert.AreEqual(HttpStatusCode.BadGateway, response.StatusCode);
+#endif
+            }
+#if NETCOREAPP
+            catch (Exception e)
+            {
+
+                Assert.IsTrue(e is FulcrumResourceException);
+            }
+#else
+            catch (Exception)
+            {
+            }
+#endif
         }
     }
 }
-#endif
