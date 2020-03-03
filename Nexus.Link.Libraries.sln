@@ -53,6 +53,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Libraries.Crud.UnitTests", 
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Libraries.Azure.Web.AspNet", "src\Libraries.Azure.Web.AspNet\Libraries.Azure.Web.AspNet.csproj", "{BBFC4379-E3B0-4D94-9007-34C1D3DE284F}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Libraries.Azure.Web.AspNet.Tests", "test\Nexus.Link.Libraries.Azure.Web.AspNet.Tests\Libraries.Azure.Web.AspNet.Tests.csproj", "{6EAC43DD-86FF-4166-ADBB-14420F28C95C}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -127,6 +129,10 @@ Global
 		{BBFC4379-E3B0-4D94-9007-34C1D3DE284F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{BBFC4379-E3B0-4D94-9007-34C1D3DE284F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{BBFC4379-E3B0-4D94-9007-34C1D3DE284F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6EAC43DD-86FF-4166-ADBB-14420F28C95C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6EAC43DD-86FF-4166-ADBB-14420F28C95C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6EAC43DD-86FF-4166-ADBB-14420F28C95C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6EAC43DD-86FF-4166-ADBB-14420F28C95C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -139,6 +145,7 @@ Global
 		{3D8C1788-4844-4F67-A2B9-D7E14E207213} = {57821723-4C04-4949-A42B-6CF8B55F1346}
 		{60791513-444B-4B38-9D5B-B59BE3966173} = {57821723-4C04-4949-A42B-6CF8B55F1346}
 		{7ED9079E-C4E4-400A-9DD8-9A46FE8B6742} = {57821723-4C04-4949-A42B-6CF8B55F1346}
+		{6EAC43DD-86FF-4166-ADBB-14420F28C95C} = {57821723-4C04-4949-A42B-6CF8B55F1346}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {54546267-E924-4583-9C5A-6C56EB2C43BF}

@@ -3,6 +3,7 @@ using Nexus.Link.Libraries.Core.Assert;
 using Nexus.Link.Libraries.Core.Context;
 using Nexus.Link.Libraries.Core.Logging;
 using Nexus.Link.Libraries.Core.MultiTenant.Model;
+using Nexus.Link.Libraries.Core.Telemetry;
 using Nexus.Link.Libraries.Core.Threads;
 
 namespace Nexus.Link.Libraries.Core.Application
@@ -49,6 +50,11 @@ namespace Nexus.Link.Libraries.Core.Application
         /// A logger to use when the normal logger fails.
         /// </summary>
         public IFallbackLogger FallbackLogger { get; set; }
+
+        /// <summary>
+        /// A handler for telemetry events and metrics
+        /// </summary>
+        public ITelemetryHandler TelemetryHandler { get; set; }
 
         /// <summary>
         /// The context value provider that will be used all over the application.
