@@ -33,6 +33,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution items", "Solution 
 		pipeline-sqlserver.yml = pipeline-sqlserver.yml
 		pipeline-web-aspnet.yml = pipeline-web-aspnet.yml
 		pipeline-web.yml = pipeline-web.yml
+		README.md = README.md
 	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Libraries.Azure.Storage.Test", "test\Nexus.Link.Libraries.Azure.Storage.Test\Libraries.Azure.Storage.Test.csproj", "{D6EA3A92-B51F-4990-BE6E-1DAF8EF8DC52}"

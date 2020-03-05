@@ -35,7 +35,10 @@ namespace Nexus.Link.Libraries.Web.AspNet.Tests.Telemetry
         [DataRow("api/v1/Persons/opkknw-ee3r3fe-vvrvfv", "api/v1/Persons/*", "Put")]
         [DataRow("api/v1/Persons/", "api/v1/Persons", "Get")]
         [DataRow("api/v1/Persons?from=2020-03-02", "api/v1/Persons", "Post")]
-        public async Task SaveClientTenantOldPrefixSuccess(string path, string aggregatedOn, string method)
+        [DataRow("api/v1/Pokemons", "api/v1/Pokemons", "Post")]
+        [DataRow("api/v1/Pokemons/", "api/v1/Pokemons", "Post")]
+        [DataRow("api/v1/Pokemons/metagross", null, "Post")]
+        public async Task Track_Request_Urls(string path, string aggregatedOn, string method)
         {
             var url = $"https://localhost/{path}";
             var regexes = new Dictionary<string, Regex>
@@ -43,6 +46,7 @@ namespace Nexus.Link.Libraries.Web.AspNet.Tests.Telemetry
                 { "api/v1/Persons/*/Invoices", new Regex("/api/v1/Persons/[^/]+/Invoices") },
                 { "api/v1/Persons/*", new Regex("/api/v1/Persons/[^/]+") },
                 { "api/v1/Persons", new Regex("/api/v1/Persons") },
+                { "api/v1/Pokemons", new Regex("/api/v1/Pokemons/?$") },
             };
 
             var aggregatedRequestUrls = new TrackAggregatedRequestUrls(regexes)
@@ -66,8 +70,15 @@ namespace Nexus.Link.Libraries.Web.AspNet.Tests.Telemetry
 
             Console.WriteLine($"{method} {aggregatedOn} ({actualPath})");
 
-            Assert.AreEqual(aggregatedOn, result);
-            Assert.AreEqual(method.ToUpperInvariant(), httpMethod.ToUpperInvariant());
+            if (aggregatedOn == null)
+            {
+                Assert.IsNull(result);
+            }
+            else
+            {
+                Assert.AreEqual(aggregatedOn, result);
+                Assert.AreEqual(method.ToUpperInvariant(), httpMethod.ToUpperInvariant());
+            }
         }
     }
 }
