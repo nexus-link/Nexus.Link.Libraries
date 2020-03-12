@@ -22,7 +22,7 @@ namespace Nexus.Link.Libraries.Web.RestClientHelper
     {
 
         private static readonly object LockClass = new object();
-
+        private static readonly HttpMethod PatchMethod = new HttpMethod("PATCH");
         /// <summary>
         /// This is the default <see cref="IHttpClient"/> that is used for all HTTP calls.
         /// </summary>
@@ -246,9 +246,9 @@ namespace Nexus.Link.Libraries.Web.RestClientHelper
                 Body = default(TResponse)
             };
 
-            if (method == HttpMethod.Get || method == HttpMethod.Put || method == HttpMethod.Post)
+            if (method == HttpMethod.Get || method == HttpMethod.Put || method == HttpMethod.Post || method == PatchMethod )
             {
-                if ((method == HttpMethod.Get || method == HttpMethod.Put) && response.StatusCode != HttpStatusCode.OK)
+                if ((method == HttpMethod.Get || method == HttpMethod.Put || method == PatchMethod) && response.StatusCode != HttpStatusCode.OK)
                 {
                     throw new FulcrumResourceException($"The response to request {request.ToLogString()} was expected to have HttpStatusCode {HttpStatusCode.OK}, but had {response.StatusCode.ToLogString()}.");
                 }
