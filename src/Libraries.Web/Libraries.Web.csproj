@@ -16,7 +16,7 @@
 
   <PropertyGroup>
     <PackageId>Nexus.Link.Libraries.Web</PackageId>
-    <Version>2.9.15</Version>
+    <Version>2.9.16</Version>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <PackageTags>nexus;link;fulcrum;lever</PackageTags>
     <Authors>XLENT Link</Authors>
@@ -26,6 +26,7 @@
     <Copyright>Copyright ©2019 Xlent Link AB</Copyright>
     <IncludeSymbols>true</IncludeSymbols>
     <PackageReleaseNotes>
+      2.9.16 Fix: ExceptionConverter failed in rare situations when converting responses to FulcrumError
       2.9.15 Fix: Requests that did not have a body did not process credentials if they existed, in other words did not add a token to the outgoing request.
       2.9.14 Bump
       2.9.10 RestClient now respects HttpClient parameter in the obsolete constructors to be backwards compatible.
