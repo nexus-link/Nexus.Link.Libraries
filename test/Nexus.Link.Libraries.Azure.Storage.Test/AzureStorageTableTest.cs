@@ -23,7 +23,6 @@ namespace Nexus.Link.Libraries.Azure.Storage.Test
             _table = new AzureStorageTable<Car, Car>(connectionString, $"{nameof(AzureStorageTableTest)}V1");
         }
 
-        [Ignore]
         [TestMethod]
         public async Task DeleteAsync()
         {
