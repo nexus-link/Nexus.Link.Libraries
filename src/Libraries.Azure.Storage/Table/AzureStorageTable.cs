@@ -97,7 +97,8 @@ namespace Nexus.Link.Libraries.Azure.Storage.Table
             var operationContext = new OperationContext();
             if (!await Table.ExistsAsync(tableRequestOptions, operationContext, token)) return;
 
-            var entity = new JsonEntity(partitionKey, rowKey);
+            var item = await ReadAsync(partitionKey, rowKey, token);
+            var entity = new JsonEntity(partitionKey, rowKey) { ETag = item?.Etag };
             await Table.ExecuteAsync(TableOperation.Delete(entity), tableRequestOptions, operationContext, token);
         }
 
