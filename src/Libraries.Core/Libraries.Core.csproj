@@ -33,7 +33,7 @@
 
   <PropertyGroup>
     <PackageId>Nexus.Link.Libraries.Core</PackageId>
-    <Version>4.15.1</Version>
+    <Version>4.15.2</Version>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <PackageTags>nexus;link;fulcrum;lever</PackageTags>
     <Authors>XLENT Link</Authors>
@@ -43,6 +43,7 @@
     <Copyright>Copyright ©2020 Xlent Link AB</Copyright>
     <IncludeSymbols>true</IncludeSymbols>
     <PackageReleaseNotes>
+      4.15.2 Made the FulcrumException.IsRetryMeaningFul set operation public.
       4.15.1 Introduced FulcrumApplication.Setup.TelemetryHandler
       4.14.1 Introduced ValueTranslator.ValueOrLockId and Services.IControllerInjector.
       4.13.4 Bug in translation decoration that resulted in an exception
