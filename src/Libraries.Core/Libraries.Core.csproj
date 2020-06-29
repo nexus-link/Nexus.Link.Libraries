@@ -33,7 +33,7 @@
 
   <PropertyGroup>
     <PackageId>Nexus.Link.Libraries.Core</PackageId>
-    <Version>4.15.2</Version>
+    <Version>4.16.0-beta1-en</Version>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <PackageTags>nexus;link;fulcrum;lever</PackageTags>
     <Authors>XLENT Link</Authors>
@@ -43,6 +43,7 @@
     <Copyright>Copyright ©2020 Xlent Link AB</Copyright>
     <IncludeSymbols>true</IncludeSymbols>
     <PackageReleaseNotes>
+      4.16.0 Added a method for adding keys and values to an ileverconfiguration
       4.15.2 Made the FulcrumException.IsRetryMeaningFul set operation public.
       4.15.1 Introduced FulcrumApplication.Setup.TelemetryHandler
       4.14.1 Introduced ValueTranslator.ValueOrLockId and Services.IControllerInjector.

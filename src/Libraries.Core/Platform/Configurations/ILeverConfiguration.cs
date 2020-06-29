@@ -14,5 +14,10 @@
         /// Gets a value from the configuration.
         /// </summary>
         T Value<T>(object key);
+
+        /// <summary>
+        /// Adds a key and value to the configuration.
+        /// </summary>
+        void Add<T>(string key, T value);
     }
 }

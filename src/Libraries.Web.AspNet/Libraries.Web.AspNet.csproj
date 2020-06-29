@@ -27,7 +27,7 @@
 
   <PropertyGroup>
     <PackageId>Nexus.Link.Libraries.Web.AspNet</PackageId>
-    <Version>2.17.1</Version>
+    <Version>2.18.0</Version>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <PackageTags>nexus;link;fulcrum;lever</PackageTags>
     <Authors>XLENT Link</Authors>
@@ -37,6 +37,7 @@
     <Copyright>Copyright ©2019 Xlent Link AB</Copyright>
     <IncludeSymbols>true</IncludeSymbols>
     <PackageReleaseNotes>
+      2.18.0 Added a way for getting configuration without servicetenant without fetching from fundamentals
       2.17.1 Bump
       2.17.0 Added support for better initialization of the ValueTranslatorFilter.
       2.16.5 Bump
