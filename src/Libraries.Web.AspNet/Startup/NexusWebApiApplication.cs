@@ -35,7 +35,6 @@ namespace Nexus.Link.Libraries.Web.AspNet.Startup
         /// <summary>
         /// Builds the <see cref="ILeverConfiguration"/> for the service tenant
         /// </summary>
-        [Obsolete("Obsolete, use BuildConfigurationAsync", false)]
         protected abstract Task<ILeverConfiguration> BuildConfigurationAsync();
 
         /// <summary>
