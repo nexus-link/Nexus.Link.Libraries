@@ -29,6 +29,12 @@
     <ProjectReference Include="..\Libraries.Web.AspNet\Libraries.Web.AspNet.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Reference Include="System.Configuration">
+      <HintPath>..\..\..\..\..\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.6.1\System.Configuration.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
   
   <PropertyGroup>
     <PackageId>Nexus.Link.Libraries.Azure.Web.AspNet</PackageId>
