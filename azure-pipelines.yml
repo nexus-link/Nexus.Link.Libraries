@@ -3,6 +3,10 @@
 # Add steps that analyze code, save the dist with the build record, publish to a PyPI-compatible index, and more:
 # https://docs.microsoft.com/azure/devops/pipelines/languages/python
 
+variables:
+- name: token
+  value: $(token_v2)
+
 trigger:
 - master
 
@@ -32,7 +36,7 @@ steps:
     from notion.client import NotionClient
 
     # Obtain the `token_v2` value by inspecting your browser cookies on a logged-in session on Notion.so
-    client = NotionClient(token_v2="$(token_v2)")
+    client = NotionClient(token_v2="$(token)")
 
     # Replace this URL with the URL of the page you want to edit
     page = client.get_block("https://www.notion.so/xlentlink/OpenMW-7964d5ffb51744c39f84b6662f125b07")
