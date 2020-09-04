@@ -24,11 +24,17 @@ steps:
     pip install -r requirements.txt
   displayName: 'Install dependencies'
 
-- task: qetza.replacetokens.replacetokens-task.replacetokens@3
-  displayName: 'Replace tokens'
+- task: replacetokens@3
   inputs:
-    targetFiles: |
-      create-release-notes.py => create-release-notes-with-variables.py
+    targetFiles: 'create-release-notes.py => create-release-notes-with-variables.py'
+    encoding: 'auto'
+    writeBOM: true
+    actionOnMissing: 'warn'
+    keepToken: false
+    tokenPrefix: '$('
+    tokenSuffix: ')'
+    useLegacyPattern: false
+    enableTelemetry: true
 
 - script: |
     python create-release-notes-with-variables.py
