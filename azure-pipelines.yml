@@ -1,0 +1,41 @@
+# Python package
+# Create and test a Python package on multiple Python versions.
+# Add steps that analyze code, save the dist with the build record, publish to a PyPI-compatible index, and more:
+# https://docs.microsoft.com/azure/devops/pipelines/languages/python
+
+trigger:
+- master
+
+pool:
+  vmImage: 'ubuntu-latest'
+strategy:
+  matrix:
+    Python35:
+      python.version: '3.5'
+    Python36:
+      python.version: '3.6'
+    Python37:
+      python.version: '3.7'
+
+steps:
+- task: UsePythonVersion@0
+  inputs:
+    versionSpec: '$(python.version)'
+  displayName: 'Use Python $(python.version)'
+
+- script: |
+    python -m pip install --upgrade pip
+    pip install -r requirements.txt
+  displayName: 'Install dependencies'
+
+- script: |
+    from notion.client import NotionClient
+
+    # Obtain the `token_v2` value by inspecting your browser cookies on a logged-in session on Notion.so
+    client = NotionClient(token_v2="$(token_v2)")
+
+    # Replace this URL with the URL of the page you want to edit
+    page = client.get_block("https://www.notion.so/xlentlink/OpenMW-7964d5ffb51744c39f84b6662f125b07")
+
+    print("The old title is:", page.title)
+  displayName: 'page title'
