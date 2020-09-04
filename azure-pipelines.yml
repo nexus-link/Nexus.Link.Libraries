@@ -25,13 +25,12 @@ steps:
   displayName: 'Install dependencies'
 
 - script: |
-      from notion.client import NotionClient
-      print("page title fetching, x: ", $(x))
-      # Obtain the `token_v2` value by inspecting your browser cookies on a logged-in session on Notion.so
-      #client = NotionClient(token_v2="7932fc7c07fce2028b38e34d47f69b099947a8256f3558ca8cf5734af8d545134a58ad8926969ed6075db4f639853082c88775e721bc1e4696b6e8169928909c9b41dd9327abf489d527624fc4c1")
+    #from notion.client import NotionClient
+    print("page title fetching, x: $(x)")
+    # Obtain the `token_v2` value by inspecting your browser cookies on a logged-in session on Notion.so
+    #client = NotionClient(token_v2="$(token_v2)")
+    # Replace this URL with the URL of the page you want to edit
+    #page = client.get_block("https://www.notion.so/xlentlink/OpenMW-7964d5ffb51744c39f84b6662f125b07")
 
-      # Replace this URL with the URL of the page you want to edit
-      #page = client.get_block("https://www.notion.so/xlentlink/OpenMW-7964d5ffb51744c39f84b6662f125b07")
-
-      #print("The old title is:", page.title)
+    #print("The old title is:", page.title)
   displayName: 'page title'
