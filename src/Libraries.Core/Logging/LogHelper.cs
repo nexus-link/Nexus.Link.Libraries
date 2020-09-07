@@ -1,10 +1,7 @@
 ﻿using System;
 using System.Runtime.CompilerServices;
-using System.Threading;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using Nexus.Link.Libraries.Core.Application;
-using Nexus.Link.Libraries.Core.Context;
 
 namespace Nexus.Link.Libraries.Core.Logging
 {

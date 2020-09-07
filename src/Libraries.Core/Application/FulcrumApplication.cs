@@ -4,7 +4,6 @@ using Nexus.Link.Libraries.Core.Context;
 using Nexus.Link.Libraries.Core.Error.Logic;
 using Nexus.Link.Libraries.Core.Logging;
 using Nexus.Link.Libraries.Core.MultiTenant.Model;
-using Nexus.Link.Libraries.Core.Platform;
 using Nexus.Link.Libraries.Core.Threads;
 
 namespace Nexus.Link.Libraries.Core.Application

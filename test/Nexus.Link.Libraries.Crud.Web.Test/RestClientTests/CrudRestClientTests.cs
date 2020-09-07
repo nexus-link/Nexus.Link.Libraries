@@ -28,8 +28,9 @@ namespace Nexus.Link.Libraries.Crud.Web.Test.RestClientTests
         {
             FulcrumApplicationHelper.UnitTestSetup(typeof(CrudRestClientTests).FullName);
             HttpClientMock = new Mock<IHttpClient>();
-            Libraries.Web.RestClientHelper.RestClient.HttpClient = HttpClientMock.Object;
-            _client = new CrudRestClient<Person, Guid>(ResourcePath);
+            var httpSender = new HttpSender(ResourcePath) {HttpClient = HttpClientMock.Object};
+
+            _client = new CrudRestClient<Person, Guid>(httpSender);
             _person = new Person()
             {
                 GivenName = "Kalle",

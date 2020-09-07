@@ -16,16 +16,21 @@
 
   <PropertyGroup>
     <PackageId>Nexus.Link.Libraries.SqlServer</PackageId>
-    <Version>2.0.5</Version>
+    <Version>2.0.12</Version>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <PackageTags>nexus;link;fulcrum;lever</PackageTags>
     <Authors>XLENT Link</Authors>
-    <PackageProjectUrl>https://github.com/nexus-link/Nexus.Link.Libraries.SqlServer</PackageProjectUrl>
+    <PackageProjectUrl>https://github.com/nexus-link/Nexus.Link.Libraries</PackageProjectUrl>
     <PackageLanguage>en-US</PackageLanguage>
     <Description>Nexus SQL Server library based on .NET Standard</Description>
     <Copyright>Copyright ©2019 Xlent Link AB</Copyright>
     <IncludeSymbols>true</IncludeSymbols>
     <PackageReleaseNotes>
+      2.0.12 Bump
+      2.0.10 Fixed an issue where some order by prefixes included a '.' which caused errors
+      2.0.8 Bump
+      2.0.7 Fix: Wrong inheritence for ManyToOneSql
+      2.0.6 Fix: PackageProjectUrl for this nuget package
       2.0.5 Bump
       2.0.1 Depends on major change in Libraries.Core
       1.0.9 Bumped version

@@ -33,16 +33,27 @@
 
   <PropertyGroup>
     <PackageId>Nexus.Link.Libraries.Core</PackageId>
-    <Version>4.8.0</Version>
+    <Version>4.15.2</Version>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <PackageTags>nexus;link;fulcrum;lever</PackageTags>
     <Authors>XLENT Link</Authors>
-    <PackageProjectUrl>https://github.com/nexus-link/Nexus.Link.Libraries.Core</PackageProjectUrl>
+    <PackageProjectUrl>https://github.com/nexus-link/Nexus.Link.Libraries</PackageProjectUrl>
     <PackageLanguage>en-US</PackageLanguage>
     <Description>Nexus core library based on .NET Standard</Description>
-    <Copyright>Copyright ©2019 Xlent Link AB</Copyright>
+    <Copyright>Copyright ©2020 Xlent Link AB</Copyright>
     <IncludeSymbols>true</IncludeSymbols>
     <PackageReleaseNotes>
+      4.15.2 Made the FulcrumException.IsRetryMeaningFul set operation public.
+      4.15.1 Introduced FulcrumApplication.Setup.TelemetryHandler
+      4.14.1 Introduced ValueTranslator.ValueOrLockId and Services.IControllerInjector.
+      4.13.4 Bug in translation decoration that resulted in an exception
+      4.13.3 Bug in translation decoration that could lead to infinite loops
+      4.13.0 Refactoring of translation. Removed the TranslatorFactory and did a number of simplifications.
+      4.12.2 Updated contract for KeyAssociations
+      4.12.0 Refactored Translator and based it on ITranslator.
+      4.11.0 Added KeyAssociations model for Data Sync Engine
+      4.10.0 Override release that was released by mistake.
+      4.8.1 Fix: PackageProjectUrl for this nuget package
       4.8.0 More overloads in JsonHelper.
       4.7.1 Bump
       4.7.0 Access to IConfiguration on in NETCOREAPP
