@@ -14,9 +14,13 @@
     <ProjectReference Include="..\Libraries.Core\Libraries.Core.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Clients\" />
+  </ItemGroup>
+
   <PropertyGroup>
     <PackageId>Nexus.Link.Libraries.Web</PackageId>
-    <Version>2.9.18</Version>
+    <Version>2.10.0-rc01-rk</Version>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <PackageTags>nexus;link;fulcrum;lever</PackageTags>
     <Authors>XLENT Link</Authors>
@@ -26,6 +30,7 @@
     <Copyright>Copyright ©2019 Xlent Link AB</Copyright>
     <IncludeSymbols>true</IncludeSymbols>
     <PackageReleaseNotes>
+      2.10.0 Request headers in Client configuration
       2.9.18 Bump
       2.9.17 Fix: Patch method never returned any content
       2.9.16 Fix: ExceptionConverter failed in rare situations when converting responses to FulcrumError
