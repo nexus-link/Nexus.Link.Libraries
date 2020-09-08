@@ -58,10 +58,10 @@ namespace Nexus.Link.Libraries.Web.AspNet.Startup
             {
                 ThreadHelper.CallAsyncFromSync(async () => await ApplicationStartBeforeFetchingNexusConfigurationAsync());
 
-                var configuration = ThreadHelper.CallAsyncFromSync(async () => await FetchConfigurationWithRetriesOnFailAsync());
+                var configuration = ThreadHelper.CallAsyncFromSync(async () => await BuildConfigurationAsync());
                 if (configuration == null)
                 {
-                    throw new FulcrumResourceException($"{FulcrumApplication.Setup?.Name}: Could not load configuration from Fundamentals" +
+                    throw new FulcrumResourceException($"{FulcrumApplication.Setup?.Name}: Could not build configuration during startup" +
                                                        $" for the service tenant {ServiceTenant}");
                 }
 
