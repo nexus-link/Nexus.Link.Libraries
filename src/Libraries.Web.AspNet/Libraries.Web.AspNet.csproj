@@ -37,7 +37,11 @@
     <Copyright>Copyright ©2019 Xlent Link AB</Copyright>
     <IncludeSymbols>true</IncludeSymbols>
     <PackageReleaseNotes>
+<<<<<<< HEAD
       2.17.1 Pipe handlers assert that they have not yet been started
+=======
+      2.17.1 Bump
+>>>>>>> master
       2.17.0 Added support for better initialization of the ValueTranslatorFilter.
       2.16.5 Bump
       2.16.0 Support for ASP.NET WebApi in Translation filter
