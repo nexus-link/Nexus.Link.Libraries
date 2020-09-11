@@ -5,6 +5,7 @@ using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Newtonsoft.Json.Linq;
 using Nexus.Link.Libraries.Core.Application;
+using Nexus.Link.Libraries.Core.Error.Logic;
 using Nexus.Link.Libraries.Core.Platform.Configurations;
 using Nexus.Link.Libraries.Web.Clients;
 
@@ -121,6 +122,18 @@ namespace Nexus.Link.Libraries.Web.Tests.Clients
             Assert.IsTrue(config.RequestHeaders.ContainsKey("header-b"));
             Assert.IsTrue(config.RequestHeaders.ContainsValue("value-b"));
             Assert.AreEqual("auth", config.Authentication);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(FulcrumBusinessRuleException))]
+        public void MultipleAuthenticationsFail()
+        {
+            SetupConfigMock(new Dictionary<string, string>
+            {
+                { "Authorization", "bar" }
+            });
+
+            ClientConfigurationHelper.GetConfigurationForClient(LeverConfiguration, ClientName);
         }
     }
 }
