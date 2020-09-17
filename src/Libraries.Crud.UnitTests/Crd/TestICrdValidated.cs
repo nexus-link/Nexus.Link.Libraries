@@ -1,10 +1,10 @@
 ﻿using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Nexus.Link.Libraries.Crud.Interfaces;
 using Nexus.Link.Libraries.Core.Error.Logic;
-using Nexus.Link.Libraries.Crud.Test.NuGet.Model;
+using Nexus.Link.Libraries.Crud.Interfaces;
+using Nexus.Link.Libraries.Crud.UnitTests.Model;
 
-namespace Nexus.Link.Libraries.Crud.Test.NuGet.Crd
+namespace Nexus.Link.Libraries.Crud.UnitTests.Crd
 {
     /// <summary>
     /// Tests for testing any storage that implements <see cref="ICrud{TModelCreate,TModel,TId}"/>

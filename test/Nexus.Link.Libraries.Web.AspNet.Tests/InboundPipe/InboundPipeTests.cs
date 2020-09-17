@@ -15,8 +15,10 @@ using Nexus.Link.Libraries.Web.AspNet.Pipe.Inbound;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Internal;
 using System.IO;
+using System.Net;
 using System.Text.RegularExpressions;
 #else
+using System.Net;
 using System.Net.Http;
 #endif
 
@@ -115,16 +117,16 @@ namespace Nexus.Link.Libraries.Web.AspNet.Tests.InboundPipe
             var invoker = new HttpMessageInvoker(saveConfigHandler);
 #endif
 
- 
-                _foundClientTenant = null;
+
+            _foundClientTenant = null;
             var url = "https://ver-fulcrum-fundamentals.azurewebsites.net/api/v1/false/positive/ServiceMetas/ServiceHealth";
 #if NETCOREAPP
             var context = new DefaultHttpContext();
             SetRequest(context, url);
-                await saveConfigHandler.InvokeAsync(context);
+            await saveConfigHandler.InvokeAsync(context);
 #else
-                var request = new HttpRequestMessage(HttpMethod.Get, url);
-                await invoker.SendAsync(request, CancellationToken.None);
+            var request = new HttpRequestMessage(HttpMethod.Get, url);
+            await invoker.SendAsync(request, CancellationToken.None);
 #endif
             Assert.IsNotNull(_foundClientTenant);
         }
@@ -213,8 +215,8 @@ namespace Nexus.Link.Libraries.Web.AspNet.Tests.InboundPipe
             SetRequest(context, url);
             await saveConfigHandler.InvokeAsync(context);
 #else
-                var request = new HttpRequestMessage(HttpMethod.Get, url);
-                await invoker.SendAsync(request, CancellationToken.None);
+            var request = new HttpRequestMessage(HttpMethod.Get, url);
+            await invoker.SendAsync(request, CancellationToken.None);
 #endif
             Assert.IsNull(_foundClientTenant);
         }
@@ -352,7 +354,7 @@ namespace Nexus.Link.Libraries.Web.AspNet.Tests.InboundPipe
             await invokeDelegate(context);
 
 #else
-// Simulate an incoming request with a an inbound pipe
+            // Simulate an incoming request with a an inbound pipe
             var invoker = new HttpMessageInvoker(outerHandler);
             var request = new HttpRequestMessage(HttpMethod.Get, url);
             await invoker.SendAsync(request, CancellationToken.None);
@@ -606,6 +608,69 @@ namespace Nexus.Link.Libraries.Web.AspNet.Tests.InboundPipe
                 Assert.Fail(
                     $"Expected an exception of type {nameof(FulcrumContractException)}, but caught exception {e.GetType().FullName}");
             }
+        }
+
+        [TestMethod]
+        [DataRow(typeof(LogRequestAndResponse), false, null)]
+        [DataRow(typeof(SaveClientTenant), true, "prefix")]
+        [DataRow(typeof(SaveClientTenantConfiguration), true, null)]
+        [DataRow(typeof(SaveCorrelationId), false, null)]
+        [ExpectedException(typeof(FulcrumContractException))]
+        public async Task Require_Single_Handler_In_InPipe(Type handlerType, bool useConstructorArgs, object constructorArg)
+        {
+            const string url = "https://v-mock.org/v2/smoke-testing-company/ver";
+#if NETCOREAPP
+            var innerAction = new RequestDelegate(async ctx => await Task.Yield());
+            var constructorArgs1 = new List<object> { innerAction };
+            if (useConstructorArgs) constructorArgs1.Add(constructorArg);
+            var innerHandler = (CompatibilityDelegatingHandler)Activator.CreateInstance(handlerType, constructorArgs1.ToArray());
+
+            var context = new DefaultHttpContext();
+            SetRequest(context, url);
+
+            var outerAction = new RequestDelegate(async ctx => await innerHandler.InvokeAsync(context));
+            var constructorArgs2 = new List<object>() { outerAction };
+            if (useConstructorArgs) constructorArgs2.Add(constructorArg);
+            var outerHandler = (CompatibilityDelegatingHandler)Activator.CreateInstance(handlerType, constructorArgs2.ToArray());
+#else
+            var constructorArgs = useConstructorArgs ? new[] { constructorArg } : null;
+            var outerHandler = (DelegatingHandler)Activator.CreateInstance(handlerType, constructorArgs);
+            outerHandler.InnerHandler = (DelegatingHandler)Activator.CreateInstance(handlerType, constructorArgs);
+            var invoker = new HttpMessageInvoker(outerHandler);
+            var request = new HttpRequestMessage(HttpMethod.Get, url);
+#endif
+
+
+#if NETCOREAPP
+            await outerHandler.InvokeAsync(context);
+#else
+            await invoker.SendAsync(request, CancellationToken.None);
+#endif
+        }
+
+        [TestMethod]
+        public async Task ExceptionToFulcrumResponse_Single_Instance_Handling()
+        {
+            const string url = "https://v-mock.org/v2/smoke-testing-company/ver";
+#if NETCOREAPP
+            var innerHandler = new ExceptionToFulcrumResponse(async ctx => await Task.Yield());
+            var outerHandler = new ExceptionToFulcrumResponse(innerHandler.InvokeAsync);
+
+            var context = new DefaultHttpContext();
+            SetRequest(context, url);
+#else
+            var outerHandler = new ExceptionToFulcrumResponse { InnerHandler = new ExceptionToFulcrumResponse() };
+            var invoker = new HttpMessageInvoker(outerHandler);
+            var request = new HttpRequestMessage(HttpMethod.Get, url);
+#endif
+
+#if NETCOREAPP
+            await outerHandler.InvokeAsync(context);
+            Assert.AreEqual((int) HttpStatusCode.InternalServerError, context.Response.StatusCode);
+#else
+            var response = await invoker.SendAsync(request, CancellationToken.None);
+            Assert.AreEqual(HttpStatusCode.InternalServerError, response.StatusCode);
+#endif
         }
 
 #if NETCOREAPP

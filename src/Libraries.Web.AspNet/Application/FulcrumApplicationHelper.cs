@@ -1,10 +1,11 @@
-﻿using Nexus.Link.Libraries.Core.Application;
+﻿using System.Configuration;
+using Nexus.Link.Libraries.Core.Application;
 using Nexus.Link.Libraries.Core.Assert;
 using Nexus.Link.Libraries.Core.Logging;
 using Nexus.Link.Libraries.Core.MultiTenant.Model;
 using Nexus.Link.Libraries.Core.Threads;
-using Microsoft.Extensions.Configuration;
 #if NETCOREAPP
+using Microsoft.Extensions.Configuration;
 #else
 #endif
 
@@ -30,6 +31,7 @@ namespace Nexus.Link.Libraries.Web.AspNet.Application
             FulcrumApplication.AppSettings = new AppSettings(new ConfigurationManagerAppSettings());
         }
 
+#if NETCOREAPP
         /// <summary>
         /// Sets the recommended application setup for a Web Api.
         /// </summary>
@@ -48,6 +50,7 @@ namespace Nexus.Link.Libraries.Web.AspNet.Application
             WebBasicSetup(name, tenant, runTimeLevel);
             FulcrumApplication.AppSettings = new AppSettings(configuration);
         }
+#endif
 
         /// <summary>
         /// Sets the recommended application setup for a Web Api.

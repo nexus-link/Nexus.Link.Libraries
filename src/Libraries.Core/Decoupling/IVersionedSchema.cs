@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace Nexus.Link.Libraries.Core.Decoupling
+﻿namespace Nexus.Link.Libraries.Core.Decoupling
 {
     /// <summary>
     /// This interface is typically used for data that needs to be stored with different versions of the schema that is stored.

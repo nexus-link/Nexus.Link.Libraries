@@ -40,13 +40,17 @@ namespace Nexus.Link.Libraries.Azure.Storage.Queue
         public async Task<T> GetOneMessageNoBlockAsync()
         {
             var message = await (await _cloudQueueTask).GetMessageAsync();
-            return message == null ? default(T) : FromByteArray(message.AsBytes);
+            if (message == null) return default(T);
+            var response = FromByteArray(message.AsBytes);
+            await (await _cloudQueueTask).DeleteMessageAsync(message.Id, message.PopReceipt);
+            return response;
         }
 
         public async Task<T> PeekNoBlockAsync()
         {
             var message = await (await _cloudQueueTask).PeekMessageAsync();
-            return message == null ? default(T) : FromByteArray(message.AsBytes);
+            var response = message == null ? default(T) : FromByteArray(message.AsBytes);
+            return response;
         }
 
         public async Task<HealthResponse> GetResourceHealthAsync()

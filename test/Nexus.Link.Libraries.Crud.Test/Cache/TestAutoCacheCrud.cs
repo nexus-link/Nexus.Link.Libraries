@@ -8,7 +8,7 @@ using Nexus.Link.Libraries.Crud.Cache;
 using Nexus.Link.Libraries.Crud.Interfaces;
 using Nexus.Link.Libraries.Crud.MemoryStorage;
 
-namespace Nexus.Link.Libraries.Crud.Test.Core.Cache
+namespace Nexus.Link.Libraries.Crud.Test.Cache
 {
     [TestClass]
     public class TestAutoCacheCrud : TestAutoCacheBase<string, string>

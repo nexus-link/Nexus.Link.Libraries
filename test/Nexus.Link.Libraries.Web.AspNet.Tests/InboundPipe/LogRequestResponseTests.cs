@@ -1,5 +1,4 @@
 ﻿using System.Diagnostics.CodeAnalysis;
-using System.Text;
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
@@ -17,6 +16,7 @@ using System.Text.RegularExpressions;
 #else
 using System.Net;
 using System.Net.Http;
+using System.Text;
 using System.Threading;
 #endif
 
@@ -41,20 +41,17 @@ namespace Nexus.Link.Libraries.Web.AspNet.Tests.InboundPipe
         {
             var highestSeverityLevel = LogSeverityLevel.None;
             var mockLogger = new Mock<ISyncLogger>();
-            mockLogger.Setup(logger =>
-                    logger.LogSync(
-                        It.IsAny<LogRecord>()))
+            mockLogger
+                .Setup(logger => logger.LogSync(It.IsAny<LogRecord>()))
                 .Callback((LogRecord lr) =>
                 {
                     if (lr.SeverityLevel > highestSeverityLevel) highestSeverityLevel = lr.SeverityLevel;
-                })
-                .Verifiable();
+                });
             FulcrumApplication.Setup.SynchronousFastLogger = mockLogger.Object;
             const string url = "https://v-mock.org/v2/smoke-testing-company/ver";
 #if NETCOREAPP
             var innerHandler = new ReturnResponseWithPresetStatusCode(async ctx => await Task.CompletedTask, 200);
-            var outerHandler =
-                new LogRequestAndResponse(innerHandler.InvokeAsync);
+            var outerHandler = new LogRequestAndResponse(innerHandler.InvokeAsync);
             var context = new DefaultHttpContext();
             SetRequest(context, url);
 #else
@@ -77,6 +74,34 @@ namespace Nexus.Link.Libraries.Web.AspNet.Tests.InboundPipe
 #endif
 
             Assert.AreEqual(LogSeverityLevel.Information, highestSeverityLevel);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(FulcrumContractException))]
+        public async Task Require_Single_Handler_In_InPipe()
+        {
+            const string url = "https://v-mock.org/v2/smoke-testing-company/ver";
+#if NETCOREAPP
+            var innerHandler1 = new ReturnResponseWithPresetStatusCode(async ctx => await Task.CompletedTask, 200);
+            var innerHandler2 = new LogRequestAndResponse(innerHandler1.InvokeAsync);
+            var outerHandler = new LogRequestAndResponse(innerHandler2.InvokeAsync);
+            var context = new DefaultHttpContext();
+            SetRequest(context, url);
+#else
+            var outerHandler = new LogRequestAndResponse()
+            {
+                InnerHandler = new LogRequestAndResponse()
+            };
+            var invoker = new HttpMessageInvoker(outerHandler);
+            var request = new HttpRequestMessage(HttpMethod.Get, url);
+#endif
+
+
+#if NETCOREAPP
+            await outerHandler.InvokeAsync(context);
+#else
+            await invoker.SendAsync(request, CancellationToken.None);
+#endif
         }
 
         /// <summary>

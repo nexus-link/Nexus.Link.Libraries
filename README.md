@@ -10,7 +10,7 @@ See the [Documentation](src/Libraries.Core/README.md).
 
 ### Nexus.Link.Libraries.Web
 
-REST functionality that is not dependent on neither ASP.NET WebApi, nor ASP.NET Core WebApps, i.e. functionality for outgoing REST calls. Examples of what it provides is handling of CorrelationId, logging HTTP requests and convert unsuccessful HTTP responses into relevant exceptions.
+REST functionality that is not dependent on neither ASP.NET WebApi, nor ASP.NET Core WebApps, i.e. functionality for outgoing REST calls. Examples of what it provides is handling of CorrelationId, logging HTTP requests and converting unsuccessful HTTP responses into relevant exceptions.
 
 See the [Documentation](src/Libraries.Web/README.md).
 
@@ -32,11 +32,11 @@ With this functionality, you can write ICrud API:s with very little code and you
 
 ### Nexus.Link.Libraries.SqlServer
 
-Functionality for accessing data on a Microsoft SQL Server. Supports ICrud, so it is really easy to replace your storage mocks with storage in a relation database.
+Functionality for accessing data on a Microsoft SQL Server. Supports ICrud, so it is really easy to replace your storage mocks with storage in a relational database.
 
-#### Nexus.Link.Libraries.Azure
+### Nexus.Link.Libraries.Azure
 
-Functionality for accessing storage, queues and more in Azure. Supports ICrud, so it is really easy to replace your storage mocks with storage in the cloud.
+Functionality for accessing storage, queues and more in Azure. Supports ICrud, so that it is really easy to replace your storage mocks with storage in the cloud.
 
 ## License
 

@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Nexus.Link.Libraries.Core.Assert;
@@ -10,6 +11,7 @@ using Nexus.Link.Libraries.Crud.PassThrough;
 namespace Nexus.Link.Libraries.Crud.ServerTranslators.To
 {
     /// <inheritdoc cref="ManyToOneToServerTranslator{TModelCreate, TModel}" />
+    [Obsolete("Use Libraries.Web ValueTranslatorHttpSender. Obsolete since 2019-11-21.")]
     public class ManyToOneToServerTranslator<TModel> : 
         ManyToOneToServerTranslator<TModel, TModel>, 
         ICrudManyToOne<TModel, string>
@@ -24,6 +26,7 @@ namespace Nexus.Link.Libraries.Crud.ServerTranslators.To
     }
 
     /// <inheritdoc cref="CrudToServerTranslator{TModelCreate, TModel}" />
+    [Obsolete("Use Libraries.Web ValueTranslatorHttpSender. Obsolete since 2019-11-21.")]
     public class ManyToOneToServerTranslator<TModelCreate, TModel> :
         CrudToServerTranslator<TModelCreate, TModel>,
         ICrudManyToOne<TModelCreate, TModel, string>
@@ -47,7 +50,7 @@ namespace Nexus.Link.Libraries.Crud.ServerTranslators.To
         CancellationToken token = default(CancellationToken))
         {
             var translator = CreateTranslator();
-            await translator.Add(parentId).ExecuteAsync();
+            await translator.Add(parentId).ExecuteAsync(token);
             parentId = translator.Translate(parentId);
             return await _service.ReadChildrenWithPagingAsync(parentId, offset, limit, token);
         }
@@ -56,7 +59,7 @@ namespace Nexus.Link.Libraries.Crud.ServerTranslators.To
         public async Task<IEnumerable<TModel>> ReadChildrenAsync(string parentId, int limit = int.MaxValue, CancellationToken token = default(CancellationToken))
         {
             var translator = CreateTranslator();
-            await translator.Add(parentId).ExecuteAsync();
+            await translator.Add(parentId).ExecuteAsync(token);
             parentId = translator.Translate(parentId);
             return await _service.ReadChildrenAsync(parentId, limit, token);
         }
@@ -65,7 +68,7 @@ namespace Nexus.Link.Libraries.Crud.ServerTranslators.To
         public async Task DeleteChildrenAsync(string parentId, CancellationToken token = default(CancellationToken))
         {
             var translator = CreateTranslator();
-            await translator.Add(parentId).ExecuteAsync();
+            await translator.Add(parentId).ExecuteAsync(token);
             parentId = translator.Translate(parentId);
             await _service.DeleteChildrenAsync(parentId, token);
         }

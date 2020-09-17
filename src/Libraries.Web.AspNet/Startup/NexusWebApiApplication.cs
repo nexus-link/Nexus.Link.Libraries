@@ -3,12 +3,14 @@ using System;
 using System.Diagnostics;
 using System.Net;
 using System.Threading;
+using System.Threading.Tasks;
 using Newtonsoft.Json;
 using Nexus.Link.Libraries.Core.Application;
 using Nexus.Link.Libraries.Core.Error.Logic;
 using Nexus.Link.Libraries.Core.Logging;
 using Nexus.Link.Libraries.Core.MultiTenant.Model;
 using Nexus.Link.Libraries.Core.Platform.Configurations;
+using Nexus.Link.Libraries.Core.Threads;
 using Nexus.Link.Libraries.Web.Error.Logic;
 
 namespace Nexus.Link.Libraries.Web.AspNet.Startup
@@ -27,17 +29,17 @@ namespace Nexus.Link.Libraries.Web.AspNet.Startup
         /// <summary>
         /// Returns the <see cref="ILeverConfiguration"/> for the service tenant
         /// </summary>
-        protected abstract ILeverConfiguration LoadConfiguration();
+        protected abstract Task<ILeverConfiguration> FetchConfigurationAsync();
 
         /// <summary>
         /// Operations to do before fetching Nexus configuration
         /// </summary>
-        protected abstract void ApplicationStartBeforeFetchingNexusConfiguration();
+        protected abstract Task ApplicationStartBeforeFetchingNexusConfigurationAsync();
 
         /// <summary>
         /// Operations to do after fetching Nexus configuration
         /// </summary>
-        protected abstract void ApplicationStartAfterFetchingNexusConfiguration(ILeverConfiguration configuration);
+        protected abstract Task ApplicationStartAfterFetchingNexusConfigurationAsync(ILeverConfiguration configuration);
 
         /// <summary>
         /// Returns the service tenant
@@ -48,16 +50,18 @@ namespace Nexus.Link.Libraries.Web.AspNet.Startup
         {
             try
             {
-                ApplicationStartBeforeFetchingNexusConfiguration();
+                ThreadHelper.CallAsyncFromSync(async () => await ApplicationStartBeforeFetchingNexusConfigurationAsync());
 
-                var configuration = FetchConfigurationWithRetriesOnFail();
+                var configuration = ThreadHelper.CallAsyncFromSync(async () => await FetchConfigurationWithRetriesOnFailAsync());
                 if (configuration == null)
                 {
-                    throw new FulcrumResourceException("Could not load configuration from Fundamentals" +
+                    throw new FulcrumResourceException($"{FulcrumApplication.Setup?.Name}:" +
+                                                       $" (InstanceId: {Environment.GetEnvironmentVariable("WEBSITE_INSTANCE_ID")})" +
+                                                       $" Could not load configuration from Fundamentals" +
                                                        $" for the service tenant {ServiceTenant}");
                 }
 
-                ApplicationStartAfterFetchingNexusConfiguration(configuration);
+                ThreadHelper.CallAsyncFromSync(async () => await ApplicationStartAfterFetchingNexusConfigurationAsync(configuration));
             }
             catch (Exception e)
             {
@@ -66,7 +70,7 @@ namespace Nexus.Link.Libraries.Web.AspNet.Startup
             }
         }
 
-        protected ILeverConfiguration FetchConfigurationWithRetriesOnFail()
+        protected async Task<ILeverConfiguration> FetchConfigurationWithRetriesOnFailAsync()
         {
             ILeverConfiguration configuration = null;
             var maxRetryTimeSecondsString = new ConfigurationManagerAppSettings().GetAppSetting("MaxStartupRetryTimeInSeconds") ?? "100";
@@ -77,17 +81,18 @@ namespace Nexus.Link.Libraries.Web.AspNet.Startup
             {
                 try
                 {
-                    configuration = LoadConfiguration();
+                    configuration = await FetchConfigurationAsync();
                     if (configuration != null) break;
                 }
                 catch (Exception e)
                 {
                     failCount++;
                     LogHelper.FallbackSafeLog(LogSeverityLevel.Warning,
+                        $"(InstanceId: {Environment.GetEnvironmentVariable("WEBSITE_INSTANCE_ID")}) " +
                         $"Failed to fetch configuration for service tenant {ServiceTenant}." +
                         $" This was try number {failCount} after {watch.Elapsed.TotalSeconds} s.", e);
 
-                    Thread.Sleep(TimeSpan.FromSeconds(1));
+                    await Task.Delay(TimeSpan.FromSeconds(1));
                 }
             }
 
@@ -100,7 +105,9 @@ namespace Nexus.Link.Libraries.Web.AspNet.Startup
             {
                 try
                 {
-                    var exception = new FulcrumResourceException($"FATAL ERROR IN STARTUP: {_startupError.Message}. Check fallback logs for details.");
+                    var exception = new FulcrumResourceException($"FATAL ERROR IN STARTUP for {FulcrumApplication.Setup?.Name}" +
+                                                                 $" (InstanceId: {Environment.GetEnvironmentVariable("WEBSITE_INSTANCE_ID")}):" +
+                                                                 $" {_startupError.Message}. Check fallback logs for details.");
                     var error = ExceptionConverter.ToFulcrumError(exception, true);
                     var statusCode = ExceptionConverter.ToHttpStatusCode(error);
 

@@ -12,9 +12,8 @@ namespace Nexus.Link.Libraries.Web.Logging.Stackify
     /// Based on https://github.com/stackify/stackify-api/blob/master/endpoints/POST_Log_Save.md
     /// </summary>
     /// <inheritdoc cref="ISyncLogger" />
-    public class StackifyLogger : ISyncLogger, IAsyncLogger
+    public class StackifyLogger : IAsyncLogger
     {
-        readonly ISyncLogger _queue;
         private readonly Client _client;
         private readonly string _env;
         private readonly string _serverName;
@@ -29,7 +28,6 @@ namespace Nexus.Link.Libraries.Web.Logging.Stackify
                 InternalContract.RequireNotNullOrWhiteSpace(serverKey, nameof(serverKey));
             }
             _client = serverKey == null ? null : new Client(serverKey);
-            _queue = new QueueToAsyncLogger(this);
             var tenant = FulcrumApplication.Setup.Tenant;
             _env = $"{tenant.Organization}/{tenant.Environment}";
             _serverName = FulcrumApplication.Setup.Name;
@@ -40,12 +38,6 @@ namespace Nexus.Link.Libraries.Web.Logging.Stackify
         /// The latest sent data. Intended for testing.
         /// </summary>
         public string LastSentEnvelope { get; private set; }
-
-        /// <inheritdoc />
-        public void LogSync(LogRecord logRecord)
-        {
-            _queue.LogSync(logRecord);
-        }
 
         /// <inheritdoc />
         public async Task LogAsync(LogRecord logRecord)

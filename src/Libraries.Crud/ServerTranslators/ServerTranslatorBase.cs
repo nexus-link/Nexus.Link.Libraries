@@ -1,10 +1,12 @@
-﻿using Nexus.Link.Libraries.Core.Translation;
+﻿using System;
+using Nexus.Link.Libraries.Core.Translation;
 
 namespace Nexus.Link.Libraries.Crud.ServerTranslators
 {
     /// <summary>
     /// Decorate values from server and translate concept values to server.
     /// </summary>
+    [Obsolete("Use Libraries.Web ValueTranslatorHttpSender. Obsolete since 2019-11-21.")]
     public abstract class ServerTranslatorBase
     {
         /// <summary>
@@ -28,8 +30,8 @@ namespace Nexus.Link.Libraries.Crud.ServerTranslators
         /// </summary>
         /// <param name="idConceptName">The <see cref="IdConceptName"/>.</param>
         /// <param name="getServerNameMethod">The <see cref="GetServerNameMethod"/>.</param>
-        /// <param name="translatorService">The <see cref="TranslatorService"/>. Expected to be null for translators from the server</param>
-        protected ServerTranslatorBase(string idConceptName, System.Func<string> getServerNameMethod, ITranslatorService translatorService = null)
+        /// <param name="translatorService">The <see cref="TranslatorService"/>. Originally expected to be null for translators from the server, but FakeTranslatorService was added for these obsolete classes.</param>
+        protected ServerTranslatorBase(string idConceptName, System.Func<string> getServerNameMethod, ITranslatorService translatorService)
         {
             IdConceptName = idConceptName;
             GetServerNameMethod = getServerNameMethod;
@@ -39,7 +41,7 @@ namespace Nexus.Link.Libraries.Crud.ServerTranslators
         /// <summary>
         /// Returns a new translator for a server. 
         /// </summary>
-        protected Translator CreateTranslator()
+        protected ITranslator CreateTranslator()
         {
             return new Translator(GetServerNameMethod(), TranslatorService);
         }

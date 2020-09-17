@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Nexus.Link.Libraries.Core.Assert;
@@ -12,6 +13,7 @@ using Nexus.Link.Libraries.Crud.PassThrough;
 namespace Nexus.Link.Libraries.Crud.ServerTranslators.To
 {
     /// <inheritdoc cref="SlaveToMasterToServerTranslator{TModelCreate, TModel}" />
+    [Obsolete("Use Libraries.Web ValueTranslatorHttpSender. Obsolete since 2019-11-21.")]
     public class SlaveToMasterToServerTranslator<TModel> :
         SlaveToMasterToServerTranslator<TModel, TModel>,
         ICrudSlaveToMaster<TModel, string>
@@ -25,6 +27,7 @@ namespace Nexus.Link.Libraries.Crud.ServerTranslators.To
     }
 
     /// <inheritdoc cref="ServerTranslatorBase" />
+    [Obsolete("Use Libraries.Web ValueTranslatorHttpSender. Obsolete since 2019-11-21.")]
     public class SlaveToMasterToServerTranslator<TModelCreate, TModel> : 
         ServerTranslatorBase, 
         ICrudSlaveToMaster<TModelCreate, TModel, string>
@@ -46,7 +49,7 @@ namespace Nexus.Link.Libraries.Crud.ServerTranslators.To
         public async Task<string> CreateAsync(string masterId, TModelCreate item, CancellationToken token = default(CancellationToken))
         {
             var translator = CreateTranslator();
-            await translator.Add(masterId).Add(item).ExecuteAsync();
+            await translator.Add(masterId).Add(item).ExecuteAsync(token);
             masterId = translator.Translate(masterId);
             item = translator.Translate(item);
             return await _service.CreateAsync(masterId, item, token);
@@ -56,7 +59,7 @@ namespace Nexus.Link.Libraries.Crud.ServerTranslators.To
         public async Task<TModel> CreateAndReturnAsync(string masterId, TModelCreate item, CancellationToken token = default(CancellationToken))
         {
             var translator = CreateTranslator();
-            await translator.Add(masterId).Add(item).ExecuteAsync();
+            await translator.Add(masterId).Add(item).ExecuteAsync(token);
             masterId = translator.Translate(masterId);
             item = translator.Translate(item);
             return await _service.CreateAndReturnAsync(masterId, item, token);
@@ -66,7 +69,7 @@ namespace Nexus.Link.Libraries.Crud.ServerTranslators.To
         public async Task CreateWithSpecifiedIdAsync(string masterId, string slaveId, TModelCreate item, CancellationToken token = default(CancellationToken))
         {
             var translator = CreateTranslator();
-            await translator.Add(masterId).Add(slaveId).Add(item).ExecuteAsync();
+            await translator.Add(masterId).Add(slaveId).Add(item).ExecuteAsync(token);
             masterId = translator.Translate(masterId);
             slaveId = translator.Translate(slaveId);
             item = translator.Translate(item);
@@ -77,7 +80,7 @@ namespace Nexus.Link.Libraries.Crud.ServerTranslators.To
         public async Task<TModel> CreateWithSpecifiedIdAndReturnAsync(string masterId, string slaveId, TModelCreate item, CancellationToken token = default(CancellationToken))
         {
             var translator = CreateTranslator();
-            await translator.Add(masterId).Add(slaveId).Add(item).ExecuteAsync();
+            await translator.Add(masterId).Add(slaveId).Add(item).ExecuteAsync(token);
             masterId = translator.Translate(masterId);
             slaveId = translator.Translate(slaveId);
             item = translator.Translate(item);
@@ -88,7 +91,7 @@ namespace Nexus.Link.Libraries.Crud.ServerTranslators.To
         public async Task<TModel> ReadAsync(string masterId, string slaveId, CancellationToken token = default(CancellationToken))
         {
             var translator = CreateTranslator();
-            await translator.Add(masterId).Add(slaveId).ExecuteAsync();
+            await translator.Add(masterId).Add(slaveId).ExecuteAsync(token);
             masterId = translator.Translate(masterId);
             slaveId = translator.Translate(slaveId);
             return await _service.ReadAsync(masterId, slaveId, token);
@@ -105,7 +108,7 @@ namespace Nexus.Link.Libraries.Crud.ServerTranslators.To
         CancellationToken token = default(CancellationToken))
         {
             var translator = CreateTranslator();
-            await translator.Add(parentId).ExecuteAsync();
+            await translator.Add(parentId).ExecuteAsync(token);
             parentId = translator.Translate(parentId);
             return await _service.ReadChildrenWithPagingAsync(parentId, offset, limit, token);
         }
@@ -114,7 +117,7 @@ namespace Nexus.Link.Libraries.Crud.ServerTranslators.To
         public async Task<IEnumerable<TModel>> ReadChildrenAsync(string parentId, int limit = int.MaxValue, CancellationToken token = default(CancellationToken))
         {
             var translator = CreateTranslator();
-            await translator.Add(parentId).ExecuteAsync();
+            await translator.Add(parentId).ExecuteAsync(token);
             parentId = translator.Translate(parentId);
             return await _service.ReadChildrenAsync(parentId, limit, token);
         }
@@ -123,7 +126,7 @@ namespace Nexus.Link.Libraries.Crud.ServerTranslators.To
         public async Task UpdateAsync(string masterId, string slaveId, TModel item, CancellationToken token = default(CancellationToken))
         {
             var translator = CreateTranslator();
-            await translator.Add(masterId).Add(slaveId).Add(item).ExecuteAsync();
+            await translator.Add(masterId).Add(slaveId).Add(item).ExecuteAsync(token);
             masterId = translator.Translate(masterId);
             slaveId = translator.Translate(slaveId);
             item = translator.Translate(item);
@@ -135,7 +138,7 @@ namespace Nexus.Link.Libraries.Crud.ServerTranslators.To
             CancellationToken token = default(CancellationToken))
         {
             var translator = CreateTranslator();
-            await translator.Add(masterId).Add(slaveId).Add(item).ExecuteAsync();
+            await translator.Add(masterId).Add(slaveId).Add(item).ExecuteAsync(token);
             masterId = translator.Translate(masterId);
             slaveId = translator.Translate(slaveId);
             item = translator.Translate(item);
@@ -146,7 +149,7 @@ namespace Nexus.Link.Libraries.Crud.ServerTranslators.To
         public async Task DeleteChildrenAsync(string masterId, CancellationToken token = default(CancellationToken))
         {
             var translator = CreateTranslator();
-            await translator.Add(masterId).ExecuteAsync();
+            await translator.Add(masterId).ExecuteAsync(token);
             masterId = translator.Translate(masterId);
             await _service.DeleteChildrenAsync(masterId, token);
         }
@@ -155,7 +158,7 @@ namespace Nexus.Link.Libraries.Crud.ServerTranslators.To
         public async Task DeleteAsync(string masterId, string slaveId, CancellationToken token = default(CancellationToken))
         {
             var translator = CreateTranslator();
-            await translator.Add(masterId).Add(slaveId).ExecuteAsync();
+            await translator.Add(masterId).Add(slaveId).ExecuteAsync(token);
             masterId = translator.Translate(masterId);
             slaveId = translator.Translate(slaveId);
             await _service.DeleteAsync(masterId, slaveId, token);
@@ -165,7 +168,7 @@ namespace Nexus.Link.Libraries.Crud.ServerTranslators.To
         public async Task<SlaveLock<string>> ClaimLockAsync(string masterId, string slaveId, CancellationToken token = default(CancellationToken))
         {
             var translator = CreateTranslator();
-            await translator.Add(masterId).Add(slaveId).ExecuteAsync();
+            await translator.Add(masterId).Add(slaveId).ExecuteAsync(token);
             masterId = translator.Translate(masterId);
             slaveId = translator.Translate(slaveId);
             return await _service.ClaimLockAsync(masterId, slaveId, token);
@@ -176,7 +179,7 @@ namespace Nexus.Link.Libraries.Crud.ServerTranslators.To
             CancellationToken token = default(CancellationToken))
         {
             var translator = CreateTranslator();
-            await translator.Add(masterId).Add(slaveId).ExecuteAsync();
+            await translator.Add(masterId).Add(slaveId).ExecuteAsync(token);
             masterId = translator.Translate(masterId);
             slaveId = translator.Translate(slaveId);
             await _service.ReleaseLockAsync(masterId, slaveId, lockId, token);
