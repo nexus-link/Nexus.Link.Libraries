@@ -1,5 +1,6 @@
 ﻿
 using Nexus.Link.Libraries.Core.Misc;
+using Nexus.Link.Libraries.Core.Platform.Services;
 #if NETCOREAPP
 using System;
 using System.Reflection;
@@ -17,7 +18,8 @@ using Nexus.Link.Libraries.Core.Logging;
 using Nexus.Link.Libraries.Web.AspNet.Pipe.Inbound;
 using Swashbuckle.AspNetCore.Swagger;
 using Microsoft.AspNetCore.Mvc.Authorization;
-using Nexus.Link.Services.Contracts.Capabilities;
+using Nexus.Link.Libraries.Core.Translation;
+using Nexus.Link.Libraries.Web.RestClientHelper;
 namespace Nexus.Link.Libraries.Web.AspNet.Startup
 {
     /// <summary>
@@ -76,20 +78,45 @@ namespace Nexus.Link.Libraries.Web.AspNet.Startup
                 ConfigureServicesInitialUrgentPart(services);
                 FulcrumApplication.ValidateButNotInProduction();
                 InternalContract.RequireValidated(this, GetType().FullName);
-                var mvc = services.AddMvc(opts =>
-                {
-                    if (!FulcrumApplication.IsInDevelopment) return;
-                    Log.LogWarning($"Anonymous service usage is allowed, due to development mode.");
-                    opts.Filters.Add(new AllowAnonymousFilter());
-                });
-                mvc
-                    .SetCompatibilityVersion(CompatibilityVersion)
-                    .ConfigureApplicationPartManager(apm =>
-                        apm.FeatureProviders.Add(new RemoveRedundantControllers(_controllersToKeep)));
                 ConfigureServicesSwagger(services);
                 DependencyInjectServices(services);
-                DependencyInjectServicesAdvanced(services, mvc);
-                AddControllersToMvc(services, mvc);
+                using (var serviceScope = services.BuildServiceProvider().CreateScope())
+                {
+                    ValueTranslatorFilter valueTranslatorFilter = null;
+                    var serviceProvider = serviceScope.ServiceProvider;
+                    DependencyInjectServicesAdvanced(services, serviceProvider);
+                    if (IsBusinessApi)
+                    {
+                        var translatorService = serviceProvider.GetService<ITranslatorService>();
+                        if (translatorService == null)
+                        {
+                            Log.LogWarning($"Could not resolve {nameof(ITranslatorService)}");
+                        }
+                        else
+                        {
+                            ValueTranslatorHttpSender.TranslatorService = translatorService;
+                            valueTranslatorFilter = new ValueTranslatorFilter(
+                                translatorService,
+                                () => FulcrumApplication.Context?.ClientPrincipal?.Identity?.Name);
+                        }
+                    }
+                    var mvc = services.AddMvc(opts =>
+                    {
+                        if (IsBusinessApi && valueTranslatorFilter != null)
+                        {
+                            opts.Filters.Add(valueTranslatorFilter);
+                        }
+                        if (!FulcrumApplication.IsInDevelopment) return;
+                        Log.LogWarning($"Anonymous service usage is allowed, due to development mode.");
+                        opts.Filters.Add(new AllowAnonymousFilter());
+                    });
+                    mvc
+                        .SetCompatibilityVersion(CompatibilityVersion)
+                        .ConfigureApplicationPartManager(apm =>
+                            apm.FeatureProviders.Add(new RemoveRedundantControllers(_controllersToKeep)));
+                    AddControllersToMvc(services, mvc);
+                }
+
                 Log.LogInformation($"{nameof(StartupBase)}.{nameof(ConfigureServices)} succeeded.");
             }
             catch (Exception e)
@@ -298,7 +325,6 @@ namespace Nexus.Link.Libraries.Web.AspNet.Startup
         /// This is where the application injects its own services.
         /// </summary>
         /// <param name="services">From the parameter to Startup.ConfigureServices.</param>
-        /// <param name="mvc"></param>
         /// <remarks>Always override this to inject your services.</remarks>
         protected abstract void DependencyInjectServices(IServiceCollection services);
 
@@ -306,9 +332,9 @@ namespace Nexus.Link.Libraries.Web.AspNet.Startup
         /// This is where the application injects its own services.
         /// </summary>
         /// <param name="services">From the parameter to Startup.ConfigureServices.</param>
-        /// <param name="mvc"></param>
+        /// <param name="serviceProvider"></param>
         /// <remarks>Always override this to inject your services.</remarks>
-        protected virtual void DependencyInjectServicesAdvanced(IServiceCollection services, IMvcBuilder mvcBuild)
+        protected virtual void DependencyInjectServicesAdvanced(IServiceCollection services, IServiceProvider serviceProvider)
         {
 
         }

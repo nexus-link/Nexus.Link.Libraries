@@ -43,7 +43,7 @@ namespace Nexus.Link.Libraries.Core.Error.Logic
         public string MoreInfoUrl { get; set; }
 
         /// <inheritdoc />
-        public virtual bool IsRetryMeaningful { get; internal set; }
+        public virtual bool IsRetryMeaningful { get; set; }
 
         /// <inheritdoc />
         public double RecommendedWaitTimeInSeconds { get; set; }

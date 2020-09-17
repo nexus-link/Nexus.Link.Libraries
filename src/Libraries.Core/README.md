@@ -1,5 +1,9 @@
 # Nexus.Link.Libraries.Core
 
+## Sections with their own Readme files
+
+* [Telemetry](Telemetry/README.md)
+
 ## Decoupling
 
 ### Schema versions

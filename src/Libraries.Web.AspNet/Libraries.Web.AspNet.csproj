@@ -20,7 +20,6 @@
     <PackageReference Include="Microsoft.AspNetCore.Mvc" Version="[2.1.1,3.0)" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="4.0.1" />
     <PackageReference Include="Swashbuckle.AspNetCore.Annotations" Version="4.0.1" />
-    <ProjectReference Include="..\Services.Contracts\Services.Contracts.csproj" />
   </ItemGroup>
 
   <ItemGroup>
@@ -29,7 +28,7 @@
 
   <PropertyGroup>
     <PackageId>Nexus.Link.Libraries.Web.AspNet</PackageId>
-    <Version>2.12.8-alpha</Version>
+    <Version>2.17.4</Version>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <PackageTags>nexus;link;fulcrum;lever</PackageTags>
     <Authors>XLENT Link</Authors>
@@ -39,7 +38,15 @@
     <Copyright>Copyright ©2019 Xlent Link AB</Copyright>
     <IncludeSymbols>true</IncludeSymbols>
     <PackageReleaseNotes>
-      2.12.8 Nexus Services: Remove old FulcrumTraceSource.trace.txt files from App_Data at startup
+      2.17.4 Nexus Services: Remove old FulcrumTraceSource.trace.txt files from App_Data at startup      2.17.3 Instance id in startup logs from NexusWebApiApplication
+      2.17.2 Pipe handlers assert that they have not yet been started
+      2.17.1 Bump
+      2.17.0 Added support for better initialization of the ValueTranslatorFilter.
+      2.16.5 Bump
+      2.16.0 Support for ASP.NET WebApi in Translation filter
+      2.15.14 Bump
+      2.15.13 Refactored translation.
+      2.14.0: Override release that was released by mistake.
       2.12.7 Fix: PackageProjectUrl for this nuget package
       2.12.6 Support more local hosts. Also LoadConfiguration =&gt; LoadConfigurationAsync in NexusWebApiApplication.
       2.12.4 Bump

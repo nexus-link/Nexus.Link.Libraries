@@ -57,7 +57,9 @@ namespace Nexus.Link.Libraries.Web.AspNet.Startup
                 var configuration = ThreadHelper.CallAsyncFromSync(async () => await FetchConfigurationWithRetriesOnFailAsync());
                 if (configuration == null)
                 {
-                    throw new FulcrumResourceException($"{FulcrumApplication.Setup?.Name}: Could not load configuration from Fundamentals" +
+                    throw new FulcrumResourceException($"{FulcrumApplication.Setup?.Name}:" +
+                                                       $" (InstanceId: {Environment.GetEnvironmentVariable("WEBSITE_INSTANCE_ID")})" +
+                                                       $" Could not load configuration from Fundamentals" +
                                                        $" for the service tenant {ServiceTenant}");
                 }
 
@@ -88,10 +90,11 @@ namespace Nexus.Link.Libraries.Web.AspNet.Startup
                 {
                     failCount++;
                     LogHelper.FallbackSafeLog(LogSeverityLevel.Warning,
+                        $"(InstanceId: {Environment.GetEnvironmentVariable("WEBSITE_INSTANCE_ID")}) " +
                         $"Failed to fetch configuration for service tenant {ServiceTenant}." +
                         $" This was try number {failCount} after {watch.Elapsed.TotalSeconds} s.", e);
 
-                    Thread.Sleep(TimeSpan.FromSeconds(1));
+                    await Task.Delay(TimeSpan.FromSeconds(1));
                 }
             }
 
@@ -104,7 +107,9 @@ namespace Nexus.Link.Libraries.Web.AspNet.Startup
             {
                 try
                 {
-                    var exception = new FulcrumResourceException($"FATAL ERROR IN STARTUP for {FulcrumApplication.Setup?.Name}: {_startupError.Message}. Check fallback logs for details.");
+                    var exception = new FulcrumResourceException($"FATAL ERROR IN STARTUP for {FulcrumApplication.Setup?.Name}" +
+                                                                 $" (InstanceId: {Environment.GetEnvironmentVariable("WEBSITE_INSTANCE_ID")}):" +
+                                                                 $" {_startupError.Message}. Check fallback logs for details.");
                     var error = ExceptionConverter.ToFulcrumError(exception, true);
                     var statusCode = ExceptionConverter.ToHttpStatusCode(error);
 

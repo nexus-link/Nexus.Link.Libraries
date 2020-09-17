@@ -80,9 +80,9 @@ namespace Nexus.Link.Libraries.Web.Error.Logic
         {
             // Core
             AddFulcrumException(typeof(FulcrumAssertionFailedException), HttpStatusCode.InternalServerError, FulcrumResourceException.ExceptionType);
-            AddFulcrumException(typeof(FulcrumResourceException), HttpStatusCode.InternalServerError, FulcrumResourceException.ExceptionType);
+            AddFulcrumException(typeof(FulcrumResourceException), HttpStatusCode.BadGateway, FulcrumResourceException.ExceptionType);
 #pragma warning disable 618
-            AddFulcrumException(typeof(FulcrumResourceContractException), HttpStatusCode.InternalServerError, FulcrumResourceException.ExceptionType);
+            AddFulcrumException(typeof(FulcrumResourceContractException), HttpStatusCode.BadGateway, FulcrumResourceException.ExceptionType);
 #pragma warning restore 618
             AddFulcrumException(typeof(FulcrumContractException), HttpStatusCode.InternalServerError, FulcrumResourceException.ExceptionType);
             AddFulcrumException(typeof(FulcrumNotImplementedException), HttpStatusCode.InternalServerError, FulcrumResourceException.ExceptionType);
@@ -149,7 +149,7 @@ namespace Nexus.Link.Libraries.Web.Error.Logic
             string contentAsString)
         {
             InternalContract.RequireNotNull(contentAsString, nameof(contentAsString));
-            var fulcrumError = Parse<FulcrumError>(contentAsString);
+            var fulcrumError = SafeParse<FulcrumError>(contentAsString);
             if (fulcrumError?.Type != null)
             {
                 try
@@ -408,9 +408,10 @@ namespace Nexus.Link.Libraries.Web.Error.Logic
         /// <summary>
         /// Parse a JSON string and converts it into an object.
         /// </summary>
-        /// <param name="jsonObject"></param>
-        /// <returns></returns>
-        public static T Parse<T>(string jsonObject)
+        /// <remarks>
+        /// Catches all exceptions and then returns null.
+        /// </remarks>
+        public static T SafeParse<T>(string jsonObject)
             where T : class
         {
             if (jsonObject == null) return null;
@@ -418,7 +419,7 @@ namespace Nexus.Link.Libraries.Web.Error.Logic
             {
                 return JsonConvert.DeserializeObject<T>(jsonObject);
             }
-            catch (JsonReaderException)
+            catch (Exception)
             {
                 return null;
             }
