@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Nexus.Link.Libraries.Core.Assert;
@@ -10,6 +11,7 @@ using Nexus.Link.Libraries.Crud.PassThrough;
 namespace Nexus.Link.Libraries.Crud.ServerTranslators.From
 {
     /// <inheritdoc cref="CrudFromServerTranslator{TModelCreate, TModel}" />
+    [Obsolete("Use Libraries.Web ValueTranslatorHttpSender. Obsolete since 2019-11-21.")]
     public class CrudFromServerTranslator<TModel> : CrudFromServerTranslator<TModel, TModel>, ICrud<TModel, string>
     {
         /// <inheritdoc />
@@ -21,6 +23,7 @@ namespace Nexus.Link.Libraries.Crud.ServerTranslators.From
     }
 
     /// <inheritdoc cref="ServerTranslatorBase" />
+    [Obsolete("Use Libraries.Web ValueTranslatorHttpSender. Obsolete since 2019-11-21.")]
     public class CrudFromServerTranslator<TModelCreate, TModel> : ServerTranslatorBase, ICrud<TModelCreate, TModel, string>
         where TModel : TModelCreate
     {
@@ -28,7 +31,7 @@ namespace Nexus.Link.Libraries.Crud.ServerTranslators.From
 
         /// <inheritdoc />
         public CrudFromServerTranslator(ICrudable<TModel, string> service, string idConceptName, System.Func<string> getServerNameMethod)
-            : base(idConceptName, getServerNameMethod)
+            : base(idConceptName, getServerNameMethod, new FakeTranslatorService())
         {
             InternalContract.RequireNotNull(service, nameof(service));
             InternalContract.RequireNotNullOrWhiteSpace(idConceptName, nameof(idConceptName));
@@ -49,7 +52,7 @@ namespace Nexus.Link.Libraries.Crud.ServerTranslators.From
         {
             var decoratedResult = await _service.CreateAndReturnAsync(item, token);
             var translator = CreateTranslator();
-            return translator.DecorateItem(decoratedResult);
+            return translator.Decorate(decoratedResult);
         }
 
         /// <inheritdoc />
@@ -64,7 +67,7 @@ namespace Nexus.Link.Libraries.Crud.ServerTranslators.From
         {
             var decoratedResult = await _service.CreateWithSpecifiedIdAndReturnAsync(id, item, token);
             var translator = CreateTranslator();
-            return translator.DecorateItem(decoratedResult);
+            return translator.Decorate(decoratedResult);
         }
 
         /// <inheritdoc />
@@ -72,7 +75,7 @@ namespace Nexus.Link.Libraries.Crud.ServerTranslators.From
         {
             var result = await _service.ReadAsync(id, token);
             var translator = CreateTranslator();
-            return translator.DecorateItem(result);
+            return translator.Decorate(result);
         }
 
         /// <inheritdoc />
@@ -80,7 +83,7 @@ namespace Nexus.Link.Libraries.Crud.ServerTranslators.From
         {
             var result = await _service.ReadAllWithPagingAsync(offset, limit, token);
             var translator = CreateTranslator();
-            return translator.DecoratePage(result);
+            return translator.Decorate(result);
         }
 
         /// <inheritdoc />
@@ -88,7 +91,7 @@ namespace Nexus.Link.Libraries.Crud.ServerTranslators.From
         {
             var result = await _service.ReadAllAsync(limit, token);
             var translator = CreateTranslator();
-            return translator.DecorateItems(result);
+            return translator.Decorate(result);
         }
 
         /// <inheritdoc />
@@ -102,7 +105,7 @@ namespace Nexus.Link.Libraries.Crud.ServerTranslators.From
         {
             var result = await _service.UpdateAndReturnAsync(id, item, token);
             var translator = CreateTranslator();
-            return translator.DecorateItem(result);
+            return translator.Decorate(result);
         }
 
         /// <inheritdoc />

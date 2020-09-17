@@ -1,6 +1,4 @@
-﻿using System;
-using Nexus.Link.Libraries.Core.Assert;
-using Nexus.Link.Libraries.Core.Context;
+﻿using Nexus.Link.Libraries.Core.Assert;
 using Nexus.Link.Libraries.Core.Logging;
 using Nexus.Link.Libraries.Core.MultiTenant.Model;
 using Nexus.Link.Libraries.Core.Threads;
@@ -56,6 +54,7 @@ namespace Nexus.Link.Libraries.Core.Application
             FulcrumApplication.Setup.ThreadHandler = ThreadHelper.RecommendedForRuntime;
             FulcrumApplication.Setup.SynchronousFastLogger = LogHelper.RecommendedSyncLoggerForUnitTest;
             FulcrumApplication.Setup.FallbackLogger = LogHelper.RecommendedFallbackLoggerForUnitTest;
+            FulcrumApplication.Setup.LogSeverityLevelThreshold = LogSeverityLevel.Verbose;
         }
     }
 }

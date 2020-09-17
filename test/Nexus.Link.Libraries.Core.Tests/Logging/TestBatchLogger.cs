@@ -1,7 +1,4 @@
-﻿using System;
-using System.Diagnostics;
-using System.Threading;
-using System.Threading.Tasks;
+﻿using System.Threading;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using Nexus.Link.Libraries.Core.Application;
@@ -40,7 +37,8 @@ namespace Nexus.Link.Libraries.Core.Tests.Logging
         [TestMethod]
         public void LogNone()
         {
-            BatchLogger.StartBatch(LogSeverityLevel.Critical, LogSeverityLevel.None, true);
+            FulcrumApplication.Setup.LogSeverityLevelThreshold = LogSeverityLevel.Critical;
+            BatchLogger.StartBatch(LogSeverityLevel.None, true);
             Log.LogVerbose("Verbose");
             Log.LogInformation("Information");
             Log.LogWarning("Warning");
@@ -59,7 +57,8 @@ namespace Nexus.Link.Libraries.Core.Tests.Logging
         [TestMethod]
         public void LogOnlyOverThreshold()
         {
-            BatchLogger.StartBatch(LogSeverityLevel.Warning, LogSeverityLevel.None, true);
+            FulcrumApplication.Setup.LogSeverityLevelThreshold = LogSeverityLevel.Warning;
+            BatchLogger.StartBatch(LogSeverityLevel.None, true);
             Log.LogVerbose("Verbose");
             Log.LogInformation("Information");
             Log.LogWarning("Warning");
@@ -111,7 +110,8 @@ namespace Nexus.Link.Libraries.Core.Tests.Logging
         [TestMethod]
         public void LogAllOverThreshold()
         {
-            BatchLogger.StartBatch(LogSeverityLevel.Warning, LogSeverityLevel.Error, true);
+            FulcrumApplication.Setup.LogSeverityLevelThreshold = LogSeverityLevel.Warning;
+            BatchLogger.StartBatch(LogSeverityLevel.Error, true);
             Log.LogVerbose("Verbose");
             Log.LogInformation("Information");
             Log.LogWarning("Warning");
@@ -130,7 +130,8 @@ namespace Nexus.Link.Libraries.Core.Tests.Logging
         [TestMethod]
         public void LogAllImmediatelyWhenOverThreshold()
         {
-            BatchLogger.StartBatch(LogSeverityLevel.Warning, LogSeverityLevel.Error, false);
+            FulcrumApplication.Setup.LogSeverityLevelThreshold = LogSeverityLevel.Warning;
+            BatchLogger.StartBatch(LogSeverityLevel.Error, false);
             Log.LogVerbose("Verbose");
             Log.LogInformation("Information");
             Log.LogWarning("Warning");
@@ -151,7 +152,8 @@ namespace Nexus.Link.Libraries.Core.Tests.Logging
         [TestMethod]
         public void LogAllThenLogSome()
         {
-            BatchLogger.StartBatch(LogSeverityLevel.Warning, LogSeverityLevel.Error, false);
+            FulcrumApplication.Setup.LogSeverityLevelThreshold = LogSeverityLevel.Warning;
+            BatchLogger.StartBatch(LogSeverityLevel.Error, false);
             Log.LogVerbose("Verbose");
             Log.LogInformation("Information");
             Log.LogWarning("Warning");
@@ -163,7 +165,7 @@ namespace Nexus.Link.Libraries.Core.Tests.Logging
             BatchLogger.EndBatch();
 
             _loggedRecords = 0;
-            BatchLogger.StartBatch(LogSeverityLevel.Warning, LogSeverityLevel.Error, false);
+            BatchLogger.StartBatch(LogSeverityLevel.Error, false);
             Log.LogVerbose("Verbose");
             Log.LogInformation("Information");
             Log.LogWarning("Warning");

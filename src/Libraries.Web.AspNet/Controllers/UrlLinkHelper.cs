@@ -17,7 +17,7 @@ namespace Nexus.Link.Libraries.Web.AspNet.Controllers
 #if NETCOREAPP
 
             var request = urlHelper.ActionContext.HttpContext.Request;
-            if (!new Uri(request.GetDisplayUrl()).IsLoopback && !urlHelper.ActionContext.HttpContext.Request.IsHttps)
+            if (!IsLoopback(new Uri(request.GetDisplayUrl())) && !urlHelper.ActionContext.HttpContext.Request.IsHttps)
             {
                 request.Scheme = Uri.UriSchemeHttps;
                 if (request.Host.Port.HasValue && request.Host.Port == 80) request.Host = new HostString(request.Host.Host, 443);
@@ -27,7 +27,7 @@ namespace Nexus.Link.Libraries.Web.AspNet.Controllers
 
             // Inspired by https://stackoverflow.com/questions/24247402/generate-https-link-in-web-api-using-url-link#24248490
 
-            if (!urlHelper.Request.RequestUri.IsLoopback && urlHelper.Request.RequestUri.Scheme != Uri.UriSchemeHttps)
+            if (!IsLoopback(urlHelper.Request.RequestUri) && urlHelper.Request.RequestUri.Scheme != Uri.UriSchemeHttps)
             {
                 var secureUrlBuilder = new UriBuilder(urlHelper.Request.RequestUri)
                 {
@@ -40,6 +40,14 @@ namespace Nexus.Link.Libraries.Web.AspNet.Controllers
 #endif
 
             return urlHelper.Link(routeName, routeValues);
+        }
+
+        private static bool IsLoopback(this Uri requestUri)
+        {
+            if (requestUri.IsLoopback) return true;
+            if (requestUri.Host == "nexus.local") return true;
+            if (requestUri.Host.EndsWith("nexus.local")) return true;
+            return false;
         }
     }
 }

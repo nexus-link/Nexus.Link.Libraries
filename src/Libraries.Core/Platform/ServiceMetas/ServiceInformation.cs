@@ -18,7 +18,12 @@ namespace Nexus.Link.Libraries.Core.Platform.ServiceMetas
         public string FriendlyName { get; set; }
 
         /// <summary>
-        /// A list of services that this service is dependant on
+        /// The id of the instance that the service runs on
+        /// </summary>
+        public string InstanceId { get; set; }
+
+        /// <summary>
+        /// A list of services that this service is dependent on
         /// </summary>
         public List<ServiceDependency> Dependencies { get; set; }
     }

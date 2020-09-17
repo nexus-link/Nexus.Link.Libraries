@@ -6,6 +6,7 @@ using Microsoft.WindowsAzure.Storage.Queue;
 using Newtonsoft.Json;
 using Nexus.Link.Libraries.Core.Assert;
 using Nexus.Link.Libraries.Core.Health.Model;
+using Nexus.Link.Libraries.Core.Json;
 using Nexus.Link.Libraries.Core.MultiTenant.Model;
 using Nexus.Link.Libraries.Core.Queue.Model;
 
@@ -39,13 +40,17 @@ namespace Nexus.Link.Libraries.Azure.Storage.Queue
         public async Task<T> GetOneMessageNoBlockAsync()
         {
             var message = await (await _cloudQueueTask).GetMessageAsync();
-            return message == null ? default(T) : FromByteArray(message.AsBytes);
+            if (message == null) return default(T);
+            var response = FromByteArray(message.AsBytes);
+            await (await _cloudQueueTask).DeleteMessageAsync(message.Id, message.PopReceipt);
+            return response;
         }
 
         public async Task<T> PeekNoBlockAsync()
         {
             var message = await (await _cloudQueueTask).PeekMessageAsync();
-            return message == null ? default(T) : FromByteArray(message.AsBytes);
+            var response = message == null ? default(T) : FromByteArray(message.AsBytes);
+            return response;
         }
 
         public async Task<HealthResponse> GetResourceHealthAsync()
@@ -76,7 +81,7 @@ namespace Nexus.Link.Libraries.Azure.Storage.Queue
         private T FromByteArray(byte[] byteArray)
         {
             var messageAsString = Encoding.UTF8.GetString(byteArray);
-            return JsonConvert.DeserializeObject<T>(messageAsString);
+            return JsonHelper.SafeDeserializeObject<T>(messageAsString);
         }
 
         // TODO: Remove dependency to IResourceHealth?

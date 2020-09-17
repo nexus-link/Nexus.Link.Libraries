@@ -3,7 +3,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using Nexus.Link.Libraries.Core.Assert;
 using Nexus.Link.Libraries.Core.Storage.Model;
-using Nexus.Link.Libraries.Crud.AspNet.ControllerHelpers;
 using Nexus.Link.Libraries.Crud.Interfaces;
 using Nexus.Link.Libraries.Crud.Model;
 using Nexus.Link.Libraries.Crud.PassThrough;
@@ -11,20 +10,20 @@ using Nexus.Link.Libraries.Web.AspNet.Annotations;
 
 namespace Nexus.Link.Libraries.Crud.AspNet.Controllers
 {
-    /// <inheritdoc cref="CrudControllerHelper{TModelCreate, TModel}" />
-    public abstract class CrudController<TModel> :
+    /// <inheritdoc cref="CrudController{TModelCreate, TModel}" />
+    public class CrudController<TModel> :
         CrudController<TModel, TModel>,
         ICrud<TModel, string>
     {
         /// <inheritdoc />
-        protected CrudController(ICrudable<TModel, string> logic)
+        public CrudController(ICrudable<TModel, string> logic)
             : base(logic)
         {
         }
     }
 
     /// <inheritdoc cref="CrudControllerBase" />
-    public abstract class CrudController<TModelCreate, TModel> :
+    public class CrudController<TModelCreate, TModel> :
         CrudControllerBase,
         ICrud<TModelCreate, TModel, string>
         where TModel : TModelCreate
@@ -35,7 +34,7 @@ namespace Nexus.Link.Libraries.Crud.AspNet.Controllers
         protected readonly ICrud<TModelCreate, TModel, string> Logic;
 
         /// <inheritdoc />
-        protected CrudController(ICrudable<TModel, string> logic)
+        public CrudController(ICrudable<TModel, string> logic)
         {
             Logic = new CrudPassThrough<TModelCreate, TModel, string>(logic);
         }

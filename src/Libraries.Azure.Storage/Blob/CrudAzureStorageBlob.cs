@@ -1,15 +1,16 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
-using Newtonsoft.Json;
-using Nexus.Link.Libraries.Azure.Core.File;
+﻿using Newtonsoft.Json;
+using Nexus.Link.Libraries.Azure.Storage.File;
 using Nexus.Link.Libraries.Core.Assert;
 using Nexus.Link.Libraries.Core.Error.Logic;
 using Nexus.Link.Libraries.Core.Storage.Logic;
 using Nexus.Link.Libraries.Core.Storage.Model;
 using Nexus.Link.Libraries.Crud.Interfaces;
 using Nexus.Link.Libraries.Crud.Model;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
+using Nexus.Link.Libraries.Core.Json;
 
 namespace Nexus.Link.Libraries.Azure.Storage.Blob
 {
@@ -18,12 +19,12 @@ namespace Nexus.Link.Libraries.Azure.Storage.Blob
         ICrud<TItem, TId>
     {
         public CrudAzureStorageBlob(string connectionString, string containerName)
-        :base(connectionString, containerName)
+        : base(connectionString, containerName)
         {
         }
     }
 
-    public class CrudAzureStorageBlob<TModelCreate, TModel, TId>  :
+    public class CrudAzureStorageBlob<TModelCreate, TModel, TId> :
         ICrud<TModelCreate, TModel, TId>
         where TModel : TModelCreate
     {
@@ -96,7 +97,7 @@ namespace Nexus.Link.Libraries.Azure.Storage.Blob
             var file = Directory.CreateFile(fileName);
             if (!await file.ExistsAsync()) return default(TModel);
             var content = await file.DownloadTextAsync();
-            return JsonConvert.DeserializeObject<TModel>(content);
+            return JsonHelper.SafeDeserializeObject<TModel>(content);
         }
 
         public async Task DeleteAsync(TId id, CancellationToken token = default(CancellationToken))
@@ -132,7 +133,7 @@ namespace Nexus.Link.Libraries.Azure.Storage.Blob
                 FulcrumAssert.IsNotNull(file, $"Expected {item.ToLogString()} to be a file.");
                 if (file == null) continue;
                 var content = await file.DownloadTextAsync();
-                var o = JsonConvert.DeserializeObject<TModel>(content);
+                var o = JsonHelper.SafeDeserializeObject<TModel>(content);
                 list.Add(o);
                 found++;
             }

@@ -1,0 +1,16 @@
+{
+  "Clients": [
+    {
+      "Name": "client-a",
+      "Authentication": "auth-1"
+    }
+  ],
+  "Authentications": [
+    {
+      "Id": "auth-1",
+      "AuthorizationType": "Basic",
+      "Username": "foo",
+      "Password": "bar"
+    }
+  ]
+}

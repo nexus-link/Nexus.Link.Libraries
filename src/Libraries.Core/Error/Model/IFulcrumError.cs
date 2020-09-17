@@ -1,4 +1,5 @@
-﻿using Nexus.Link.Libraries.Core.Assert;
+﻿using System;
+using Nexus.Link.Libraries.Core.Assert;
 using Nexus.Link.Libraries.Core.Error.Logic;
 
 namespace Nexus.Link.Libraries.Core.Error.Model
@@ -62,14 +63,20 @@ namespace Nexus.Link.Libraries.Core.Error.Model
 
         /// <summary>
         /// A mandatory unique identifier for this particular instance of the error. Ideally, the same identifier
-        /// should not be used ever again. The recommendation is to use a newly created GUID.
+        /// should not be used ever again for a new exception. The recommendation is to use a newly created GUID.
         /// </summary>
         string InstanceId { get; }
 
         /// <summary>
         /// If the error originated from another error, this is the InstanceId of that parent. A simple form of "InnerError".
         /// </summary>
+        [Obsolete("Renamed to InnerInstanceId", true)]
         string ParentInstanceId { get; }
+
+        /// <summary>
+        /// If the error originated from another error, this is the InstanceId of that inner error. You can use this id to find more logs related to this error.
+        /// </summary>
+        string InnerInstanceId { get; }
 
         /// <summary>
         /// An optional hint on where this error occurred in the code. The recommendation is to use the name of the DLL file combined with a fixed GUID for the specific location within the DLL.

@@ -34,7 +34,7 @@ namespace Nexus.Link.Libraries.SqlServer
             var selectRest = $"FROM [{TableMetadata.TableName}] AS local" +
                              $" JOIN [{ForeignHandler.TableName}] AS foregin ON (foreign.Id = local.{GroupColumnName})" +
                              $" WHERE local.[{GroupColumnName}] = @GroupValue";
-            return await ForeignHandler.SearchAdvancedAsync("SELECT COUNT(foreign.[Id])", "SELECT foreign.*", selectRest, TableMetadata.GetOrderBy("local."), new { GroupValue = groupValue }, offset, limit, token);
+            return await ForeignHandler.SearchAdvancedAsync("SELECT COUNT(foreign.[Id])", "SELECT foreign.*", selectRest, TableMetadata.GetOrderBy("local"), new { GroupValue = groupValue }, offset, limit, token);
         }
     }
 }

@@ -3,6 +3,10 @@ using Nexus.Link.Libraries.Core.Assert;
 using Nexus.Link.Libraries.Core.Error.Logic;
 using Nexus.Link.Libraries.Core.MultiTenant.Model;
 
+#if NETSTANDARD
+using Microsoft.Extensions.Configuration;
+#endif
+
 namespace Nexus.Link.Libraries.Core.Application
 {
     /// <summary>
@@ -12,6 +16,14 @@ namespace Nexus.Link.Libraries.Core.Application
     {
         private readonly IAppSettingGetter _appSettingGetter;
 
+#if NETSTANDARD
+        private readonly IConfiguration _configuration;
+        public AppSettings(IConfiguration configuration)
+        {
+            _configuration = configuration;
+        }
+#endif
+
         /// <summary>
         /// Can get app settings by using the <paramref name="appSettingGetter"/>.
         /// </summary>
@@ -20,7 +32,6 @@ namespace Nexus.Link.Libraries.Core.Application
         {
             _appSettingGetter = appSettingGetter;
         }
-
         /// <summary>
         /// Get a string value.
         /// </summary>
@@ -32,7 +43,11 @@ namespace Nexus.Link.Libraries.Core.Application
             // We must not have InternalContract and stuff here, since we may not have set up logging, etc.
             if (string.IsNullOrWhiteSpace(name)) throw new FulcrumContractException($"Parameter {nameof(name)} was empty.");
             InternalContract.RequireNotNullOrWhiteSpace(name, nameof(name));
-            var value = _appSettingGetter.GetAppSetting(name);
+            var value = _appSettingGetter?.GetAppSetting(name)
+#if NETSTANDARD
+                        ?? _configuration[name]
+#endif
+            ;
             if (isMandatory && string.IsNullOrWhiteSpace(value)) throw new FulcrumContractException($"Missing app setting: {name}");
             return value;
         }

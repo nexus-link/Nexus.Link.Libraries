@@ -1,6 +1,4 @@
-﻿using System.Threading.Tasks;
-
-namespace Nexus.Link.Libraries.Core.Logging
+﻿namespace Nexus.Link.Libraries.Core.Logging
 {
     /// <summary>
     /// Interface for a fallback mechanism when normal logging fails.

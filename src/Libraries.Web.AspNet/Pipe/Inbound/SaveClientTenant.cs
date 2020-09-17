@@ -2,6 +2,7 @@
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Nexus.Link.Libraries.Core.Application;
+using Nexus.Link.Libraries.Core.Assert;
 using Nexus.Link.Libraries.Core.MultiTenant.Model;
 #if NETCOREAPP
 using Microsoft.AspNetCore.Builder;
@@ -63,6 +64,7 @@ namespace Nexus.Link.Libraries.Web.AspNet.Pipe.Inbound
 
         protected override async Task InvokeAsync(CompabilityInvocationContext context)
         {
+            InternalContract.Require(!DelegateState.HasStarted, $"{nameof(SaveClientTenant)} has already been started in this http request.");
             HasStarted = true;
 #if NETCOREAPP
             var match = _regex.Match(context.Context.Request.Path);

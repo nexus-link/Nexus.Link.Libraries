@@ -4,7 +4,7 @@ using Microsoft.Extensions.Caching.Distributed;
 using Nexus.Link.Libraries.Crud.Cache;
 using Nexus.Link.Libraries.Crud.Interfaces;
 
-namespace Nexus.Link.Libraries.Crud.Test.Core.Cache
+namespace Nexus.Link.Libraries.Crud.Test.Cache
 {
     public abstract class TestAutoCacheBase<TModelCreate, TModel>
     where TModel : TModelCreate

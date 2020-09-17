@@ -9,7 +9,7 @@ using Nexus.Link.Libraries.Crud.Interfaces;
 using Nexus.Link.Libraries.Crud.MemoryStorage;
 using UT = Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace Nexus.Link.Libraries.Crud.Test.Core.Cache
+namespace Nexus.Link.Libraries.Crud.Test.Cache
 {
     [TestClass]
     public class TestAutoCacheManyToOneRecursive : TestAutoCacheBase<ItemWithParentId, ItemWithParentId>

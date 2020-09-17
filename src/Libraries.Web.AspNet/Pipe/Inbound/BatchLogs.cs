@@ -1,4 +1,5 @@
 ﻿using System.Threading.Tasks;
+using Nexus.Link.Libraries.Core.Application;
 using Nexus.Link.Libraries.Core.Assert;
 using Nexus.Link.Libraries.Core.Logging;
 #if NETCOREAPP
@@ -14,7 +15,6 @@ namespace Nexus.Link.Libraries.Web.AspNet.Pipe.Inbound
     /// </summary>
     public class BatchLogs : CompatibilityDelegatingHandler
     {
-        private readonly LogSeverityLevel _logIndividualThreshold;
         private readonly LogSeverityLevel _logAllThreshold;
         private readonly bool _releaseRecordsAsLateAsPossible;
         private static readonly DelegateState DelegateState = new DelegateState(typeof(BatchLogs).FullName);
@@ -29,21 +29,34 @@ namespace Nexus.Link.Libraries.Web.AspNet.Pipe.Inbound
         }
 
 #if NETCOREAPP
-        /// <inheritdoc />
+        /// <summary>
+        /// This handler makes sure that if one log message in a batch has a severity level
+        /// equal to or higher than <paramref name="logAllThreshold"/>, then all the logs within that
+        /// batch will be logged, regardless of the value of <see cref="ApplicationSetup.LogSeverityLevelThreshold"/>.
+        /// </summary>
+        /// <param name="next">The inner handler</param>
+        /// <param name="logAllThreshold">The threshold for logging all messages within a batch.</param>
+        /// <param name="releaseRecordsAsLateAsPossible">True means that the records will be released at the end of the batch.
+        /// False means that they will be released as soon as one message hits the threshold and then all messages will be released instantly until the batch ends.</param>
         public BatchLogs(RequestDelegate next,
-            LogSeverityLevel logIndividualThreshold = LogSeverityLevel.Warning,
             LogSeverityLevel logAllThreshold = LogSeverityLevel.Error, bool releaseRecordsAsLateAsPossible = false)
-        :base(next)
+            : base(next)
         {
-            _logIndividualThreshold = logIndividualThreshold;
             _logAllThreshold = logAllThreshold;
             _releaseRecordsAsLateAsPossible = releaseRecordsAsLateAsPossible;
         }
 #else
-        public BatchLogs(LogSeverityLevel logIndividualThreshold = LogSeverityLevel.Warning,
-            LogSeverityLevel logAllThreshold = LogSeverityLevel.Error, bool releaseRecordsAsLateAsPossible = false)
+        /// <summary>
+        /// This handler makes sure that if one log message in a batch has a severity level
+        /// equal to or higher than <paramref name="logAllThreshold"/>, then all the logs within that
+        /// batch will be logged, regardless of the value of <see cref="ApplicationSetup.LogSeverityLevelThreshold"/>.
+        /// </summary>
+        /// <param name="logAllThreshold">The threshold for logging all messages within a batch.</param>
+        /// <param name="releaseRecordsAsLateAsPossible">True means that the records will be released at the end of the batch.
+        /// False means that they will be released as soon as one message hits the threshold and then all messages will be released instantly until the batch ends.</param>
+        public BatchLogs(LogSeverityLevel logAllThreshold = LogSeverityLevel.Error,
+            bool releaseRecordsAsLateAsPossible = false)
         {
-            _logIndividualThreshold = logIndividualThreshold;
             _logAllThreshold = logAllThreshold;
             _releaseRecordsAsLateAsPossible = releaseRecordsAsLateAsPossible;
         }
@@ -51,9 +64,12 @@ namespace Nexus.Link.Libraries.Web.AspNet.Pipe.Inbound
         /// <inheritdoc />
         protected override async Task InvokeAsync(CompabilityInvocationContext context)
         {
-            InternalContract.Require(!LogRequestAndResponse.HasStarted, $"{nameof(LogRequestAndResponse)} must not precede {nameof(BatchLogs)}");
+            InternalContract.Require(!LogRequestAndResponse.HasStarted,
+                $"{nameof(LogRequestAndResponse)} must not precede {nameof(SaveCorrelationId)}");
+            InternalContract.Require(!ExceptionToFulcrumResponse.HasStarted,
+                $"{nameof(ExceptionToFulcrumResponse)} must not precede {nameof(SaveCorrelationId)}");
             HasStarted = true;
-            BatchLogger.StartBatch(_logIndividualThreshold, _logAllThreshold, _releaseRecordsAsLateAsPossible);
+            BatchLogger.StartBatch(_logAllThreshold, _releaseRecordsAsLateAsPossible);
             try
             {
                 await CallNextDelegateAsync(context);
@@ -68,9 +84,10 @@ namespace Nexus.Link.Libraries.Web.AspNet.Pipe.Inbound
     public static class BatchLogsExtension
     {
         public static IApplicationBuilder UseNexusBatchLogs(
-            this IApplicationBuilder builder)
+            this IApplicationBuilder builder,
+            LogSeverityLevel logAllThreshold = LogSeverityLevel.Error, bool releaseRecordsAsLateAsPossible = false)
         {
-            return builder.UseMiddleware<BatchLogs>();
+            return builder.UseMiddleware<BatchLogs>(logAllThreshold, releaseRecordsAsLateAsPossible);
         }
     }
 #endif

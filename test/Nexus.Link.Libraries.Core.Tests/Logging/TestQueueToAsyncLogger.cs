@@ -1,13 +1,10 @@
 ﻿using System;
-using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using Nexus.Link.Libraries.Core.Application;
-using Nexus.Link.Libraries.Core.Context;
 using Nexus.Link.Libraries.Core.Logging;
-using Nexus.Link.Libraries.Core.MultiTenant.Model;
 using UT = Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Nexus.Link.Libraries.Core.Tests.Logging

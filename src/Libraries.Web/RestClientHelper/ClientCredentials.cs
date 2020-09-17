@@ -19,7 +19,7 @@ namespace Nexus.Link.Libraries.Web.RestClientHelper
         public ClientCredentials(AuthenticationToken token)
         {
             InternalContract.RequireNotNull(token, nameof(token));
-            InternalContract.Require(token.Type == JwtTokenTypeEnum.Bearer, $"Parameter {nameof(token)} must be of type Bearer.");
+            InternalContract.Require(token.Type == "Bearer", $"Parameter {nameof(token)} must be of type Bearer.");
             _token = token;
         }
 

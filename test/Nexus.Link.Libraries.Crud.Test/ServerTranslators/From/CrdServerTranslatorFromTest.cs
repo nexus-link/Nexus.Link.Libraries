@@ -5,9 +5,10 @@ using Moq;
 using Nexus.Link.Libraries.Core.Storage.Model;
 using Nexus.Link.Libraries.Crud.Interfaces;
 using Nexus.Link.Libraries.Crud.ServerTranslators.From;
-using Nexus.Link.Libraries.Crud.Test.Core.ServerTranslators.Support;
+using Nexus.Link.Libraries.Crud.Test.ServerTranslators.Support;
+#pragma warning disable 618
 
-namespace Nexus.Link.Libraries.Crud.Test.Core.ServerTranslators.From
+namespace Nexus.Link.Libraries.Crud.Test.ServerTranslators.From
 {
     [TestClass]
     public class CrdFromServerTranslatorTest : ServerTranslatorBase

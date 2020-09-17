@@ -43,6 +43,7 @@ namespace Nexus.Link.Libraries.Web.AspNet.Pipe.Inbound
 #endif
         protected override async Task InvokeAsync(CompabilityInvocationContext context)
         {
+            InternalContract.Require(!DelegateState.HasStarted, $"{nameof(LogResponseAsync)} has already been started in this http request.");
             InternalContract.Require(!ExceptionToFulcrumResponse.HasStarted,
                 $"{nameof(ExceptionToFulcrumResponse)} must not precede {nameof(LogRequestAndResponse)}");
             DelegateState.HasStarted = true;
@@ -52,7 +53,7 @@ namespace Nexus.Link.Libraries.Web.AspNet.Pipe.Inbound
             {
                 await CallNextDelegateAsync(context);
                 stopWatch.Stop();
-                LogResponse(context, stopWatch.Elapsed);
+                await LogResponseAsync(context, stopWatch.Elapsed);
             }
             catch (Exception exception)
             {
@@ -63,7 +64,7 @@ namespace Nexus.Link.Libraries.Web.AspNet.Pipe.Inbound
             }
         }
 
-        private static void LogResponse(CompabilityInvocationContext context, TimeSpan elapsedTime)
+        private static async Task LogResponseAsync(CompabilityInvocationContext context, TimeSpan elapsedTime)
         {
             var logLevel = LogSeverityLevel.Information;
 #if NETCOREAPP
@@ -77,7 +78,7 @@ namespace Nexus.Link.Libraries.Web.AspNet.Pipe.Inbound
             if ((int)response.StatusCode >= 500) logLevel = LogSeverityLevel.Error;
             else if ((int)response.StatusCode >= 400) logLevel = LogSeverityLevel.Warning;
 #endif
-            Log.LogOnLevel(logLevel, $"INBOUND request-response {request.ToLogString(response, elapsedTime)}");
+            Log.LogOnLevel(logLevel, $"INBOUND request-response {await request.ToLogStringAsync(response, elapsedTime)}");
         }
 
         private static void LogException(CompabilityInvocationContext context, Exception exception, TimeSpan elapsedTime)

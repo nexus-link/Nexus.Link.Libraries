@@ -13,6 +13,7 @@ namespace Nexus.Link.Libraries.Web.Pipe
     /// <summary>
     /// Logs requests and responses in the pipe
     /// </summary>
+    [Obsolete("2019-07-22: Use Outbound.LogRequestAndResponse", true)]
     public abstract class LogRequestAndResponse : DelegatingHandler
     {
         private readonly string _direction;
@@ -69,13 +70,11 @@ namespace Nexus.Link.Libraries.Web.Pipe
             }
         }
 
-        private async Task LogResponseAsync(HttpRequestMessage request, HttpResponseMessage response,
-            TimeSpan elapsedTime)
+        private async Task LogResponseAsync(HttpRequestMessage request, HttpResponseMessage response, TimeSpan elapsedTime)
         {
             if (request == null) return;
             var level = response.IsSuccessStatusCode ? LogSeverityLevel.Information : LogSeverityLevel.Warning;
-            Log.LogOnLevel(level, $"{_direction} request-response {request.ToLogString(response, elapsedTime)}",
-                await request.ToLogDataAsync(response, null, elapsedTime.TotalSeconds));
+            Log.LogOnLevel(level, $"{_direction} request-response {await request.ToLogStringAsync(response, elapsedTime)}");
         }
 
         private async Task LogException(HttpRequestMessage request, Exception exception, TimeSpan elapsedTime)

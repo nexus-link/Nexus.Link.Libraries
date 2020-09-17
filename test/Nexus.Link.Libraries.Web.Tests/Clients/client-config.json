@@ -1,0 +1,12 @@
+{
+  "Clients": [
+    {
+      "Name": "client-a",
+      "RequestHeaders": {
+        "header-a": "value-a",
+        "header-b": "value-b"
+      },
+      "Authentication": "auth" 
+    }
+  ]
+}

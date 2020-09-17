@@ -2,9 +2,8 @@
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.Rest;
+using Newtonsoft.Json;
 using Nexus.Link.Libraries.Core.Application;
-using Nexus.Link.Libraries.Core.Assert;
 using Nexus.Link.Libraries.Core.Error.Logic;
 using Nexus.Link.Libraries.Core.Logging;
 using Nexus.Link.Libraries.Web.Error.Logic;
@@ -51,7 +50,7 @@ namespace Nexus.Link.Libraries.Web.Pipe.Outbound
                     response = await UnitTest_SendAsyncDependencyInjection(request, cancellationToken);
                 }
 
-                requestDescription = $"OUT request-response {request.ToLogString(response)}";
+                requestDescription = $"OUT request-response {await request.ToLogStringAsync(response)}";
 
                 fulcrumException = await ExceptionConverter.ToFulcrumExceptionAsync(response);
                 if (fulcrumException == null) return response;
@@ -67,6 +66,15 @@ namespace Nexus.Link.Libraries.Web.Pipe.Outbound
                 Log.LogWarning(message, e);
                 throw new FulcrumTryAgainException(message, e);
             }
+            catch (Exception e) when (
+                e is HttpRequestException 
+                || e is JsonReaderException
+                )
+            {
+                var message = $"{requestDescription} failed: {e.Message}.";
+                Log.LogWarning(message, e);
+                throw new FulcrumResourceException(message, e);
+            }
             catch (Exception e)
             {
                 // If we end up here, we probably need to add another catch statement for that exception type.
@@ -76,7 +84,7 @@ namespace Nexus.Link.Libraries.Web.Pipe.Outbound
                 throw new FulcrumAssertionFailedException(message, e);
             }
 
-            var severityLevel = (int) response.StatusCode > 500 ? LogSeverityLevel.Warning : LogSeverityLevel.Error;
+            var severityLevel = (int) response.StatusCode >= 500 ? LogSeverityLevel.Error : LogSeverityLevel.Warning;
             Log.LogOnLevel(severityLevel, $"{requestDescription} was converted to (and threw) the exception {fulcrumException.GetType().Name}: {fulcrumException.TechnicalMessage}", fulcrumException);
             throw fulcrumException;
         }

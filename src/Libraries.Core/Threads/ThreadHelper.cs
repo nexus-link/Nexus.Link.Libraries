@@ -215,7 +215,35 @@ namespace Nexus.Link.Libraries.Core.Threads
             Task.Run(asyncMethod, token).Wait(token);
         }
 
-        private static void CallAsyncFromSync(Func<CancellationToken, Task> asyncMethod, string messageIfException, CancellationToken token = default(CancellationToken))
+        /// <summary>
+        /// Execute an <paramref name="asyncMethod"/> in the background.
+        /// </summary>
+        /// <param name="asyncMethod">The action to run in the background.</param>
+        /// <param name="token">Propagates notification that operations should be canceled</param>
+        public static T CallAsyncFromSync<T>(Func<CancellationToken, Task<T>> asyncMethod, CancellationToken token = default(CancellationToken))
+        {
+            // This way to call an async method from a synchronous method was found here:
+            // https://stackoverflow.com/questions/40324300/calling-async-methods-from-non-async-code
+            var task = Task.Run(async () => await asyncMethod(token), token);
+            task.Wait(token);
+            return task.Result;
+        }
+
+        /// <summary>
+        /// Execute an <paramref name="asyncMethod"/> in the background.
+        /// </summary>
+        /// <param name="asyncMethod">The action to run in the background.</param>
+        /// <param name="token">Propagates notification that operations should be canceled</param>
+        public static T CallAsyncFromSync<T>(Func<Task<T>> asyncMethod, CancellationToken token = default(CancellationToken))
+        {
+            // This way to call an async method from a synchronous method was found here:
+            // https://stackoverflow.com/questions/40324300/calling-async-methods-from-non-async-code
+            var task = Task.Run(asyncMethod, token);
+            task.Wait(token);
+            return task.Result;
+        }
+
+        private static void CallAsyncFromSync(Func<CancellationToken, Task> asyncMethod, string messageIfException, CancellationToken token)
         {
             CallAsyncFromSync(async ct => await ExecuteActionFailSafeAsync(asyncMethod, messageIfException, ct), token);
         }

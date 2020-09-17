@@ -2,10 +2,10 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Nexus.Link.Libraries.Core.Application;
 using Nexus.Link.Libraries.Crud.MemoryStorage;
-using Nexus.Link.Libraries.Crud.Test.NuGet.Crd;
-using Nexus.Link.Libraries.Crud.Test.NuGet.Model;
+using Nexus.Link.Libraries.Crud.UnitTests.Crd;
+using Nexus.Link.Libraries.Crud.UnitTests.Model;
 
-namespace Nexus.Link.Libraries.Crud.Test.Core.Storage
+namespace Nexus.Link.Libraries.Crud.Test.Storage
 {
     [TestClass]
     public class MemoryCrudTestParameters : TestParameters

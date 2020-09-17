@@ -3,7 +3,7 @@ using Nexus.Link.Libraries.Core.Translation;
 
 #pragma warning disable 659
 
-namespace Nexus.Link.Libraries.Crud.Test.Core.ServerTranslators.Support
+namespace Nexus.Link.Libraries.Crud.Test.ServerTranslators.Support
 {
     /// <inheritdoc cref="TestModelCreate" />
     public class TestModel : TestModelCreate, IUniquelyIdentifiable<string>, IOptimisticConcurrencyControlByETag
