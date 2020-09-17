@@ -1,10 +1,9 @@
 ﻿using System.Threading.Tasks;
 using Nexus.Link.Libraries.Core.Storage.Logic;
-using Nexus.Link.Libraries.Crud.Helpers;
 using Nexus.Link.Libraries.Crud.Interfaces;
-using Nexus.Link.Libraries.Crud.Test.NuGet.Model;
+using Nexus.Link.Libraries.Crud.UnitTests.Model;
 
-namespace Nexus.Link.Libraries.Crud.Test.NuGet.ManyToOne
+namespace Nexus.Link.Libraries.Crud.UnitTests.ManyToOne
 {
     public abstract class TestIManyToOneBase<TId, TReferenceId>
     {

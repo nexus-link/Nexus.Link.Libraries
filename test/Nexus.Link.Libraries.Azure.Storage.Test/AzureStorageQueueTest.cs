@@ -76,6 +76,22 @@ namespace Nexus.Link.Libraries.Azure.Storage.Test
         }
 
         [TestMethod]
+        public async Task DeleteMessageAsync()
+        {
+            var message = new Message { Name = "Message1" };
+            await _queue.AddMessageAsync(message);
+            var result = await _queue.PeekNoBlockAsync();
+            Assert.IsNotNull(result);
+            Assert.AreEqual(message.Name, result.Name);
+            result = await _queue.GetOneMessageNoBlockAsync();
+            Assert.IsNotNull(result);
+            Assert.AreEqual(message.Name, result.Name);
+
+            result = await _queue.GetOneMessageNoBlockAsync();
+            Assert.IsNull(result);
+        }
+
+        [TestMethod]
         public async Task HealthAsync()
         {
             var result = await _queue.GetResourceHealthAsync();

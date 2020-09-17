@@ -4,6 +4,7 @@ using Newtonsoft.Json;
 using Nexus.Link.Libraries.Core.Assert;
 using Nexus.Link.Libraries.Core.Error.Logic;
 using Nexus.Link.Libraries.Core.Logging;
+using Nexus.Link.Libraries.Core.Misc;
 using Nexus.Link.Libraries.Web.Error.Logic;
 #if NETCOREAPP
 using Microsoft.AspNetCore.Mvc;
@@ -61,16 +62,16 @@ namespace Nexus.Link.Libraries.Web.AspNet.Error.Logic
 
             if (!(e is FulcrumException fulcrumException))
             {
-                var message = $"Application threw an exception that didn't inherit from {typeof(FulcrumException)}.";
+                var message = $"Application threw an exception that didn't inherit from {typeof(FulcrumException)}.\r{e.GetType().FullName}: {e.Message}\rFull exception:\r{e}";
                 Log.LogError(message, e);
                 fulcrumException = new FulcrumAssertionFailedException(message, e);
             }
 
             var error = ExceptionConverter.ToFulcrumError(fulcrumException, true);
             var statusCode = ExceptionConverter.ToHttpStatusCode(error);
-            FulcrumAssert.IsNotNull(statusCode);
+            FulcrumAssert.IsNotNull(statusCode, CodeLocation.AsString());
             Log.LogVerbose(
-                $"Error ({error.Type} {error.TechnicalMessage}) was converted to an HTTP response ({statusCode}).");
+                $"{error.Type} => HTTP status {statusCode}");
             var content = ExceptionConverter.ToJsonString(error, Formatting.Indented);
             return new StatusAndContent
             {

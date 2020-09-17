@@ -10,6 +10,7 @@ using Nexus.Link.Libraries.Core.Assert;
 using Nexus.Link.Libraries.Core.Error.Logic;
 using Nexus.Link.Libraries.Core.Error.Model;
 using Nexus.Link.Libraries.Core.Logging;
+using Nexus.Link.Libraries.Core.Misc;
 using Nexus.Link.Libraries.Web.Logging;
 
 namespace Nexus.Link.Libraries.Web.Error.Logic
@@ -79,8 +80,10 @@ namespace Nexus.Link.Libraries.Web.Error.Logic
         {
             // Core
             AddFulcrumException(typeof(FulcrumAssertionFailedException), HttpStatusCode.InternalServerError, FulcrumResourceException.ExceptionType);
-            AddFulcrumException(typeof(FulcrumResourceException), HttpStatusCode.InternalServerError, FulcrumResourceException.ExceptionType);
-            AddFulcrumException(typeof(FulcrumResourceContractException), HttpStatusCode.InternalServerError, FulcrumResourceException.ExceptionType);
+            AddFulcrumException(typeof(FulcrumResourceException), HttpStatusCode.BadGateway, FulcrumResourceException.ExceptionType);
+#pragma warning disable 618
+            AddFulcrumException(typeof(FulcrumResourceContractException), HttpStatusCode.BadGateway, FulcrumResourceException.ExceptionType);
+#pragma warning restore 618
             AddFulcrumException(typeof(FulcrumContractException), HttpStatusCode.InternalServerError, FulcrumResourceException.ExceptionType);
             AddFulcrumException(typeof(FulcrumNotImplementedException), HttpStatusCode.InternalServerError, FulcrumResourceException.ExceptionType);
             AddFulcrumException(typeof(FulcrumTryAgainException), HttpStatusCode.InternalServerError, FulcrumTryAgainException.ExceptionType);
@@ -129,21 +132,47 @@ namespace Nexus.Link.Libraries.Web.Error.Logic
         {
             InternalContract.RequireNotNull(response, nameof(response));
             if (response.IsSuccessStatusCode) return null;
-
+            
             var contentAsString = "";
             if (response.Content != null)
             {
                 await response.Content?.LoadIntoBufferAsync();
                 contentAsString = await response.Content?.ReadAsStringAsync();
-                var fulcrumError = Parse<FulcrumError>(contentAsString);
-                if (fulcrumError?.Type != null)
-                {
-                    ValidateStatusCode(response.StatusCode, fulcrumError);
-                    return fulcrumError;
-                }
+                var fulcrumError = await FulcrumErrorFromContentAsync(response, contentAsString);
+                if (fulcrumError != null) return fulcrumError;
             }
 
             return CreateFulcrumErrorFromHttpStatusCode(response.StatusCode, contentAsString, response);
+        }
+
+        private static Task<FulcrumError> FulcrumErrorFromContentAsync(HttpResponseMessage response,
+            string contentAsString)
+        {
+            InternalContract.RequireNotNull(contentAsString, nameof(contentAsString));
+            var fulcrumError = SafeParse<FulcrumError>(contentAsString);
+            if (fulcrumError?.Type != null)
+            {
+                try
+                {
+                    fulcrumError.Validate(CodeLocation.AsString());
+                }
+                catch (ValidationException)
+                {
+                    // Intentionally ignore this validation problem. Just means that this was not to be considered a FulcrumError.
+                }
+
+                try
+                {
+                    ValidateStatusCode(response.StatusCode, fulcrumError);
+                    return Task.FromResult(fulcrumError);
+                } catch (FulcrumException e)
+                {
+                    // We will just log this. It is important that we still try to use the response in some way.
+                    Log.LogWarning($"{response.RequestMessage.ToLogStringAsync(response)}\r{e.Message}\r{fulcrumError.ToLogString()}");
+                }
+            }
+
+            return Task.FromResult((FulcrumError)null);
         }
 
         private static FulcrumError CreateFulcrumErrorFromHttpStatusCode(HttpStatusCode statusCode, string contentAsString,
@@ -153,8 +182,10 @@ namespace Nexus.Link.Libraries.Web.Error.Logic
             if (shortContent.Length > 160)
             {
                 Log.LogVerbose($"Truncating failed response content to 160 characters. This was the original content:\r{contentAsString}");
-                shortContent = $"Truncated content: {contentAsString.Substring(0, 160)}";
+                shortContent = $"content (truncated): {contentAsString.Substring(0, 160)}";
             }
+
+            var content = string.IsNullOrWhiteSpace(shortContent) ? "no content" : $"content {shortContent}";
             var fulcrumError = new FulcrumError
             {
                 CorrelationId = FulcrumApplication.Context.CorrelationId,
@@ -163,7 +194,7 @@ namespace Nexus.Link.Libraries.Web.Error.Logic
                 InstanceId = Guid.NewGuid().ToString(),
                 IsRetryMeaningful = false,
                 ServerTechnicalName = response?.RequestMessage?.RequestUri?.Host,
-                TechnicalMessage = $"{response?.StatusCode}: {shortContent}"
+                TechnicalMessage = $"{response?.RequestMessage?.ToLogString()} returned {response?.StatusCode} with {content}"
             };
 
             var statusCodeAsInt = (int)statusCode;
@@ -377,9 +408,10 @@ namespace Nexus.Link.Libraries.Web.Error.Logic
         /// <summary>
         /// Parse a JSON string and converts it into an object.
         /// </summary>
-        /// <param name="jsonObject"></param>
-        /// <returns></returns>
-        public static T Parse<T>(string jsonObject)
+        /// <remarks>
+        /// Catches all exceptions and then returns null.
+        /// </remarks>
+        public static T SafeParse<T>(string jsonObject)
             where T : class
         {
             if (jsonObject == null) return null;
@@ -387,7 +419,7 @@ namespace Nexus.Link.Libraries.Web.Error.Logic
             {
                 return JsonConvert.DeserializeObject<T>(jsonObject);
             }
-            catch (JsonReaderException)
+            catch (Exception)
             {
                 return null;
             }

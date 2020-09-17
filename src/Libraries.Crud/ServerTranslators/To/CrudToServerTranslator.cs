@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Nexus.Link.Libraries.Core.Assert;
@@ -11,6 +12,7 @@ using Nexus.Link.Libraries.Crud.PassThrough;
 namespace Nexus.Link.Libraries.Crud.ServerTranslators.To
 {
     /// <inheritdoc cref="CrudToServerTranslator{TModelCreate, TModel}" />
+    [Obsolete("Use Libraries.Web ValueTranslatorHttpSender. Obsolete since 2019-11-21.")]
     public class CrudToServerTranslator<TModel> : CrudToServerTranslator<TModel, TModel>, ICrud<TModel, string>
     {
         /// <inheritdoc />
@@ -22,6 +24,7 @@ namespace Nexus.Link.Libraries.Crud.ServerTranslators.To
     }
 
     /// <inheritdoc cref="ServerTranslatorBase" />
+    [Obsolete("Use Libraries.Web ValueTranslatorHttpSender. Obsolete since 2019-11-21.")]
     public class CrudToServerTranslator<TModelCreate, TModel> : ServerTranslatorBase, ICrud<TModelCreate, TModel, string>
         where TModel : TModelCreate
     {
@@ -42,7 +45,7 @@ namespace Nexus.Link.Libraries.Crud.ServerTranslators.To
         public async Task<string> CreateAsync(TModelCreate item, CancellationToken token = default(CancellationToken))
         {
             var translator = CreateTranslator();
-            await translator.Add(item).ExecuteAsync();
+            await translator.Add(item).ExecuteAsync(token);
             item = translator.Translate(item);
             return await _service.CreateAsync(item, token);
         }
@@ -51,7 +54,7 @@ namespace Nexus.Link.Libraries.Crud.ServerTranslators.To
         public async Task<TModel> CreateAndReturnAsync(TModelCreate item, CancellationToken token = default(CancellationToken))
         {
             var translator = CreateTranslator();
-            await translator.Add(item).ExecuteAsync();
+            await translator.Add(item).ExecuteAsync(token);
             item = translator.Translate(item);
             return await _service.CreateAndReturnAsync(item, token);
         }
@@ -60,7 +63,7 @@ namespace Nexus.Link.Libraries.Crud.ServerTranslators.To
         public async Task CreateWithSpecifiedIdAsync(string id, TModelCreate item, CancellationToken token = default(CancellationToken))
         {
             var translator = CreateTranslator();
-            await translator.Add(id).Add(item).ExecuteAsync();
+            await translator.Add(id).Add(item).ExecuteAsync(token);
             id = translator.Translate(id);
             item = translator.Translate(item);
             await _service.CreateWithSpecifiedIdAsync(id, item, token);
@@ -71,7 +74,7 @@ namespace Nexus.Link.Libraries.Crud.ServerTranslators.To
             CancellationToken token = default(CancellationToken))
         {
             var translator = CreateTranslator();
-            await translator.Add(id).Add(item).ExecuteAsync();
+            await translator.Add(id).Add(item).ExecuteAsync(token);
             id = translator.Translate(id);
             item = translator.Translate(item);
             return await _service.CreateWithSpecifiedIdAndReturnAsync(id, item, token);
@@ -81,7 +84,7 @@ namespace Nexus.Link.Libraries.Crud.ServerTranslators.To
         public virtual async Task<TModel> ReadAsync(string id, CancellationToken token = default(CancellationToken))
         {
             var translator = CreateTranslator();
-            await translator.Add(id).ExecuteAsync();
+            await translator.Add(id).ExecuteAsync(token);
             id = translator.Translate(id);
             return await _service.ReadAsync(id, token);
         }
@@ -102,7 +105,7 @@ namespace Nexus.Link.Libraries.Crud.ServerTranslators.To
         public async Task UpdateAsync(string id, TModel item, CancellationToken token = default(CancellationToken))
         {
             var translator = CreateTranslator();
-            await translator.Add(id).Add(item).ExecuteAsync();
+            await translator.Add(id).Add(item).ExecuteAsync(token);
             id = translator.Translate(id);
             item = translator.Translate(item);
             await _service.UpdateAsync(id, item, token);
@@ -112,7 +115,7 @@ namespace Nexus.Link.Libraries.Crud.ServerTranslators.To
         public async Task<TModel> UpdateAndReturnAsync(string id, TModel item, CancellationToken token = default(CancellationToken))
         {
             var translator = CreateTranslator();
-            await translator.Add(id).Add(item).ExecuteAsync();
+            await translator.Add(id).Add(item).ExecuteAsync(token);
             id = translator.Translate(id);
             item = translator.Translate(item);
             return await _service.UpdateAndReturnAsync(id, item, token);
@@ -122,7 +125,7 @@ namespace Nexus.Link.Libraries.Crud.ServerTranslators.To
         public async Task DeleteAsync(string id, CancellationToken token = default(CancellationToken))
         {
             var translator = CreateTranslator();
-            await translator.Add(id).ExecuteAsync();
+            await translator.Add(id).ExecuteAsync(token);
             id = translator.Translate(id);
             await _service.DeleteAsync(id, token);
         }
@@ -137,7 +140,7 @@ namespace Nexus.Link.Libraries.Crud.ServerTranslators.To
         public async Task<Lock<string>> ClaimLockAsync(string id, CancellationToken token = default(CancellationToken))
         {
             var translator = CreateTranslator();
-            await translator.Add(id).ExecuteAsync();
+            await translator.Add(id).ExecuteAsync(token);
             id = translator.Translate(id);
             return await _service.ClaimLockAsync(id, token);
         }

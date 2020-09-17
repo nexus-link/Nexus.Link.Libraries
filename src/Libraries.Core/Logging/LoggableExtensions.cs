@@ -14,6 +14,16 @@ namespace Nexus.Link.Libraries.Core.Logging
     public static class LoggableExtensions
     {
         /// <summary>
+        /// Makes a <see cref="IAsyncLogger"/> into a <see cref="ISyncLogger"/> by adding a memory queue.
+        /// </summary>
+        public static ISyncLogger AsQueuedSyncLogger(this IAsyncLogger value) => new QueueToAsyncLogger(value);
+
+        /// <summary>
+        /// Adds a <see cref="BatchLogger"/> around a <see cref="ISyncLogger"/>.
+        /// </summary>
+        public static ISyncLogger AsBatchLogger(this ISyncLogger value) => new BatchLogger(value);
+
+        /// <summary>
         /// Very much like <see cref="object.ToString"/>, but specifically for logging purposes.
         /// </summary>
         /// <returns>A string for logging information about this type of object.</returns>

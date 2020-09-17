@@ -5,8 +5,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.Rest.ClientRuntime" Version="2.3.9" />
-    <PackageReference Include="Microsoft.AspNet.WebApi.Client" Version="5.2.6" />
+    <PackageReference Include="Microsoft.Rest.ClientRuntime" Version="2.3.20" />
+    <PackageReference Include="Microsoft.AspNet.WebApi.Client" Version="5.2.7" />
     <PackageReference Include="System.Runtime.Caching" Version="4.5.0" />
   </ItemGroup>
 
@@ -14,18 +14,46 @@
     <ProjectReference Include="..\Libraries.Core\Libraries.Core.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Clients\" />
+  </ItemGroup>
+
   <PropertyGroup>
     <PackageId>Nexus.Link.Libraries.Web</PackageId>
-    <Version>2.2.5</Version>
+    <Version>2.10.1</Version>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <PackageTags>nexus;link;fulcrum;lever</PackageTags>
     <Authors>XLENT Link</Authors>
-    <PackageProjectUrl>https://github.com/nexus-link/Nexus.Link.Libraries.Web</PackageProjectUrl>
+    <PackageProjectUrl>https://github.com/nexus-link/Nexus.Link.Libraries</PackageProjectUrl>
     <PackageLanguage>en-US</PackageLanguage>
     <Description>Nexus Web library for .NET Standard</Description>
-    <Copyright>Copyright ©2019 Xlent Link AB</Copyright>
+    <Copyright>Copyright ©2020 Xlent Link AB</Copyright>
     <IncludeSymbols>true</IncludeSymbols>
     <PackageReleaseNotes>
+      2.10.1 Request headers in Client configuration
+      2.9.18 Bump
+      2.9.17 Fix: Patch method never returned any content
+      2.9.16 Fix: ExceptionConverter failed in rare situations when converting responses to FulcrumError
+      2.9.15 Fix: Requests that did not have a body did not process credentials if they existed, in other words did not add a token to the outgoing request.
+      2.9.14 Bump
+      2.9.10 RestClient now respects HttpClient parameter in the obsolete constructors to be backwards compatible.
+      2.9.9 Bump
+      2.9.7 Refactored translation.
+      2.8.0: Override release that was released by mistake.
+      2.6.4 Fix: PackageProjectUrl for this nuget package
+      2.6.3 Now logs when creating a REST client.
+      2.6.0 Added PATCH for REST.
+      2.5.2 Now accepts HTTP status code 201 (Created) for HTTP POST responses.
+      2.5.1 Bump
+      2.5.0 Support in ClientAuthorizationSettings for PostContentType
+      2.4.0 RestClient now handles null HttpClient when in Development run level.
+      2.3.8 Bump
+      2.3.5 Removed ISyncLogger for StackifyLogger.
+      2.3.4 RestClient now adds an Accept head for "application/json". Will be overridden if a custom Accept headers is added.
+      2.3.3 Now handles responses that contains a Type, but is not Validated as a FulcrumError.
+      2.3.1 Better message when converting HTTP StatusCode to FulcrumError.
+      2.3.0 Removed long-time obsolete RestClient constructors and added tests on incoming parameters.
+      2.2.6 Bump
       2.2.5 Added HTTP Status Code 429 (Too many requests).
       2.2.4 Changed format for Stackify logging message.
       2.2.3 LogRequestAndResponse is now unique for INBOUND.

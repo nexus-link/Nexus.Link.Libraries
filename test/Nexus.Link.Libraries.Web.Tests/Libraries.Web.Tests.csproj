@@ -21,4 +21,17 @@
     <ProjectReference Include="..\..\src\Libraries.Web\Libraries.Web.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Update="Clients\client-config.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="ServiceAuthentication\auth-config.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Clients\" />
+  </ItemGroup>
+
 </Project>

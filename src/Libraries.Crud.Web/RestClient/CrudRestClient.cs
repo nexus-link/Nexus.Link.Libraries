@@ -5,8 +5,8 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Rest;
 using Nexus.Link.Libraries.Core.Assert;
-using Nexus.Link.Libraries.Core.Platform.Authentication;
 using Nexus.Link.Libraries.Core.Storage.Model;
+using Nexus.Link.Libraries.Core.Translation;
 using Nexus.Link.Libraries.Crud.Interfaces;
 using Nexus.Link.Libraries.Crud.Model;
 using Nexus.Link.Libraries.Web.RestClientHelper;
@@ -18,40 +18,28 @@ namespace Nexus.Link.Libraries.Crud.Web.RestClient
         CrudRestClient<TModel, TModel, TId>,
         ICrud<TModel, TId>
     {
-
-        /// <summary></summary>
-        /// <param name="baseUri">The base URL that all HTTP calls methods will refer to.</param>
-        /// <param name="withLogging">Should logging handlers be used in outbound pipe?</param>
-        [Obsolete("Use (string, HttpClient) overload")]
-        public CrudRestClient(string baseUri, bool withLogging = true)
-            : base(baseUri, withLogging)
+        /// <summary>
+        /// Constructor. 
+        /// </summary>
+        /// <param name="httpSender"></param>
+        public CrudRestClient(IHttpSender httpSender)
+            : base(httpSender)
         {
         }
 
+        #region Obsolete constructors
         /// <summary></summary>
         /// <param name="baseUri">The base URL that all HTTP calls methods will refer to.</param>
-        /// <param name="credentials">The credentials used when making the HTTP calls.</param>
-        /// <param name="withLogging">Should logging handlers be used in outbound pipe?</param>
-        [Obsolete("Use (string, HttpClient, ServiceClientCredentials) overload", true)]
-        public CrudRestClient(string baseUri, ServiceClientCredentials credentials, bool withLogging = true)
-            : base(baseUri, credentials, withLogging)
+        [Obsolete("Use constructor with IHttpSender. Obsolete since 2019-11-18")]
+        public CrudRestClient(string baseUri)
+            : base(baseUri)
         {
         }
-
-        /// <summary></summary>
-        /// <param name="baseUri">The base URL that all HTTP calls methods will refer to.</param>
-        /// <param name="authenticationToken">The token used when making the HTTP calls.</param>
-        /// <param name="withLogging">Should logging handlers be used in outbound pipe?</param>
-        [Obsolete("Use (string, HttpClient, ServiceClientCredentials) overload", true)]
-        public CrudRestClient(string baseUri, AuthenticationToken authenticationToken, bool withLogging)
-            : base(baseUri, authenticationToken, withLogging)
-        {
-        }
-
         /// <summary></summary>
         /// <param name="baseUri">The base URL that all HTTP calls methods will refer to.</param>
         /// <param name="httpClient">The HttpClient used when making the HTTP calls.</param>
         /// <param name="credentials">The credentials used when making the HTTP calls.</param>
+        [Obsolete("Use constructor with IHttpSender. Obsolete since 2019-11-18")]
         public CrudRestClient(string baseUri, HttpClient httpClient, ServiceClientCredentials credentials)
             : base(baseUri, httpClient, credentials)
         {
@@ -60,10 +48,12 @@ namespace Nexus.Link.Libraries.Crud.Web.RestClient
         /// <summary></summary>
         /// <param name="baseUri">The base URL that all HTTP calls methods will refer to.</param>
         /// <param name="httpClient">The HttpClient used when making the HTTP calls.</param>
+        [Obsolete("Use constructor with IHttpSender. Obsolete since 2019-11-18")]
         public CrudRestClient(string baseUri, HttpClient httpClient)
             : base(baseUri, httpClient)
         {
         }
+        #endregion
     }
 
     /// <inheritdoc cref="RestClient" />
@@ -71,38 +61,19 @@ namespace Nexus.Link.Libraries.Crud.Web.RestClient
         Libraries.Web.RestClientHelper.RestClient,
         ICrud<TModelCreate, TModel, TId> where TModel : TModelCreate
     {
-
-        /// <summary></summary>
-        /// <param name="baseUri">The base URL that all HTTP calls methods will refer to.</param>
-        /// <param name="withLogging">Should logging handlers be used in outbound pipe?</param>
-        [Obsolete("Use (string, HttpClient) overload", true)]
-        public CrudRestClient(string baseUri, bool withLogging = true)
-            : base(baseUri, withLogging)
+        /// <summary>
+        /// Constructor. 
+        /// </summary>
+        /// <param name="httpSender"></param>
+        public CrudRestClient(IHttpSender httpSender)
+            : base(httpSender)
         {
         }
 
+        #region Obsolete constructors
         /// <summary></summary>
         /// <param name="baseUri">The base URL that all HTTP calls methods will refer to.</param>
-        /// <param name="credentials">The credentials used when making the HTTP calls.</param>
-        /// <param name="withLogging">Should logging handlers be used in outbound pipe?</param>
-        [Obsolete("Use (string, HttpClient, ServiceClientCredentials) overload", true)]
-        public CrudRestClient(string baseUri, ServiceClientCredentials credentials, bool withLogging = true)
-            : base(baseUri, credentials, withLogging)
-        {
-        }
-
-        /// <summary></summary>
-        /// <param name="baseUri">The base URL that all HTTP calls methods will refer to.</param>
-        /// <param name="authenticationToken">The token used when making the HTTP calls.</param>
-        /// <param name="withLogging">Should logging handlers be used in outbound pipe?</param>
-        [Obsolete("Use (string, HttpClient, ServiceClientCredentials) overload", true)]
-        public CrudRestClient(string baseUri, AuthenticationToken authenticationToken, bool withLogging)
-            : base(baseUri, authenticationToken, withLogging)
-        {
-        }
-
-        /// <summary></summary>
-        /// <param name="baseUri">The base URL that all HTTP calls methods will refer to.</param>
+        [Obsolete("Use constructor with IHttpSender. Obsolete since 2019-11-18")]
         public CrudRestClient(string baseUri)
             : base(baseUri)
         {
@@ -112,6 +83,7 @@ namespace Nexus.Link.Libraries.Crud.Web.RestClient
         /// <param name="baseUri">The base URL that all HTTP calls methods will refer to.</param>
         /// <param name="httpClient">The HttpClient used when making the HTTP calls.</param>
         /// <param name="credentials">The credentials used when making the HTTP calls.</param>
+        [Obsolete("Use constructor with IHttpSender. Obsolete since 2019-11-18")]
         public CrudRestClient(string baseUri, HttpClient httpClient, ServiceClientCredentials credentials)
             : base(baseUri, httpClient, credentials)
         {
@@ -120,15 +92,35 @@ namespace Nexus.Link.Libraries.Crud.Web.RestClient
         /// <summary></summary>
         /// <param name="baseUri">The base URL that all HTTP calls methods will refer to.</param>
         /// <param name="httpClient">The HttpClient used when making the HTTP calls.</param>
+        [Obsolete("Use constructor with IHttpSender. Obsolete since 2019-11-18")]
         public CrudRestClient(string baseUri, HttpClient httpClient)
             : base(baseUri, httpClient)
         {
         }
+        #endregion
 
         /// <inheritdoc />
         public virtual async Task<TId> CreateAsync(TModelCreate item, CancellationToken token = default(CancellationToken))
         {
-            return await PostAsync<TId, TModelCreate>("", item, cancellationToken: token);
+            // TODO: PostAndDecorateResultAsync
+            var invoiceId = await PostAsync<TId, TModelCreate>("", item, cancellationToken: token);
+            return MaybeDecorate(invoiceId);
+        }
+
+        private TId MaybeDecorate(TId invoiceId)
+        {
+            if (typeof(TId) != typeof(string)) return invoiceId;
+            if (!(HttpSender is ITranslationClientName translationTargetClientName)) return invoiceId;
+            if (!typeof(IUniquelyIdentifiable<string>).IsAssignableFrom(typeof(TModel))) return invoiceId;
+
+            var idPropertyInfo = typeof(TModel).GetProperty(nameof(IUniquelyIdentifiable<string>.Id));
+            var translationConcept = Translator.GetConceptAttribute(idPropertyInfo);
+            if (translationConcept == null) return invoiceId;
+
+            return (TId)(object) Translator.Decorate(
+                translationConcept.ConceptName,
+                translationTargetClientName.TranslationClientName, 
+                (string)(object)invoiceId);
         }
 
         /// <inheritdoc />

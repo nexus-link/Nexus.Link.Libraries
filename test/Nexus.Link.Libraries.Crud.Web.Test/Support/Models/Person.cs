@@ -1,7 +1,7 @@
 ﻿using System;
 using Nexus.Link.Libraries.Core.Storage.Model;
 
-namespace Libraries.Crud.Web.Test.Support.Models
+namespace Nexus.Link.Libraries.Crud.Web.Test.Support.Models
 {
     public class Person : IUniquelyIdentifiable<Guid>
     {

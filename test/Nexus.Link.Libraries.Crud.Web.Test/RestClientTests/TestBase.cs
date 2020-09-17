@@ -2,14 +2,14 @@
 using System.Net.Http;
 using System.Text;
 using System.Threading;
-using Libraries.Crud.Web.Test.Support.Models;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using Nexus.Link.Libraries.Crud.Web.Test.Support.Models;
 using Nexus.Link.Libraries.Web.RestClientHelper;
 
-namespace Libraries.Crud.Web.Test.RestClientTests
+namespace Nexus.Link.Libraries.Crud.Web.Test.RestClientTests
 {
     public class TestBase
     {
