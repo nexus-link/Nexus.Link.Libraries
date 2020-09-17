@@ -15,7 +15,7 @@ namespace Nexus.Link.Libraries.Core.Platform.Authentication
         /// <summary>
         /// The token type for this token
         /// </summary>
-        public JwtTokenTypeEnum Type { get; set; } = JwtTokenTypeEnum.Bearer;
+        public string Type { get; set; } = "Bearer";
 
         /// <summary>
         /// The time that this token expires

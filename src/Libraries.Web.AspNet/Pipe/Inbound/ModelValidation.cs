@@ -1,8 +1,8 @@
-﻿using System;
-using Nexus.Link.Libraries.Core.Assert;
+﻿using Nexus.Link.Libraries.Core.Assert;
 using Nexus.Link.Libraries.Core.Error.Logic;
 using Nexus.Link.Libraries.Web.AspNet.Error.Logic;
 #if NETCOREAPP
+using System;
 using Microsoft.AspNetCore.Mvc.Filters;
 namespace Nexus.Link.Libraries.Web.AspNet.Pipe.Inbound
 {
@@ -39,6 +39,7 @@ using System.Net;
 using System.Net.Http;
 using System.Web.Http.Controllers;
 using System.Web.Http.Filters;
+using Nexus.Link.Libraries.Core.Misc;
 namespace Nexus.Link.Libraries.Web.AspNet.Pipe.Inbound
 {
  
@@ -60,7 +61,7 @@ namespace Nexus.Link.Libraries.Web.AspNet.Pipe.Inbound
 
             var response = actionContext.Request.CreateErrorResponse(HttpStatusCode.BadRequest, actionContext.ModelState);
             var validationContent = response?.Content?.ReadAsStringAsync().Result;
-            FulcrumAssert.IsNotNull(validationContent, $"{Namespace}: 5E706F6E-EA25-4597-BB9D-D002390A1F4C");
+            FulcrumAssert.IsNotNull(validationContent, CodeLocation.AsString());
             var fulcrumException = new FulcrumServiceContractException("ignore")
             {
                 Code = ModelValidationErrorCode,

@@ -3,7 +3,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using Nexus.Link.Libraries.Core.Application;
 using Nexus.Link.Libraries.Core.Assert;
-using Nexus.Link.Libraries.Core.Context;
 using Nexus.Link.Libraries.Core.Queue.Logic;
 
 namespace Nexus.Link.Libraries.Core.Logging
@@ -23,6 +22,12 @@ namespace Nexus.Link.Libraries.Core.Logging
 
         private readonly IAsyncLogger _asyncLogger;
         private readonly MemoryQueue<LogQueueEnvelope> _queue;
+
+        public TimeSpan KeepQueueAliveTimeSpan
+        {
+            get => _queue.KeepQueueAliveTimeSpan;
+            set => _queue.KeepQueueAliveTimeSpan = value;
+        }
 
         public QueueToAsyncLogger(IAsyncLogger asyncLogger)
         {

@@ -3,9 +3,7 @@ using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Moq;
 using Nexus.Link.Libraries.Core.Application;
-using Nexus.Link.Libraries.Core.Logging;
 using Nexus.Link.Libraries.Core.Queue.Logic;
 using UT = Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -26,8 +24,9 @@ namespace Nexus.Link.Libraries.Core.Tests.Queue
         {
             var stopWatch = new Stopwatch();
             var queue = new MemoryQueue<string>(nameof(CanRunWithoutIndividualAwait), SlowItemAction, true);
+            queue.KeepQueueAliveTimeSpan = TimeSpan.Zero;
             stopWatch.Start();
-            for (var i = 0; i < 10000; i++)
+            for (var i = 0; i < 20000; i++)
             {
                 queue.AddMessage($"item {i}");
             }

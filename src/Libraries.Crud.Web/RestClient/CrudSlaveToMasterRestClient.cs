@@ -6,15 +6,64 @@ using System.Threading.Tasks;
 using Microsoft.Rest;
 using Nexus.Link.Libraries.Core.Assert;
 using Nexus.Link.Libraries.Core.Crud.Model;
-using Nexus.Link.Libraries.Core.Platform.Authentication;
 using Nexus.Link.Libraries.Core.Storage.Model;
 using Nexus.Link.Libraries.Crud.Interfaces;
 using Nexus.Link.Libraries.Crud.Model;
+using Nexus.Link.Libraries.Web.RestClientHelper;
 
 namespace Nexus.Link.Libraries.Crud.Web.RestClient
 {
+    /// <inheritdoc cref="CrudSlaveToMasterRestClient{TModelCreate,TModel,TId}" />
+    public class CrudSlaveToMasterRestClient<TModel, TId> :
+        CrudSlaveToMasterRestClient<TModel, TModel, TId>,
+        ICrudSlaveToMaster<TModel, TId>
+    {
 
-    /// <inheritdoc cref="RestClient" />
+        /// <summary></summary>
+        /// <param name="parentName">The name of the sub path that is the parent of the children. (Singular noun)</param>
+        /// <param name="childrenName">The name of the sub path that are the children. (Plural noun)</param>
+        /// <param name="httpSender">How to actually send HTTP requests.</param>
+        public CrudSlaveToMasterRestClient(string parentName, string childrenName, IHttpSender httpSender)
+            : base(parentName, childrenName, httpSender)
+        {
+        }
+
+        #region Obsolete constructors
+        /// <summary></summary>
+        /// <param name="baseUri">The base URL that all HTTP calls methods will refer to.</param>
+        /// <param name="parentName">The name of the sub path that is the parent of the children. (Singular noun)</param>
+        /// <param name="childrenName">The name of the sub path that are the children. (Plural noun)</param>
+        [Obsolete("Use constructor with IHttpSender. Obsolete since 2019-11-18")]
+        public CrudSlaveToMasterRestClient(string baseUri, string parentName, string childrenName)
+            : base(baseUri, parentName, childrenName)
+        {
+        }
+        /// <summary></summary>
+        /// <param name="baseUri">The base URL that all HTTP calls methods will refer to.</param>
+        /// <param name="httpClient">The HttpClient used when making the HTTP calls.</param>
+        /// <param name="credentials">The credentials used when making the HTTP calls</param>
+        /// <param name="parentName">The name of the sub path that is the parent of the children. (Singular noun)</param>
+        /// <param name="childrenName">The name of the sub path that are the children. (Plural noun)</param>
+        [Obsolete("Use constructor with IHttpSender. Obsolete since 2019-11-18")]
+        public CrudSlaveToMasterRestClient(string baseUri, HttpClient httpClient, ServiceClientCredentials credentials, string parentName, string childrenName)
+            : base(baseUri, httpClient, credentials, parentName, childrenName)
+        {
+        }
+
+        /// <summary></summary>
+        /// <param name="baseUri">The base URL that all HTTP calls methods will refer to.</param>
+        /// <param name="httpClient">The HttpClient used when making the HTTP calls.</param>
+        /// <param name="parentName">The name of the sub path that is the parent of the children. (Singular noun)</param>
+        /// <param name="childrenName">The name of the sub path that are the children. (Plural noun)</param>
+        [Obsolete("Use constructor with IHttpSender. Obsolete since 2019-11-18")]
+        public CrudSlaveToMasterRestClient(string baseUri, HttpClient httpClient, string parentName, string childrenName)
+            : base(baseUri, httpClient, parentName, childrenName)
+        {
+        }
+        #endregion
+    }
+
+    /// <inheritdoc cref="Nexus.Link.Libraries.Crud.Web.RestClient" />
     public class CrudSlaveToMasterRestClient<TManyModelCreate, TManyModel, TId> : 
         Libraries.Web.RestClientHelper.RestClient, 
         ICrudSlaveToMaster<TManyModelCreate, TManyModel, TId> 
@@ -29,14 +78,26 @@ namespace Nexus.Link.Libraries.Crud.Web.RestClient
         /// The name of the sub path that are the children. (Plural noun)
         /// </summary>
         public string ChildrenName { get; }
+
+        /// <summary></summary>
+        /// <param name="parentName">The name of the sub path that is the parent of the children. (Singular noun)</param>
+        /// <param name="childrenName">The name of the sub path that are the children. (Plural noun)</param>
+        /// <param name="httpSender">How to actually send HTTP requests.</param>
+        public CrudSlaveToMasterRestClient(string parentName, string childrenName, IHttpSender httpSender)
+            : base(httpSender)
+        {
+            ParentName = parentName;
+            ChildrenName = childrenName;
+        }
+
+        #region Obsolete constructors
         /// <summary></summary>
         /// <param name="baseUri">The base URL that all HTTP calls methods will refer to.</param>
         /// <param name="parentName">The name of the sub path that is the parent of the children. (Singular noun)</param>
         /// <param name="childrenName">The name of the sub path that are the children. (Plural noun)</param>
-        /// <param name="withLogging">Should logging handlers be used in outbound pipe?</param>
-        [Obsolete("Use (string, HttpClient, string, string) overload")]
-        public CrudSlaveToMasterRestClient(string baseUri, string parentName = "Parent", string childrenName = "Children", bool withLogging = true)
-            : base(baseUri, withLogging)
+        [Obsolete("Use constructor with IHttpSender. Obsolete since 2019-11-18")]
+        public CrudSlaveToMasterRestClient(string baseUri, string parentName, string childrenName)
+            : base(baseUri)
         {
             ParentName = parentName;
             ChildrenName = childrenName;
@@ -44,38 +105,11 @@ namespace Nexus.Link.Libraries.Crud.Web.RestClient
 
         /// <summary></summary>
         /// <param name="baseUri">The base URL that all HTTP calls methods will refer to.</param>
-        /// <param name="parentName">The name of the sub path that is the parent of the children. (Singular noun)</param>
-        /// <param name="childrenName">The name of the sub path that are the children. (Plural noun)</param>
-        /// <param name="credentials">The credentials used when making the HTTP calls.</param>
-        /// <param name="withLogging">Should logging handlers be used in outbound pipe?</param>
-        [Obsolete("Use (string, HttpClient, ServiceClientCredentials, string, string) overload")]
-        public CrudSlaveToMasterRestClient(string baseUri, ServiceClientCredentials credentials, string parentName = "Parent", string childrenName = "Children", bool withLogging = true)
-            : base(baseUri, credentials, withLogging)
-        {
-            ParentName = parentName;
-            ChildrenName = childrenName;
-        }
-
-        /// <summary></summary>
-        /// <param name="baseUri">The base URL that all HTTP calls methods will refer to.</param>
-        /// <param name="parentName">The name of the sub path that is the parent of the children. (Singular noun)</param>
-        /// <param name="childrenName">The name of the sub path that are the children. (Plural noun)</param>
-        /// <param name="authenticationToken">The token used when making the HTTP calls.</param>
-        /// <param name="withLogging">Should logging handlers be used in outbound pipe?</param>
-        [Obsolete("Use (string, HttpClient, ServiceClientCredentials, string, string) overload")]
-        public CrudSlaveToMasterRestClient(string baseUri, AuthenticationToken authenticationToken, string parentName = "Parent", string childrenName = "Children", bool withLogging = true)
-            : base(baseUri, authenticationToken, withLogging)
-        {
-            ParentName = parentName;
-            ChildrenName = childrenName;
-        }
-
-        /// <summary></summary>
-        /// <param name="baseUri">The base URL that all HTTP calls methods will refer to.</param>
-        /// <param name="parentName">The name of the sub path that is the parent of the children. (Singular noun)</param>
-        /// <param name="childrenName">The name of the sub path that are the children. (Plural noun)</param>
-        /// <param name="credentials">The credentials used when making the HTTP calls</param>
         /// <param name="httpClient">The HttpClient used when making the HTTP calls.</param>
+        /// <param name="credentials">The credentials used when making the HTTP calls</param>
+        /// <param name="parentName">The name of the sub path that is the parent of the children. (Singular noun)</param>
+        /// <param name="childrenName">The name of the sub path that are the children. (Plural noun)</param>
+        [Obsolete("Use constructor with IHttpSender. Obsolete since 2019-11-18")]
         public CrudSlaveToMasterRestClient(string baseUri, HttpClient httpClient, ServiceClientCredentials credentials, string parentName, string childrenName)
             : base(baseUri, httpClient, credentials)
         {
@@ -85,15 +119,17 @@ namespace Nexus.Link.Libraries.Crud.Web.RestClient
 
         /// <summary></summary>
         /// <param name="baseUri">The base URL that all HTTP calls methods will refer to.</param>
+        /// <param name="httpClient">The HttpClient used when making the HTTP calls.</param>
         /// <param name="parentName">The name of the sub path that is the parent of the children. (Singular noun)</param>
         /// <param name="childrenName">The name of the sub path that are the children. (Plural noun)</param>
-        /// <param name="httpClient">The HttpClient used when making the HTTP calls.</param>
+        [Obsolete("Use constructor with IHttpSender. Obsolete since 2019-11-18")]
         public CrudSlaveToMasterRestClient(string baseUri, HttpClient httpClient, string parentName, string childrenName)
             : base(baseUri, httpClient)
         {
             ParentName = parentName;
             ChildrenName = childrenName;
         }
+        #endregion
 
         /// <inheritdoc />
         public Task<TId> CreateAsync(TId masterId, TManyModelCreate item, CancellationToken token = new CancellationToken())
@@ -153,6 +189,7 @@ namespace Nexus.Link.Libraries.Crud.Web.RestClient
         /// <inheritdoc />
         public Task<PageEnvelope<TManyModel>> ReadChildrenWithPagingAsync(TId parentId, int offset = 0, int? limit = null, CancellationToken token = default(CancellationToken))
         {
+            InternalContract.RequireNotDefaultValue(parentId, nameof(parentId));
             InternalContract.RequireGreaterThanOrEqualTo(0, offset, nameof(offset));
             var limitParameter = "";
             if (limit != null)

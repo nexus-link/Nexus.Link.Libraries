@@ -3,7 +3,6 @@ using System.Threading.Tasks;
 using Nexus.Link.Libraries.Core.Storage.Model;
 using Nexus.Link.Libraries.Crud.AspNet.Controllers;
 using Nexus.Link.Libraries.Crud.Interfaces;
-using Nexus.Link.Libraries.Crud.Model;
 #if NETCOREAPP
 using Microsoft.AspNetCore.Mvc;
 #else
@@ -15,21 +14,21 @@ namespace Nexus.Link.Libraries.Crud.AspNet.DefaultControllers
     /// <summary>
     /// ApiController with CRUD-support
     /// </summary>
-    public abstract class CrudSlaveToMasterDefaultController<TModel> :
+    public class CrudSlaveToMasterDefaultController<TModel> :
         CrudSlaveToMasterDefaultController<TModel, TModel>,
         ICrudSlaveToMaster<TModel, string>
     {
         /// <summary>
         /// Constructor
         /// </summary>
-        protected CrudSlaveToMasterDefaultController(ICrudable<TModel, string> logic)
+        public CrudSlaveToMasterDefaultController(ICrudable<TModel, string> logic)
             : base(logic)
         {
         }
     }
 
     /// <inheritdoc cref="CrudSlaveToMasterController{TModelCreate, TModel}" />
-    public abstract class CrudSlaveToMasterDefaultController<TModelCreate, TModel> :
+    public class CrudSlaveToMasterDefaultController<TModelCreate, TModel> :
         CrudSlaveToMasterController<TModelCreate, TModel>,
         ICrudSlaveToMaster<TModelCreate, TModel, string>
         where TModel : TModelCreate
@@ -37,7 +36,7 @@ namespace Nexus.Link.Libraries.Crud.AspNet.DefaultControllers
         /// <summary>
         /// Constructor
         /// </summary>
-        protected CrudSlaveToMasterDefaultController(ICrudable<TModel, string> logic)
+        public CrudSlaveToMasterDefaultController(ICrudable<TModel, string> logic)
             : base(logic)
         {
         }

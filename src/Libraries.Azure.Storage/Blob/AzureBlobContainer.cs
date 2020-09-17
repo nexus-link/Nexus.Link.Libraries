@@ -1,12 +1,12 @@
-﻿using System;
+﻿using Microsoft.WindowsAzure.Storage.Blob;
+using Microsoft.WindowsAzure.Storage.RetryPolicies;
+using Nexus.Link.Libraries.Azure.Storage.File;
+using Nexus.Link.Libraries.Core.Assert;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.WindowsAzure.Storage.Blob;
-using Microsoft.WindowsAzure.Storage.RetryPolicies;
-using Nexus.Link.Libraries.Azure.Core.File;
-using Nexus.Link.Libraries.Core.Assert;
 
 namespace Nexus.Link.Libraries.Azure.Storage.Blob
 {
@@ -31,7 +31,7 @@ namespace Nexus.Link.Libraries.Azure.Storage.Blob
 
         public async Task CreateIfNotExistsAsync()
         {
-            var requestOptions = new BlobRequestOptions {RetryPolicy = new NoRetry()};
+            var requestOptions = new BlobRequestOptions { RetryPolicy = new NoRetry() };
             await _blobContainer.CreateIfNotExistsAsync(requestOptions, null);
         }
 

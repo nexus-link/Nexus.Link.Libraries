@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Nexus.Link.Libraries.Core.Application;
 using Nexus.Link.Libraries.Web.AspNet.Controllers;
@@ -11,6 +9,8 @@ using Microsoft.AspNetCore.Mvc.Routing;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
+using System.Threading.Tasks;
+using System.Linq;
 #else
 using System.Net.Http;
 using System.Web.Http;
@@ -97,7 +97,6 @@ namespace Nexus.Link.Libraries.Web.AspNet.Tests
             Assert.IsTrue(uri.PathAndQuery.EndsWith("/99"));
         }
 
-
         [TestMethod]
         public void NoModificationOnLocalHost2()
         {
@@ -106,6 +105,16 @@ namespace Nexus.Link.Libraries.Web.AspNet.Tests
 
             Assert.IsFalse(uri.Scheme == Uri.UriSchemeHttps);
             Assert.IsTrue(uri.IsLoopback);
+            Assert.IsTrue(uri.PathAndQuery.EndsWith("/99"));
+        }
+
+        [TestMethod]
+        public void NoModificationOnNexusLocal()
+        {
+            var urlHelper = CreateUrlHelper("http://nexus.local");
+            var uri = new Uri(urlHelper.LinkWithEnforcedHttps(RouteName, new { id = "99" }));
+
+            Assert.IsFalse(uri.Scheme == Uri.UriSchemeHttps);
             Assert.IsTrue(uri.PathAndQuery.EndsWith("/99"));
         }
 

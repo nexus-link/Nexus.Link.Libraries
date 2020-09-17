@@ -19,7 +19,7 @@ namespace Nexus.Link.Libraries.Core.Context
         {
             InternalContract.RequireNotNullOrWhiteSpace(key, nameof(key));
             if (!Dictionary.TryGetValue(key, out AsyncLocal<object> asyncLocalObject)) return default(T);
-            object o = asyncLocalObject.Value;
+            var o = asyncLocalObject.Value;
             if (o == null) return default(T);
             return (T)o;
         }

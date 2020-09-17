@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Threading.Tasks;
 
 namespace Nexus.Link.Libraries.Core.Logging
 {

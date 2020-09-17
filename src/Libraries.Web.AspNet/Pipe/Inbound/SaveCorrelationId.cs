@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using Nexus.Link.Libraries.Core.Application;
 using Nexus.Link.Libraries.Core.Assert;
 using Nexus.Link.Libraries.Core.Logging;
+using Nexus.Link.Libraries.Core.Misc;
 using Nexus.Link.Libraries.Web.Pipe;
 
 #if NETCOREAPP
@@ -45,6 +46,13 @@ namespace Nexus.Link.Libraries.Web.AspNet.Pipe.Inbound
         /// <inheritdoc />
         protected override async Task InvokeAsync(CompabilityInvocationContext context)
         {
+            InternalContract.Require(!DelegateState.HasStarted, $"{nameof(SaveCorrelationId)} has already been started in this http request.");
+            InternalContract.Require(!BatchLogs.HasStarted,
+                $"{nameof(BatchLogs)} must not precede {nameof(SaveCorrelationId)}");
+            InternalContract.Require(!LogRequestAndResponse.HasStarted,
+                $"{nameof(LogRequestAndResponse)} must not precede {nameof(SaveCorrelationId)}");
+            InternalContract.Require(!ExceptionToFulcrumResponse.HasStarted,
+                $"{nameof(ExceptionToFulcrumResponse)} must not precede {nameof(SaveCorrelationId)}");
             HasStarted = true;
             SaveCorrelationIdToExecutionContext(context);
             await CallNextDelegateAsync(context);
@@ -82,7 +90,7 @@ namespace Nexus.Link.Libraries.Web.AspNet.Pipe.Inbound
             var request = context?.RequestMessage;
 #endif
 
-            FulcrumAssert.IsNotNull(request);
+            FulcrumAssert.IsNotNull(request, CodeLocation.AsString());
             if (request == null) return null;
 #if NETCOREAPP
             var correlationHeaderValueExists =

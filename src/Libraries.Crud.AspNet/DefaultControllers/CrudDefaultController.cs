@@ -3,7 +3,6 @@ using System.Threading.Tasks;
 using Nexus.Link.Libraries.Core.Storage.Model;
 using Nexus.Link.Libraries.Crud.AspNet.Controllers;
 using Nexus.Link.Libraries.Crud.Interfaces;
-using Nexus.Link.Libraries.Crud.Model;
 #if NETCOREAPP
 using Microsoft.AspNetCore.Mvc;
 #else
@@ -13,23 +12,23 @@ using System.Web.Http;
 namespace Nexus.Link.Libraries.Crud.AspNet.DefaultControllers
 {
     /// <inheritdoc cref="CrudDefaultController{TModelCreate, TModel}" />
-    public abstract class CrudDefaultController<TModel> : CrudDefaultController<TModel, TModel>, ICrud<TModel, string>
+    public class CrudDefaultController<TModel> : CrudDefaultController<TModel, TModel>, ICrud<TModel, string>
     {
         /// <inheritdoc />
-        protected CrudDefaultController(ICrud<TModel, string> logic)
+        public CrudDefaultController(ICrudable<TModel, string> logic)
             : base(logic)
         {
         }
     }
 
     /// <inheritdoc cref="CrudController{TModel}" />
-    public abstract class CrudDefaultController<TModelCreate, TModel> :
+    public class CrudDefaultController<TModelCreate, TModel> :
         CrudController<TModelCreate, TModel>,
         ICrud<TModelCreate, TModel, string>
         where TModel : TModelCreate
     {
         /// <inheritdoc />
-        protected CrudDefaultController(ICrudable<TModel, string> logic)
+        public CrudDefaultController(ICrudable<TModel, string> logic)
             : base(logic)
         {
         }

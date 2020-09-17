@@ -2,7 +2,7 @@
 
 #pragma warning disable 659
 
-namespace Nexus.Link.Libraries.Crud.Test.Core.ServerTranslators.Support
+namespace Nexus.Link.Libraries.Crud.Test.ServerTranslators.Support
 {
     /// <summary>
     /// A model for testing decoration and translation

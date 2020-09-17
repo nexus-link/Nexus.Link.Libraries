@@ -14,14 +14,14 @@ namespace Nexus.Link.Libraries.Crud.AspNet.DefaultControllers
     /// <summary>
     /// ApiController with CRUD-support
     /// </summary>
-    public abstract class CrudManyToOneDefaultController<TModel> :
+    public class CrudManyToOneDefaultController<TModel> :
         CrudManyToOneDefaultController<TModel, TModel>,
         ICrudManyToOne<TModel, string>
     {
         /// <summary>
         /// Constructor
         /// </summary>
-        protected CrudManyToOneDefaultController(ICrudable<TModel, string> logic)
+        public CrudManyToOneDefaultController(ICrudable<TModel, string> logic)
             : base(logic)
         {
         }
@@ -30,7 +30,7 @@ namespace Nexus.Link.Libraries.Crud.AspNet.DefaultControllers
     /// <summary>
     /// ApiController with CRUD-support
     /// </summary>
-    public abstract class CrudManyToOneDefaultController<TModelCreate, TModel> :
+    public class CrudManyToOneDefaultController<TModelCreate, TModel> :
         CrudManyToOneController<TModelCreate, TModel>,
         ICrudManyToOne<TModelCreate, TModel, string>
         where TModel : TModelCreate
@@ -38,7 +38,7 @@ namespace Nexus.Link.Libraries.Crud.AspNet.DefaultControllers
         /// <summary>
         /// Constructor
         /// </summary>
-        protected CrudManyToOneDefaultController(ICrudable<TModel, string> logic)
+        public CrudManyToOneDefaultController(ICrudable<TModel, string> logic)
             : base(logic)
         {
         }

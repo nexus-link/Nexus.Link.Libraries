@@ -3,6 +3,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
+using Nexus.Link.Libraries.Core.Json;
 
 namespace Nexus.Link.Libraries.Crud.Cache
 {
@@ -73,7 +74,7 @@ namespace Nexus.Link.Libraries.Crud.Cache
         public static T Deserialize<T>(byte[] itemAsBytes)
         {
             var itemAsJsonString = Encoding.UTF8.GetString(itemAsBytes);
-            return JsonConvert.DeserializeObject<T>(itemAsJsonString);
+            return JsonHelper.SafeDeserializeObject<T>(itemAsJsonString);
         }
 
         /// <summary>

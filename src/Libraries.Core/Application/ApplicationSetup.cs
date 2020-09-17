@@ -3,7 +3,7 @@ using Nexus.Link.Libraries.Core.Assert;
 using Nexus.Link.Libraries.Core.Context;
 using Nexus.Link.Libraries.Core.Logging;
 using Nexus.Link.Libraries.Core.MultiTenant.Model;
-using Nexus.Link.Libraries.Core.Platform;
+using Nexus.Link.Libraries.Core.Telemetry;
 using Nexus.Link.Libraries.Core.Threads;
 
 namespace Nexus.Link.Libraries.Core.Application
@@ -52,6 +52,11 @@ namespace Nexus.Link.Libraries.Core.Application
         public IFallbackLogger FallbackLogger { get; set; }
 
         /// <summary>
+        /// A handler for telemetry events and metrics
+        /// </summary>
+        public ITelemetryHandler TelemetryHandler { get; set; }
+
+        /// <summary>
         /// The context value provider that will be used all over the application.
         /// </summary>
         [Obsolete("Use FulcrumApplication.Context.ValueProvider.", true)]
@@ -67,7 +72,6 @@ namespace Nexus.Link.Libraries.Core.Application
         /// <summary>
         /// A log must have at least this level to be sent for logging. Can be overridden in batches by <see cref="BatchLogAllSeverityLevelThreshold"/>.
         /// </summary>
-        [Obsolete("Use BatchLogger and pick a value in the constructor.", true)]
         public LogSeverityLevel LogSeverityLevelThreshold{ get; set; }
 
         /// <inheritdoc />

@@ -7,7 +7,6 @@ using Moq;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Nexus.Link.Libraries.Core.Application;
-using Nexus.Link.Libraries.Core.Context;
 using Nexus.Link.Libraries.Web.RestClientHelper;
 using Nexus.Link.Libraries.Web.Tests.Support.Models;
 
@@ -16,19 +15,67 @@ namespace Nexus.Link.Libraries.Web.Tests.RestClientHelper
     [TestClass]
     public class RestClientTest : TestBase
     {
+        private HttpSender _httpSender;
+
         [TestInitialize]
         public void Initialize()
         {
             FulcrumApplicationHelper.UnitTestSetup(typeof(RestClientTest).FullName);
             HttpClientMock = new Mock<IHttpClient>();
-            RestClient.HttpClient = HttpClientMock.Object;
+            _httpSender = new HttpSender("http://example.se") {HttpClient = HttpClientMock.Object};
         }
 
         [TestMethod]
         public void StringConstructor()
         {
-            var client = new RestClient("http://example.se");
+            var client = new RestClient(_httpSender);
             Assert.IsNotNull(client);
+        }
+
+        [TestMethod]
+        public async Task PostNoResponseContentWithNullHttpClient()
+        {
+            _httpSender.HttpClient= new HttpClientWrapper(null);
+            var client = new RestClient(_httpSender);
+            var person = new Person();
+            await client.PostNoResponseContentAsync("", person);
+        }
+
+        [TestMethod]
+        public async Task PostWithNullHttpClient()
+        {
+            _httpSender.HttpClient= new HttpClientWrapper(null);
+            var client = new RestClient(_httpSender);
+            var person = new Person();
+            var id = await client.PostAsync<string, Person>("", person);
+            Assert.IsNull(id);
+        }
+
+        [TestMethod]
+        public async Task GetWithNullHttpClient()
+        {
+            _httpSender.HttpClient= new HttpClientWrapper(null);
+            var client = new RestClient(_httpSender);
+            var person = await client.GetAsync<Person>("");
+            Assert.IsNull(person);
+        }
+
+        [TestMethod]
+        public async Task PutWithNullHttpClient()
+        {
+            _httpSender.HttpClient= new HttpClientWrapper(null);
+            var client = new RestClient(_httpSender);
+            var person = new Person();
+            var personOut = await client.PutAsync<Person, Person>("1", person);
+            Assert.IsNull(personOut);
+        }
+
+        [TestMethod]
+        public async Task DeleteWithNullHttpClient()
+        {
+            _httpSender.HttpClient= new HttpClientWrapper(null);
+            var client = new RestClient(_httpSender);
+            await client.DeleteAsync("1");
         }
 
         #region POST
@@ -38,7 +85,7 @@ namespace Nexus.Link.Libraries.Web.Tests.RestClientHelper
         {
             var person = new Person { GivenName = "GivenName", Surname = "Surname" };
             PrepareMockPost(person);
-            var client = new RestClient("http://example.se");
+            var client = new RestClient(_httpSender);
             Assert.IsNotNull(client);
             var result = await client.PostAndReturnCreatedObjectAsync("Persons", person);
             Assert.IsNotNull(result);
@@ -53,7 +100,7 @@ namespace Nexus.Link.Libraries.Web.Tests.RestClientHelper
             var person = new Person { GivenName = "GivenName", Surname = "Surname" };
             var content = "Resource could not be found, 307EEC28-22DE-4BE3-8803-0AB5BE9DEBD8";
             PrepareMockNotFound(HttpMethod.Post, content);
-            var client = new RestClient("http://example.se");
+            var client = new RestClient(_httpSender);
             Assert.IsNotNull(client);
             try
             {
@@ -77,7 +124,7 @@ namespace Nexus.Link.Libraries.Web.Tests.RestClientHelper
         {
             var person = new Person { GivenName = "GivenName", Surname = "Surname" };
             PrepareMockGet(person);
-            var client = new RestClient("http://example.se");
+            var client = new RestClient(_httpSender);
             Assert.IsNotNull(client);
             var result = await client.GetAsync<Person>("Persons/23");
             Assert.IsNotNull(result);
@@ -91,7 +138,7 @@ namespace Nexus.Link.Libraries.Web.Tests.RestClientHelper
         {
             var content = "Resource could not be found, 307EEC28-22DE-4BE3-8803-0AB5BE9DEBD8";
             PrepareMockNotFound(HttpMethod.Get, content);
-            var client = new RestClient("http://example.se");
+            var client = new RestClient(_httpSender);
             Assert.IsNotNull(client);
             try
             {
@@ -116,7 +163,7 @@ namespace Nexus.Link.Libraries.Web.Tests.RestClientHelper
         {
             var person = new Person { GivenName = "GivenName", Surname = "Surname" };
             PrepareMockPut(person);
-            var client = new RestClient("http://example.se");
+            var client = new RestClient(_httpSender);
             Assert.IsNotNull(client);
             var result = await client.PutAndReturnUpdatedObjectAsync("Persons/23", person);
             Assert.IsNotNull(result);
@@ -131,7 +178,7 @@ namespace Nexus.Link.Libraries.Web.Tests.RestClientHelper
             var person = new Person { GivenName = "GivenName", Surname = "Surname" };
             var content = "Resource could not be found, 307EEC28-22DE-4BE3-8803-0AB5BE9DEBD8";
             PrepareMockNotFound(HttpMethod.Put, content);
-            var client = new RestClient("http://example.se");
+            var client = new RestClient(_httpSender);
             Assert.IsNotNull(client);
             try
             {
@@ -155,7 +202,7 @@ namespace Nexus.Link.Libraries.Web.Tests.RestClientHelper
         {
             var person = new Person { GivenName = "GivenName", Surname = "Surname" };
             PrepareMockDelete(person);
-            var client = new RestClient("http://example.se");
+            var client = new RestClient(_httpSender);
             Assert.IsNotNull(client);
             await client.DeleteAsync("Persons/23");
             HttpClientMock.VerifyAll();
@@ -167,7 +214,7 @@ namespace Nexus.Link.Libraries.Web.Tests.RestClientHelper
         {
             var content = "Resource could not be found, 307EEC28-22DE-4BE3-8803-0AB5BE9DEBD8";
             PrepareMockNotFound(HttpMethod.Delete, content);
-            var client = new RestClient("http://example.se");
+            var client = new RestClient(_httpSender);
             Assert.IsNotNull(client);
             try
             {
@@ -194,7 +241,7 @@ namespace Nexus.Link.Libraries.Web.Tests.RestClientHelper
             var input = new DateParsingPoco { DateTime1 = dateTime1, DateTime2 = dateTime2 };
             PrepareMockPost(input);
 
-            var client = new RestClient("http://example.se");
+            var client = new RestClient(_httpSender);
             var result = await client.PostAndReturnCreatedObjectAsync("path", input);
             Assert.AreEqual(dateTime1, result.DateTime1);
             Assert.AreEqual(dateTime2, result.DateTime2);
@@ -212,13 +259,14 @@ namespace Nexus.Link.Libraries.Web.Tests.RestClientHelper
 
             // Per default, the RestClient will try to parse dates, so our values will get scrambled a bit
             // This is our desired default value, so make sure to fail if it doesn't auto parse dates
-            var client = new RestClient("http://example.se");
+            var httpSender = _httpSender;
+            var client = new RestClient(httpSender);
             var result = await client.PostAndReturnCreatedObjectAsync("path", input);
             Assert.AreNotEqual(dateTime1, result.Value<string>("DateTime1"));
             Assert.AreNotEqual(dateTime2, result.Value<string>("DateTime2"));
 
             // Make sure we have the possibility to change behaviour to not auto parse dates
-            client.DeserializationSettings.DateParseHandling = DateParseHandling.None;
+            httpSender.DeserializationSettings.DateParseHandling = DateParseHandling.None;
             PrepareMockPost(input);
             result = await client.PostAndReturnCreatedObjectAsync("path", input);
             Assert.AreEqual(dateTime1, result.Value<string>("DateTime1"));

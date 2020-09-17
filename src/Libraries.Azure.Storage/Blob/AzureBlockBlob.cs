@@ -1,20 +1,22 @@
-﻿using System;
+﻿using Microsoft.WindowsAzure.Storage.Blob;
+using Nexus.Link.Libraries.Azure.Storage.File;
+using Nexus.Link.Libraries.Core.Assert;
+using System;
 using System.IO;
 using System.Threading.Tasks;
-using Microsoft.WindowsAzure.Storage.Blob;
-using Nexus.Link.Libraries.Azure.Core.File;
-using Nexus.Link.Libraries.Core.Assert;
 
 namespace Nexus.Link.Libraries.Azure.Storage.Blob
 {
     public class AzureBlockBlob : IFile
     {
         protected CloudBlockBlob CloudBlockBlob { get; }
+
         internal AzureBlockBlob(CloudBlockBlob blockBlob)
         {
             InternalContract.RequireNotNull(blockBlob, nameof(blockBlob));
             CloudBlockBlob = blockBlob;
         }
+
         public string Name => CloudBlockBlob.Name;
 
         public Uri Uri => CloudBlockBlob.Uri;
@@ -39,7 +41,6 @@ namespace Nexus.Link.Libraries.Azure.Storage.Blob
         {
             return await CloudBlockBlob.DownloadTextAsync();
         }
-
 
         public async Task DeleteAsync()
         {

@@ -2,10 +2,9 @@
 using System.Diagnostics;
 using System.Threading.Tasks;
 using Nexus.Link.Libraries.Core.Assert;
-using Nexus.Link.Libraries.Core.Logging;
+using Nexus.Link.Libraries.Core.Misc;
 using Nexus.Link.Libraries.Web.AspNet.Error.Logic;
 #if NETCOREAPP
-using Nexus.Link.Libraries.Web.AspNet.Logging;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 #else
@@ -43,6 +42,7 @@ namespace Nexus.Link.Libraries.Web.AspNet.Pipe.Inbound
 #endif
         protected override async Task InvokeAsync(CompabilityInvocationContext context)
         {
+            InternalContract.Require(!DelegateState.HasStarted, $"{nameof(ExceptionToFulcrumResponse)} has already been started in this http request.");
             DelegateState.HasStarted = true;
             try
             {
@@ -58,26 +58,16 @@ namespace Nexus.Link.Libraries.Web.AspNet.Pipe.Inbound
         {
 #if NETCOREAPP
             var response = AspNetExceptionConverter.ToContentResult(exception);
-            FulcrumAssert.IsTrue(response.StatusCode.HasValue);
+            FulcrumAssert.IsTrue(response.StatusCode.HasValue, CodeLocation.AsString());
             Debug.Assert(response.StatusCode.HasValue);
 #else
             var response = AspNetExceptionConverter.ToHttpResponseMessage(exception);
 #endif
-            Log.LogInformation(
-                $"Exception ({exception.GetType().Name} {exception.Message}) was converted to an HTTP response ({response.StatusCode}).");
 #if NETCOREAPP
-            if (response.StatusCode.Value >= 500)
-            {
-                Log.LogError($"The request could not be completed (status code {response.StatusCode.Value})");
-            }
             context.Context.Response.StatusCode = response.StatusCode.Value;
             context.Context.Response.ContentType = response.ContentType;
             await context.Context.Response.WriteAsync(response.Content);
 #else
-            if ((int)response.StatusCode >= 500)
-            {
-                Log.LogError($"The request could not be completed ({(int)response.StatusCode} {response.StatusCode})");
-            }
             context.ResponseMessage = response;
             await Task.CompletedTask;
 #endif

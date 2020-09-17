@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using System.Threading;
 using Newtonsoft.Json.Linq;
@@ -291,6 +290,14 @@ namespace Nexus.Link.Libraries.Core.Logging
             }
 
             var logRecord = CreateLogInstanceInformation(severityLevel, message, data, exception, memberName, filePath, lineNumber);
+
+            if (!FulcrumApplication.Context.IsInBatchLogger &&
+                !logRecord.IsGreaterThanOrEqualTo(FulcrumApplication.Setup.LogSeverityLevelThreshold))
+            {
+                // Discard this log as its severity level is too low
+                return;
+            }
+
             if (LoggingInProgress)
             {
                 // Recursive logging detected

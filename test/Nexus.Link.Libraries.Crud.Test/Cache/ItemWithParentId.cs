@@ -1,7 +1,7 @@
 ﻿using System;
 using Nexus.Link.Libraries.Core.Storage.Model;
 
-namespace Nexus.Link.Libraries.Crud.Test.Core.Cache
+namespace Nexus.Link.Libraries.Crud.Test.Cache
 {
     public class ItemWithParentId : IUniquelyIdentifiable<Guid>
     {

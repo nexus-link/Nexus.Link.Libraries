@@ -1,14 +1,7 @@
 ﻿using System;
-using System.Net;
-using System.Net.Http;
-using System.Text;
-using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using Nexus.Link.Libraries.Core.Application;
 using Nexus.Link.Libraries.Core.Error.Logic;
-using Nexus.Link.Libraries.Core.Error.Model;
 using Nexus.Link.Libraries.Web.Error.Logic;
 
 namespace Nexus.Link.Libraries.Web.Tests.Error
@@ -70,7 +63,7 @@ namespace Nexus.Link.Libraries.Web.Tests.Error
                     $"Error location was expected to be null, but contained the following: {error.ErrorLocation}");
                 Assert.IsNotNull(error.InnerError);
                 Assert.AreEqual(innerMessage, error.InnerError.TechnicalMessage);
-                Assert.AreEqual(error.ParentInstanceId, error.InnerError?.InstanceId);
+                Assert.AreEqual(error.InnerInstanceId, error.InnerError?.InstanceId);
             }
         }
     }
