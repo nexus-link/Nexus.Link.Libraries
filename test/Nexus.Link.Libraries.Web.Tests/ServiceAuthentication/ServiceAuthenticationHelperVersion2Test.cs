@@ -1,4 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Text;
@@ -12,99 +15,83 @@ using Nexus.Link.Libraries.Core.Application;
 using Nexus.Link.Libraries.Core.Error.Logic;
 using Nexus.Link.Libraries.Core.MultiTenant.Model;
 using Nexus.Link.Libraries.Core.Platform.Configurations;
+using Nexus.Link.Libraries.Web.Clients;
 using Nexus.Link.Libraries.Web.RestClientHelper;
 using Nexus.Link.Libraries.Web.ServiceAuthentication;
 // ReSharper disable CommentTypo
 // ReSharper disable StringLiteralTypo
 
-// TODO: Test PostContentBody
 namespace Nexus.Link.Libraries.Web.Tests.ServiceAuthentication
 {
     [TestClass]
-    public class ServiceAuthenticationHelperTest
+    public class ServiceAuthenticationHelperVersion2Test
     {
         private ServiceAuthenticationHelper _authenticationHelper;
         private Mock<IHttpClient> _httpClientMock;
 
         private ILeverConfiguration LeverConfiguration { get; set; }
 
-        private static readonly Tenant Tenant = new Tenant("an-org", "some-env");
-        private const string ClientName = "klaj";
-        private const string Jwt = "fakejwt";
+        private static readonly Tenant Tenant = new Tenant("the-org", "the-env");
+        private const string ClientName = "my-page-adapter";
+        private const string Jwt = "somejwt";
+
+        private List<ClientConfiguration> _clientConfigurations;
+        private List<ClientAuthorizationSettings> _authentications;
 
         [TestInitialize]
         public void Initialize()
         {
-            FulcrumApplicationHelper.UnitTestSetup(typeof(ServiceAuthenticationHelperTest).FullName);
+            FulcrumApplicationHelper.UnitTestSetup(typeof(ServiceAuthenticationHelperVersion2Test).FullName);
 
             _httpClientMock = new Mock<IHttpClient>();
 
             ServiceAuthenticationHelper.HttpClient = _httpClientMock.Object;
             ServiceAuthenticationHelper.ClearCache();
             _authenticationHelper = new ServiceAuthenticationHelper();
+
+            _clientConfigurations = new List<ClientConfiguration>
+            {
+                new ClientConfiguration
+                {
+                    Name = ClientName,
+                    Authentication = "Default"
+                }
+            };
+            _authentications = new List<ClientAuthorizationSettings>{
+                new ClientAuthorizationSettings
+                {
+                    Id = "Default",
+                    AuthorizationType = ClientAuthorizationSettings.AuthorizationTypeEnum.Basic,
+                    Username = "username",
+                    Password = "password"
+                }
+            };
+            CreateLeverConfiguration();
         }
 
-        /// <summary>
-        /// This is to show why we have a workaround in the casting in <see cref="ServiceAuthenticationHelper.GetAuthorizationForClientAsync"/>.
-        /// We get "Cannot cast Newtonsoft.Json.Linq.JObject to Newtonsoft.Json.Linq.JToken" if we use jobject.Value
-        /// </summary>
-        [TestMethod]
-        public void ShowWhyWeHaveToMakeWorkaroundInServiceAuthenticationHelper()
+        private void CreateLeverConfiguration()
         {
-            // From JObject implementation:
-            // if ((object)token is U && typeof(U) != typeof(IComparable) && typeof(U) != typeof(IFormattable))
-            //     return (U)(object)token;
-            // JValue jvalue = (object)token as JValue;
-            // if (jvalue == null)
-            //     throw new InvalidCastException("Cannot cast {0} to {1}.".FormatWith((IFormatProvider)CultureInfo.InvariantCulture, (object)token.GetType(), (object)typeof(T)));
+            LeverConfiguration = new MockLeverConfiguration(JObject.FromObject(new
+            {
+                Clients = _clientConfigurations,
+                Authentications = _authentications
+            }));
+        }
 
-            var jobject = JObject.Parse(JObject.FromObject(new
-            {
-                x = new ClientAuthorizationSettings
-                {
-                    AuthorizationType = ClientAuthorizationSettings.AuthorizationTypeEnum.Basic,
-                    Username = "boom",
-                    Password = "beat"
-                }
-            }
-            ).ToString());
-            Console.WriteLine("1: " + jobject);
-            Console.WriteLine("2: " + jobject.Value<dynamic>("x")); // Ok
-            Console.WriteLine("3: " + jobject.Value<JObject>("x")); // Ok
-            Console.WriteLine("4: " + JsonConvert.DeserializeObject<ClientAuthorizationSettings>(jobject["x"].ToString()).AuthorizationType); // Ok
-            try
-            {
-                Console.WriteLine("5: " + jobject.Value<ClientAuthorizationSettings>("x")); // This will crash :(
-                Assert.Fail("Expected #5 to crash");
-            }
-            catch (InvalidCastException e)
-            {
-                Console.WriteLine(e);
-            }
+        private void SetupConfigMock(ClientAuthorizationSettings settings)
+        {
+            var authenticationId = Guid.NewGuid().ToString();
+            _clientConfigurations.First(x => x.Name == ClientName).Authentication = authenticationId;
+            settings.Id = authenticationId;
+            _authentications.Add(settings);
+            CreateLeverConfiguration();
         }
 
         [TestMethod]
         public async Task DefaultType()
         {
-            var result = await _authenticationHelper.GetAuthorizationForClientAsync(Tenant, LeverConfiguration, ClientName);
+            var result = await _authenticationHelper.GetAuthorizationForClientAsync(Tenant, LeverConfiguration, "unknown-client");
             Assert.IsNull(result);
-        }
-
-        private void SetupConfigMock(ClientAuthorizationSettings settings)
-        {
-            var conf = new JObject { { $"{ClientName}-authentication", JObject.FromObject(settings) } };
-            LeverConfiguration = new MockLeverConfiguration(conf);
-        }
-
-        [TestMethod]
-        [ExpectedException(typeof(FulcrumAssertionFailedException))]
-        public async Task ExpectArray()
-        {
-            const string conf = "{\"shared-client-authentications\": {}}";
-            var jObject = JObject.Parse(conf);
-            LeverConfiguration = new MockLeverConfiguration(jObject);
-            await _authenticationHelper.GetAuthorizationForClientAsync(Tenant, LeverConfiguration, "advantage");
-            Assert.Fail("Expected an exception");
         }
 
         [TestMethod]
@@ -116,6 +103,7 @@ namespace Nexus.Link.Libraries.Web.Tests.ServiceAuthentication
                 Token = Jwt
             });
             var result = await _authenticationHelper.GetAuthorizationForClientAsync(Tenant, LeverConfiguration, ClientName);
+            Assert.IsNotNull(result, JsonConvert.SerializeObject(LeverConfiguration, Formatting.Indented));
             Assert.AreEqual("bearer", result.Type.ToLowerInvariant());
             Assert.AreEqual(Jwt, result.Token, result.Token);
         }
@@ -162,15 +150,22 @@ namespace Nexus.Link.Libraries.Web.Tests.ServiceAuthentication
         [TestMethod]
         public async Task JwtFromUrlSuccess()
         {
+            const string expectedContentType = "xx-application/json";
             SetupConfigMock(new ClientAuthorizationSettings
             {
                 AuthorizationType = ClientAuthorizationSettings.AuthorizationTypeEnum.JwtFromUrl,
                 PostUrl = "http://localhost",
                 PostBody = "{}",
+                PostContentType = expectedContentType,
                 ResponseTokenJsonPath = "data.AccessToken"
             });
 
+            string contentType = null;
             _httpClientMock.Setup(x => x.SendAsync(It.IsAny<HttpRequestMessage>(), It.IsAny<CancellationToken>()))
+                .Callback((HttpRequestMessage request, CancellationToken cancellationToken) =>
+                {
+                    contentType = request.Content.Headers.ContentType.MediaType;
+                })
                 .ReturnsAsync(new HttpResponseMessage(HttpStatusCode.OK)
                 {
                     Content = new StringContent(JObject.FromObject(new
@@ -185,6 +180,7 @@ namespace Nexus.Link.Libraries.Web.Tests.ServiceAuthentication
             var result = await _authenticationHelper.GetAuthorizationForClientAsync(Tenant, LeverConfiguration, ClientName);
             Assert.AreEqual("bearer", result.Type.ToLowerInvariant());
             Assert.AreEqual(Jwt, result.Token, result.Token);
+            Assert.AreEqual(expectedContentType, contentType);
         }
 
         [TestMethod]
@@ -363,34 +359,40 @@ namespace Nexus.Link.Libraries.Web.Tests.ServiceAuthentication
         [TestMethod]
         public async Task TestSharedSettings()
         {
-            var shared = new[]
-            {
+            _authentications.Add(
                 new ClientAuthorizationSettings
                 {
+                    Id = "Basic2",
                     AuthorizationType = ClientAuthorizationSettings.AuthorizationTypeEnum.Basic,
-                    Username = "x", Password = "y",
-                    UseForClients = new []{ "another-client", "yet-another-client" }
-                },
+                    Username = "foo",
+                    Password = "bar"
+                });
+            _authentications.Add(
                 new ClientAuthorizationSettings
                 {
-                    AuthorizationType = ClientAuthorizationSettings.AuthorizationTypeEnum.BearerToken,
-                    Token = "token",
-                    UseForClients = new []{ "client-2", "client-3" }
-                }
-            };
-            var conf = new JObject
+                    Id = "Basic3",
+                    AuthorizationType = ClientAuthorizationSettings.AuthorizationTypeEnum.Basic,
+                    Username = "x",
+                    Password = "y"
+                });
+            _authentications.Add(new ClientAuthorizationSettings
             {
-                { "shared-client-authentications", JArray.FromObject(shared) },
-                { $"{ClientName}-authentication", JObject.FromObject(new ClientAuthorizationSettings { AuthorizationType = ClientAuthorizationSettings.AuthorizationTypeEnum.Basic, Username = "foo", Password = "bar" }) }
-            };
-            LeverConfiguration = new MockLeverConfiguration(conf);
+                Id = "Static1",
+                AuthorizationType = ClientAuthorizationSettings.AuthorizationTypeEnum.BearerToken,
+                Token = "token"
+            });
+            _clientConfigurations.Add(new ClientConfiguration { Name = "another-client", Authentication = "Basic2" });
+            _clientConfigurations.Add(new ClientConfiguration { Name = "yet-another-client", Authentication = "Basic3" });
+            _clientConfigurations.Add(new ClientConfiguration { Name = "client-2", Authentication = "Static1" });
+            _clientConfigurations.Add(new ClientConfiguration { Name = "client-3", Authentication = "Static1" });
+            CreateLeverConfiguration();
 
             var result = await _authenticationHelper.GetAuthorizationForClientAsync(Tenant, LeverConfiguration, ClientName);
             Assert.AreEqual("basic", result.Type.ToLowerInvariant());
-            Assert.AreEqual("foo:bar", Base64Decode(result.Token));
+            Assert.AreEqual("username:password", Base64Decode(result.Token));
             result = await _authenticationHelper.GetAuthorizationForClientAsync(Tenant, LeverConfiguration, "another-client");
             Assert.AreEqual("basic", result.Type.ToLowerInvariant());
-            Assert.AreEqual("x:y", Base64Decode(result.Token));
+            Assert.AreEqual("foo:bar", Base64Decode(result.Token));
             result = await _authenticationHelper.GetAuthorizationForClientAsync(Tenant, LeverConfiguration, "yet-another-client");
             Assert.AreEqual("basic", result.Type.ToLowerInvariant());
             Assert.AreEqual("x:y", Base64Decode(result.Token));
@@ -403,31 +405,17 @@ namespace Nexus.Link.Libraries.Web.Tests.ServiceAuthentication
             result = await _authenticationHelper.GetAuthorizationForClientAsync(Tenant, LeverConfiguration, "unknown-client");
             Assert.IsNull(result);
         }
-    }
 
-    public class MockLeverConfiguration : ILeverConfiguration
-    {
-        /// <summary>
-        /// This is where all the configuration values are stored
-        /// </summary>
-        public JObject JObject { get; internal set; }
-
-        public MockLeverConfiguration(JObject jObject)
+        [TestMethod]
+        public async Task ConfigurationFromJsonFile()
         {
-            JObject = jObject;
+            // https://docs.nexus.link/docs/client-authentication-methods
+            LeverConfiguration = new MockLeverConfiguration(JObject.Parse(File.ReadAllText($"{AppDomain.CurrentDomain.BaseDirectory}\\ServiceAuthentication\\auth-config.json")));
+
+            var result = await _authenticationHelper.GetAuthorizationForClientAsync(Tenant, LeverConfiguration, "client-a");
+            Assert.AreEqual("basic", result.Type.ToLowerInvariant());
+            Assert.AreEqual("foo:bar", Base64Decode(result.Token));
         }
 
-        /// <inheritdoc />
-        public T Value<T>(object key)
-        {
-            return JObject.Value<T>(key);
-        }
-
-        /// <inheritdoc />
-        public T MandatoryValue<T>(object key)
-        {
-            var value = Value<T>(key);
-            return value;
-        }
     }
 }

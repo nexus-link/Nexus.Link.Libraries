@@ -42,6 +42,7 @@ namespace Nexus.Link.Libraries.Web.AspNet.Pipe.Inbound
 #endif
         protected override async Task InvokeAsync(CompabilityInvocationContext context)
         {
+            InternalContract.Require(!DelegateState.HasStarted, $"{nameof(ExceptionToFulcrumResponse)} has already been started in this http request.");
             DelegateState.HasStarted = true;
             try
             {

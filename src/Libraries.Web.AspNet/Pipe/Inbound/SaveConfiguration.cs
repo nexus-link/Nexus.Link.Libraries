@@ -2,6 +2,7 @@
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Nexus.Link.Libraries.Core.Application;
+using Nexus.Link.Libraries.Core.Assert;
 using Nexus.Link.Libraries.Core.MultiTenant.Model;
 using Nexus.Link.Libraries.Core.Platform.Configurations;
 
@@ -46,6 +47,7 @@ namespace Nexus.Link.Libraries.Web.AspNet.Pipe.Inbound
 
         protected override async Task InvokeAsync(CompabilityInvocationContext context)
         {
+            InternalContract.Require(!DelegateState.HasStarted, $"{nameof(SaveConfiguration)} has already been started in this http request.");
             HasStarted = true;
             var rgx = new Regex("/v[^/]+/([^/]+)/([^/]+)/");
 
