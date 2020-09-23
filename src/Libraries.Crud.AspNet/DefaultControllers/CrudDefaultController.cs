@@ -1,4 +1,5 @@
-﻿using System.Threading;
+﻿using System;
+using System.Threading;
 using System.Threading.Tasks;
 using Nexus.Link.Libraries.Core.Storage.Model;
 using Nexus.Link.Libraries.Crud.AspNet.Controllers;
@@ -12,6 +13,7 @@ using System.Web.Http;
 namespace Nexus.Link.Libraries.Crud.AspNet.DefaultControllers
 {
     /// <inheritdoc cref="CrudDefaultController{TModelCreate, TModel}" />
+    [Obsolete("Use Nexus.Link.Libraries.Crud.AspNet.Controllers classes. Obsolete since 2020-09-23.")]
     public class CrudDefaultController<TModel> : CrudDefaultController<TModel, TModel>, ICrud<TModel, string>
     {
         /// <inheritdoc />
@@ -22,6 +24,7 @@ namespace Nexus.Link.Libraries.Crud.AspNet.DefaultControllers
     }
 
     /// <inheritdoc cref="CrudController{TModel}" />
+    [Obsolete("Use Nexus.Link.Libraries.Crud.AspNet.Controllers classes. Obsolete since 2020-09-23.")]
     public class CrudDefaultController<TModelCreate, TModel> :
         CrudController<TModelCreate, TModel>,
         ICrud<TModelCreate, TModel, string>
