@@ -13,7 +13,7 @@
 
   <PropertyGroup>
     <PackageId>Nexus.Link.Libraries.Crud.AspNet</PackageId>
-    <Version>2.2.15</Version>
+    <Version>2.3.0</Version>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <PackageTags>nexus;link;fulcrum;lever</PackageTags>
     <Authors>XLENT Link</Authors>
@@ -23,6 +23,7 @@
     <Copyright>Copyright ©2019 Xlent Link AB</Copyright>
     <IncludeSymbols>true</IncludeSymbols>
     <PackageReleaseNotes>
+      2.3.0 Added CrudManyToOneControllerHelper
       2.2.15 Bump
       2.2.1 Fix: PackageProjectUrl for this nuget package
       2.2.0 Made the default controllers non-abstract
