@@ -58,6 +58,7 @@ namespace Nexus.Link.Libraries.Crud.Helpers
         /// <typeparam name="T">The type that <paramref name="service"/> must implement.</typeparam>
         /// <returns></returns>
         /// <exception cref="FulcrumNotImplementedException">Thrown if <paramref name="service"/> doesn't implement <typeparamref name="T"/>.</exception>
+        [Obsolete("We no longer recommend to use this mapping technique. Obsolete since 2020-09-23.")]
         public static T GetImplementationOrThrow<T>(IMappable service) where T : IMappable
         {
             if (service is T implemented) return implemented;
