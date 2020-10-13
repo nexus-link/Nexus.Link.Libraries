@@ -33,7 +33,9 @@ namespace Nexus.Link.Libraries.Core.Logging
         /// <inheritdoc />
         public void LogSync(LogRecord logRecord)
         {
-            if (!HasStarted)
+            // The goal is to enqueue the record, but there are exceptions to this.
+
+            if (!HasStarted || Batch.EndBatchRequested)
             {
                 _syncLogger.LogSync(logRecord);
                 return;
@@ -41,6 +43,7 @@ namespace Nexus.Link.Libraries.Core.Logging
 
             if (FulcrumApplication.Context.ContextId != Batch.ContextId)
             {
+                _syncLogger.LogSync(new LogRecord());
                 var logAllThreshold = Batch.LogAllThreshold;
                 var releaseRecordsAsLateAsPossible = Batch.ReleaseRecordsAsLateAsPossible;
                 EndBatch();
@@ -115,6 +118,7 @@ namespace Nexus.Link.Libraries.Core.Logging
 
         public static void EndBatch()
         {
+            Batch.EndBatchRequested = true;
             FlushValues();
             FulcrumApplication.Context.IsInBatchLogger = false;
             AsyncLocalBatch.Value = null;
@@ -145,6 +149,12 @@ namespace Nexus.Link.Libraries.Core.Logging
             public List<LogRecord> LogRecords { get; set; }
             public Guid ContextId { get; set; }
             public bool HasReachedThreshold { get; set; }
+
+            /// <summary>
+            /// Tells if the process of ending the batch has started.
+            /// This means that queuing within the <see cref="BatchLogger"/> is prohibited.
+            /// </summary>
+            public bool EndBatchRequested { get; set; }
         }
     }
 }
