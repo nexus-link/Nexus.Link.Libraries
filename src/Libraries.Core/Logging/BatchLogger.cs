@@ -41,15 +41,6 @@ namespace Nexus.Link.Libraries.Core.Logging
                 return;
             }
 
-            if (FulcrumApplication.Context.ContextId != Batch.ContextId)
-            {
-                _syncLogger.LogSync(new LogRecord());
-                var logAllThreshold = Batch.LogAllThreshold;
-                var releaseRecordsAsLateAsPossible = Batch.ReleaseRecordsAsLateAsPossible;
-                EndBatch();
-                StartBatch(logAllThreshold, releaseRecordsAsLateAsPossible);
-            }
-
             if (!Batch.HasReachedThreshold &&
                 Batch.LogAllThreshold != LogSeverityLevel.None &&
                 logRecord.IsGreaterThanOrEqualTo(Batch.LogAllThreshold))
