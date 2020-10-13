@@ -118,9 +118,13 @@ namespace Nexus.Link.Libraries.Core.Logging
 
         public static void EndBatch()
         {
+            if (!HasStarted) return;
             Batch.EndBatchRequested = true;
-            FlushValues();
+
+            // Note! Important that this is set before flushing: We depend on Log.LogOnLevel to discard low severity logs
             FulcrumApplication.Context.IsInBatchLogger = false;
+
+            FlushValues();
             AsyncLocalBatch.Value = null;
         }
 
