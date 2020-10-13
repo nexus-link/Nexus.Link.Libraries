@@ -1,4 +1,5 @@
-﻿using System.Threading;
+﻿using System;
+using System.Threading;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using Nexus.Link.Libraries.Core.Application;
@@ -203,7 +204,7 @@ namespace Nexus.Link.Libraries.Core.Tests.Logging
             });
             BatchLogger.EndBatch();
 
-            UT.Assert.IsTrue(allDone.WaitOne(2000));
+            UT.Assert.IsTrue(allDone.WaitOne(TimeSpan.FromSeconds(5)));
             UT.Assert.AreEqual(0, _callsToFallback, $"{nameof(_loggedRecords)}: {_loggedRecords}");
             UT.Assert.IsTrue(_loggedRecords >= 100, _loggedRecords.ToString());
         }
