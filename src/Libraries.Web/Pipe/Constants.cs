@@ -2,6 +2,14 @@
 {
     public class Constants
     {
+        /// <summary>
+        /// Standard correlation id header
+        /// </summary>
         public static string FulcrumCorrelationIdHeaderName = "X-Correlation-ID";
+
+        /// <summary>
+        /// Header to indicate that a request is done in test mode
+        /// </summary>
+        public static string NexusTestHeaderName = "X-nexus-test";
     }
 }
