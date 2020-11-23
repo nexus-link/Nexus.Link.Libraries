@@ -40,7 +40,8 @@ namespace Nexus.Link.Libraries.Web.Pipe.Outbound
             var handlers = new List<DelegatingHandler>
             {
                 new ThrowFulcrumExceptionOnFail(),
-                new AddCorrelationId()
+                new AddCorrelationId(),
+                new PropagateNexusTestHeader(),
             };
             if (withLogging)
             {
