@@ -2,7 +2,7 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Web.Http;
+using Nexus.Link.Libraries.Core.Application;
 using Nexus.Link.Libraries.Core.Assert;
 using Nexus.Link.Libraries.Core.Translation;
 using Nexus.Link.Libraries.Crud.Interfaces;
@@ -10,6 +10,7 @@ using Nexus.Link.Libraries.Crud.Interfaces;
 #if NETCOREAPP
 using Microsoft.AspNetCore.Mvc;
 #else
+using System.Web.Http;
 #endif
 
 namespace Nexus.Link.Libraries.Web.AspNet.Tests.InboundPipe.Support
@@ -61,6 +62,19 @@ namespace Nexus.Link.Libraries.Web.AspNet.Tests.InboundPipe.Support
             InternalContract.Require(id == item.Id, $"Expected {nameof(id)} to be identical to {nameof(item)}.{nameof(item.Id)}.");
             item.Id = Translator.Decorate(Foo.IdConceptName, Foo.ProducerName, Foo.ProducerId1);
             return Task.FromResult(item);
+        }
+
+#if NETCOREAPP
+        [HttpGet("~/api/CurrentNexusTestContextValue")]
+        [Produces("application/json")]
+#else
+        [HttpGet]
+        [Route("~/api/CurrentNexusTestContextValue")]
+#endif
+        public string CurrentNexusTestContextValue()
+        {
+            // Setup by DelegatingHandler registered in TestStartup
+            return FulcrumApplication.Context.NexusTestContext ?? "<not setup>";
         }
     }
 }

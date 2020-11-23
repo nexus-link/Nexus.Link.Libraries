@@ -16,6 +16,7 @@ namespace Nexus.Link.Libraries.Core.Context
         private readonly OneValueProvider<IPrincipal> _clientPrincipal;
         private readonly OneValueProvider<IPrincipal> _userPrincipal;
         private readonly OneValueProvider<bool> _isInBatchLogger;
+        private readonly OneValueProvider<string> _nexusTestContext;
 
         public NexusContext(IContextValueProvider valueProvider)
         {
@@ -27,6 +28,7 @@ namespace Nexus.Link.Libraries.Core.Context
             _clientPrincipal = new OneValueProvider<IPrincipal>(ValueProvider, "ClientPrincipal");
             _userPrincipal = new OneValueProvider<IPrincipal>(ValueProvider, "UserPrincipal");
             _isInBatchLogger = new OneValueProvider<bool>(ValueProvider, "IsInBatchLogger");
+            _nexusTestContext = new OneValueProvider<string>(ValueProvider, "NexusTestContext");
         }
 
         /// <summary>
@@ -95,6 +97,16 @@ namespace Nexus.Link.Libraries.Core.Context
         {
             get => _isInBatchLogger.GetValue();
             set => _isInBatchLogger.SetValue(value);
+        }
+
+        /// <summary>
+        /// If non-null, caller is requesting test mode, and the value can be interpreted as a test context.
+        /// Propagated as the Nexus test header "X-nexus-test".
+        /// </summary>
+        public string NexusTestContext
+        {
+            get => _nexusTestContext.GetValue();
+            set => _nexusTestContext.SetValue(value);
         }
 
     }
