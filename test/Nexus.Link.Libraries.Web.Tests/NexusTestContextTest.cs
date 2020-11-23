@@ -18,7 +18,7 @@ namespace Nexus.Link.Libraries.Web.Tests
         }
 
         /// <summary>
-        /// Given that FulcrumApplication.Context.NexusTestContext is setup, that value should be propagated as the header <see cref="Constants.NexusTestHeaderName"/>
+        /// Given that FulcrumApplication.Context.NexusTestContext is setup, that value should be propagated as the header <see cref="Constants.NexusTestContextHeaderName"/>
         /// </summary>
         [TestMethod]
         public async Task Header_Is_Propagated()
@@ -30,7 +30,7 @@ namespace Nexus.Link.Libraries.Web.Tests
             var request = new HttpRequestMessage(HttpMethod.Post, "http://example.com/");
             await handler.SendAsync(request);
 
-            Assert.IsTrue(request.Headers.TryGetValues(Constants.NexusTestHeaderName, out var headerValues), $"Expected {Constants.NexusTestHeaderName} header to be present");
+            Assert.IsTrue(request.Headers.TryGetValues(Constants.NexusTestContextHeaderName, out var headerValues), $"Expected {Constants.NexusTestContextHeaderName} header to be present");
             Assert.AreEqual(headerValue, headerValues.First());
         }
 
@@ -41,7 +41,7 @@ namespace Nexus.Link.Libraries.Web.Tests
             var request = new HttpRequestMessage(HttpMethod.Post, "http://example.com/");
             await handler.SendAsync(request);
 
-            Assert.IsFalse(request.Headers.TryGetValues(Constants.NexusTestHeaderName, out _), $"Expected no {Constants.NexusTestHeaderName} header to be present");
+            Assert.IsFalse(request.Headers.TryGetValues(Constants.NexusTestContextHeaderName, out _), $"Expected no {Constants.NexusTestContextHeaderName} header to be present");
         }
     }
 }

@@ -10,6 +10,6 @@
         /// <summary>
         /// Header to indicate that a request is done in test mode
         /// </summary>
-        public static string NexusTestHeaderName = "X-nexus-test";
+        public static string NexusTestContextHeaderName = "X-nexus-test-context";
     }
 }

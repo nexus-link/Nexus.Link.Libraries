@@ -44,7 +44,7 @@ namespace Nexus.Link.Libraries.Web.AspNet.Tests.InboundPipe
             const string headerValue = "v1; test-id: abc-123";
 
             var request = new HttpRequestMessage(HttpMethod.Get, "/api/CurrentNexusTestContextValue");
-            request.Headers.Add(Constants.NexusTestHeaderName, headerValue);
+            request.Headers.Add(Constants.NexusTestContextHeaderName, headerValue);
 
             var response = await _httpClient.SendAsync(request);
             var resultString = await response.Content.ReadAsStringAsync();

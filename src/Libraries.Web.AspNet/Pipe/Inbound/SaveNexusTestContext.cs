@@ -14,7 +14,7 @@ using System.Linq;
 namespace Nexus.Link.Libraries.Web.AspNet.Pipe.Inbound
 {
     /// <summary>
-    /// Handle <see cref="Constants.NexusTestHeaderName"/> header on inbound requests.
+    /// Handle <see cref="Constants.NexusTestContextHeaderName"/> header on inbound requests.
     /// </summary>
     public class SaveNexusTestContext : CompatibilityDelegatingHandler
     {
@@ -50,7 +50,7 @@ namespace Nexus.Link.Libraries.Web.AspNet.Pipe.Inbound
         }
 
         /// <summary>
-        /// Read the <see cref="Constants.NexusTestHeaderName"/> header from the <paramref name="context"/> request and save it to the execution context.
+        /// Read the <see cref="Constants.NexusTestContextHeaderName"/> header from the <paramref name="context"/> request and save it to the execution context.
         /// </summary>
         /// <param name="context">The request that we will read the header from.</param>
         /// <returns></returns>
@@ -72,15 +72,15 @@ namespace Nexus.Link.Libraries.Web.AspNet.Pipe.Inbound
             FulcrumAssert.IsNotNull(request, CodeLocation.AsString());
             if (request == null) return null;
 #if NETCOREAPP
-            var headerValueExists = request.Headers.TryGetValue(Constants.NexusTestHeaderName, out var values);
+            var headerValueExists = request.Headers.TryGetValue(Constants.NexusTestContextHeaderName, out var values);
 #else
-            var headerValueExists = request.Headers.TryGetValues(Constants.NexusTestHeaderName, out var values);
+            var headerValueExists = request.Headers.TryGetValues(Constants.NexusTestContextHeaderName, out var values);
 #endif
             if (!headerValueExists) return null;
             var valuesAsArray = values.ToArray();
             if (valuesAsArray.Length > 1)
             {
-                var message = $"There was more than one {Constants.NexusTestHeaderName} headers: {string.Join(", ", valuesAsArray)}. Using the first one.";
+                var message = $"There was more than one {Constants.NexusTestContextHeaderName} headers: {string.Join(", ", valuesAsArray)}. Using the first one.";
                 Log.LogWarning(message);
             }
 

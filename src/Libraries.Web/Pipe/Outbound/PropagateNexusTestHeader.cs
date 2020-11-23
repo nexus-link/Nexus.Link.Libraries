@@ -13,12 +13,12 @@ namespace Nexus.Link.Libraries.Web.Pipe.Outbound
 
         protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
         {
-            if (!request.Headers.TryGetValues(Constants.NexusTestHeaderName, out _))
+            if (!request.Headers.TryGetValues(Constants.NexusTestContextHeaderName, out _))
             {
                 var headerValue = FulcrumApplication.Context.NexusTestContext;
                 if (!string.IsNullOrWhiteSpace(headerValue))
                 {
-                    request.Headers.Add(Constants.NexusTestHeaderName, headerValue);
+                    request.Headers.Add(Constants.NexusTestContextHeaderName, headerValue);
                 }
             }
             return await base.SendAsync(request, cancellationToken);
