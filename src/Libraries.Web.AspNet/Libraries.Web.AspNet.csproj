@@ -27,7 +27,7 @@
 
   <PropertyGroup>
     <PackageId>Nexus.Link.Libraries.Web.AspNet</PackageId>
-    <Version>2.17.4</Version>
+    <Version>2.19.0</Version>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <PackageTags>nexus;link;fulcrum;lever</PackageTags>
     <Authors>XLENT Link</Authors>
@@ -37,6 +37,8 @@
     <Copyright>Copyright ©2019 Xlent Link AB</Copyright>
     <IncludeSymbols>true</IncludeSymbols>
     <PackageReleaseNotes>
+      2.19.0 Support for setting FulcrumApplication.Context.NexusTestContext from header "X-nexus-test-context"
+      2.18.0 (Configuration error)
       2.17.4 Bump
       2.17.3 Instance id in startup logs from NexusWebApiApplication
       2.17.2 Pipe handlers assert that they have not yet been started

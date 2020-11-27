@@ -33,7 +33,7 @@
 
   <PropertyGroup>
     <PackageId>Nexus.Link.Libraries.Core</PackageId>
-    <Version>4.15.4</Version>
+    <Version>4.16.0</Version>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <PackageTags>nexus;link;fulcrum;lever</PackageTags>
     <Authors>XLENT Link</Authors>
@@ -43,6 +43,7 @@
     <Copyright>Copyright ©2020 Xlent Link AB</Copyright>
     <IncludeSymbols>true</IncludeSymbols>
     <PackageReleaseNotes>
+      4.16.0 Support for FulcrumApplication.Context.NexusTestContext
       4.15.4 Remove dependency on FulcrumApplication.Context.ContextId from BatchLogger
       4.15.3 Bug in BatchLogger resulting in "Collection was modified; enumeration operation may not execute"
       4.15.2 Made the FulcrumException.IsRetryMeaningFul set operation public.
