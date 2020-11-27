@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Nexus.Link.Libraries.Core.Assert;
@@ -11,6 +12,7 @@ using Nexus.Link.Libraries.Web.AspNet.Annotations;
 namespace Nexus.Link.Libraries.Crud.AspNet.Controllers
 {
     /// <inheritdoc cref="CrudController{TModelCreate, TModel}" />
+    [Obsolete("Use Nexus.Link.Libraries.Crud.AspNet.ControllerHelpers. Obsolete since 2020-09-23.")]
     public class CrudController<TModel> :
         CrudController<TModel, TModel>,
         ICrud<TModel, string>
@@ -23,6 +25,7 @@ namespace Nexus.Link.Libraries.Crud.AspNet.Controllers
     }
 
     /// <inheritdoc cref="CrudControllerBase" />
+    [Obsolete("Use Nexus.Link.Libraries.Crud.AspNet.ControllerHelpers. Obsolete since 2020-09-23.")]
     public class CrudController<TModelCreate, TModel> :
         CrudControllerBase,
         ICrud<TModelCreate, TModel, string>

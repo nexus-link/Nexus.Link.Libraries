@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Nexus.Link.Libraries.Core.Assert;
@@ -11,7 +12,7 @@ using Nexus.Link.Libraries.Crud.PassThrough;
 
 namespace Nexus.Link.Libraries.Crud.AspNet.ControllerHelpers
 {
-    /// <inheritdoc cref="CrudControllerHelper{TModel, TModel}" />
+    /// <inheritdoc cref="CrudSlaveToMasterControllerHelper{TModel, TModel}" />
     public class CrudSlaveToMasterControllerHelper<TModel> :
         CrudSlaveToMasterControllerHelper<TModel, TModel>,
         ICrudSlaveToMaster<TModel, string>
@@ -23,8 +24,9 @@ namespace Nexus.Link.Libraries.Crud.AspNet.ControllerHelpers
         }
     }
 
-    /// <inheritdoc cref="CrudControllerBase" />
-    public class CrudSlaveToMasterControllerHelper<TModelCreate, TModel> : ICrudSlaveToMaster<TModelCreate, TModel, string>
+    /// <inheritdoc cref="ICrudSlaveToMaster{TModelCreate, TModel, TId}" />
+    public class CrudSlaveToMasterControllerHelper<TModelCreate, TModel> : 
+        ICrudSlaveToMaster<TModelCreate, TModel, string>
         where TModel : TModelCreate
     {
         /// <summary>

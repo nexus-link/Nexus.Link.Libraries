@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Nexus.Link.Libraries.Core.Application;
 using Nexus.Link.Libraries.Core.Assert;
@@ -30,5 +31,23 @@ namespace Nexus.Link.Libraries.SqlServer.Test
         }
 
         protected override ICrud<TestItemBare, TestItemId<Guid>, Guid> CrudStorage => _storage;
+
+        [Ignore]
+        public new async Task LockFailAsync()
+        {
+            await Task.Yield();
+        }
+
+        [Ignore]
+        public new async Task LockReleaseLockAsync()
+        {
+            await Task.Yield();
+        }
+
+        [Ignore]
+        public new async Task Lock_Async()
+        {
+            await Task.Yield();
+        }
     }
 }

@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -13,6 +14,7 @@ using Nexus.Link.Libraries.Crud.PassThrough;
 namespace Nexus.Link.Libraries.Crud.Mappers
 {
     /// <inheritdoc cref="SlaveToMasterMapper{TClientModelCreate,TClientModel,TClientId,TServerModel,TServerId}" />
+    [Obsolete("We no longer recommend to use this mapping technique. Obsolete since 2020-09-23.")]
     public class SlaveToMasterMapper<TClientModel, TClientId, TServerModel, TServerId> :
         SlaveToMasterMapper<TClientModel, TClientModel, TClientId, TServerModel, TServerId>,
         ICrudSlaveToMaster<TClientModel, TClientId>
@@ -27,6 +29,7 @@ namespace Nexus.Link.Libraries.Crud.Mappers
     }
 
     /// <inheritdoc cref="ICrudSlaveToMaster{TModelCreate,TModel,TId}" />
+    [Obsolete("We no longer recommend to use this mapping technique. Obsolete since 2020-09-23.")]
     public class SlaveToMasterMapper<TClientModelCreate, TClientModel, TClientId, TServerModel, TServerId> : 
         ICrudSlaveToMaster<TClientModelCreate, TClientModel, TClientId> 
         where TClientModel : TClientModelCreate

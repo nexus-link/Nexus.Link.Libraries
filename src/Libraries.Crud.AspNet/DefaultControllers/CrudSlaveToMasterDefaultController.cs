@@ -1,4 +1,5 @@
-﻿using System.Threading;
+﻿using System;
+using System.Threading;
 using System.Threading.Tasks;
 using Nexus.Link.Libraries.Core.Storage.Model;
 using Nexus.Link.Libraries.Crud.AspNet.Controllers;
@@ -14,6 +15,7 @@ namespace Nexus.Link.Libraries.Crud.AspNet.DefaultControllers
     /// <summary>
     /// ApiController with CRUD-support
     /// </summary>
+    [Obsolete("Use Nexus.Link.Libraries.Crud.AspNet.Controllers classes. Obsolete since 2020-09-23.")]
     public class CrudSlaveToMasterDefaultController<TModel> :
         CrudSlaveToMasterDefaultController<TModel, TModel>,
         ICrudSlaveToMaster<TModel, string>
@@ -28,6 +30,7 @@ namespace Nexus.Link.Libraries.Crud.AspNet.DefaultControllers
     }
 
     /// <inheritdoc cref="CrudSlaveToMasterController{TModelCreate, TModel}" />
+    [Obsolete("Use Nexus.Link.Libraries.Crud.AspNet.Controllers classes. Obsolete since 2020-09-23.")]
     public class CrudSlaveToMasterDefaultController<TModelCreate, TModel> :
         CrudSlaveToMasterController<TModelCreate, TModel>,
         ICrudSlaveToMaster<TModelCreate, TModel, string>
