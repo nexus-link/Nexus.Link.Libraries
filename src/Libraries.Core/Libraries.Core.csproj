@@ -33,7 +33,7 @@
 
   <PropertyGroup>
     <PackageId>Nexus.Link.Libraries.Core</PackageId>
-    <Version>4.16.0-mw-beta-01</Version>
+    <Version>4.17.0-rk-beta-01</Version>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <PackageTags>nexus;link;fulcrum;lever</PackageTags>
     <Authors>XLENT Link</Authors>
@@ -43,6 +43,7 @@
     <Copyright>Copyright ©2020 Xlent Link AB</Copyright>
     <IncludeSymbols>true</IncludeSymbols>
     <PackageReleaseNotes>
+      4.17.0 Updated contract for KeyAssociations, now supports MainKeyAsMergeWinner
       4.16.0 Support for FulcrumApplication.Context.NexusTestContext
       4.15.4 Remove dependency on FulcrumApplication.Context.ContextId from BatchLogger
       4.15.3 Bug in BatchLogger resulting in "Collection was modified; enumeration operation may not execute"
