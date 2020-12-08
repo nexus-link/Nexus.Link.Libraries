@@ -51,6 +51,22 @@ namespace Nexus.Link.Libraries.Azure.Storage.Test
         }
 
         [TestMethod]
+        public async Task MessageCountIsIncreasedWhenAddingAsync()
+        {
+            var expectedCount = 5;
+
+            for (int i = 0; i < expectedCount; i++)
+            {
+                var message = new Message { Name = "Message1" };
+                await _queue.AddMessageAsync(message);
+            }
+
+            var result = await _queue.GetApproximateMessageCountAsync();
+            Assert.IsNotNull(result);
+            Assert.AreEqual(expectedCount, result);
+        }
+
+        [TestMethod]
         public async Task PeekAndGetAsync()
         {
             var message = new Message { Name = "Message1" };
