@@ -11,6 +11,12 @@ namespace Nexus.Link.Libraries.Core.Platform.DataSyncEngine
         public SyncKey Key { get; set; }
 
         /// <summary>
+        /// Set to True if the Main Key (<see cref="Key"/>) should be the winner in a merge, set to 
+        /// False for normal winning/loosing logic in DSE.
+        /// </summary>
+        public bool MainKeyAsMergeWinner { get; set; }
+
+        /// <summary>
         /// Keys associated with <see cref="Key"/>, pointing to the same object
         /// </summary>
         public List<SyncKey> AssociatedKeys { get; set; }
