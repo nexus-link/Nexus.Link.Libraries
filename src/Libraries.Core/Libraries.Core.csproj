@@ -33,7 +33,7 @@
 
   <PropertyGroup>
     <PackageId>Nexus.Link.Libraries.Core</PackageId>
-    <Version>4.19.1-beta-mw</Version>
+    <Version>4.19.1</Version>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <PackageTags>nexus;link;fulcrum;lever</PackageTags>
     <Authors>XLENT Link</Authors>
