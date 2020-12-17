@@ -1,4 +1,5 @@
-﻿using Nexus.Link.Libraries.Core.Storage.Model;
+﻿using Nexus.Link.Libraries.Core.MultiTenant.Model;
+using Nexus.Link.Libraries.Core.Storage.Model;
 using Nexus.Link.Libraries.Core.Translation;
 #pragma warning disable 659
 
@@ -17,6 +18,8 @@ namespace Nexus.Link.Libraries.Web.AspNet.Tests.InboundPipe.Support
         public string Id { get; set; }
 
         public string Name { get; set; }
+
+        public Tenant Tenant { get; set; }
 
         /// <inheritdoc />
         public override bool Equals(object obj)
