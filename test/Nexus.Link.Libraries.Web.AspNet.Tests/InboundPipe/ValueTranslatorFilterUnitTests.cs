@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using System;
+using Newtonsoft.Json;
 using Nexus.Link.Libraries.Web.AspNet.Tests.InboundPipe.Support;
 using System.Collections.Generic;
 using System.Threading;
@@ -169,6 +170,43 @@ namespace Nexus.Link.Libraries.Web.AspNet.Tests.InboundPipe
 #endif
             Assert.IsNotNull(outFoo);
             Assert.AreEqual(Foo.ConsumerId1, outFoo.Id);
+        }
+
+        [TestMethod]
+        public async Task TranslatorServiceIsNotCalledForIfNoTranslations()
+        {
+
+            // Mock a translator
+            var testServiceMock = new Mock<ITranslatorService>();
+            testServiceMock
+                .Setup(service => service.TranslateAsync(It.IsAny<IEnumerable<string>>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
+                .ThrowsAsync(new Exception("ITranslatorService should not be called if no translations"));
+
+#if NETCOREAPP
+            var foosController = new FoosController();
+            var controllerActionDescriptor = new ControllerActionDescriptor();
+            controllerActionDescriptor.MethodInfo = foosController.GetType().GetMethod(nameof(foosController.ServiceTenant));
+            var actionContext = new ActionContext
+            {
+                HttpContext = new DefaultHttpContext(),
+                RouteData = new RouteData(),
+                ActionDescriptor = controllerActionDescriptor
+            };
+            var executingContext = new ResultExecutingContext(actionContext, new List<IFilterMetadata>(), new ObjectResult(FulcrumApplication.Setup.Tenant), foosController);
+#else
+            var contextMock = CreateExecutedContextWithStatusCode(HttpStatusCode.OK, FulcrumApplication.Setup.Tenant);
+#endif
+
+            // Setup the filter
+            var filter = new ValueTranslatorFilter(testServiceMock.Object, () => Foo.ConsumerName);
+
+            // Run the filter
+            // There are no translations, so ITranslatorService.TranslateAsync should not be called
+#if NETCOREAPP
+            await filter.OnResultExecutionAsync(executingContext, () => Task.FromResult(new ResultExecutedContext(actionContext, new List<IFilterMetadata>(), executingContext.Result, foosController)));
+#else
+            await filter.OnActionExecutedAsync(contextMock, new CancellationToken());
+#endif
         }
 
 #if NETCOREAPP

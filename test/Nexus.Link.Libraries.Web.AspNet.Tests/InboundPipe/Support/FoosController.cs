@@ -4,6 +4,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Nexus.Link.Libraries.Core.Application;
 using Nexus.Link.Libraries.Core.Assert;
+using Nexus.Link.Libraries.Core.MultiTenant.Model;
 using Nexus.Link.Libraries.Core.Translation;
 using Nexus.Link.Libraries.Crud.Interfaces;
 
@@ -62,6 +63,21 @@ namespace Nexus.Link.Libraries.Web.AspNet.Tests.InboundPipe.Support
             InternalContract.Require(id == item.Id, $"Expected {nameof(id)} to be identical to {nameof(item)}.{nameof(item.Id)}.");
             item.Id = Translator.Decorate(Foo.IdConceptName, Foo.ProducerName, Foo.ProducerId1);
             return Task.FromResult(item);
+        }
+
+        /// <summary>
+        /// An endpoint without translations
+        /// </summary>
+        /// <returns></returns>
+#if NETCOREAPP
+        [HttpGet("ServiceTenant")]
+#else
+        [HttpPut]
+#endif
+        [Route("ServiceTenant")]
+        public Task<Tenant> ServiceTenant()
+        {
+            return Task.FromResult(FulcrumApplication.Setup.Tenant);
         }
 
 #if NETCOREAPP

@@ -153,6 +153,11 @@ namespace Nexus.Link.Libraries.Core.Translation
         /// <inheritdoc/>
         public async Task ExecuteAsync(CancellationToken cancellationToken = new CancellationToken())
         {
+            if (!_conceptValues.Any())
+            {
+                // Do not call translator service if there is nothing to translate
+                return;
+            }
             _translations = await _service.TranslateAsync(_conceptValues, _clientName, cancellationToken);
         }
 

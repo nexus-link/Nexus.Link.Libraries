@@ -9,7 +9,7 @@ using Nexus.Link.Libraries.Crud.Test.ServerTranslators.Support;
 namespace Nexus.Link.Libraries.Crud.Test.ServerTranslators
 {
     [TestClass]
-    public class ServerTranslatorBase
+    public abstract class ServerTranslatorBase
     {
         protected Mock<ICrud<TestModelCreate, TestModel, string>> StorageMock;
         protected const string ClientName = "client-name";
