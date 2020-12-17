@@ -298,6 +298,14 @@ namespace Nexus.Link.Libraries.Core.Queue.Logic
         public DateTimeOffset? LatestItemFetchedAt { get; private set; }
     }
 
+    public partial class MemoryQueue<T> : ICountableQueue
+    {
+        public async Task<int?> GetApproximateMessageCountAsync()
+        {
+            return await Task.FromResult(_queue.Count);
+        }
+    }
+
     public partial class MemoryQueue<T> : IReadableQueue<T>
     {
         /// <inheritdoc />

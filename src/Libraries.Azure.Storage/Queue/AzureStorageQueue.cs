@@ -53,6 +53,14 @@ namespace Nexus.Link.Libraries.Azure.Storage.Queue
             return response;
         }
 
+        public async Task<int?> GetApproximateMessageCountAsync()
+        {
+            var cloudQueue = await _cloudQueueTask; 
+            await cloudQueue.FetchAttributesAsync();
+            var count = cloudQueue.ApproximateMessageCount;
+            return count;
+        }
+
         public async Task<HealthResponse> GetResourceHealthAsync()
         {
             var queue = await _cloudQueueTask;

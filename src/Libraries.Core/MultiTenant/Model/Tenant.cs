@@ -31,11 +31,11 @@ namespace Nexus.Link.Libraries.Core.MultiTenant.Model
         /// <summary>
         /// A unique lowercase abbreviation or acronym for the organization, e.g. "sef" for Svensk Elitfotboll
         /// </summary>
-        public string Organization { get; }
+        public string Organization { get; set; }
         /// <summary>
         /// A lowercase name of the organization environment, e.g. "local", "dev", "tst", "ver", "int", "prd", "production", etc.
         /// </summary>
-        public string Environment { get; }
+        public string Environment { get; set; }
 
         /// <inheritdoc />
         public override int GetHashCode()

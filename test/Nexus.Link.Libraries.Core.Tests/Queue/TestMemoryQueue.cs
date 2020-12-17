@@ -45,6 +45,20 @@ namespace Nexus.Link.Libraries.Core.Tests.Queue
             UT.Assert.IsTrue(stopWatch.ElapsedMilliseconds < 2000);
         }
 
+        [TestMethod]
+        public void MessageCountIncreasedWhenAddingToQueue()
+        {
+            var queue = new MemoryQueue<string>("queueName");
+            var expectedCount = 5;
+            for (var i = 0; i < expectedCount; i++)
+            {
+                queue.AddMessage($"item {i}");
+            }
+
+            var count = queue.GetApproximateMessageCountAsync().Result;
+            UT.Assert.AreEqual(expectedCount, count);
+        }
+
         private static async Task SlowItemAction(string item)
         {
             await Task.Delay(TimeSpan.FromMilliseconds(100));

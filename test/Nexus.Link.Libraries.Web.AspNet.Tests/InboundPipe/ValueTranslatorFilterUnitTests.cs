@@ -9,6 +9,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using Newtonsoft.Json.Linq;
 using Nexus.Link.Libraries.Core.Application;
+using Nexus.Link.Libraries.Core.MultiTenant.Model;
 using Nexus.Link.Libraries.Core.Translation;
 
 #if NETCOREAPP
@@ -46,14 +47,17 @@ namespace Nexus.Link.Libraries.Web.AspNet.Tests.InboundPipe
         [TestMethod]
         public void JsonDeserialize()
         {
+            var tenant = new Tenant("o", "e");
             var inFoo = new Foo
             {
                 Id = "id",
-                Name = "name"
+                Name = "name",
+                Tenant = tenant
             };
             var json = JsonConvert.SerializeObject(inFoo);
             var outFoo = JsonConvert.DeserializeObject<Foo>(json);
             Assert.AreEqual(typeof(Foo), outFoo.GetType());
+            Assert.AreEqual(tenant, outFoo.Tenant, "This requires setters on Tenant");
         }
 
         [TestMethod]
