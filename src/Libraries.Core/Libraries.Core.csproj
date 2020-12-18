@@ -33,7 +33,7 @@
 
   <PropertyGroup>
     <PackageId>Nexus.Link.Libraries.Core</PackageId>
-    <Version>4.19.0</Version>
+    <Version>4.19.1</Version>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <PackageTags>nexus;link;fulcrum;lever</PackageTags>
     <Authors>XLENT Link</Authors>
@@ -43,6 +43,7 @@
     <Copyright>Copyright ©2020 Xlent Link AB</Copyright>
     <IncludeSymbols>true</IncludeSymbols>
     <PackageReleaseNotes>
+      4.19.1 Fix: ITranslatorService is not called on return in in-pipe if no translations are present
       4.19.0 Added setters on Tenant (for deserialization)
       4.18.0 Added interface ICountableQueue which ICompleteQueue now inherits. Updated MemoryQueue to meet the new demands of ICompleteQueue
       4.17.0 Updated contract for KeyAssociations, now supports MainKeyAsMergeWinner
