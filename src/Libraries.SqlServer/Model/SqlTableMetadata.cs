@@ -13,6 +13,9 @@ namespace Nexus.Link.Libraries.SqlServer.Model
         public string EtagColumnName { get; set; }
 
         /// <inheritdoc />
+        public string RowVersionColumnName { get; set; }
+
+        /// <inheritdoc />
         public string ForeignKeyColumnName { get; set; }
         /// <inheritdoc />
         public string CreatedAtColumnName { get; set; }

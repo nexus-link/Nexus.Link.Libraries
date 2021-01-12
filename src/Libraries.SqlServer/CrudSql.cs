@@ -117,7 +117,8 @@ namespace Nexus.Link.Libraries.SqlServer
         public async Task<TDatabaseItem> ReadAsync(Guid id, CancellationToken token = default(CancellationToken))
         {
             InternalContract.RequireNotDefaultValue(id, nameof(id));
-            return await SearchWhereSingle("Id = @Id", new { Id = id }, token);
+            var item =  await SearchWhereSingle("Id = @Id", new { Id = id }, token);
+            return MaybeCopyFromRecordVersion(item);
         }
 
         /// <inheritdoc />
@@ -129,55 +130,65 @@ namespace Nexus.Link.Libraries.SqlServer
         }
 
         /// <inheritdoc />
-        public Task<TDatabaseItem> UpdateAndReturnAsync(Guid id, TDatabaseItem item, CancellationToken token = new CancellationToken())
+        public async Task<TDatabaseItem> UpdateAndReturnAsync(Guid id, TDatabaseItem item, CancellationToken token = new CancellationToken())
         {
-            throw new NotImplementedException();
+            InternalContract.RequireNotNull(item, nameof(item));
+            StorageHelper.MaybeValidate(item);
+            await UpdateAsync(id, item, token);
+            return await ReadAsync(id, token);
         }
 
         protected async Task InternalUpdateAsync(Guid id, TDatabaseItem item, CancellationToken token)
         {
             InternalContract.RequireNotNull(item, nameof(item));
             StorageHelper.MaybeValidate(item);
-            await MaybeVerifyEtagForUpdateAsync(id, item, token);
+            MaybeCopyEtagToRecordVersion(item);
             using (var db = Database.NewSqlConnection())
             {
-                if (item is IOptimisticConcurrencyControlByETag etaggable)
+                if (item is IRecordVersion r)
                 {
-                    var sql = SqlHelper.Update(TableMetadata, etaggable.Etag);
+                    var sql = SqlHelper.UpdateIfSameRowVersion(TableMetadata);
                     var count = await db.ExecuteAsync(sql, item);
                     if (count == 0)
                         throw new FulcrumConflictException(
-                            "Could not update. Your data was stale. Please reload and try again.");
+                            "Could not update. Your data was stale. Please reread the data and try to update it again.");
+                }
+                else if (item is IOptimisticConcurrencyControlByETag e)
+                {
+                    var sql = SqlHelper.UpdateIfSameEtag(TableMetadata);
+                    var count = await db.ExecuteAsync(sql, item);
+                    if (count == 0)
+                        throw new FulcrumConflictException(
+                            "Could not update. Your data was stale. Please reread the data and try to update it again.");
                 }
                 else
                 {
                     var sql = SqlHelper.Update(TableMetadata);
-                    await db.ExecuteAsync(sql, item);
+                    var count = await db.ExecuteAsync(sql, item);
+                    if (count == 0)
+                        throw new FulcrumNotFoundException(
+                            $"Could not update, no record with Id={item.Id} found.");
                 }
             }
         }
 
-        /// <summary>
-        /// If <paramref name="item"/> implements <see cref="IOptimisticConcurrencyControlByETag"/>
-        /// then the old value is read using <see cref="ReadBase{TModel,TId}.ReadAsync"/> and the values are verified to be equal.
-        /// The Etag of the item is then set to a new value.
-        /// </summary>
-        /// <param name="id"></param>
-        /// <param name="item"></param>
-        /// <param name="token">Propagates notification that operations should be canceled</param>
-        /// <returns></returns>
-        protected virtual async Task MaybeVerifyEtagForUpdateAsync(Guid id, TDatabaseItem item, CancellationToken token = default(CancellationToken))
+        protected TDatabaseItem MaybeCopyFromRecordVersion(TDatabaseItem item)
         {
-            if (item is IOptimisticConcurrencyControlByETag etaggable)
+            if (item is IRecordVersion r && item is IOptimisticConcurrencyControlByETag o)
             {
-                var oldItem = await ReadAsync(id, token);
-                if (oldItem != null)
-                {
-                    var oldEtag = (oldItem as IOptimisticConcurrencyControlByETag)?.Etag;
-                    if (oldEtag?.ToLowerInvariant() != etaggable.Etag?.ToLowerInvariant())
-                        throw new FulcrumConflictException($"The updated item ({item}) had an old ETag value.");
-                }
+                o.Etag = Convert.ToBase64String(r.RecordVersion);
             }
+
+            return item;
+        }
+
+        protected TDatabaseItem MaybeCopyEtagToRecordVersion(TDatabaseItem item)
+        {
+            if (item is IRecordVersion r && item is IOptimisticConcurrencyControlByETag o)
+            {
+                r.RecordVersion = Convert.FromBase64String(o.Etag);
+            }
+            return item;
         }
 
         /// <inheritdoc />

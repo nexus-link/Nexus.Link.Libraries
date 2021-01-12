@@ -16,7 +16,7 @@
 
   <PropertyGroup>
     <PackageId>Nexus.Link.Libraries.SqlServer</PackageId>
-    <Version>2.0.15</Version>
+    <Version>2.1.0</Version>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <PackageTags>nexus;link;fulcrum;lever</PackageTags>
     <Authors>XLENT Link</Authors>
@@ -25,7 +25,8 @@
     <Description>Nexus SQL Server library based on .NET Standard</Description>
     <Copyright>Copyright ©2019 Xlent Link AB</Copyright>
     <IncludeSymbols>true</IncludeSymbols>
-    <PackageReleaseNotes> 
+    <PackageReleaseNotes>
+      2.1.0 Now supports IRecordVersion.
       2.0.15 Bug: Validate at the wrong place.
       2.0.14 Bump
       2.0.13 Bump
