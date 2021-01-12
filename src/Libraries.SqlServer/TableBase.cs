@@ -12,7 +12,7 @@ using Nexus.Link.Libraries.SqlServer.Model;
 namespace Nexus.Link.Libraries.SqlServer
 {
     /// <summary>
-    /// Helper class for advanced SELECT statmements
+    /// Helper class for advanced SELECT statements
     /// </summary>
     /// <typeparam name="TDatabaseItem"></typeparam>
     public abstract class TableBase<TDatabaseItem> : ISearch<TDatabaseItem>
