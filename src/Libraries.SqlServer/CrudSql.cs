@@ -15,7 +15,7 @@ using Nexus.Link.Libraries.SqlServer.Model;
 namespace Nexus.Link.Libraries.SqlServer
 {
     /// <summary>
-    /// Helper class for advanced SELECT statements
+    /// Helper class for advanced SELECT statements 
     /// </summary>
     public class CrudSql<TDatabaseItem> : CrudSql<TDatabaseItem, TDatabaseItem>,
         ICrud<TDatabaseItem, Guid>
