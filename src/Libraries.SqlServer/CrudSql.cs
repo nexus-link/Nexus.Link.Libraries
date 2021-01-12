@@ -72,9 +72,9 @@ namespace Nexus.Link.Libraries.SqlServer
             InternalContract.RequireNotNull(item, nameof(item));
             var dbItem = StorageHelper.DeepCopy<TDatabaseItem, TDatabaseItemCreate>(item);
             dbItem.Id = id;
-            StorageHelper.MaybeValidate(dbItem);
             StorageHelper.MaybeCreateNewEtag(dbItem);
             StorageHelper.MaybeUpdateTimeStamps(dbItem, true);
+            StorageHelper.MaybeValidate(dbItem);
             var sql = SqlHelper.Create(TableMetadata);
             await ExecuteAsync(sql, dbItem, token);
         }

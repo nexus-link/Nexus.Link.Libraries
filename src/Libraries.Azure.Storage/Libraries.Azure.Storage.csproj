@@ -25,6 +25,7 @@
     <Copyright>Copyright ©2019 Xlent Link AB</Copyright>
     <IncludeSymbols>true</IncludeSymbols>
     <PackageReleaseNotes>
+      3.1.1 Better validation when creating items. 
       3.1.0 AzureStorageQueue now implements ICountableQueue
       3.0.7 Bump
       3.0.6 Bump

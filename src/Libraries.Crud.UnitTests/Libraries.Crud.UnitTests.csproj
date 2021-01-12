@@ -17,7 +17,7 @@
 
   <PropertyGroup>
     <PackageId>Nexus.Link.Libraries.Crud.UnitTests</PackageId>
-    <Version>1.0.15</Version>
+    <Version>1.0.16</Version>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <PackageTags>nexus;link;fulcrum;lever</PackageTags>
     <Authors>XLENT Link</Authors>
@@ -27,6 +27,7 @@
     <Copyright>Copyright ©2019 Xlent Link AB</Copyright>
     <IncludeSymbols>true</IncludeSymbols>
     <PackageReleaseNotes>
+      1.0.16 Better tests for ETag.
       1.0.15 Bump
       1.0.14 Bump
       1.0.10 Fix: PackageProjectUrl for this nuget package
