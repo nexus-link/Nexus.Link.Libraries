@@ -25,7 +25,7 @@
     <Description>Nexus SQL Server library based on .NET Standard</Description>
     <Copyright>Copyright ©2019 Xlent Link AB</Copyright>
     <IncludeSymbols>true</IncludeSymbols>
-    <PackageReleaseNotes>
+    <PackageReleaseNotes> 
       2.0.15 Bug: Validate at the wrong place.
       2.0.14 Bump
       2.0.13 Bump
