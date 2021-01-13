@@ -37,9 +37,9 @@ namespace Nexus.Link.Libraries.Azure.Storage.Table
             InternalContract.RequireValidated(item, nameof(item));
 
             var dbItem = StorageHelper.DeepCopy<TStorableItem, TStorableItemCreate>(item);
-            StorageHelper.MaybeValidate(dbItem);
             StorageHelper.MaybeCreateNewEtag(dbItem);
             StorageHelper.MaybeUpdateTimeStamps(dbItem, true);
+            InternalContract.RequireValidated(item, nameof(item));
 
             var tableRequestOptions = new TableRequestOptions();
             var operationContext = new OperationContext();

@@ -61,14 +61,6 @@ namespace Nexus.Link.Libraries.Core.Storage.Logic
         }
 
         /// <summary>
-        /// If <paramref name="item"/> implements <see cref="IValidatable"/>, then it is validated.
-        /// </summary>
-        public static void MaybeValidate<TModel>(TModel item)
-        {
-            if (item is IValidatable validatable) InternalContract.RequireValidated(validatable, nameof(item));
-        }
-
-        /// <summary>
         /// If <paramref name="item"/> implements <see cref="IOptimisticConcurrencyControlByETag"/>
         /// then the Etag of the item is set to a new value.
         /// </summary>

@@ -77,7 +77,7 @@ namespace Nexus.Link.Libraries.SqlServer
             {
                 if (dbItem is IRecordVersion r)
                 {
-                    // This is just done to let the validation succeed
+                    // This is to set Etag to a fictive value that will never be used (but may be required by the validation below)
                     r.RecordVersion = new byte[]{0,0,0,0,0,0,0,0};
                     MaybeTransformRecordVersionToEtag(dbItem);
                 }
@@ -87,7 +87,7 @@ namespace Nexus.Link.Libraries.SqlServer
                 }
             }
             StorageHelper.MaybeUpdateTimeStamps(dbItem, true);
-            StorageHelper.MaybeValidate(dbItem);
+            InternalContract.RequireValidated(item, nameof(item));
             var sql = SqlHelper.Create(TableMetadata);
             var count = await ExecuteAsync(sql, dbItem, token);
             FulcrumAssert.AreEqual(1, count, CodeLocation.AsString());
@@ -138,7 +138,7 @@ namespace Nexus.Link.Libraries.SqlServer
         public async Task UpdateAsync(Guid id, TDatabaseItem item, CancellationToken token = default(CancellationToken))
         {
             InternalContract.RequireNotNull(item, nameof(item));
-            StorageHelper.MaybeValidate(item);
+            InternalContract.RequireValidated(item, nameof(item));
             await InternalUpdateAsync(id, item, token);
         }
 
@@ -146,7 +146,7 @@ namespace Nexus.Link.Libraries.SqlServer
         public async Task<TDatabaseItem> UpdateAndReturnAsync(Guid id, TDatabaseItem item, CancellationToken token = new CancellationToken())
         {
             InternalContract.RequireNotNull(item, nameof(item));
-            StorageHelper.MaybeValidate(item);
+            InternalContract.RequireValidated(item, nameof(item));
             await UpdateAsync(id, item, token);
             return await ReadAsync(id, token);
         }
@@ -154,7 +154,7 @@ namespace Nexus.Link.Libraries.SqlServer
         protected async Task InternalUpdateAsync(Guid id, TDatabaseItem item, CancellationToken token)
         {
             InternalContract.RequireNotNull(item, nameof(item));
-            StorageHelper.MaybeValidate(item);
+            InternalContract.RequireValidated(item, nameof(item));
             string sql;
             switch (item)
             {
