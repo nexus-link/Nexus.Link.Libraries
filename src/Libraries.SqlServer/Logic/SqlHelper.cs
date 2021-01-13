@@ -16,7 +16,7 @@ namespace Nexus.Link.Libraries.SqlServer.Logic
         [Obsolete("Please use UpdateIfSameEtag(). Obsolete since 2020-01-12.", false)]
         public static string Update(ISqlTableMetadata tableMetadata, string oldEtag) => $"UPDATE [{tableMetadata.TableName}] SET {UpdateList(tableMetadata)} WHERE Id = @Id AND Etag = '{oldEtag}'";
 
-        public static string UpdateIfSameEtag(ISqlTableMetadata tableMetadata) => $"UPDATE [{tableMetadata.TableName}] SET {UpdateList(tableMetadata)} WHERE Id = @Id AND {tableMetadata.EtagColumnName} = @{tableMetadata.EtagColumnName}";
+        public static string UpdateIfSameEtag(ISqlTableMetadata tableMetadata, string oldEtag) => $"UPDATE [{tableMetadata.TableName}] SET {UpdateList(tableMetadata)} WHERE Id = @Id AND {tableMetadata.EtagColumnName} = '{oldEtag}'";
 
         public static string UpdateIfSameRowVersion(ISqlTableMetadata tableMetadata) => $"UPDATE [{tableMetadata.TableName}] SET {UpdateList(tableMetadata)} WHERE Id = @Id AND {tableMetadata.RowVersionColumnName} = @{tableMetadata.RowVersionColumnName}";
 

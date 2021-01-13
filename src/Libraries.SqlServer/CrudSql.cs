@@ -6,6 +6,7 @@ using Dapper;
 using Nexus.Link.Libraries.Core.Assert;
 using Nexus.Link.Libraries.Crud.Interfaces;
 using Nexus.Link.Libraries.Core.Error.Logic;
+using Nexus.Link.Libraries.Core.Misc;
 using Nexus.Link.Libraries.Core.Storage.Logic;
 using Nexus.Link.Libraries.Core.Storage.Model;
 using Nexus.Link.Libraries.Crud.Model;
@@ -72,11 +73,24 @@ namespace Nexus.Link.Libraries.SqlServer
             InternalContract.RequireNotNull(item, nameof(item));
             var dbItem = StorageHelper.DeepCopy<TDatabaseItem, TDatabaseItemCreate>(item);
             dbItem.Id = id;
-            StorageHelper.MaybeCreateNewEtag(dbItem);
+            if (dbItem is IOptimisticConcurrencyControlByETag)
+            {
+                if (dbItem is IRecordVersion r)
+                {
+                    // This is just done to let the validation succeed
+                    r.RecordVersion = new byte[]{0,0,0,0,0,0,0,0};
+                    MaybeTransformRecordVersionToEtag(dbItem);
+                }
+                else
+                {
+                    StorageHelper.MaybeCreateNewEtag(dbItem);
+                }
+            }
             StorageHelper.MaybeUpdateTimeStamps(dbItem, true);
             StorageHelper.MaybeValidate(dbItem);
             var sql = SqlHelper.Create(TableMetadata);
-            await ExecuteAsync(sql, dbItem, token);
+            var count = await ExecuteAsync(sql, dbItem, token);
+            FulcrumAssert.AreEqual(1, count, CodeLocation.AsString());
         }
 
         /// <inheritdoc />
@@ -100,15 +114,9 @@ namespace Nexus.Link.Libraries.SqlServer
             await DeleteWhereAsync("1=1", null, token);
         }
 
-        public async Task<PageEnvelope<TDatabaseItem>> ReadAllWithPagingAsync(int offset, int? limit = null, CancellationToken token = default(CancellationToken))
+        public Task<PageEnvelope<TDatabaseItem>> ReadAllWithPagingAsync(int offset, int? limit = null, CancellationToken token = default(CancellationToken))
         {
-            var page = await SearchAllAsync(null, offset, limit, token);
-            foreach (var item in page.Data)
-            {
-                MaybeCopyEtagFromRecordVersion(item);
-            }
-
-            return page;
+            return SearchAllAsync(null, offset, limit, token);
         }
 
         /// <inheritdoc />
@@ -120,11 +128,10 @@ namespace Nexus.Link.Libraries.SqlServer
         }
 
         /// <inheritdoc />
-        public async Task<TDatabaseItem> ReadAsync(Guid id, CancellationToken token = default(CancellationToken))
+        public Task<TDatabaseItem> ReadAsync(Guid id, CancellationToken token = default(CancellationToken))
         {
             InternalContract.RequireNotDefaultValue(id, nameof(id));
-            var item =  await SearchWhereSingle("Id = @Id", new { Id = id }, token);
-            return MaybeCopyEtagFromRecordVersion(item);
+            return SearchWhereSingle("Id = @Id", new { Id = id }, token);
         }
 
         /// <inheritdoc />
@@ -148,53 +155,35 @@ namespace Nexus.Link.Libraries.SqlServer
         {
             InternalContract.RequireNotNull(item, nameof(item));
             StorageHelper.MaybeValidate(item);
-            MaybeCopyEtagToRecordVersion(item);
-            using (var db = Database.NewSqlConnection())
+            string sql;
+            switch (item)
             {
-                if (item is IRecordVersion r)
-                {
-                    var sql = SqlHelper.UpdateIfSameRowVersion(TableMetadata);
-                    var count = await db.ExecuteAsync(sql, item);
-                    if (count == 0)
-                        throw new FulcrumConflictException(
-                            "Could not update. Your data was stale. Please reread the data and try to update it again.");
-                }
-                else if (item is IOptimisticConcurrencyControlByETag e)
-                {
-                    var sql = SqlHelper.UpdateIfSameEtag(TableMetadata);
-                    var count = await db.ExecuteAsync(sql, item);
-                    if (count == 0)
-                        throw new FulcrumConflictException(
-                            "Could not update. Your data was stale. Please reread the data and try to update it again.");
-                }
-                else
-                {
-                    var sql = SqlHelper.Update(TableMetadata);
-                    var count = await db.ExecuteAsync(sql, item);
-                    if (count == 0)
-                        throw new FulcrumNotFoundException(
-                            $"Could not update, no record with Id={item.Id} found.");
-                }
-            }
-        }
-
-        protected TDatabaseItem MaybeCopyEtagFromRecordVersion(TDatabaseItem item)
-        {
-            if (item is IRecordVersion r && item is IOptimisticConcurrencyControlByETag o)
-            {
-                o.Etag = Convert.ToBase64String(r.RecordVersion);
+                case IRecordVersion _:
+                    sql = SqlHelper.UpdateIfSameRowVersion(TableMetadata);
+                    break;
+                case IOptimisticConcurrencyControlByETag o:
+                    var oldEtag = o.Etag;
+                    StorageHelper.MaybeCreateNewEtag(o);
+                    sql = SqlHelper.UpdateIfSameEtag(TableMetadata, oldEtag);
+                    break;
+                default:
+                    sql = SqlHelper.Update(TableMetadata);
+                    break;
             }
 
-            return item;
-        }
+            var count = await ExecuteAsync(sql, item, token);
 
-        protected TDatabaseItem MaybeCopyEtagToRecordVersion(TDatabaseItem item)
-        {
-            if (item is IRecordVersion r && item is IOptimisticConcurrencyControlByETag o)
+            if (count == 0)
             {
-                r.RecordVersion = Convert.FromBase64String(o.Etag);
+                if (item is IRecordVersion || item is IOptimisticConcurrencyControlByETag)
+                {
+                    throw new FulcrumConflictException(
+                        "Could not update. Your data was stale. Please reread the data and try to update it again.");
+                }
+
+                throw new FulcrumNotFoundException(
+                    $"Could not update, no record with Id={item.Id} found.");
             }
-            return item;
         }
 
         /// <inheritdoc />

@@ -1,5 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Data;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -41,10 +43,7 @@ namespace Nexus.Link.Libraries.SqlServer
         protected async Task DeleteWhereAsync(string where = null, object param = null, CancellationToken token = default(CancellationToken))
         {
             where = string.IsNullOrWhiteSpace(where) ? "1=1" : where;
-            using (var db = Database.NewSqlConnection())
-            {
-                await db.ExecuteAsync(SqlHelper.Delete(TableMetadata, where), param);
-            }
+            await ExecuteAsync(SqlHelper.Delete(TableMetadata, where), param, token);
         }
 
         /// <inheritdoc />
@@ -194,13 +193,18 @@ namespace Nexus.Link.Libraries.SqlServer
             return await QueryAsync(sqlQuery, param);
         }
 
-        protected internal async Task ExecuteAsync(string statement, object param = null, CancellationToken token = default(CancellationToken))
+
+        protected internal async Task<int> ExecuteAsync(string statement, object param = null, CancellationToken token = default(CancellationToken))
         {
             InternalContract.RequireNotNullOrWhiteSpace(statement, nameof(statement));
+            MaybeTransformEtagToRecordVersion(param);
+            int count;
             using (var db = Database.NewSqlConnection())
             {
-                await db.ExecuteAsync(statement, param);
+                count = await db.ExecuteAsync(statement, param);
             }
+
+            return count;
         }
 
         protected internal async Task<IEnumerable<TDatabaseItem>> QueryAsync(string statement, object param = null, CancellationToken token = default(CancellationToken))
@@ -208,7 +212,29 @@ namespace Nexus.Link.Libraries.SqlServer
             InternalContract.RequireNotNullOrWhiteSpace(statement, nameof(statement));
             using (var db = Database.NewSqlConnection())
             {
-                return await db.QueryAsync<TDatabaseItem>(statement, param);
+                var items = await db.QueryAsync<TDatabaseItem>(statement, param);
+                var itemList = items.ToList();
+                foreach (var item in itemList)
+                {
+                    MaybeTransformRecordVersionToEtag(item);
+                }
+                return itemList;
+            }
+        }
+
+        protected void MaybeTransformRecordVersionToEtag(object item)
+        {
+            if (item is IRecordVersion r && item is IOptimisticConcurrencyControlByETag o)
+            {
+                o.Etag = Convert.ToBase64String(r.RecordVersion);
+            }
+        }
+
+        protected void MaybeTransformEtagToRecordVersion(object item)
+        {
+            if (item is IRecordVersion r && item is IOptimisticConcurrencyControlByETag o)
+            {
+                r.RecordVersion = Convert.FromBase64String(o.Etag);
             }
         }
     }
