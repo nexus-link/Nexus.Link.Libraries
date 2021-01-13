@@ -87,7 +87,7 @@ namespace Nexus.Link.Libraries.SqlServer
                 }
             }
             StorageHelper.MaybeUpdateTimeStamps(dbItem, true);
-            InternalContract.RequireValidated(item, nameof(item));
+            InternalContract.RequireValidated(dbItem, nameof(item));
             var sql = SqlHelper.Create(TableMetadata);
             var count = await ExecuteAsync(sql, dbItem, token);
             FulcrumAssert.AreEqual(1, count, CodeLocation.AsString());
