@@ -102,7 +102,13 @@ namespace Nexus.Link.Libraries.SqlServer
 
         public async Task<PageEnvelope<TDatabaseItem>> ReadAllWithPagingAsync(int offset, int? limit = null, CancellationToken token = default(CancellationToken))
         {
-            return await SearchAllAsync(null, offset, limit, token);
+            var page = await SearchAllAsync(null, offset, limit, token);
+            foreach (var item in page.Data)
+            {
+                MaybeCopyEtagFromRecordVersion(item);
+            }
+
+            return page;
         }
 
         /// <inheritdoc />
@@ -118,7 +124,7 @@ namespace Nexus.Link.Libraries.SqlServer
         {
             InternalContract.RequireNotDefaultValue(id, nameof(id));
             var item =  await SearchWhereSingle("Id = @Id", new { Id = id }, token);
-            return MaybeCopyFromRecordVersion(item);
+            return MaybeCopyEtagFromRecordVersion(item);
         }
 
         /// <inheritdoc />
@@ -172,7 +178,7 @@ namespace Nexus.Link.Libraries.SqlServer
             }
         }
 
-        protected TDatabaseItem MaybeCopyFromRecordVersion(TDatabaseItem item)
+        protected TDatabaseItem MaybeCopyEtagFromRecordVersion(TDatabaseItem item)
         {
             if (item is IRecordVersion r && item is IOptimisticConcurrencyControlByETag o)
             {

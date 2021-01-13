@@ -53,7 +53,42 @@ namespace Nexus.Link.Libraries.SqlServer.Test
             Assert.IsNotNull(createdItem);
             Assert.AreNotEqual(createdItem.Id, Guid.Empty);
             Assert.IsNotNull(createdItem.Etag);
-            Assert.AreEqual(initialItem, createdItem);
+        }
+
+        /// <summary>
+        /// Create an item with an id.
+        /// </summary>
+        [TestMethod]
+        public async Task Create_ReadAll_Etag_Async()
+        {
+            var initialItem = new TestItemBare();
+            initialItem.InitializeWithDataForTesting(TypeOfTestDataEnum.Default);
+            var id = await CrdStorage.CreateAsync(initialItem);
+            var createdItems = await CrdStorage.ReadAllAsync();
+            foreach (var createdItem in createdItems)
+            {
+                Assert.IsNotNull(createdItem);
+                Assert.AreNotEqual(createdItem.Id, Guid.Empty);
+                Assert.IsNotNull(createdItem.Etag);
+            }
+        }
+
+        /// <summary>
+        /// Create an item with an id.
+        /// </summary>
+        [TestMethod]
+        public async Task Create_ReadPaged_Etag_Async()
+        {
+            var initialItem = new TestItemBare();
+            initialItem.InitializeWithDataForTesting(TypeOfTestDataEnum.Default);
+            var id = await CrdStorage.CreateAsync(initialItem);
+            var createdItems = await CrdStorage.ReadAllWithPagingAsync(0);
+            foreach (var createdItem in createdItems.Data)
+            {
+                Assert.IsNotNull(createdItem);
+                Assert.AreNotEqual(createdItem.Id, Guid.Empty);
+                Assert.IsNotNull(createdItem.Etag);
+            }
         }
 
         /// <summary>
