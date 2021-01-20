@@ -32,7 +32,7 @@ namespace Nexus.Link.Libraries.Crud.AspNet.ControllerHelpers
         /// <summary>
         /// The logic to be used
         /// </summary>
-        protected readonly ICrudManyToOne<TModelCreate, TModel, string> Logic;
+        protected new readonly ICrudManyToOne<TModelCreate, TModel, string> Logic;
 
         /// <inheritdoc />
         public CrudManyToOneControllerHelper(ICrudable<TModel, string> logic)

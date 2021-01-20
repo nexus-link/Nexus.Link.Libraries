@@ -23,7 +23,7 @@ namespace Nexus.Link.Libraries.Core.Queue.Logic
             Message = message;
             CreatedAt = DateTimeOffset.Now;
             PostponeUntil = timeSpanToWait == null
-                ? (DateTimeOffset?) null
+                ? (DateTimeOffset?)null
                 : DateTimeOffset.Now.Add(timeSpanToWait.Value);
         }
 
@@ -51,9 +51,9 @@ namespace Nexus.Link.Libraries.Core.Queue.Logic
         /// <param name="item">A queue item.</param>
         public delegate Task QueueItemActionDelegate(T item);
 
-        private readonly bool _actionsCanExecuteWithoutIndividualAwait;
+        private bool _actionsCanExecuteWithoutIndividualAwait;
         private readonly ConcurrentQueue<MessageEnvelope<T>> _queue;
-        private readonly QueueItemActionDelegate _queueItemAction;
+        private QueueItemActionDelegate _queueItemAction;
         private Thread _backgroundWorkerThread;
 
         public TimeSpan KeepQueueAliveTimeSpan { get; set; }
@@ -61,16 +61,22 @@ namespace Nexus.Link.Libraries.Core.Queue.Logic
         /// <summary>
         ///     Constructor
         /// </summary>
-        public MemoryQueue(string name) : this(name, null, false)
+        public MemoryQueue(string name)
         {
+            InternalContract.RequireNotNullOrWhiteSpace(name, nameof(name));
+            Name = name;
+            _queue = new ConcurrentQueue<MessageEnvelope<T>>();
+            KeepQueueAliveTimeSpan = TimeSpan.FromSeconds(1);
         }
 
         /// <summary>
         ///     Constructor
         /// </summary>
-        public MemoryQueue(string name, QueueItemActionDelegate queueItemAction) : this(name, queueItemAction, false)
+        [Obsolete("Use the MemoryQueue(string) constructor and then call SetQueueItemAction(). Obsolete since 2021-01-20", false)]
+        public MemoryQueue(string name, QueueItemActionDelegate queueItemAction) : this(name)
         {
-            KeepQueueAliveTimeSpan = TimeSpan.FromSeconds(1);
+            InternalContract.RequireNotNullOrWhiteSpace(name, nameof(name));
+            SetQueueItemAction(queueItemAction);
         }
 
         /// <summary>
@@ -86,12 +92,29 @@ namespace Nexus.Link.Libraries.Core.Queue.Logic
         ///     If <paramref name="actionsCanExecuteWithoutIndividualAwait" /> is true, then you guarantee that it is possible to
         ///     run many <paramref name="queueItemAction" /> "in parallel" without interference.
         /// </remarks>
+        [Obsolete("Use the MemoryQueue(string) constructor and then call SetQueueItemAction(). Obsolete since 2021-01-20", false)]
         public MemoryQueue(string name, QueueItemActionDelegate queueItemAction = null,
-            bool actionsCanExecuteWithoutIndividualAwait = false)
+            bool actionsCanExecuteWithoutIndividualAwait = false) : this(name)
         {
             InternalContract.RequireNotNullOrWhiteSpace(name, nameof(name));
-            Name = name;
-            _queue = new ConcurrentQueue<MessageEnvelope<T>>();
+            SetQueueItemAction(queueItemAction, actionsCanExecuteWithoutIndividualAwait);
+        }
+
+        /// <summary>
+        /// Set a method that should be executed for every item in the queue.
+        /// </summary>
+        /// <param name="queueItemAction">Optional action that will be called for every item taken from the queue.</param>
+        /// <param name="actionsCanExecuteWithoutIndividualAwait">
+        ///     True means that the many calls can be made to the
+        ///     <paramref name="queueItemAction" /> action without awaiting every single one.
+        /// </param>
+        /// <remarks>
+        ///     If <paramref name="actionsCanExecuteWithoutIndividualAwait" /> is true, then you guarantee that it is possible to
+        ///     run many <paramref name="queueItemAction" /> "in parallel" without interference.
+        /// </remarks>
+        public void SetQueueItemAction(QueueItemActionDelegate queueItemAction,
+            bool actionsCanExecuteWithoutIndividualAwait = false)
+        {
             _queueItemAction = queueItemAction;
             _actionsCanExecuteWithoutIndividualAwait = actionsCanExecuteWithoutIndividualAwait;
         }
@@ -202,7 +225,7 @@ namespace Nexus.Link.Libraries.Core.Queue.Logic
                 catch (Exception e)
                 {
                     LogHelper.FallbackSafeLog(
-                        LogSeverityLevel.Error, 
+                        LogSeverityLevel.Error,
                         $"This part of the code should be fail safe, but we still got an exception.",
                         e);
                 }
