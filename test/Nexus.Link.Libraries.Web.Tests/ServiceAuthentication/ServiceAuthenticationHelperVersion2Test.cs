@@ -385,6 +385,7 @@ namespace Nexus.Link.Libraries.Web.Tests.ServiceAuthentication
             _clientConfigurations.Add(new ClientConfiguration { Name = "yet-another-client", Authentication = "Basic3" });
             _clientConfigurations.Add(new ClientConfiguration { Name = "client-2", Authentication = "Static1" });
             _clientConfigurations.Add(new ClientConfiguration { Name = "client-3", Authentication = "Static1" });
+            _clientConfigurations.Add(new ClientConfiguration { Name = "client-4" });
             CreateLeverConfiguration();
 
             var result = await _authenticationHelper.GetAuthorizationForClientAsync(Tenant, LeverConfiguration, ClientName);
@@ -402,6 +403,8 @@ namespace Nexus.Link.Libraries.Web.Tests.ServiceAuthentication
             result = await _authenticationHelper.GetAuthorizationForClientAsync(Tenant, LeverConfiguration, "client-3");
             Assert.AreEqual("bearer", result.Type.ToLowerInvariant());
             Assert.AreEqual("token", result.Token);
+            result = await _authenticationHelper.GetAuthorizationForClientAsync(Tenant, LeverConfiguration, "client-4");
+            Assert.IsNull(result);
             result = await _authenticationHelper.GetAuthorizationForClientAsync(Tenant, LeverConfiguration, "unknown-client");
             Assert.IsNull(result);
         }
@@ -415,7 +418,9 @@ namespace Nexus.Link.Libraries.Web.Tests.ServiceAuthentication
             var result = await _authenticationHelper.GetAuthorizationForClientAsync(Tenant, LeverConfiguration, "client-a");
             Assert.AreEqual("basic", result.Type.ToLowerInvariant());
             Assert.AreEqual("foo:bar", Base64Decode(result.Token));
-        }
 
+            result = await _authenticationHelper.GetAuthorizationForClientAsync(Tenant, LeverConfiguration, "client-no-auth");
+            Assert.IsNull(result, "There is no authentication. We test that we don't get an exception.");
+        }
     }
 }
