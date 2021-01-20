@@ -32,7 +32,8 @@ namespace Nexus.Link.Libraries.Core.Logging
         public QueueToAsyncLogger(IAsyncLogger asyncLogger)
         {
             _asyncLogger = asyncLogger;
-            _queue = new MemoryQueue<LogQueueEnvelope>("LogQueue", LogFailSafeAsync);
+            _queue = new MemoryQueue<LogQueueEnvelope>("LogQueue");
+            _queue.SetQueueItemAction(LogFailSafeAsync);
         }
 
         /// <inheritdoc />
@@ -102,7 +103,7 @@ namespace Nexus.Link.Libraries.Core.Logging
         {
             if (FulcrumApplication.Setup.SynchronousFastLogger?.GetType() == typeof(TraceSourceLogger)) return;
             if (!FulcrumApplication.IsInDevelopment) return;
-            
+
             new TraceSourceLogger().SafeLog(severityLevel, logRecord.ToLogString(true));
         }
 
