@@ -90,7 +90,7 @@ namespace Nexus.Link.Libraries.Core.Storage.Logic
         public static void MaybeUpdateTimeStamps<TModel>(TModel item, bool updateCreatedToo, DateTimeOffset? timeStamp = null)
         {
             if (!(item is ITimeStamped timeStamped)) return;
-            timeStamp = timeStamp ?? DateTimeOffset.Now;
+            timeStamp = timeStamp ?? DateTimeOffset.UtcNow;
             timeStamped.RecordUpdatedAt = timeStamp.Value;
             if (updateCreatedToo) timeStamped.RecordCreatedAt = timeStamp.Value;
         }
