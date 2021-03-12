@@ -1,5 +1,6 @@
 ﻿using System.Net;
 using System.Net.Http;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Rest;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -7,6 +8,7 @@ using Moq;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Nexus.Link.Libraries.Core.Application;
+using Nexus.Link.Libraries.Core.Error.Logic;
 using Nexus.Link.Libraries.Web.RestClientHelper;
 using Nexus.Link.Libraries.Web.Tests.Support.Models;
 
@@ -16,6 +18,7 @@ namespace Nexus.Link.Libraries.Web.Tests.RestClientHelper
     public class RestClientTest : TestBase
     {
         private HttpSender _httpSender;
+        private HttpRequestMessage _actualRequestMessage;
 
         [TestInitialize]
         public void Initialize()
@@ -23,6 +26,50 @@ namespace Nexus.Link.Libraries.Web.Tests.RestClientHelper
             FulcrumApplicationHelper.UnitTestSetup(typeof(RestClientTest).FullName);
             HttpClientMock = new Mock<IHttpClient>();
             _httpSender = new HttpSender("http://example.se") {HttpClient = HttpClientMock.Object};
+        }
+
+        protected void PrepareSendAsync()
+        {
+            HttpClientMock.Setup(s => s.SendAsync(It.IsAny<HttpRequestMessage>(), It.IsAny<CancellationToken>()))
+                .Callback((HttpRequestMessage m, CancellationToken ct) =>
+                {
+                    _actualRequestMessage = m;
+                })
+                .ReturnsAsync(new HttpResponseMessage(HttpStatusCode.OK));
+        }
+
+        [DataTestMethod]
+        [DataRow("", "https://example.com", "https://example.com")]
+        [DataRow(" ", "https://example.com", "https://example.com")]
+        [DataRow(null, "https://example.com", "https://example.com")]
+        [DataRow("https://example.com", "", "https://example.com")]
+        [DataRow("https://example.com", " ", "https://example.com")]
+        [DataRow("https://example.com", "/tests", "https://example.com/tests")]
+        [DataRow("https://example.com", "tests", "https://example.com/tests")]
+        [DataRow("https://example.com", "?test=123", "https://example.com?test=123")]
+        [DataRow("https://example.com", null, "https://example.com")]
+        public async Task BaseUrlAndRelativeUrlTests(string baseUri, string relativeUrl, string expectedUrl)
+        {
+            // Arrange
+            PrepareSendAsync();
+            var sender = new HttpSender(baseUri) { HttpClient = HttpClientMock.Object };
+
+            // Act
+            await sender.SendRequestAsync(HttpMethod.Get, relativeUrl);
+
+            // Assert
+            Assert.AreEqual(expectedUrl, _actualRequestMessage.RequestUri.OriginalString);
+        }
+
+        [DataTestMethod]
+        [DataRow("", "tests/123")]
+        [DataRow(" ", "tests/123")]
+        [DataRow(null, "tests/123")]
+        public async Task BaseUrlAndRelativeUrlTests_Throws(string baseUrl, string relativeUrl)
+        {
+            var sender = new HttpSender(baseUrl) { HttpClient = HttpClientMock.Object };
+            await Assert.ThrowsExceptionAsync<FulcrumContractException>(() =>
+                sender.SendRequestAsync(HttpMethod.Get, "relativeUrl"));
         }
 
         [TestMethod]
