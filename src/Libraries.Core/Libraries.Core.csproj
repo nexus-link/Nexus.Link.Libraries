@@ -33,7 +33,7 @@
 
   <PropertyGroup>
     <PackageId>Nexus.Link.Libraries.Core</PackageId>
-    <Version>4.20.1</Version>
+    <Version>4.20.2</Version>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <PackageTags>nexus;link;fulcrum;lever</PackageTags>
     <Authors>XLENT Link</Authors>
@@ -43,6 +43,7 @@
     <Copyright>Copyright ©2021 Xlent Link AB</Copyright>
     <IncludeSymbols>true</IncludeSymbols>
     <PackageReleaseNotes>
+      4.20.2 StorageHelper.MaybeUpdateTimeStamps now sets time to DateTimeOffset.UtcNow
       4.20.1 Fixed FulcrumApplication bootstrap problem where when we logged an error about e.g. RunTimeLevel.None, we required all properties of ApplicationSetup being setup, but the logging happened before we could set them
       4.20.0 MemoryQueue now has a separate set method for item actions.
       4.19.1 Fix: ITranslatorService is not called on return in in-pipe if no translations are present

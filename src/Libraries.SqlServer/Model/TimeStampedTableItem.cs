@@ -20,7 +20,7 @@ namespace Nexus.Link.Libraries.SqlServer.Model
         public override void Validate(string errorLocation, string propertyPath = "")
         {
             base.Validate(errorLocation, propertyPath);
-            var now = DateTimeOffset.Now;
+            var now = DateTimeOffset.UtcNow;
             FulcrumValidate.IsTrue(RecordCreatedAt < now, errorLocation, $"Expected {nameof(RecordCreatedAt)} ({RecordCreatedAt}) to have a value less than the current time ({now}).");
             FulcrumValidate.IsTrue(RecordUpdatedAt < now, errorLocation, $"Expected {nameof(RecordUpdatedAt)} ({RecordUpdatedAt}) to have a value less than the current time ({now}).");
         }
