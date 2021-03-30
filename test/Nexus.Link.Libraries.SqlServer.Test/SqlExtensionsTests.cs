@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using Nexus.Link.Libraries.Core.Error.Logic;
+using Nexus.Link.Libraries.Core.Misc;
 using Nexus.Link.Libraries.SqlServer.Logic;
 
 namespace Nexus.Link.Libraries.SqlServer.Test
@@ -80,7 +81,38 @@ namespace Nexus.Link.Libraries.SqlServer.Test
         [TestMethod]
         public async Task Recovers_After_Success()
         {
+            const int coolDownMs = 30;
+            var coolDown = new CoolDownStrategy(TimeSpan.FromMilliseconds(coolDownMs));
 
+            // 1. Fail
+            _connectionMock.Setup(x => x.Open()).Throws(new ApplicationException("unavailable"));
+            try
+            {
+                await _connectionMock.Object.VerifyAvailabilityAsync(TimeSpan.FromSeconds(1), coolDown);
+                Assert.Fail("Verify should throw");
+            }
+            catch (FulcrumResourceException)
+            {
+                _connectionMock.Verify(x => x.Open(), Times.Once, "Open() should have been executed");
+            }
+
+            // 2. Verify failed state
+            try
+            {
+                await _connectionMock.Object.VerifyAvailabilityAsync(TimeSpan.FromSeconds(1));
+                Assert.Fail("Verify should throw");
+            }
+            catch (FulcrumResourceException)
+            {
+                _connectionMock.Verify(x => x.Open(), Times.Once, "Open() should NOT have been executed");
+            }
+
+            // 3. Recover
+            await Task.Delay(coolDownMs);
+            _connectionMock.Setup(x => x.Open()).Verifiable();
+
+            await _connectionMock.Object.VerifyAvailabilityAsync(TimeSpan.FromSeconds(1));
+            _connectionMock.Verify(x => x.Open(), Times.Exactly(2), "Open() should have been executed again after recovery");
         }
     }
 }
