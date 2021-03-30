@@ -1,9 +1,6 @@
-﻿using System.Linq;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Nexus.Link.Libraries.Core.Health.Logic;
-using Nexus.Link.Libraries.Core.Health.Model;
-using Nexus.Link.Libraries.Core.MultiTenant.Model;
+using Nexus.Link.Libraries.Core.Application;
 
 namespace Nexus.Link.Libraries.Core.Tests.Misc
 {
@@ -13,10 +10,11 @@ namespace Nexus.Link.Libraries.Core.Tests.Misc
         [TestInitialize]
         public void Initialize()
         {
+            FulcrumApplicationHelper.UnitTestSetup(nameof(CircuitBreakerTests));
         }
 
         [TestMethod]
-        public async Task TestWithIResourceHealth2()
+        public async Task TODO()
         {
         }
     }

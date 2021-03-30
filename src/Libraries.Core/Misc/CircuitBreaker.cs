@@ -1,13 +1,13 @@
 ﻿using System;
-using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using Nexus.Link.Libraries.Core.Assert;
+using Nexus.Link.Libraries.Core.Misc.Models;
 
 namespace Nexus.Link.Libraries.Core.Misc
 {
     public class CircuitBreaker
     {
-        private readonly CoolDownStrategy _errorCoolDownStrategy;
+        private readonly ICoolDownStrategy _errorCoolDownStrategy;
         private StateEnum _state = StateEnum.Ok;
 
         protected readonly object Lock = new object();
@@ -26,7 +26,7 @@ namespace Nexus.Link.Libraries.Core.Misc
         public int ConsecutiveErrors { get; private set; }
         public bool ExceptionDueToCircuitBreak => ConsecutiveErrors > 1;
 
-        public CircuitBreaker(CoolDownStrategy errorCoolDownStrategy)
+        public CircuitBreaker(ICoolDownStrategy errorCoolDownStrategy)
         {
             _errorCoolDownStrategy = errorCoolDownStrategy;
         }

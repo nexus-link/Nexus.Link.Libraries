@@ -28,7 +28,7 @@ namespace Nexus.Link.Libraries.SqlServer.Test
         {
             _connectionMock.Setup(x => x.Open()).Throws(new ApplicationException("unavailable"));
 
-            await _connectionMock.Object.VerifyAvailabilityAsync(TimeSpan.FromSeconds(1), TimeSpan.FromSeconds(60));
+            await _connectionMock.Object.VerifyAvailabilityAsync(TimeSpan.FromSeconds(1));
         }
 
         [TestMethod]
@@ -39,7 +39,7 @@ namespace Nexus.Link.Libraries.SqlServer.Test
 
             try
             {
-                await _connectionMock.Object.VerifyAvailabilityAsync(TimeSpan.FromSeconds(1), TimeSpan.FromSeconds(60));
+                await _connectionMock.Object.VerifyAvailabilityAsync(TimeSpan.FromSeconds(1));
                 Assert.Fail("Verify should throw (1)");
             }
             catch (FulcrumResourceException e)
@@ -49,7 +49,7 @@ namespace Nexus.Link.Libraries.SqlServer.Test
             }
             try
             {
-                await _connectionMock.Object.VerifyAvailabilityAsync(TimeSpan.FromSeconds(1), TimeSpan.FromSeconds(60));
+                await _connectionMock.Object.VerifyAvailabilityAsync(TimeSpan.FromSeconds(1));
                 Assert.Fail("Verify should throw (2)");
             }
             catch (FulcrumResourceException e2)

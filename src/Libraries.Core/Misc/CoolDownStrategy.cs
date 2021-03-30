@@ -1,9 +1,10 @@
 ﻿using System;
 using Nexus.Link.Libraries.Core.Assert;
+using Nexus.Link.Libraries.Core.Misc.Models;
 
 namespace Nexus.Link.Libraries.Core.Misc
 {
-    public class CoolDownStrategy
+    public class CoolDownStrategy : ICoolDownStrategy
     {
         public delegate TimeSpan CalculateCoolDownDelegate(int consecutiveFails);
 
