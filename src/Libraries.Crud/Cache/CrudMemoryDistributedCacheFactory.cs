@@ -8,15 +8,15 @@ namespace Nexus.Link.Libraries.Crud.Cache
     /// <summary>
     /// A factory for creating new caches.
     /// </summary>
-    public class MemoryDistributedCacheFactory : IDistributedCacheFactory
+    public class CrudMemoryDistributedCacheFactory : IDistributedCacheFactory
     {
-        private readonly ICrud<MemoryDistributedCache, MemoryDistributedCache, string> _storage;
+        private readonly ICrud<CrudMemoryDistributedCache, CrudMemoryDistributedCache, string> _storage;
 
         /// <summary>
         /// Constructor
         /// </summary>
         /// <param name="storage"></param>
-        public MemoryDistributedCacheFactory(ICrud<MemoryDistributedCache, MemoryDistributedCache, string> storage)
+        public CrudMemoryDistributedCacheFactory(ICrud<CrudMemoryDistributedCache, CrudMemoryDistributedCache, string> storage)
         {
             InternalContract.RequireNotNull(storage, nameof(storage));
             _storage = storage;
@@ -28,7 +28,7 @@ namespace Nexus.Link.Libraries.Crud.Cache
             var cache = await _storage.ReadAsync(key);
 
             if (cache != null) return cache;
-            cache = new MemoryDistributedCache();
+            cache = new CrudMemoryDistributedCache();
             await _storage.CreateWithSpecifiedIdAsync(key, cache);
             return cache;
         }
