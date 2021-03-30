@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
@@ -85,8 +86,32 @@ namespace Nexus.Link.Libraries.Core.Tests.Misc
         }
 
         [TestMethod]
-        public async Task Breaks_Circuit_Fast_For_Many_Parallell()
+        public async Task Breaks_Circuit_Fast_For_Many_Parallel()
         {
+            var count = 0;
+            var circuitBreaker = new CircuitBreaker(_coolDownStrategyMock.Object);
+            
+            var expectedException = new ApplicationException("Fail");
+            await ValidateCircuitBreakerUsage(circuitBreaker, () => throw new CircuitBreakerException(expectedException), expectedException);
+            _coolDownStrategyMock
+                .SetupGet(strategy => strategy.HasCooledDown)
+                .Returns(() => count == 0);
+
+            var tasks = new ConcurrentBag<Task>();
+
+            for (var i = 0; i < 1000; i++)
+            {
+                var task = ValidateCircuitBreakerUsage(circuitBreaker, async () =>
+                {
+                    count++;
+                    await Task.Delay(10);
+                    throw new CircuitBreakerException(expectedException);
+                }, expectedException);
+                tasks.Add(task);
+            }
+            
+            await Task.WhenAll(tasks);
+            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual(1, count);
         }
         
 
