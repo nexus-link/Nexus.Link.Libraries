@@ -56,13 +56,17 @@ namespace Nexus.Link.Libraries.Core.Misc
                 }
                 catch (CircuitBreakerException e)
                 {
-                    ReportFailure(e);
-                    throw;
+                    FulcrumAssert.IsNotNull(e.InnerException, CodeLocation.AsString());
+                    ReportFailure(e.InnerException);
+                    // ReSharper disable once PossibleNullReferenceException
+                    throw e.InnerException;
                 }
                 catch (ChokeException e)
                 {
-                    ReportChoked(e);
-                    throw;
+                    FulcrumAssert.IsNotNull(e.InnerException, CodeLocation.AsString());
+                    ReportChoked(e.InnerException);
+                    // ReSharper disable once PossibleNullReferenceException
+                    throw e.InnerException;
                 }
             }
             finally
@@ -93,7 +97,7 @@ namespace Nexus.Link.Libraries.Core.Misc
             }
         }
 
-        protected virtual void ReportChoked(ChokeException exception)
+        protected virtual void ReportChoked(Exception exception)
         {
             lock (Lock)
             {

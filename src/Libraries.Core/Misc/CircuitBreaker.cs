@@ -94,8 +94,10 @@ namespace Nexus.Link.Libraries.Core.Misc
             }
             catch (CircuitBreakerException e)
             {
+                FulcrumAssert.IsNotNull(e.InnerException, CodeLocation.AsString());
                 ReportFailure(e.InnerException);
-                throw;
+                // ReSharper disable once PossibleNullReferenceException
+                throw e.InnerException;
             }
         }
     }

@@ -57,7 +57,7 @@ namespace Nexus.Link.Libraries.Core.Tests.Misc
             var circuitBreaker = new CircuitBreaker(_coolDownStrategyMock.Object);
             
             var expectedException = new ApplicationException("Fail");
-            await UseCircuitBreakerAsync(circuitBreaker, expectedException, () => throw expectedException);
+            await UseCircuitBreakerAsync(circuitBreaker, expectedException, () => throw new CircuitBreakerException(expectedException));
 
             // Break circuit
             await UseCircuitBreakerAsync(circuitBreaker, expectedException, () => Task.CompletedTask);
@@ -69,7 +69,7 @@ namespace Nexus.Link.Libraries.Core.Tests.Misc
             var circuitBreaker = new CircuitBreaker(_coolDownStrategyMock.Object);
             
             var expectedException = new ApplicationException("Fail");
-            await UseCircuitBreakerAsync(circuitBreaker, expectedException, () => throw expectedException);
+            await UseCircuitBreakerAsync(circuitBreaker, expectedException, () => throw new CircuitBreakerException(expectedException));
             _coolDownStrategyMock
                 .SetupGet(strategy => strategy.HasCooledDown)
                 .Returns(true);
