@@ -34,6 +34,7 @@ namespace Nexus.Link.Libraries.SqlServer.Test
         [TestMethod]
         public async Task Breaks_Circuit_On_Consecutive_Invocations()
         {
+            // TODO: Paralell.Loop ...
             var innerException = new ApplicationException("unavailable");
             _connectionMock.Setup(x => x.Open()).Throws(innerException).Verifiable();
 
@@ -59,8 +60,10 @@ namespace Nexus.Link.Libraries.SqlServer.Test
             }
         }
 
-        // TODO: Test fail fast (not calling Open())
-        // TODO: performance test
+        [TestMethod]
+        public async Task Recovers_After_Success()
+        {
 
+        }
     }
 }

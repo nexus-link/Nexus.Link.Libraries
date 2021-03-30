@@ -14,7 +14,23 @@ namespace Nexus.Link.Libraries.Core.Tests.Misc
         }
 
         [TestMethod]
-        public async Task TODO()
+        public async Task Handles_Success()
+        {
+        }
+
+        [TestMethod]
+        public async Task Breaks_Circuit_After_Failure()
+        {
+        }
+
+        [TestMethod]
+        public async Task Allows_One_Contender_After_Failure()
+        {
+            // Test with two contenders, one should fail quick, the other goes through with it's action
+        }
+
+        [TestMethod]
+        public async Task Breaks_Circuit_Fast_For_Many_Parallell()
         {
         }
     }
