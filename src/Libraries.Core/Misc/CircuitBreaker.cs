@@ -7,11 +7,11 @@ namespace Nexus.Link.Libraries.Core.Misc
 {
     public class CircuitBreaker
     {
-        private readonly CoolDown _errorCoolDown;
+        private readonly CoolDownStrategy _errorCoolDownStrategy;
         private StateEnum _state = StateEnum.Ok;
 
         protected readonly object Lock = new object();
-        private Exception _latestException;
+        protected Exception LatestException { get; private set; }
 
         public enum StateEnum
         {
@@ -21,14 +21,14 @@ namespace Nexus.Link.Libraries.Core.Misc
         }
 
 
-        public DateTimeOffset LastFailAt => _errorCoolDown.LastFailAt;
+        public DateTimeOffset LastFailAt => _errorCoolDownStrategy.LastFailAt;
         public DateTimeOffset? FirstFailureAt { get; private set; }
         public int ConsecutiveErrors { get; private set; }
         public bool ExceptionDueToCircuitBreak => ConsecutiveErrors > 1;
 
-        public CircuitBreaker(CoolDown errorCoolDown)
+        public CircuitBreaker(CoolDownStrategy errorCoolDownStrategy)
         {
-            _errorCoolDown = errorCoolDown;
+            _errorCoolDownStrategy = errorCoolDownStrategy;
         }
 
         protected virtual bool IsQuickFailRecommended()
@@ -40,7 +40,7 @@ namespace Nexus.Link.Libraries.Core.Misc
                     case StateEnum.Ok:
                         return false;
                     case StateEnum.Failed:
-                        if (!_errorCoolDown.HasCooledDown) return true;
+                        if (!_errorCoolDownStrategy.HasCooledDown) return true;
                         // When the time has come to do another try, we will let the first contender through.
                         _state = StateEnum.ContenderIsTrying;
                         return false;
@@ -54,14 +54,15 @@ namespace Nexus.Link.Libraries.Core.Misc
             }
         }
 
-        protected virtual void ReportFailure()
+        protected virtual void ReportFailure(Exception exception)
         {
             lock (Lock)
             {
                 FirstFailureAt = FirstFailureAt ?? DateTimeOffset.UtcNow;
                 ConsecutiveErrors++;
                 _state = StateEnum.Failed;
-                _errorCoolDown.Increase();
+                LatestException = exception;
+                _errorCoolDownStrategy.Next();
             }
         }
 
@@ -74,27 +75,26 @@ namespace Nexus.Link.Libraries.Core.Misc
                 _state = StateEnum.Ok;
                 FirstFailureAt = null;
                 ConsecutiveErrors = 0;
-                _errorCoolDown.Reset();
+                LatestException = null;
+                _errorCoolDownStrategy.Reset();
             }
         }
 
-        public async Task ExecuteOrThrowAsync(Func<Task> action)
+        public virtual async Task ExecuteOrThrowAsync(Func<Task> action)
         {
             try
             {
                 if (IsQuickFailRecommended())
                 {
-                    FulcrumAssert.IsNotNull(_latestException, CodeLocation.AsString());
-                    throw _latestException;
+                    FulcrumAssert.IsNotNull(LatestException, CodeLocation.AsString());
+                    throw LatestException;
                 }
                 await action();
-                _latestException = null;
                 ReportSuccess();
             }
             catch (Exception e)
             {
-                _latestException = e;
-                ReportFailure();
+                ReportFailure(e);
                 throw;
             }
         }

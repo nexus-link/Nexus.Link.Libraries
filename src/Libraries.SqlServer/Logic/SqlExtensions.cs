@@ -14,7 +14,7 @@ namespace Nexus.Link.Libraries.SqlServer.Logic
     public static class SqlExtensions
     {
         private static MemoryCache _cache = new MemoryCache(new MemoryCacheOptions());
-        private static readonly CoolDown CoolDownStrategy = new CoolDown(TimeSpan.FromMinutes(1));
+        private static readonly CoolDownStrategy CoolDownStrategy = new CoolDownStrategy(TimeSpan.FromMinutes(1));
 
         public static async Task VerifyAvailabilityAsync(this IDbConnection connection, TimeSpan connectTimeout, CancellationToken cancellationToken = default)
         {

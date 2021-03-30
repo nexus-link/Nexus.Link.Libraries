@@ -3,32 +3,32 @@ using Nexus.Link.Libraries.Core.Assert;
 
 namespace Nexus.Link.Libraries.Core.Misc
 {
-    public class CoolDown
+    public class CoolDownStrategy
     {
         public delegate TimeSpan CalculateCoolDownDelegate(int consecutiveFails);
 
         private readonly CalculateCoolDownDelegate _calculateCoolDown;
 
-        private int _count;
+        private int _level;
         public DateTimeOffset LastFailAt { get; private set; }
         public DateTimeOffset NextTryAt { get; private set; }
 
         public bool HasCooledDown => DateTimeOffset.Now >= NextTryAt;
 
-        public CoolDown(CalculateCoolDownDelegate calculateCoolDown)
+        public CoolDownStrategy(CalculateCoolDownDelegate calculateCoolDown)
         {
             _calculateCoolDown = calculateCoolDown;
         }
 
-        public CoolDown(TimeSpan constant) : this(TimeSpan.MaxValue, constant, TimeSpan.Zero)
+        public CoolDownStrategy(TimeSpan constant) : this(TimeSpan.MaxValue, constant, TimeSpan.Zero)
         {
         }
 
-        public CoolDown(TimeSpan max, TimeSpan constant, TimeSpan coefficient) : this(max, constant, coefficient, 1.0)
+        public CoolDownStrategy(TimeSpan max, TimeSpan constant, TimeSpan coefficient) : this(max, constant, coefficient, 1.0)
         {
         }
 
-        public CoolDown(TimeSpan max, TimeSpan constant, TimeSpan coefficient, double exponentiationBase)
+        public CoolDownStrategy(TimeSpan max, TimeSpan constant, TimeSpan coefficient, double exponentiationBase)
         {
             if (coefficient == TimeSpan.Zero)
             {
@@ -42,18 +42,26 @@ namespace Nexus.Link.Libraries.Core.Misc
             {
                 _calculateCoolDown = (consecutiveFails) => Exponential(consecutiveFails, max, constant, coefficient, exponentiationBase);
             }
+            Reset();
         }
 
         public void Reset()
         {
-            _count = 0;
+            _level = 0;
+            NextTryAt = DateTimeOffset.MaxValue;
         }
 
-        public void Increase()
+        public void Next()
         {
             LastFailAt = DateTimeOffset.Now;
-            _count++;
-            NextTryAt = LastFailAt + _calculateCoolDown(_count);
+            _level++;
+            NextTryAt = LastFailAt + _calculateCoolDown(_level);
+        }
+
+        public void Start()
+        {
+            Reset();
+            Next();
         }
 
         public static TimeSpan Constant(TimeSpan constant)

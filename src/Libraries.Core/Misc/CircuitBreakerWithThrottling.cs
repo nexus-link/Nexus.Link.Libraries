@@ -1,58 +1,106 @@
 ﻿using System;
 using System.Runtime.InteropServices;
+using System.Threading.Tasks;
 using Nexus.Link.Libraries.Core.Assert;
+using Nexus.Link.Libraries.Core.Misc.Models;
 
 namespace Nexus.Link.Libraries.Core.Misc
 {
     public class CircuitBreakerWithThrottling : CircuitBreaker
     {
-        private readonly CoolDown _chokingCoolDown;
+        private Exception _latestChokeException;
+        private readonly CoolDownStrategy _chokingCoolDownStrategy;
         private readonly int _thresholdConcurrency;
         private int _maxConcurrency;
         private int _concurrencyCount;
         private bool _choked;
 
-        public CircuitBreakerWithThrottling(CoolDown errorCoolDown, CoolDown chokingCoolDown = null, int thresholdConcurrency = 0)
-        : base(errorCoolDown)
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        /// <param name="errorCoolDownStrategy">Cool down strategy for non-choking errors.</param>
+        /// <param name="chokingCoolDownStrategy">Cool down strategy for choking situations.</param>
+        /// <param name="thresholdConcurrency">When we reach this level of concurrency, the choking situation is considered over.</param>
+        public CircuitBreakerWithThrottling(CoolDownStrategy errorCoolDownStrategy, CoolDownStrategy chokingCoolDownStrategy, int thresholdConcurrency)
+        : base(errorCoolDownStrategy)
         {
-            _chokingCoolDown = chokingCoolDown;
+            InternalContract.RequireNotNull(chokingCoolDownStrategy, nameof(chokingCoolDownStrategy));
+            InternalContract.RequireGreaterThan(1, thresholdConcurrency, nameof(thresholdConcurrency));
+            _chokingCoolDownStrategy = chokingCoolDownStrategy;
             _thresholdConcurrency = thresholdConcurrency;
+            _chokingCoolDownStrategy.Reset();
         }
 
-        protected override bool IsQuickFailRecommended()
+        /// <inheritdoc />
+        public override async Task ExecuteOrThrowAsync(Func<Task> action)
         {
-            lock (Lock)
+            try
             {
-                if (base.IsQuickFailRecommended()) return true;
-                if (!_choked) return false;
-                if (_chokingCoolDown.HasCooledDown)
-                {
-                    _maxConcurrency++;
-                    _chokingCoolDown.Increase();
-                }
-
-                if (_maxConcurrency > _thresholdConcurrency)
-                {
-                    _choked = false;
-                    _maxConcurrency = 0;
-                    _chokingCoolDown.Reset();
-                    return false;
-                }
-
-                if (_concurrencyCount >= _maxConcurrency) return true;
                 _concurrencyCount++;
-                return false;
+                if (IsQuickFailRecommended())
+                {
+                    FulcrumAssert.IsNotNull(LatestException, CodeLocation.AsString());
+                    throw LatestException;
+                }
+
+                if (IsThrottlingRecommended())
+                {
+                    FulcrumAssert.IsNotNull(_latestChokeException, CodeLocation.AsString());
+                    throw _latestChokeException;
+                }
+
+                try
+                {
+                    await action();
+                    ReportSuccess();
+                }
+                catch (ChokeException e)
+                {
+                    ReportChoked(e);
+                    throw;
+                }
+                catch (Exception e)
+                {
+                    ReportFailure(e);
+                    throw;
+                }
+            }
+            finally
+            {
+                _concurrencyCount--;
             }
         }
 
-        public virtual void ReportChoking()
+        protected bool IsThrottlingRecommended()
+        {
+            lock (Lock)
+            {
+                if (_choked && _chokingCoolDownStrategy.HasCooledDown)
+                {
+                    _maxConcurrency++;
+                    _chokingCoolDownStrategy.Next();
+
+                    if (_maxConcurrency > _thresholdConcurrency)
+                    {
+                        _choked = false;
+                        _maxConcurrency = 0;
+                        _latestChokeException = null;
+                        _chokingCoolDownStrategy.Reset();
+                    }
+                }
+
+                return _choked && _concurrencyCount > _maxConcurrency;
+            }
+        }
+
+        protected virtual void ReportChoked(ChokeException exception)
         {
             lock (Lock)
             {
                 _choked = true;
                 _maxConcurrency = 1;
-                _chokingCoolDown.Reset();
-                _chokingCoolDown.Increase();
+                _latestChokeException = exception;
+                _chokingCoolDownStrategy.Start();
             }
         }
     }
