@@ -92,9 +92,9 @@ namespace Nexus.Link.Libraries.Core.Misc
                 await action();
                 ReportSuccess();
             }
-            catch (Exception e)
+            catch (CircuitBreakerException e)
             {
-                ReportFailure(e);
+                ReportFailure(e.InnerException);
                 throw;
             }
         }

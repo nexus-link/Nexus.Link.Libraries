@@ -54,14 +54,14 @@ namespace Nexus.Link.Libraries.Core.Misc
                     await action();
                     ReportSuccess();
                 }
+                catch (CircuitBreakerException e)
+                {
+                    ReportFailure(e);
+                    throw;
+                }
                 catch (ChokeException e)
                 {
                     ReportChoked(e);
-                    throw;
-                }
-                catch (Exception e)
-                {
-                    ReportFailure(e);
                     throw;
                 }
             }
