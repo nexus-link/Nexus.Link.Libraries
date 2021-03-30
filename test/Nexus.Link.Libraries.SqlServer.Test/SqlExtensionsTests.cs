@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Data;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
@@ -34,10 +35,14 @@ namespace Nexus.Link.Libraries.SqlServer.Test
         [TestMethod]
         public async Task Breaks_Circuit_On_Consecutive_Invocations()
         {
-            // TODO: Paralell.Loop ...
             var innerException = new ApplicationException("unavailable");
-            _connectionMock.Setup(x => x.Open()).Throws(innerException).Verifiable();
+            _connectionMock
+                .Setup(x => x.Open())
+                .Callback(async () => await Task.Delay(200))
+                .Throws(innerException)
+                .Verifiable();
 
+            // Fail once to set the fail state
             try
             {
                 await _connectionMock.Object.VerifyAvailabilityAsync(TimeSpan.FromSeconds(1));
@@ -48,16 +53,28 @@ namespace Nexus.Link.Libraries.SqlServer.Test
                 _connectionMock.Verify(x => x.Open(), Times.Once);
                 Assert.AreEqual(innerException, e.InnerException);
             }
-            try
+
+            // Load test
+            var resetEvent = new ManualResetEvent(false);
+            var count = 0;
+            const int parallelCalls = 1000;
+
+            Parallel.For(0, parallelCalls, async i =>
             {
-                await _connectionMock.Object.VerifyAvailabilityAsync(TimeSpan.FromSeconds(1));
-                Assert.Fail("Verify should throw (2)");
-            }
-            catch (FulcrumResourceException e2)
-            {
-                _connectionMock.Verify(x => x.Open(), Times.Once);
-                Assert.AreNotEqual(innerException, e2.InnerException);
-            }
+                try
+                {
+                    await _connectionMock.Object.VerifyAvailabilityAsync(TimeSpan.FromSeconds(1));
+                    Assert.Fail("Verify should throw (2)");
+                }
+                catch (FulcrumResourceException)
+                {
+                    _connectionMock.Verify(x => x.Open(), Times.Once);
+                    if (Interlocked.Increment(ref count) >= parallelCalls) resetEvent.Set();
+                }
+            });
+
+            Assert.IsTrue(resetEvent.WaitOne(TimeSpan.FromMilliseconds(300)), "A small time span should be enough to wait for all calls");
+            Assert.AreEqual(parallelCalls, count);
         }
 
         [TestMethod]
