@@ -28,9 +28,9 @@ namespace Nexus.Link.Libraries.Core.Tests.Misc
         public async Task Handles_Success()
         {
             var circuitBreaker = new CircuitBreaker(_coolDownStrategyMock.Object);
-            await UseCircuitBreakerAsync(circuitBreaker, null, () => Task.CompletedTask);
+            await ValidateCircuitBreakerUsage(circuitBreaker, null, () => Task.CompletedTask);
             // No circuit break after success
-            await UseCircuitBreakerAsync(circuitBreaker, null, () => Task.CompletedTask);
+            await ValidateCircuitBreakerUsage(circuitBreaker, null, () => Task.CompletedTask);
         }
 
         [TestMethod]
@@ -38,7 +38,7 @@ namespace Nexus.Link.Libraries.Core.Tests.Misc
         {
             var circuitBreaker = new CircuitBreaker(_coolDownStrategyMock.Object);
             var expectedException = new ApplicationException("Fail");
-            await UseCircuitBreakerAsync(circuitBreaker, expectedException, () => throw expectedException);
+            await ValidateCircuitBreakerUsage(circuitBreaker, expectedException, () => throw expectedException);
             Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsNull(circuitBreaker.FirstFailureAt);
         }
 
@@ -47,7 +47,7 @@ namespace Nexus.Link.Libraries.Core.Tests.Misc
         {
             var circuitBreaker = new CircuitBreaker(_coolDownStrategyMock.Object);
             var expectedException = new ApplicationException("Fail");
-            await UseCircuitBreakerAsync(circuitBreaker, expectedException, () => throw new CircuitBreakerException(expectedException));
+            await ValidateCircuitBreakerUsage(circuitBreaker, expectedException, () => throw new CircuitBreakerException(expectedException));
             Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsNotNull(circuitBreaker.FirstFailureAt);
         }
 
@@ -57,10 +57,10 @@ namespace Nexus.Link.Libraries.Core.Tests.Misc
             var circuitBreaker = new CircuitBreaker(_coolDownStrategyMock.Object);
             
             var expectedException = new ApplicationException("Fail");
-            await UseCircuitBreakerAsync(circuitBreaker, expectedException, () => throw new CircuitBreakerException(expectedException));
+            await ValidateCircuitBreakerUsage(circuitBreaker, expectedException, () => throw new CircuitBreakerException(expectedException));
 
             // Break circuit
-            await UseCircuitBreakerAsync(circuitBreaker, expectedException, () => Task.CompletedTask);
+            await ValidateCircuitBreakerUsage(circuitBreaker, expectedException, () => Task.CompletedTask);
         }
 
         [TestMethod]
@@ -69,18 +69,18 @@ namespace Nexus.Link.Libraries.Core.Tests.Misc
             var circuitBreaker = new CircuitBreaker(_coolDownStrategyMock.Object);
             
             var expectedException = new ApplicationException("Fail");
-            await UseCircuitBreakerAsync(circuitBreaker, expectedException, () => throw new CircuitBreakerException(expectedException));
+            await ValidateCircuitBreakerUsage(circuitBreaker, expectedException, () => throw new CircuitBreakerException(expectedException));
             _coolDownStrategyMock
                 .SetupGet(strategy => strategy.HasCooledDown)
                 .Returns(true);
 
             // Contender
-            var task1 = UseCircuitBreakerAsync(circuitBreaker, expectedException, async () =>
+            var task1 = ValidateCircuitBreakerUsage(circuitBreaker, null, async () =>
             {
                 await Task.Delay(10);
             });
             // This one should fail, because contender is running.
-            await UseCircuitBreakerAsync(circuitBreaker, expectedException, () => throw new ArgumentException("Should not be thrown."));
+            await ValidateCircuitBreakerUsage(circuitBreaker, expectedException, () => throw new ArgumentException("Should not be thrown."));
             await task1;
         }
 
@@ -90,7 +90,7 @@ namespace Nexus.Link.Libraries.Core.Tests.Misc
         }
         
 
-        private async Task UseCircuitBreakerAsync(CircuitBreaker circuitBreaker, ApplicationException expectedException, Func<Task> actionAsync)
+        private async Task ValidateCircuitBreakerUsage(CircuitBreaker circuitBreaker, ApplicationException expectedException, Func<Task> actionAsync)
         {
             try
             {
