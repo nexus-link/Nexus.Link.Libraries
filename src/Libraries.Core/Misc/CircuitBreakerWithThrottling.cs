@@ -100,7 +100,8 @@ namespace Nexus.Link.Libraries.Core.Misc
                 _choked = true;
                 _maxConcurrency = 1;
                 _latestChokeException = exception;
-                _chokingCoolDownStrategy.Start();
+                _chokingCoolDownStrategy.Reset();
+                _chokingCoolDownStrategy.Next();
             }
         }
     }

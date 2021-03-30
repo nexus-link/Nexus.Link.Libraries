@@ -58,12 +58,6 @@ namespace Nexus.Link.Libraries.Core.Misc
             NextTryAt = LastFailAt + _calculateCoolDown(_level);
         }
 
-        public void Start()
-        {
-            Reset();
-            Next();
-        }
-
         public static TimeSpan Constant(TimeSpan constant)
         {
             return constant;
