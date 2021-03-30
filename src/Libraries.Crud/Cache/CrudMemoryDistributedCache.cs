@@ -11,7 +11,7 @@ namespace Nexus.Link.Libraries.Crud.Cache
     /// <summary>
     /// 
     /// </summary>
-    public class MemoryDistributedCache : IDistributedCache, IFlushableCache
+    public class CrudMemoryDistributedCache : IDistributedCache, IFlushableCache
     {
         /// <summary>
         /// The actual storage of the items.
