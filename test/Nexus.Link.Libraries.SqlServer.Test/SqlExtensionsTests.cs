@@ -19,7 +19,7 @@ namespace Nexus.Link.Libraries.SqlServer.Test
         [TestInitialize]
         public void Initialize()
         {
-            SqlExtensions.ResetCache();
+            SqlExtensions.CircuitBreakerCollection.ResetCollection();
             _connectionMock = new Mock<IDbConnection>();
             _connectionMock.SetupProperty(x => x.ConnectionString);
             _connectionMock.Object.ConnectionString = "Server=localhost;Database=mock-database;";

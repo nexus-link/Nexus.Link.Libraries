@@ -83,7 +83,7 @@ namespace Nexus.Link.Libraries.Core.Misc
         }
 
         /// <inheritdoc />
-        public override async Task<T> ExecuteOrThrowAsync<T>(Func<Task<T>> requestAsync)
+        public override async Task<T> ExecuteOrThrowAsync<T>(Func<CancellationToken, Task<T>> requestAsync, CancellationToken cancellationToken = default)
         {
             try
             {
@@ -102,7 +102,7 @@ namespace Nexus.Link.Libraries.Core.Misc
 
                 try
                 {
-                    var result = await requestAsync();
+                    var result = await requestAsync(cancellationToken);
                     ReportSuccess();
                     return result;
                 }

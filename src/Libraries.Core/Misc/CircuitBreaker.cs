@@ -122,17 +122,17 @@ namespace Nexus.Link.Libraries.Core.Misc
         }
 
         /// <inheritdoc />
-        public virtual async Task ExecuteOrThrowAsync(Func<Task> requestAsync, CancellationToken cancellationToken = default)
+        public virtual async Task ExecuteOrThrowAsync(Func<CancellationToken, Task> requestAsync, CancellationToken cancellationToken = default)
         {
-            await ExecuteOrThrowAsync(async () =>
+            await ExecuteOrThrowAsync(async (t) =>
             {
-                await requestAsync();
+                await requestAsync(cancellationToken);
                 return true;
             });
         }
 
         /// <inheritdoc />
-        public virtual async Task<T> ExecuteOrThrowAsync<T>(Func<Task<T>> requestAsync, CancellationToken cancellationToken = default)
+        public virtual async Task<T> ExecuteOrThrowAsync<T>(Func<CancellationToken, Task<T>> requestAsync, CancellationToken cancellationToken = default)
         {
             try
             {
@@ -146,7 +146,7 @@ namespace Nexus.Link.Libraries.Core.Misc
 
                 try
                 {
-                    var result = await requestAsync();
+                    var result = await requestAsync(cancellationToken);
                     ReportSuccess();
                     return result;
                 }

@@ -21,7 +21,8 @@ namespace Nexus.Link.Libraries.SqlServer.Logic
 
             await CircuitBreakerCollection.ExecuteOrThrowAsync(
                 connection.ConnectionString, 
-                (t) => ConnectAsync(connection, connectTimeout, t), cancellationToken);
+                (t) => ConnectAsync(connection, connectTimeout, t), 
+                cancellationToken);
         }
 
         private static async Task ConnectAsync(IDbConnection connection, TimeSpan connectTimeout, CancellationToken cancellationToken)
