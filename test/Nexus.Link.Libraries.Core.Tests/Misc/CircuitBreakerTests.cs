@@ -83,33 +83,103 @@ namespace Nexus.Link.Libraries.Core.Tests.Misc
         }
 
         [TestMethod]
-        public async Task Parallel_Success_Overrides_CoolDown()
+        public async Task Parallel_Success_Followed_By_Fail_Overrides_CoolDown()
         {
             var circuitBreaker = new CircuitBreaker(_coolDownStrategyMock.Object);
             
-            var expectedException = new ApplicationException("Fail");
-
+            var expectedException1 = new ApplicationException("Fail 1");
+            
+            var expectedException2 = new ApplicationException("Fail 2");
+            
             // Parallel success
-            var block = true;
+            var blockSuccess = true;
             var task1 = ValidateCircuitBreakerUsageAsync(circuitBreaker, async () =>
             {
                 // ReSharper disable once AccessToModifiedClosure
-                while (block) await Task.Delay(1);
+                while (blockSuccess) await Task.Delay(1);
             });
 
-            // Fail
-            await ValidateCircuitBreakerUsageAsync(circuitBreaker, () => throw new CircuitBreakerException(expectedException), expectedException);
+            // Parallel fail
+            var blockFail = true;
+            var task2 = ValidateCircuitBreakerUsageAsync(circuitBreaker, async () =>
+            {
+                // ReSharper disable once AccessToModifiedClosure
+                while (blockFail) await Task.Delay(1);
+                throw new CircuitBreakerException(expectedException2);
+            }, expectedException2);
 
-            // Trigger success
-            block = false;
+            // Fail
+            await ValidateCircuitBreakerUsageAsync(circuitBreaker, () => throw new CircuitBreakerException(expectedException1), expectedException1);
+
+            // Trigger success followed by fail
+            blockSuccess = false;
             await task1;
+            blockFail = false;
+            await task2;
 
             _coolDownStrategyMock
                 .SetupGet(strategy => strategy.HasCooledDown)
                 .Returns(false);
 
             // Contender should execute, due to cool down is ignored (because of concurrent request succeeded)
+            var blockContender = true;
+            var task3 = ValidateCircuitBreakerUsageAsync(circuitBreaker, async () =>
+            {
+                // ReSharper disable once AccessToModifiedClosure
+                while (blockContender) await Task.Delay(1);
+            });
+
+            // This one should fail, because contender is running.
+            await ValidateCircuitBreakerUsageAsync(circuitBreaker, () => throw new ArgumentException("Should not be thrown."), expectedException2);
+            blockContender = false;
+            await task3;
+        }
+
+        [TestMethod]
+        public async Task Parallel_Fail_Followed_By_Success_Deactivates_Circuit_Break()
+        {
+            var circuitBreaker = new CircuitBreaker(_coolDownStrategyMock.Object);
+            
+            var expectedException1 = new ApplicationException("Fail 1");
+            
+            var expectedException2 = new ApplicationException("Fail 2");
+            
+            // Parallel success
+            var blockSuccess = true;
+            var task1 = ValidateCircuitBreakerUsageAsync(circuitBreaker, async () =>
+            {
+                // ReSharper disable once AccessToModifiedClosure
+                while (blockSuccess) await Task.Delay(1);
+            });
+
+            // Parallel fail
+            var blockFail = true;
+            var task2 = ValidateCircuitBreakerUsageAsync(circuitBreaker, async () =>
+            {
+                // ReSharper disable once AccessToModifiedClosure
+                while (blockFail) await Task.Delay(1);
+                throw new CircuitBreakerException(expectedException2);
+            }, expectedException2);
+
+            // Fail
+            await ValidateCircuitBreakerUsageAsync(circuitBreaker, () => throw new CircuitBreakerException(expectedException1), expectedException1);
+
+            // Trigger fail followed by success
+            blockFail = false;
+            await task2;
+            blockSuccess = false;
+            await task1;
+
+            // All should execute in parallel, as we ended with a success
+            var block1 = true;
+            var task3 = ValidateCircuitBreakerUsageAsync(circuitBreaker, async () =>
+            {
+                // ReSharper disable once AccessToModifiedClosure
+                while (block1) await Task.Delay(1);
+            });
             await ValidateCircuitBreakerUsageAsync(circuitBreaker, () => Task.Delay(1));
+            block1 = false;
+            await task3;
         }
 
         [TestMethod]

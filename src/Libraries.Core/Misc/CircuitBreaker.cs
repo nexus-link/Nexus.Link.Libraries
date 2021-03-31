@@ -15,6 +15,7 @@ namespace Nexus.Link.Libraries.Core.Misc
         protected readonly object Lock = new object();
         protected int ConcurrencyCount;
         private bool _concurrentRequestHadSuccess;
+        private bool _lastRequestHadSuccess;
 
         protected Exception LatestException { get; private set; }
 
@@ -61,6 +62,15 @@ namespace Nexus.Link.Libraries.Core.Misc
                         // Wait for all other requests to be done.
                         var othersAreRunning = ConcurrencyCount > 1;
                         if (othersAreRunning) return true;
+                        // Now all the concurrent requests are done.
+                        // If the last request was successful, we can go to state OK without
+                        // trying with a contender
+                        if (_lastRequestHadSuccess)
+                        {
+                            _concurrentRequestHadSuccess = false;
+                            _state = StateEnum.Ok;
+                            return false;
+                        }
                         // Cool down until we try again. Note! If one of the concurrent requests after the fail was detected
                         // had a success, we don't wait for cool down.
                         if (!_concurrentRequestHadSuccess && !_errorCoolDownStrategy.HasCooledDown) return true;
@@ -82,6 +92,7 @@ namespace Nexus.Link.Libraries.Core.Misc
         {
             lock (Lock)
             {
+                _lastRequestHadSuccess = false;
                 FirstFailureAt = FirstFailureAt ?? DateTimeOffset.UtcNow;
                 if (_state == StateEnum.ContenderIsTrying) ConsecutiveContenderErrors++;
                 _state = StateEnum.Failed;
@@ -99,6 +110,7 @@ namespace Nexus.Link.Libraries.Core.Misc
                 if (_state == StateEnum.Failed)
                 {
                     _concurrentRequestHadSuccess = true;
+                    _lastRequestHadSuccess = true;
                     return;
                 }
                 _state = StateEnum.Ok;
