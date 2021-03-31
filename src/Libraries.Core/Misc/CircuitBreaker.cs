@@ -144,6 +144,8 @@ namespace Nexus.Link.Libraries.Core.Misc
                     throw LatestException;
                 }
 
+                cancellationToken.ThrowIfCancellationRequested();
+
                 try
                 {
                     var result = await requestAsync(cancellationToken);
