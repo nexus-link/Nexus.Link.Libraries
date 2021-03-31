@@ -16,6 +16,7 @@ namespace Nexus.Link.Libraries.Core.Misc
         protected int ConcurrencyCount;
         private bool _concurrentRequestHadSuccess;
         private bool _lastRequestHadSuccess;
+        private CancellationTokenSource _commonCancellationTokenSource;
 
         protected Exception LatestException { get; private set; }
 
@@ -48,12 +49,14 @@ namespace Nexus.Link.Libraries.Core.Misc
         public CircuitBreaker(ICoolDownStrategy errorCoolDownStrategy)
         {
             _errorCoolDownStrategy = errorCoolDownStrategy;
+            _commonCancellationTokenSource = new CancellationTokenSource();
         }
 
         protected virtual bool IsQuickFailRecommended()
         {
             lock (Lock)
             {
+                _commonCancellationTokenSource = _commonCancellationTokenSource ?? new CancellationTokenSource();
                 switch (_state)
                 {
                     case StateEnum.Ok:
@@ -62,7 +65,8 @@ namespace Nexus.Link.Libraries.Core.Misc
                         // Wait for all other requests to be done.
                         var othersAreRunning = ConcurrencyCount > 1;
                         if (othersAreRunning) return true;
-                        // Now all the concurrent requests are done.
+                        // Now all the concurrent requests are done. Create a new common token for concurrent invocations.
+                        _commonCancellationTokenSource = new CancellationTokenSource();
                         // If the last request was successful, we can go to state OK without
                         // trying with a contender
                         if (_lastRequestHadSuccess)
@@ -97,6 +101,7 @@ namespace Nexus.Link.Libraries.Core.Misc
                 if (_state == StateEnum.ContenderIsTrying) ConsecutiveContenderErrors++;
                 _state = StateEnum.Failed;
                 LatestException = exception;
+                _commonCancellationTokenSource.Cancel(); // Cancel all concurrent calls
                 _errorCoolDownStrategy.StartNextCoolDownPeriod();
             }
         }
@@ -144,11 +149,16 @@ namespace Nexus.Link.Libraries.Core.Misc
                     throw LatestException;
                 }
 
-                cancellationToken.ThrowIfCancellationRequested();
+
+                CancellationToken token;
+
+                token = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken,
+                    _commonCancellationTokenSource.Token).Token;
+                token.ThrowIfCancellationRequested();
 
                 try
                 {
-                    var result = await requestAsync(cancellationToken);
+                    var result = await requestAsync(token);
                     ReportSuccess();
                     return result;
                 }
