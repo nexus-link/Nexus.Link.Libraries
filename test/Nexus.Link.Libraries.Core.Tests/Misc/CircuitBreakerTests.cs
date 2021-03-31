@@ -93,6 +93,7 @@ namespace Nexus.Link.Libraries.Core.Tests.Misc
             var block = true;
             var task1 = ValidateCircuitBreakerUsageAsync(circuitBreaker, async () =>
             {
+                // ReSharper disable once AccessToModifiedClosure
                 while (block) await Task.Delay(1);
             });
 
@@ -126,10 +127,16 @@ namespace Nexus.Link.Libraries.Core.Tests.Misc
                 .Returns(true);
 
             // Contender
-            var task1 = ValidateCircuitBreakerUsageAsync(circuitBreaker, () => Task.Delay(10));
+            var block = true;
+            var task1 = ValidateCircuitBreakerUsageAsync(circuitBreaker, async () =>
+            {
+                // ReSharper disable once AccessToModifiedClosure
+                while (block) await Task.Delay(1);
+            });
 
             // This one should fail, because contender is running.
             await ValidateCircuitBreakerUsageAsync(circuitBreaker, () => throw new ArgumentException("Should not be thrown."), expectedException);
+            block = false;
             await task1;
         }
 
@@ -178,17 +185,21 @@ namespace Nexus.Link.Libraries.Core.Tests.Misc
 
             var tasks = new ConcurrentBag<Task>();
 
+            var block = true;
+            // Massive parallel calling "attack", only one contender should be let through
             for (var i = 0; i < 1000; i++)
             {
                 var task = ValidateCircuitBreakerUsageAsync(circuitBreaker, async () =>
                 {
                     count++;
-                    await Task.Delay(10);
+                    // ReSharper disable once AccessToModifiedClosure
+                    while (block) await Task.Delay(1);
                     throw new CircuitBreakerException(expectedException);
                 }, expectedException);
                 tasks.Add(task);
             }
-            
+
+            block = false;
             await Task.WhenAll(tasks);
             Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual(1, count);
         }
