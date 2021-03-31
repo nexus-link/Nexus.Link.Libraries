@@ -52,7 +52,7 @@ namespace Nexus.Link.Libraries.Core.Misc
             NextTryAt = DateTimeOffset.MaxValue;
         }
 
-        public void Next()
+        public void StartNextCoolDownPeriod()
         {
             LastFailAt = DateTimeOffset.Now;
             _level++;

@@ -97,7 +97,7 @@ namespace Nexus.Link.Libraries.Core.Misc
                 if (_state == StateEnum.ContenderIsTrying) ConsecutiveContenderErrors++;
                 _state = StateEnum.Failed;
                 LatestException = exception;
-                _errorCoolDownStrategy.Next();
+                _errorCoolDownStrategy.StartNextCoolDownPeriod();
             }
         }
 

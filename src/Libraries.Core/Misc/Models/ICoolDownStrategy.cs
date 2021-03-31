@@ -8,6 +8,6 @@ namespace Nexus.Link.Libraries.Core.Misc.Models
         DateTimeOffset NextTryAt { get; }
         bool HasCooledDown { get; }
         void Reset();
-        void Next();
+        void StartNextCoolDownPeriod();
     }
 }

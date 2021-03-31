@@ -41,21 +41,26 @@ namespace Nexus.Link.Libraries.Core.Misc
         {
             lock (Lock)
             {
-                if (_choked && _chokingCoolDownStrategy.HasCooledDown)
+                if (!_choked) return false;
+
+                // Is it time to increase the allowed number of concurrent requests?
+                if (_chokingCoolDownStrategy.HasCooledDown)
                 {
                     _maxConcurrency++;
-                    _chokingCoolDownStrategy.Next();
+                    _chokingCoolDownStrategy.StartNextCoolDownPeriod();
 
+                    // If we reached the threshold, then we consider this as not a choke situation anymore
                     if (_maxConcurrency > _thresholdConcurrency)
                     {
                         _choked = false;
                         _maxConcurrency = 0;
                         _latestChokeException = null;
                         _chokingCoolDownStrategy.Reset();
+                        return false;
                     }
                 }
 
-                return _choked && ConcurrencyCount > _maxConcurrency;
+                return ConcurrencyCount > _maxConcurrency;
             }
         }
 
@@ -73,7 +78,7 @@ namespace Nexus.Link.Libraries.Core.Misc
                 _maxConcurrency = 1;
                 _latestChokeException = exception;
                 _chokingCoolDownStrategy.Reset();
-                _chokingCoolDownStrategy.Next();
+                _chokingCoolDownStrategy.StartNextCoolDownPeriod();
             }
         }
 

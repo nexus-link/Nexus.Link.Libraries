@@ -23,7 +23,7 @@ namespace Nexus.Link.Libraries.Core.Tests.Misc
             _coolDownStrategyMock
                 .Setup(strategy => strategy.Reset());
             _coolDownStrategyMock
-                .Setup(strategy => strategy.Next());
+                .Setup(strategy => strategy.StartNextCoolDownPeriod());
             _circuitBreakersUnderTest = new ICircuitBreaker[]
             {
                 new CircuitBreaker(_coolDownStrategyMock.Object),
