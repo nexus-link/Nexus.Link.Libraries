@@ -35,7 +35,7 @@ namespace Nexus.Link.Libraries.Core.Misc
         }
 
         /// <inheritdoc />
-        public override async Task ExecuteOrThrowAsync(Func<Task> action)
+        public override async Task ExecuteOrThrowAsync(Func<Task> requestAsync)
         {
             try
             {
@@ -54,7 +54,7 @@ namespace Nexus.Link.Libraries.Core.Misc
 
                 try
                 {
-                    await action();
+                    await requestAsync();
                     ReportSuccess();
                 }
                 catch (CircuitBreakerException e)

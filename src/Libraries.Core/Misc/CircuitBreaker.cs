@@ -6,6 +6,7 @@ using Nexus.Link.Libraries.Core.Misc.Models;
 
 namespace Nexus.Link.Libraries.Core.Misc
 {
+    /// <inheritdoc />
     public class CircuitBreaker : ICircuitBreaker
     {
         private readonly ICoolDownStrategy _errorCoolDownStrategy;
@@ -23,16 +24,25 @@ namespace Nexus.Link.Libraries.Core.Misc
             Failed,
         }
 
-
+        /// <inheritdoc />
         public DateTimeOffset LastFailAt => _errorCoolDownStrategy.LastFailAt;
 
         /// <inheritdoc />
         public virtual bool IsActive => _state != StateEnum.Ok || ConcurrencyCount == 0;
 
+        /// <inheritdoc />
         public DateTimeOffset? FirstFailureAt { get; private set; }
-        public int ConsecutiveErrors { get; private set; }
-        public bool ExceptionDueToCircuitBreak => ConsecutiveErrors > 1;
 
+        /// <inheritdoc />
+        public int ConsecutiveContenderErrors { get; private set; }
+
+        /// <inheritdoc />
+        public bool IsRefusing => _state != StateEnum.Ok;
+
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        /// <param name="errorCoolDownStrategy">The cool down strategy. This is used to decide when it is time to retry the resource again.</param>
         public CircuitBreaker(ICoolDownStrategy errorCoolDownStrategy)
         {
             _errorCoolDownStrategy = errorCoolDownStrategy;
@@ -66,7 +76,7 @@ namespace Nexus.Link.Libraries.Core.Misc
             lock (Lock)
             {
                 FirstFailureAt = FirstFailureAt ?? DateTimeOffset.UtcNow;
-                ConsecutiveErrors++;
+                if (_state == StateEnum.ContenderIsTrying) ConsecutiveContenderErrors++;
                 _state = StateEnum.Failed;
                 LatestException = exception;
                 _errorCoolDownStrategy.Next();
@@ -81,13 +91,24 @@ namespace Nexus.Link.Libraries.Core.Misc
             {
                 _state = StateEnum.Ok;
                 FirstFailureAt = null;
-                ConsecutiveErrors = 0;
+                if (_state == StateEnum.ContenderIsTrying) ConsecutiveContenderErrors = 0;
                 LatestException = null;
                 _errorCoolDownStrategy.Reset();
             }
         }
 
-        public virtual async Task ExecuteOrThrowAsync(Func<Task> action)
+        /// <inheritdoc />
+        public virtual async Task ExecuteOrThrowAsync(Func<Task> requestAsync)
+        {
+            await ExecuteOrThrowAsync(async () =>
+            {
+                await requestAsync();
+                return true;
+            });
+        }
+
+        /// <inheritdoc />
+        public virtual async Task<T> ExecuteOrThrowAsync<T>(Func<Task<T>> requestAsync)
         {
             try
             {
@@ -101,8 +122,9 @@ namespace Nexus.Link.Libraries.Core.Misc
 
                 try
                 {
-                    await action();
+                    var result = await requestAsync();
                     ReportSuccess();
+                    return result;
                 }
                 catch (CircuitBreakerException e)
                 {
