@@ -25,10 +25,17 @@ namespace Nexus.Link.Libraries.Core.Tests.Misc
                 .Setup(strategy => strategy.Reset());
             _coolDownStrategyMock
                 .Setup(strategy => strategy.StartNextCoolDownPeriod());
+            var circuitBreakerOptions = new CircuitBreakerWithThrottlingOptions
+            {
+                CoolDownStrategy = _coolDownStrategyMock.Object,
+                CancelConcurrentRequestsWhenOneFails = false,
+                ThrottlingCoolDownStrategy = _coolDownStrategyMock.Object,
+                ConcurrencyThresholdForChokingResolved = 100
+            };
             _circuitBreakersUnderTest = new ICircuitBreaker[]
             {
-                new CircuitBreaker(_coolDownStrategyMock.Object),
-                new CircuitBreakerWithThrottling(_coolDownStrategyMock.Object, _coolDownStrategyMock.Object, 100)
+                new CircuitBreaker(circuitBreakerOptions),
+                new CircuitBreakerWithThrottling(circuitBreakerOptions)
             };
         }
 

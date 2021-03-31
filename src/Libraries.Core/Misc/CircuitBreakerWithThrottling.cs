@@ -9,9 +9,8 @@ namespace Nexus.Link.Libraries.Core.Misc
 {
     public class CircuitBreakerWithThrottling : CircuitBreaker
     {
+        private readonly CircuitBreakerWithThrottlingOptions _options;
         private Exception _latestChokeException;
-        private readonly ICoolDownStrategy _chokingCoolDownStrategy;
-        private readonly int _thresholdConcurrency;
         private int _maxConcurrency;
         private bool _choked;
 
@@ -21,17 +20,13 @@ namespace Nexus.Link.Libraries.Core.Misc
         /// <summary>
         /// Constructor
         /// </summary>
-        /// <param name="errorCoolDownStrategy">Cool down strategy for non-choking errors.</param>
-        /// <param name="chokingCoolDownStrategy">Cool down strategy for choking situations.</param>
-        /// <param name="thresholdConcurrency">When we reach this level of concurrency, the choking situation is considered over.</param>
-        public CircuitBreakerWithThrottling(ICoolDownStrategy errorCoolDownStrategy, ICoolDownStrategy chokingCoolDownStrategy, int thresholdConcurrency)
-        : base(errorCoolDownStrategy)
+        public CircuitBreakerWithThrottling(CircuitBreakerWithThrottlingOptions options)
+        : base(options)
         {
-            InternalContract.RequireNotNull(chokingCoolDownStrategy, nameof(chokingCoolDownStrategy));
-            InternalContract.RequireGreaterThan(1, thresholdConcurrency, nameof(thresholdConcurrency));
-            _chokingCoolDownStrategy = chokingCoolDownStrategy;
-            _thresholdConcurrency = thresholdConcurrency;
-            _chokingCoolDownStrategy.Reset();
+            InternalContract.RequireNotNull(options, nameof(options));
+            InternalContract.RequireValidated(options, nameof(options));
+            _options = options;
+            _options.ThrottlingCoolDownStrategy.Reset();
         }
 
         /// <summary>
@@ -44,18 +39,18 @@ namespace Nexus.Link.Libraries.Core.Misc
                 if (!_choked) return false;
 
                 // Is it time to increase the allowed number of concurrent requests?
-                if (_chokingCoolDownStrategy.HasCooledDown)
+                if (_options.ThrottlingCoolDownStrategy.HasCooledDown)
                 {
                     _maxConcurrency++;
-                    _chokingCoolDownStrategy.StartNextCoolDownPeriod();
+                    _options.ThrottlingCoolDownStrategy.StartNextCoolDownPeriod();
 
                     // If we reached the threshold, then we consider this as not a choke situation anymore
-                    if (_maxConcurrency > _thresholdConcurrency)
+                    if (_maxConcurrency >= _options.ConcurrencyThresholdForChokingResolved)
                     {
                         _choked = false;
                         _maxConcurrency = 0;
                         _latestChokeException = null;
-                        _chokingCoolDownStrategy.Reset();
+                        _options.ThrottlingCoolDownStrategy.Reset();
                         return false;
                     }
                 }
@@ -77,8 +72,8 @@ namespace Nexus.Link.Libraries.Core.Misc
                 _choked = true;
                 _maxConcurrency = 1;
                 _latestChokeException = exception;
-                _chokingCoolDownStrategy.Reset();
-                _chokingCoolDownStrategy.StartNextCoolDownPeriod();
+                _options.ThrottlingCoolDownStrategy.Reset();
+                _options.ThrottlingCoolDownStrategy.StartNextCoolDownPeriod();
             }
         }
 

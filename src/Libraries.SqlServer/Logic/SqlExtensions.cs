@@ -13,8 +13,12 @@ namespace Nexus.Link.Libraries.SqlServer.Logic
 
     public static class SqlExtensions
     {
-        public static CircuitBreakerCollection CircuitBreakerCollection = new CircuitBreakerCollection(() => new CircuitBreaker(new CoolDownStrategy(TimeSpan.FromMinutes(1))));
-
+        public static CircuitBreakerCollection CircuitBreakerCollection = new CircuitBreakerCollection(() =>
+            new CircuitBreaker(new CircuitBreakerOptions
+            {
+                CoolDownStrategy = new CoolDownStrategy(TimeSpan.FromMinutes(1)),
+                CancelConcurrentRequestsWhenOneFails = false
+            }));
         public static async Task VerifyAvailabilityAsync(this IDbConnection connection, TimeSpan connectTimeout, CancellationToken cancellationToken = default)
         {
             if (connection.State == ConnectionState.Open) return;

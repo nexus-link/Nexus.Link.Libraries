@@ -9,7 +9,7 @@ namespace Nexus.Link.Libraries.Core.Misc
     /// <inheritdoc />
     public class CircuitBreaker : ICircuitBreaker
     {
-        private readonly ICoolDownStrategy _errorCoolDownStrategy;
+        private readonly CircuitBreakerOptions _options;
         private StateEnum _state = StateEnum.Ok;
 
         protected readonly object Lock = new object();
@@ -28,7 +28,7 @@ namespace Nexus.Link.Libraries.Core.Misc
         }
 
         /// <inheritdoc />
-        public DateTimeOffset LastFailAt => _errorCoolDownStrategy.LastFailAt;
+        public DateTimeOffset LastFailAt => _options.CoolDownStrategy.LastFailAt;
 
         /// <inheritdoc />
         public virtual bool IsActive => _state != StateEnum.Ok || ConcurrencyCount == 0;
@@ -45,10 +45,12 @@ namespace Nexus.Link.Libraries.Core.Misc
         /// <summary>
         /// Constructor
         /// </summary>
-        /// <param name="errorCoolDownStrategy">The cool down strategy. This is used to decide when it is time to retry the resource again.</param>
-        public CircuitBreaker(ICoolDownStrategy errorCoolDownStrategy)
+        public CircuitBreaker(CircuitBreakerOptions options)
         {
-            _errorCoolDownStrategy = errorCoolDownStrategy;
+            InternalContract.RequireNotNull(options, nameof(options));
+            InternalContract.RequireValidated(options, nameof(options));
+            _options = options;
+            _options.CoolDownStrategy.Reset();
             _commonCancellationTokenSource = new CancellationTokenSource();
         }
 
@@ -77,7 +79,7 @@ namespace Nexus.Link.Libraries.Core.Misc
                         }
                         // Cool down until we try again. Note! If one of the concurrent requests after the fail was detected
                         // had a success, we don't wait for cool down.
-                        if (!_concurrentRequestHadSuccess && !_errorCoolDownStrategy.HasCooledDown) return true;
+                        if (!_concurrentRequestHadSuccess && !_options.CoolDownStrategy.HasCooledDown) return true;
                         // When the time has come to do another try, we will let the first contender through.
                         _concurrentRequestHadSuccess = false;
                         _state = StateEnum.ContenderIsTrying;
@@ -101,8 +103,12 @@ namespace Nexus.Link.Libraries.Core.Misc
                 if (_state == StateEnum.ContenderIsTrying) ConsecutiveContenderErrors++;
                 _state = StateEnum.Failed;
                 LatestException = exception;
-                _commonCancellationTokenSource.Cancel(); // Cancel all concurrent calls
-                _errorCoolDownStrategy.StartNextCoolDownPeriod();
+                if (_options.CancelConcurrentRequestsWhenOneFails)
+                {
+                    // Cancel all concurrent calls
+                    _commonCancellationTokenSource.Cancel();
+                }
+                _options.CoolDownStrategy.StartNextCoolDownPeriod();
             }
         }
 
@@ -122,7 +128,7 @@ namespace Nexus.Link.Libraries.Core.Misc
                 FirstFailureAt = null;
                 if (_state == StateEnum.ContenderIsTrying) ConsecutiveContenderErrors = 0;
                 LatestException = null;
-                _errorCoolDownStrategy.Reset();
+                _options.CoolDownStrategy.Reset();
             }
         }
 
