@@ -128,7 +128,7 @@ namespace Nexus.Link.Libraries.Core.Misc
             {
                 await requestAsync(cancellationToken);
                 return true;
-            });
+            }, cancellationToken);
         }
 
         /// <inheritdoc />
