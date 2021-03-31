@@ -14,6 +14,7 @@ namespace Nexus.Link.Libraries.SqlServer.Test
     public class SqlExtensionsTests
     {
         private Mock<IDbConnection> _connectionMock;
+        private Mock<CircuitBreakerCollection> _circuitBreakerCollectionMock;
 
         [TestInitialize]
         public void Initialize()
@@ -22,6 +23,8 @@ namespace Nexus.Link.Libraries.SqlServer.Test
             _connectionMock = new Mock<IDbConnection>();
             _connectionMock.SetupProperty(x => x.ConnectionString);
             _connectionMock.Object.ConnectionString = "Server=localhost;Database=mock-database;";
+            _circuitBreakerCollectionMock = new Mock<CircuitBreakerCollection>();
+            SqlExtensions.CircuitBreakerCollection = _circuitBreakerCollectionMock.Object;
         }
 
         [TestMethod]

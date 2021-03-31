@@ -14,19 +14,15 @@ namespace Nexus.Link.Libraries.SqlServer.Logic
     public static class SqlExtensions
     {
         private static MemoryCache _cache = new MemoryCache(new MemoryCacheOptions());
-        private static readonly ICoolDownStrategy CoolDownStrategy = new CoolDownStrategy(TimeSpan.FromMinutes(1));
+        public static CircuitBreakerCollection CircuitBreakerCollection = new CircuitBreakerCollection(() => new CircuitBreaker(new CoolDownStrategy(TimeSpan.FromMinutes(1))));
 
-        public static async Task VerifyAvailabilityAsync(this IDbConnection connection, TimeSpan connectTimeout, ICoolDownStrategy coolDownStrategy = null, CancellationToken cancellationToken = default)
+        public static async Task VerifyAvailabilityAsync(this IDbConnection connection, TimeSpan connectTimeout, CancellationToken cancellationToken = default)
         {
             if (connection.State == ConnectionState.Open) return;
-            coolDownStrategy = coolDownStrategy ?? CoolDownStrategy;
-            var circuitBreaker = await _cache.GetOrCreateAsync(connection.ConnectionString, entry =>
-            {
-                entry.SlidingExpiration = TimeSpan.FromHours(1);
-                return Task.FromResult(new CircuitBreaker(coolDownStrategy));
-            });
 
-            await circuitBreaker.ExecuteOrThrowAsync(() => ConnectAsync(connection, connectTimeout, cancellationToken));
+            await CircuitBreakerCollection.ExecuteOrThrowAsync(
+                connection.ConnectionString, 
+                () => ConnectAsync(connection, connectTimeout, cancellationToken));
         }
 
         private static async Task ConnectAsync(IDbConnection connection, TimeSpan connectTimeout, CancellationToken cancellationToken)
