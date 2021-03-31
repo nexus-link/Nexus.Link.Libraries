@@ -13,7 +13,7 @@ namespace Nexus.Link.Libraries.SqlServer.Logic
 
     public static class SqlExtensions
     {
-        public static CircuitBreakerCollection CircuitBreakerCollection = new CircuitBreakerCollection(() =>
+        public static ICircuitBreakerCollection CircuitBreakerCollection = new CircuitBreakerCollection(() =>
             new CircuitBreaker(new CircuitBreakerOptions
             {
                 CoolDownStrategy = new CoolDownStrategy(TimeSpan.FromMinutes(1)),

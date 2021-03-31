@@ -6,6 +6,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using Nexus.Link.Libraries.Core.Error.Logic;
 using Nexus.Link.Libraries.Core.Misc;
+using Nexus.Link.Libraries.Core.Misc.Models;
 using Nexus.Link.Libraries.SqlServer.Logic;
 
 namespace Nexus.Link.Libraries.SqlServer.Test
@@ -14,17 +15,27 @@ namespace Nexus.Link.Libraries.SqlServer.Test
     public class SqlExtensionsTests
     {
         private Mock<IDbConnection> _connectionMock;
-        private Mock<CircuitBreakerCollection> _circuitBreakerCollectionMock;
+        private Mock<ICircuitBreakerCollection> _circuitBreakerCollectionMock;
+        private Exception _quickFailException;
 
         [TestInitialize]
         public void Initialize()
         {
+            _quickFailException = null;
             SqlExtensions.CircuitBreakerCollection.ResetCollection();
             _connectionMock = new Mock<IDbConnection>();
             _connectionMock.SetupProperty(x => x.ConnectionString);
             _connectionMock.Object.ConnectionString = "Server=localhost;Database=mock-database;";
-            _circuitBreakerCollectionMock = new Mock<CircuitBreakerCollection>();
+            _circuitBreakerCollectionMock = new Mock<ICircuitBreakerCollection>();
             SqlExtensions.CircuitBreakerCollection = _circuitBreakerCollectionMock.Object;
+            _circuitBreakerCollectionMock
+                .Setup(collection => collection.ExecuteOrThrowAsync(It.IsAny<string>(),
+                    It.IsAny<Func<CancellationToken, Task>>(), It.IsAny<CancellationToken>()))
+                .Returns(async (string k, Func<CancellationToken, Task> ra, CancellationToken ct) =>
+                {
+                    if (_quickFailException != null) throw _quickFailException;
+                    await ra(ct);
+                });
         }
 
         [TestMethod]

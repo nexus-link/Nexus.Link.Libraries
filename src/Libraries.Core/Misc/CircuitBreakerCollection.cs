@@ -8,7 +8,8 @@ using Nexus.Link.Libraries.Core.Misc.Models;
 
 namespace Nexus.Link.Libraries.Core.Misc
 {
-    public class CircuitBreakerCollection
+    /// <inheritdoc />
+    public class CircuitBreakerCollection : ICircuitBreakerCollection
     {
         private readonly Dictionary<string, ICircuitBreaker> _circuitBreakers = new Dictionary<string, ICircuitBreaker>();
         private readonly Func<ICircuitBreaker> _createCircuitBreakerDelegate;
@@ -18,6 +19,7 @@ namespace Nexus.Link.Libraries.Core.Misc
             _createCircuitBreakerDelegate = createCircuitBreakerDelegate;
         }
 
+        /// <inheritdoc />
         public bool TryGet(string key, out ICircuitBreaker circuitBreaker)
         {
             lock (_circuitBreakers)
@@ -26,15 +28,17 @@ namespace Nexus.Link.Libraries.Core.Misc
             }
         }
 
-        public async Task ExecuteOrThrowAsync(string key, Func<CancellationToken, Task> actionAsync, CancellationToken cancellationToken = default)
+        /// <inheritdoc />
+        public async Task ExecuteOrThrowAsync(string key, Func<CancellationToken, Task> requestAsync, CancellationToken cancellationToken = default)
         {
             await ExecuteOrThrowAsync<bool>(key, async (t) =>
             {
-                await actionAsync(t);
+                await requestAsync(t);
                 return true;
             }, cancellationToken);
         }
 
+        /// <inheritdoc />
         public async Task<T> ExecuteOrThrowAsync<T>(string key, Func<CancellationToken, Task<T>> requestAsync, CancellationToken cancellationToken = default)
         {
             ICircuitBreaker circuitBreaker;
@@ -62,6 +66,7 @@ namespace Nexus.Link.Libraries.Core.Misc
             }
         }
 
+        /// <inheritdoc />
         public void ResetCollection()
         {
             lock (_circuitBreakers)
