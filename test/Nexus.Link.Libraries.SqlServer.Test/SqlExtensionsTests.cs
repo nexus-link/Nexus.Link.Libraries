@@ -91,7 +91,7 @@ namespace Nexus.Link.Libraries.SqlServer.Test
             _connectionMock.Setup(x => x.Open()).Throws(new ApplicationException("unavailable"));
             try
             {
-                await _connectionMock.Object.VerifyAvailabilityAsync(TimeSpan.FromSeconds(1), coolDown);
+                await _connectionMock.Object.VerifyAvailabilityAsync(TimeSpan.FromSeconds(1)); // TODO: Lars removed this parameter: , coolDown);
                 Assert.Fail("Verify should throw");
             }
             catch (FulcrumResourceException)
