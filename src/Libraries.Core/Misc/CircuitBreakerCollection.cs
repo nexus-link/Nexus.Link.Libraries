@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 using Nexus.Link.Libraries.Core.Assert;
 using Nexus.Link.Libraries.Core.Misc.Models;
@@ -25,7 +26,16 @@ namespace Nexus.Link.Libraries.Core.Misc
             }
         }
 
-        public async Task ExecuteOrThrowAsync(string key, Func<Task> actionAsync)
+        public async Task ExecuteOrThrowAsync(string key, Func<CancellationToken, Task> actionAsync, CancellationToken cancellationToken = default)
+        {
+            await ExecuteOrThrowAsync<bool>(key, async (t) =>
+            {
+                await actionAsync(t);
+                return true;
+            }, cancellationToken);
+        }
+
+        public async Task<T> ExecuteOrThrowAsync<T>(string key, Func<CancellationToken, Task<T>> requestAsync, CancellationToken cancellationToken = default)
         {
             ICircuitBreaker circuitBreaker;
             lock (_circuitBreakers)
@@ -38,7 +48,7 @@ namespace Nexus.Link.Libraries.Core.Misc
             }
             try
             {
-                await circuitBreaker.ExecuteOrThrowAsync(actionAsync);
+                return await circuitBreaker.ExecuteOrThrowAsync(requestAsync, cancellationToken);
             }
             finally
             {
@@ -49,6 +59,14 @@ namespace Nexus.Link.Libraries.Core.Misc
                         _circuitBreakers.Remove(key);
                     }
                 }
+            }
+        }
+
+        public void ResetCollection()
+        {
+            lock (_circuitBreakers)
+            {
+                _circuitBreakers.Clear();
             }
         }
     }

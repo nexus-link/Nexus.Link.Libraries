@@ -122,7 +122,7 @@ namespace Nexus.Link.Libraries.Core.Misc
         }
 
         /// <inheritdoc />
-        public virtual async Task ExecuteOrThrowAsync(Func<Task> requestAsync)
+        public virtual async Task ExecuteOrThrowAsync(Func<Task> requestAsync, CancellationToken cancellationToken = default)
         {
             await ExecuteOrThrowAsync(async () =>
             {
@@ -132,7 +132,7 @@ namespace Nexus.Link.Libraries.Core.Misc
         }
 
         /// <inheritdoc />
-        public virtual async Task<T> ExecuteOrThrowAsync<T>(Func<Task<T>> requestAsync)
+        public virtual async Task<T> ExecuteOrThrowAsync<T>(Func<Task<T>> requestAsync, CancellationToken cancellationToken = default)
         {
             try
             {

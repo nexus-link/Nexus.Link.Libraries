@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Nexus.Link.Libraries.Core.Misc.Models
@@ -46,11 +47,12 @@ namespace Nexus.Link.Libraries.Core.Misc.Models
         /// circuit.
         /// </summary>
         /// <param name="requestAsync">The request that should be executed.</param>
+        /// <param name="cancellationToken">The token to monitor for cancellation requests.</param>
         /// <exception cref="CircuitBreakerException">When you experience an exception that you think should trigger the circuit breaker, then
         /// throw a <see cref="CircuitBreakerException"/> with your original exception as the inner exception. This will trigger the circuit breaker to
         /// break the circuit and finally throw the inner exception. The inner exception will be rethrown for every consecutive call to this method
         /// until eventually the circuit breaker will let a call pass through to check if the resource is OK.</exception>
-        Task ExecuteOrThrowAsync(Func<Task> requestAsync);
+        Task ExecuteOrThrowAsync(Func<CancellationToken, Task> requestAsync, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// The main method for the circuit breaker. In the <paramref name="requestAsync"/> method, if you experience
@@ -59,10 +61,11 @@ namespace Nexus.Link.Libraries.Core.Misc.Models
         /// circuit.
         /// </summary>
         /// <param name="requestAsync">The request that should be executed.</param>
+        /// <param name="cancellationToken">The token to monitor for cancellation requests.</param>
         /// <exception cref="CircuitBreakerException">When you experience an exception that you think should trigger the circuit breaker, then
         /// throw a <see cref="CircuitBreakerException"/> with your original exception as the inner exception. This will trigger the circuit breaker to
         /// break the circuit and finally throw the inner exception. The inner exception will be rethrown for every consecutive call to this method
         /// until eventually the circuit breaker will let a call pass through to check if the resource is OK.</exception>
-        Task<T> ExecuteOrThrowAsync<T>(Func<Task<T>> requestAsync);
+        Task<T> ExecuteOrThrowAsync<T>(Func<CancellationToken, Task<T>> requestAsync, CancellationToken cancellationToken = default);
     }
 }

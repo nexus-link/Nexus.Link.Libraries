@@ -13,7 +13,6 @@ namespace Nexus.Link.Libraries.SqlServer.Logic
 
     public static class SqlExtensions
     {
-        private static MemoryCache _cache = new MemoryCache(new MemoryCacheOptions());
         public static CircuitBreakerCollection CircuitBreakerCollection = new CircuitBreakerCollection(() => new CircuitBreaker(new CoolDownStrategy(TimeSpan.FromMinutes(1))));
 
         public static async Task VerifyAvailabilityAsync(this IDbConnection connection, TimeSpan connectTimeout, CancellationToken cancellationToken = default)
@@ -22,7 +21,7 @@ namespace Nexus.Link.Libraries.SqlServer.Logic
 
             await CircuitBreakerCollection.ExecuteOrThrowAsync(
                 connection.ConnectionString, 
-                () => ConnectAsync(connection, connectTimeout, cancellationToken));
+                (t) => ConnectAsync(connection, connectTimeout, t), cancellationToken);
         }
 
         private static async Task ConnectAsync(IDbConnection connection, TimeSpan connectTimeout, CancellationToken cancellationToken)
@@ -48,11 +47,6 @@ namespace Nexus.Link.Libraries.SqlServer.Logic
             {
                 connection.ConnectionString = originalConnectionString;
             }
-        }
-
-        public static void ResetCache()
-        {
-            _cache = new MemoryCache(new MemoryCacheOptions());
         }
     }
 }

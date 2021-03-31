@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Concurrent;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
@@ -36,9 +37,9 @@ namespace Nexus.Link.Libraries.Core.Tests.Misc
         {
             foreach (var circuitBreaker in _circuitBreakersUnderTest)
             {
-                await ValidateCircuitBreakerUsageAsync(circuitBreaker, () => Task.CompletedTask);
+                await ValidateCircuitBreakerUsageAsync(circuitBreaker, (t) => Task.CompletedTask);
                 // No circuit break after success
-                await ValidateCircuitBreakerUsageAsync(circuitBreaker, () => Task.CompletedTask);
+                await ValidateCircuitBreakerUsageAsync(circuitBreaker, (t) => Task.CompletedTask);
             }
         }
 
@@ -48,7 +49,7 @@ namespace Nexus.Link.Libraries.Core.Tests.Misc
             foreach (var circuitBreaker in _circuitBreakersUnderTest)
             {
                 var expectedException = new ApplicationException("Fail");
-                await ValidateCircuitBreakerUsageAsync(circuitBreaker, () => throw expectedException,
+                await ValidateCircuitBreakerUsageAsync(circuitBreaker, (t) => throw expectedException,
                     expectedException);
                 Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsNull(circuitBreaker.FirstFailureAt);
             }
@@ -61,7 +62,7 @@ namespace Nexus.Link.Libraries.Core.Tests.Misc
             {
                 var expectedException = new ApplicationException("Fail");
                 await ValidateCircuitBreakerUsageAsync(circuitBreaker,
-                    () => throw new CircuitBreakerException(expectedException), expectedException);
+                    (t) => throw new CircuitBreakerException(expectedException), expectedException);
                 Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsNotNull(circuitBreaker.FirstFailureAt);
             }
         }
@@ -74,10 +75,10 @@ namespace Nexus.Link.Libraries.Core.Tests.Misc
 
                 var expectedException = new ApplicationException("Fail");
                 await ValidateCircuitBreakerUsageAsync(circuitBreaker,
-                    () => throw new CircuitBreakerException(expectedException), expectedException);
+                    (t) => throw new CircuitBreakerException(expectedException), expectedException);
 
                 // Break circuit
-                await ValidateCircuitBreakerUsageAsync(circuitBreaker, () => Task.CompletedTask, expectedException);
+                await ValidateCircuitBreakerUsageAsync(circuitBreaker, (t) => Task.CompletedTask, expectedException);
             }
         }
 
@@ -91,14 +92,14 @@ namespace Nexus.Link.Libraries.Core.Tests.Misc
 
                 // Fail
                 await ValidateCircuitBreakerUsageAsync(circuitBreaker,
-                    () => throw new CircuitBreakerException(expectedException), expectedException);
+                    (t) => throw new CircuitBreakerException(expectedException), expectedException);
 
                 _coolDownStrategyMock
                     .SetupGet(strategy => strategy.HasCooledDown)
                     .Returns(false);
 
                 // Contender should not execute, due to cool down
-                await ValidateCircuitBreakerUsageAsync(circuitBreaker, () => Task.Delay(1), expectedException);
+                await ValidateCircuitBreakerUsageAsync(circuitBreaker, (t) => Task.Delay(1, t), expectedException);
             }
         }
 
@@ -114,24 +115,24 @@ namespace Nexus.Link.Libraries.Core.Tests.Misc
 
                 // Parallel success
                 var blockSuccess = true;
-                var task1 = ValidateCircuitBreakerUsageAsync(circuitBreaker, async () =>
+                var task1 = ValidateCircuitBreakerUsageAsync(circuitBreaker, async (t) =>
                 {
                     // ReSharper disable once AccessToModifiedClosure
-                    while (blockSuccess) await Task.Delay(1);
+                    while (blockSuccess) await Task.Delay(1, t);
                 });
 
                 // Parallel fail
                 var blockFail = true;
-                var task2 = ValidateCircuitBreakerUsageAsync(circuitBreaker, async () =>
+                var task2 = ValidateCircuitBreakerUsageAsync(circuitBreaker, async (t) =>
                 {
                     // ReSharper disable once AccessToModifiedClosure
-                    while (blockFail) await Task.Delay(1);
+                    while (blockFail) await Task.Delay(1, t);
                     throw new CircuitBreakerException(expectedException2);
                 }, expectedException2);
 
                 // Fail
                 await ValidateCircuitBreakerUsageAsync(circuitBreaker,
-                    () => throw new CircuitBreakerException(expectedException1), expectedException1);
+                    (t) => throw new CircuitBreakerException(expectedException1), expectedException1);
 
                 // Trigger success followed by fail
                 blockSuccess = false;
@@ -145,15 +146,15 @@ namespace Nexus.Link.Libraries.Core.Tests.Misc
 
                 // Contender should execute, due to cool down is ignored (because of concurrent request succeeded)
                 var blockContender = true;
-                var task3 = ValidateCircuitBreakerUsageAsync(circuitBreaker, async () =>
+                var task3 = ValidateCircuitBreakerUsageAsync(circuitBreaker, async (t) =>
                 {
                     // ReSharper disable once AccessToModifiedClosure
-                    while (blockContender) await Task.Delay(1);
+                    while (blockContender) await Task.Delay(1, t);
                 });
 
                 // This one should fail, because contender is running.
                 await ValidateCircuitBreakerUsageAsync(circuitBreaker,
-                    () => throw new ArgumentException("Should not be thrown."), expectedException2);
+                    (t) => throw new ArgumentException("Should not be thrown."), expectedException2);
                 blockContender = false;
                 await task3;
             }
@@ -171,24 +172,24 @@ namespace Nexus.Link.Libraries.Core.Tests.Misc
 
                 // Parallel success
                 var blockSuccess = true;
-                var task1 = ValidateCircuitBreakerUsageAsync(circuitBreaker, async () =>
+                var task1 = ValidateCircuitBreakerUsageAsync(circuitBreaker, async (t) =>
                 {
                     // ReSharper disable once AccessToModifiedClosure
-                    while (blockSuccess) await Task.Delay(1);
+                    while (blockSuccess) await Task.Delay(1, t);
                 });
 
                 // Parallel fail
                 var blockFail = true;
-                var task2 = ValidateCircuitBreakerUsageAsync(circuitBreaker, async () =>
+                var task2 = ValidateCircuitBreakerUsageAsync(circuitBreaker, async (t) =>
                 {
                     // ReSharper disable once AccessToModifiedClosure
-                    while (blockFail) await Task.Delay(1);
+                    while (blockFail) await Task.Delay(1, t);
                     throw new CircuitBreakerException(expectedException2);
                 }, expectedException2);
 
                 // Fail
                 await ValidateCircuitBreakerUsageAsync(circuitBreaker,
-                    () => throw new CircuitBreakerException(expectedException1), expectedException1);
+                    (t) => throw new CircuitBreakerException(expectedException1), expectedException1);
 
                 // Trigger fail followed by success
                 blockFail = false;
@@ -198,12 +199,12 @@ namespace Nexus.Link.Libraries.Core.Tests.Misc
 
                 // All should execute in parallel, as we ended with a success
                 var block1 = true;
-                var task3 = ValidateCircuitBreakerUsageAsync(circuitBreaker, async () =>
+                var task3 = ValidateCircuitBreakerUsageAsync(circuitBreaker, async (t) =>
                 {
                     // ReSharper disable once AccessToModifiedClosure
-                    while (block1) await Task.Delay(1);
+                    while (block1) await Task.Delay(1, t);
                 });
-                await ValidateCircuitBreakerUsageAsync(circuitBreaker, () => Task.Delay(1));
+                await ValidateCircuitBreakerUsageAsync(circuitBreaker, (t) => Task.Delay(1, t));
                 block1 = false;
                 await task3;
             }
@@ -219,7 +220,7 @@ namespace Nexus.Link.Libraries.Core.Tests.Misc
 
                 // Fail
                 await ValidateCircuitBreakerUsageAsync(circuitBreaker,
-                    () => throw new CircuitBreakerException(expectedException), expectedException);
+                    (t) => throw new CircuitBreakerException(expectedException), expectedException);
 
                 _coolDownStrategyMock
                     .SetupGet(strategy => strategy.HasCooledDown)
@@ -227,15 +228,15 @@ namespace Nexus.Link.Libraries.Core.Tests.Misc
 
                 // Contender
                 var block = true;
-                var task1 = ValidateCircuitBreakerUsageAsync(circuitBreaker, async () =>
+                var task1 = ValidateCircuitBreakerUsageAsync(circuitBreaker, async (t) =>
                 {
                     // ReSharper disable once AccessToModifiedClosure
-                    while (block) await Task.Delay(1);
+                    while (block) await Task.Delay(1, t);
                 });
 
                 // This one should fail, because contender is running.
                 await ValidateCircuitBreakerUsageAsync(circuitBreaker,
-                    () => throw new ArgumentException("Should not be thrown."), expectedException);
+                    (t) => throw new ArgumentException("Should not be thrown."), expectedException);
                 block = false;
                 await task1;
             }
@@ -251,27 +252,27 @@ namespace Nexus.Link.Libraries.Core.Tests.Misc
                 var expectedException = new ApplicationException("Fail");
 
                 // Blocking execution
-                var task1 = ValidateCircuitBreakerUsageAsync(circuitBreaker, async () =>
+                var task1 = ValidateCircuitBreakerUsageAsync(circuitBreaker, async (t) =>
                 {
                     // ReSharper disable once AccessToModifiedClosure
-                    while (block) await Task.Delay(1);
+                    while (block) await Task.Delay(1, t);
                 });
 
                 // Fail
                 await ValidateCircuitBreakerUsageAsync(circuitBreaker,
-                    () => throw new CircuitBreakerException(expectedException), expectedException);
+                    (t) => throw new CircuitBreakerException(expectedException), expectedException);
 
                 _coolDownStrategyMock
                     .SetupGet(strategy => strategy.HasCooledDown)
                     .Returns(true);
 
                 // This one should fail, because no contender can run as long as earlier requests are still running.
-                await ValidateCircuitBreakerUsageAsync(circuitBreaker, () => Task.Delay(1), expectedException);
+                await ValidateCircuitBreakerUsageAsync(circuitBreaker, (t) => Task.Delay(1, t), expectedException);
                 block = false;
                 await task1;
 
                 // Allow contender through
-                await ValidateCircuitBreakerUsageAsync(circuitBreaker, () => Task.Delay(1));
+                await ValidateCircuitBreakerUsageAsync(circuitBreaker, (t) => Task.Delay(1, t));
             }
         }
 
@@ -284,7 +285,7 @@ namespace Nexus.Link.Libraries.Core.Tests.Misc
 
                 var expectedException = new ApplicationException("Fail");
                 await ValidateCircuitBreakerUsageAsync(circuitBreaker,
-                    () => throw new CircuitBreakerException(expectedException), expectedException);
+                    (t) => throw new CircuitBreakerException(expectedException), expectedException);
                 _coolDownStrategyMock
                     .SetupGet(strategy => strategy.HasCooledDown)
                     .Returns(() => count == 0);
@@ -295,11 +296,11 @@ namespace Nexus.Link.Libraries.Core.Tests.Misc
                 // Massive parallel calling "attack", only one contender should be let through
                 for (var i = 0; i < 1000; i++)
                 {
-                    var task = ValidateCircuitBreakerUsageAsync(circuitBreaker, async () =>
+                    var task = ValidateCircuitBreakerUsageAsync(circuitBreaker, async (t) =>
                     {
                         count++;
                         // ReSharper disable once AccessToModifiedClosure
-                        while (block) await Task.Delay(1);
+                        while (block) await Task.Delay(1, t);
                         throw new CircuitBreakerException(expectedException);
                     }, expectedException);
                     tasks.Add(task);
@@ -312,13 +313,12 @@ namespace Nexus.Link.Libraries.Core.Tests.Misc
         }
         
 
-        private async Task ValidateCircuitBreakerUsageAsync(ICircuitBreaker circuitBreaker, Func<Task> actionAsync, ApplicationException expectedException = null)
+        private async Task ValidateCircuitBreakerUsageAsync(ICircuitBreaker circuitBreaker, Func<CancellationToken, Task> actionAsync, ApplicationException expectedException = null, CancellationToken cancellationToken = default)
         {
             var exceptionThrown = false;
             try
             {
-                await circuitBreaker.ExecuteOrThrowAsync(actionAsync);
-
+                await circuitBreaker.ExecuteOrThrowAsync(actionAsync, cancellationToken);
             }
             catch (Exception e)
             {
