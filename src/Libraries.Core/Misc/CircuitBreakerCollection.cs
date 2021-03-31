@@ -17,6 +17,14 @@ namespace Nexus.Link.Libraries.Core.Misc
             _createCircuitBreakerDelegate = createCircuitBreakerDelegate;
         }
 
+        public bool TryGet(string key, out ICircuitBreaker circuitBreaker)
+        {
+            lock (_circuitBreakers)
+            {
+                return _circuitBreakers.TryGetValue(key, out circuitBreaker);
+            }
+        }
+
         public async Task ExecuteOrThrowAsync(string key, Func<Task> actionAsync)
         {
             ICircuitBreaker circuitBreaker;
