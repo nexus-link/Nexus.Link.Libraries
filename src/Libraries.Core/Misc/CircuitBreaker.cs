@@ -1,16 +1,19 @@
 ﻿using System;
+using System.Threading;
 using System.Threading.Tasks;
 using Nexus.Link.Libraries.Core.Assert;
 using Nexus.Link.Libraries.Core.Misc.Models;
 
 namespace Nexus.Link.Libraries.Core.Misc
 {
-    public class CircuitBreaker
+    public class CircuitBreaker : ICircuitBreaker
     {
         private readonly ICoolDownStrategy _errorCoolDownStrategy;
         private StateEnum _state = StateEnum.Ok;
 
         protected readonly object Lock = new object();
+        protected int ConcurrencyCount;
+
         protected Exception LatestException { get; private set; }
 
         public enum StateEnum
@@ -22,6 +25,10 @@ namespace Nexus.Link.Libraries.Core.Misc
 
 
         public DateTimeOffset LastFailAt => _errorCoolDownStrategy.LastFailAt;
+
+        /// <inheritdoc />
+        public virtual bool IsActive => _state != StateEnum.Ok || ConcurrencyCount == 0;
+
         public DateTimeOffset? FirstFailureAt { get; private set; }
         public int ConsecutiveErrors { get; private set; }
         public bool ExceptionDueToCircuitBreak => ConsecutiveErrors > 1;
@@ -84,20 +91,30 @@ namespace Nexus.Link.Libraries.Core.Misc
         {
             try
             {
+                Interlocked.Increment(ref ConcurrencyCount);
+
                 if (IsQuickFailRecommended())
                 {
                     FulcrumAssert.IsNotNull(LatestException, CodeLocation.AsString());
                     throw LatestException;
                 }
-                await action();
-                ReportSuccess();
+
+                try
+                {
+                    await action();
+                    ReportSuccess();
+                }
+                catch (CircuitBreakerException e)
+                {
+                    FulcrumAssert.IsNotNull(e.InnerException, CodeLocation.AsString());
+                    ReportFailure(e.InnerException);
+                    // ReSharper disable once PossibleNullReferenceException
+                    throw e.InnerException;
+                }
             }
-            catch (CircuitBreakerException e)
+            finally
             {
-                FulcrumAssert.IsNotNull(e.InnerException, CodeLocation.AsString());
-                ReportFailure(e.InnerException);
-                // ReSharper disable once PossibleNullReferenceException
-                throw e.InnerException;
+                Interlocked.Decrement(ref ConcurrencyCount);
             }
         }
     }

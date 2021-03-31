@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Runtime.InteropServices;
+using System.Threading;
 using System.Threading.Tasks;
 using Nexus.Link.Libraries.Core.Assert;
 using Nexus.Link.Libraries.Core.Misc.Models;
@@ -12,8 +13,10 @@ namespace Nexus.Link.Libraries.Core.Misc
         private readonly CoolDownStrategy _chokingCoolDownStrategy;
         private readonly int _thresholdConcurrency;
         private int _maxConcurrency;
-        private int _concurrencyCount;
         private bool _choked;
+
+        /// <inheritdoc />
+        public override bool IsActive => base.IsActive || _choked;
 
         /// <summary>
         /// Constructor
@@ -36,7 +39,7 @@ namespace Nexus.Link.Libraries.Core.Misc
         {
             try
             {
-                _concurrencyCount++;
+                Interlocked.Increment(ref ConcurrencyCount);
                 if (IsQuickFailRecommended())
                 {
                     FulcrumAssert.IsNotNull(LatestException, CodeLocation.AsString());
@@ -71,7 +74,7 @@ namespace Nexus.Link.Libraries.Core.Misc
             }
             finally
             {
-                _concurrencyCount--;
+                Interlocked.Decrement(ref ConcurrencyCount);
             }
         }
 
@@ -93,7 +96,7 @@ namespace Nexus.Link.Libraries.Core.Misc
                     }
                 }
 
-                return _choked && _concurrencyCount > _maxConcurrency;
+                return _choked && ConcurrencyCount > _maxConcurrency;
             }
         }
 
