@@ -16,7 +16,7 @@ namespace Nexus.Link.Libraries.Core.Misc
         private bool _choked;
 
         /// <inheritdoc />
-        public override bool IsActive => base.IsActive || _choked;
+        public override bool IsActive => _choked || base.IsActive;
 
         /// <summary>
         /// Constructor
@@ -34,50 +34,9 @@ namespace Nexus.Link.Libraries.Core.Misc
             _chokingCoolDownStrategy.Reset();
         }
 
-        /// <inheritdoc />
-        public override async Task ExecuteOrThrowAsync(Func<Task> requestAsync)
-        {
-            try
-            {
-                Interlocked.Increment(ref ConcurrencyCount);
-                if (IsQuickFailRecommended())
-                {
-                    FulcrumAssert.IsNotNull(LatestException, CodeLocation.AsString());
-                    throw LatestException;
-                }
-
-                if (IsThrottlingRecommended())
-                {
-                    FulcrumAssert.IsNotNull(_latestChokeException, CodeLocation.AsString());
-                    throw _latestChokeException;
-                }
-
-                try
-                {
-                    await requestAsync();
-                    ReportSuccess();
-                }
-                catch (CircuitBreakerException e)
-                {
-                    FulcrumAssert.IsNotNull(e.InnerException, CodeLocation.AsString());
-                    ReportFailure(e.InnerException);
-                    // ReSharper disable once PossibleNullReferenceException
-                    throw e.InnerException;
-                }
-                catch (ChokeException e)
-                {
-                    FulcrumAssert.IsNotNull(e.InnerException, CodeLocation.AsString());
-                    ReportChoked(e.InnerException);
-                    // ReSharper disable once PossibleNullReferenceException
-                    throw e.InnerException;
-                }
-            }
-            finally
-            {
-                Interlocked.Decrement(ref ConcurrencyCount);
-            }
-        }
-
+        /// <summary>
+        /// Returns true if we are in a choking situation and there are too many concurrent requests.
+        /// </summary>
         protected bool IsThrottlingRecommended()
         {
             lock (Lock)
@@ -100,6 +59,12 @@ namespace Nexus.Link.Libraries.Core.Misc
             }
         }
 
+        /// <summary>
+        /// Call this when we have a choking situation.
+        /// As a result, the circuit breaker will go down to only allowing one request at a time, and then gradually
+        /// increase the number of concurrent requests.
+        /// </summary>
+        /// <param name="exception"></param>
         protected virtual void ReportChoked(Exception exception)
         {
             lock (Lock)
@@ -109,6 +74,51 @@ namespace Nexus.Link.Libraries.Core.Misc
                 _latestChokeException = exception;
                 _chokingCoolDownStrategy.Reset();
                 _chokingCoolDownStrategy.Next();
+            }
+        }
+
+        /// <inheritdoc />
+        public override async Task<T> ExecuteOrThrowAsync<T>(Func<Task<T>> requestAsync)
+        {
+            try
+            {
+                Interlocked.Increment(ref ConcurrencyCount);
+                if (IsQuickFailRecommended())
+                {
+                    FulcrumAssert.IsNotNull(LatestException, CodeLocation.AsString());
+                    throw LatestException;
+                }
+
+                if (IsThrottlingRecommended())
+                {
+                    FulcrumAssert.IsNotNull(_latestChokeException, CodeLocation.AsString());
+                    throw _latestChokeException;
+                }
+
+                try
+                {
+                    var result = await requestAsync();
+                    ReportSuccess();
+                    return result;
+                }
+                catch (CircuitBreakerException e)
+                {
+                    FulcrumAssert.IsNotNull(e.InnerException, CodeLocation.AsString());
+                    ReportFailure(e.InnerException);
+                    // ReSharper disable once PossibleNullReferenceException
+                    throw e.InnerException;
+                }
+                catch (ChokeException e)
+                {
+                    FulcrumAssert.IsNotNull(e.InnerException, CodeLocation.AsString());
+                    ReportChoked(e.InnerException);
+                    // ReSharper disable once PossibleNullReferenceException
+                    throw e.InnerException;
+                }
+            }
+            finally
+            {
+                Interlocked.Decrement(ref ConcurrencyCount);
             }
         }
     }
