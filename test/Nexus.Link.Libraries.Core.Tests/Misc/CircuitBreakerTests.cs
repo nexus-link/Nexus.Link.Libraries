@@ -29,9 +29,9 @@ namespace Nexus.Link.Libraries.Core.Tests.Misc
         public async Task Handles_Success()
         {
             var circuitBreaker = new CircuitBreaker(_coolDownStrategyMock.Object);
-            await ValidateCircuitBreakerUsage(circuitBreaker, () => Task.CompletedTask);
+            await ValidateCircuitBreakerUsageAsync(circuitBreaker, () => Task.CompletedTask);
             // No circuit break after success
-            await ValidateCircuitBreakerUsage(circuitBreaker, () => Task.CompletedTask);
+            await ValidateCircuitBreakerUsageAsync(circuitBreaker, () => Task.CompletedTask);
         }
 
         [TestMethod]
@@ -39,7 +39,7 @@ namespace Nexus.Link.Libraries.Core.Tests.Misc
         {
             var circuitBreaker = new CircuitBreaker(_coolDownStrategyMock.Object);
             var expectedException = new ApplicationException("Fail");
-            await ValidateCircuitBreakerUsage(circuitBreaker, () => throw expectedException, expectedException);
+            await ValidateCircuitBreakerUsageAsync(circuitBreaker, () => throw expectedException, expectedException);
             Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsNull(circuitBreaker.FirstFailureAt);
         }
 
@@ -48,7 +48,7 @@ namespace Nexus.Link.Libraries.Core.Tests.Misc
         {
             var circuitBreaker = new CircuitBreaker(_coolDownStrategyMock.Object);
             var expectedException = new ApplicationException("Fail");
-            await ValidateCircuitBreakerUsage(circuitBreaker, () => throw new CircuitBreakerException(expectedException), expectedException);
+            await ValidateCircuitBreakerUsageAsync(circuitBreaker, () => throw new CircuitBreakerException(expectedException), expectedException);
             Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsNotNull(circuitBreaker.FirstFailureAt);
         }
 
@@ -58,10 +58,10 @@ namespace Nexus.Link.Libraries.Core.Tests.Misc
             var circuitBreaker = new CircuitBreaker(_coolDownStrategyMock.Object);
             
             var expectedException = new ApplicationException("Fail");
-            await ValidateCircuitBreakerUsage(circuitBreaker, () => throw new CircuitBreakerException(expectedException), expectedException);
+            await ValidateCircuitBreakerUsageAsync(circuitBreaker, () => throw new CircuitBreakerException(expectedException), expectedException);
 
             // Break circuit
-            await ValidateCircuitBreakerUsage(circuitBreaker, () => Task.CompletedTask, expectedException);
+            await ValidateCircuitBreakerUsageAsync(circuitBreaker, () => Task.CompletedTask, expectedException);
         }
 
         [TestMethod]
@@ -70,19 +70,51 @@ namespace Nexus.Link.Libraries.Core.Tests.Misc
             var circuitBreaker = new CircuitBreaker(_coolDownStrategyMock.Object);
             
             var expectedException = new ApplicationException("Fail");
-            await ValidateCircuitBreakerUsage(circuitBreaker, () => throw new CircuitBreakerException(expectedException), expectedException);
+
+            // Fail
+            await ValidateCircuitBreakerUsageAsync(circuitBreaker, () => throw new CircuitBreakerException(expectedException), expectedException);
+
             _coolDownStrategyMock
                 .SetupGet(strategy => strategy.HasCooledDown)
                 .Returns(true);
 
             // Contender
-            var task1 = ValidateCircuitBreakerUsage(circuitBreaker, async () =>
-            {
-                await Task.Delay(10);
-            });
+            var task1 = ValidateCircuitBreakerUsageAsync(circuitBreaker, () => Task.Delay(10));
+
             // This one should fail, because contender is running.
-            await ValidateCircuitBreakerUsage(circuitBreaker, () => throw new ArgumentException("Should not be thrown."), expectedException);
+            await ValidateCircuitBreakerUsageAsync(circuitBreaker, () => throw new ArgumentException("Should not be thrown."), expectedException);
             await task1;
+        }
+
+        [TestMethod]
+        public async Task No_Contender_While_Others_Are_Executing()
+        {
+            var circuitBreaker = new CircuitBreaker(_coolDownStrategyMock.Object);
+            bool block = true;
+            
+            var expectedException = new ApplicationException("Fail");
+
+            // Blocking execution
+            var task1 = ValidateCircuitBreakerUsageAsync(circuitBreaker, async () =>
+            {
+                // ReSharper disable once AccessToModifiedClosure
+                while (block) await Task.Delay(1);
+            });
+
+            // Fail
+            await ValidateCircuitBreakerUsageAsync(circuitBreaker, () => throw new CircuitBreakerException(expectedException), expectedException);
+
+            _coolDownStrategyMock
+                .SetupGet(strategy => strategy.HasCooledDown)
+                .Returns(true);
+
+            // This one should fail, because no contender can run as long as earlier requests are still running.
+            await ValidateCircuitBreakerUsageAsync(circuitBreaker, () => Task.Delay(1), expectedException);
+            block = false;
+            await task1;
+
+            // Allow contender through
+            await ValidateCircuitBreakerUsageAsync(circuitBreaker, () => Task.Delay(1));
         }
 
         [TestMethod]
@@ -92,7 +124,7 @@ namespace Nexus.Link.Libraries.Core.Tests.Misc
             var circuitBreaker = new CircuitBreaker(_coolDownStrategyMock.Object);
             
             var expectedException = new ApplicationException("Fail");
-            await ValidateCircuitBreakerUsage(circuitBreaker, () => throw new CircuitBreakerException(expectedException), expectedException);
+            await ValidateCircuitBreakerUsageAsync(circuitBreaker, () => throw new CircuitBreakerException(expectedException), expectedException);
             _coolDownStrategyMock
                 .SetupGet(strategy => strategy.HasCooledDown)
                 .Returns(() => count == 0);
@@ -101,7 +133,7 @@ namespace Nexus.Link.Libraries.Core.Tests.Misc
 
             for (var i = 0; i < 1000; i++)
             {
-                var task = ValidateCircuitBreakerUsage(circuitBreaker, async () =>
+                var task = ValidateCircuitBreakerUsageAsync(circuitBreaker, async () =>
                 {
                     count++;
                     await Task.Delay(10);
@@ -115,17 +147,17 @@ namespace Nexus.Link.Libraries.Core.Tests.Misc
         }
         
 
-        private async Task ValidateCircuitBreakerUsage(CircuitBreaker circuitBreaker, Func<Task> actionAsync, ApplicationException expectedException = null)
+        private async Task ValidateCircuitBreakerUsageAsync(CircuitBreaker circuitBreaker, Func<Task> actionAsync, ApplicationException expectedException = null)
         {
+            var exceptionThrown = false;
             try
             {
                 await circuitBreaker.ExecuteOrThrowAsync(actionAsync);
-                if (expectedException != null) {
-                    Microsoft.VisualStudio.TestTools.UnitTesting.Assert.Fail($"No exception thrown, expected exception {expectedException.GetType().FullName}.");
-                }
+
             }
             catch (Exception e)
             {
+                exceptionThrown = true;
                 if (expectedException == null)
                 {
                     Microsoft.VisualStudio.TestTools.UnitTesting.Assert.Fail(
@@ -133,6 +165,9 @@ namespace Nexus.Link.Libraries.Core.Tests.Misc
                 }
                 Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsInstanceOfType(e, expectedException.GetType(), $"Expected exception of type {expectedException.GetType().FullName}, but got {e.GetType().FullName}: {e.Message}");
                 Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual(expectedException.Message, e.Message, $"Expected message {expectedException.Message}, got {e.Message}");
+            }
+            if (expectedException != null) {
+                Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsTrue(exceptionThrown, $"No exception thrown, expected exception {expectedException.GetType().FullName}.");
             }
         }
     }

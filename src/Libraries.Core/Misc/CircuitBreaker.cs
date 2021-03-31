@@ -58,6 +58,7 @@ namespace Nexus.Link.Libraries.Core.Misc
                         return false;
                     case StateEnum.Failed:
                         if (!_errorCoolDownStrategy.HasCooledDown) return true;
+                        if (ConcurrencyCount > 1) return true;
                         // When the time has come to do another try, we will let the first contender through.
                         _state = StateEnum.ContenderIsTrying;
                         return false;
@@ -85,7 +86,7 @@ namespace Nexus.Link.Libraries.Core.Misc
 
         protected virtual void ReportSuccess()
         {
-            if (_state == StateEnum.Ok) return;
+            if (_state != StateEnum.ContenderIsTrying) return;
 
             lock (Lock)
             {
