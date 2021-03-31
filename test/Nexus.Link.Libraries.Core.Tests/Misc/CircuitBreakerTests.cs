@@ -65,6 +65,53 @@ namespace Nexus.Link.Libraries.Core.Tests.Misc
         }
 
         [TestMethod]
+        public async Task No_Contender_During_CoolDown()
+        {
+            var circuitBreaker = new CircuitBreaker(_coolDownStrategyMock.Object);
+            
+            var expectedException = new ApplicationException("Fail");
+
+            // Fail
+            await ValidateCircuitBreakerUsageAsync(circuitBreaker, () => throw new CircuitBreakerException(expectedException), expectedException);
+
+            _coolDownStrategyMock
+                .SetupGet(strategy => strategy.HasCooledDown)
+                .Returns(false);
+
+            // Contender should not execute, due to cool down
+            await ValidateCircuitBreakerUsageAsync(circuitBreaker, () => Task.Delay(1), expectedException);
+        }
+
+        [TestMethod]
+        public async Task Parallel_Success_Overrides_CoolDown()
+        {
+            var circuitBreaker = new CircuitBreaker(_coolDownStrategyMock.Object);
+            
+            var expectedException = new ApplicationException("Fail");
+
+            // Parallel success
+            var block = true;
+            var task1 = ValidateCircuitBreakerUsageAsync(circuitBreaker, async () =>
+            {
+                while (block) await Task.Delay(1);
+            });
+
+            // Fail
+            await ValidateCircuitBreakerUsageAsync(circuitBreaker, () => throw new CircuitBreakerException(expectedException), expectedException);
+
+            // Trigger success
+            block = false;
+            await task1;
+
+            _coolDownStrategyMock
+                .SetupGet(strategy => strategy.HasCooledDown)
+                .Returns(false);
+
+            // Contender should execute, due to cool down is ignored (because of concurrent request succeeded)
+            await ValidateCircuitBreakerUsageAsync(circuitBreaker, () => Task.Delay(1));
+        }
+
+        [TestMethod]
         public async Task Allows_Only_One_Contender_After_Failure()
         {
             var circuitBreaker = new CircuitBreaker(_coolDownStrategyMock.Object);
