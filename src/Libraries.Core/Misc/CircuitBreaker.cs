@@ -15,7 +15,7 @@ namespace Nexus.Link.Libraries.Core.Misc
         protected readonly object Lock = new object();
         protected int ConcurrencyCount;
         private bool _concurrentRequestHadSuccess;
-        private bool _lastRequestHadSuccess;
+        private bool _latestRequestHadSuccess;
         private CancellationTokenSource _commonCancellationTokenSource;
 
         protected Exception LatestException { get; private set; }
@@ -58,7 +58,6 @@ namespace Nexus.Link.Libraries.Core.Misc
         {
             lock (Lock)
             {
-                _commonCancellationTokenSource = _commonCancellationTokenSource ?? new CancellationTokenSource();
                 switch (_state)
                 {
                     case StateEnum.Ok:
@@ -71,7 +70,7 @@ namespace Nexus.Link.Libraries.Core.Misc
                         _commonCancellationTokenSource = new CancellationTokenSource();
                         // If the last request was successful, we can go to state OK without
                         // trying with a contender
-                        if (_lastRequestHadSuccess)
+                        if (_latestRequestHadSuccess)
                         {
                             _concurrentRequestHadSuccess = false;
                             _state = StateEnum.Ok;
@@ -98,7 +97,7 @@ namespace Nexus.Link.Libraries.Core.Misc
         {
             lock (Lock)
             {
-                _lastRequestHadSuccess = false;
+                _latestRequestHadSuccess = false;
                 FirstFailureAt = FirstFailureAt ?? DateTimeOffset.UtcNow;
                 if (_state == StateEnum.ContenderIsTrying) ConsecutiveContenderErrors++;
                 _state = StateEnum.Failed;
@@ -121,12 +120,12 @@ namespace Nexus.Link.Libraries.Core.Misc
                 if (_state == StateEnum.Failed)
                 {
                     _concurrentRequestHadSuccess = true;
-                    _lastRequestHadSuccess = true;
+                    _latestRequestHadSuccess = true;
                     return;
                 }
+                if (_state == StateEnum.ContenderIsTrying) ConsecutiveContenderErrors = 0;
                 _state = StateEnum.Ok;
                 FirstFailureAt = null;
-                if (_state == StateEnum.ContenderIsTrying) ConsecutiveContenderErrors = 0;
                 LatestException = null;
                 _options.CoolDownStrategy.Reset();
             }
