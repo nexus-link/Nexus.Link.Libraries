@@ -13,6 +13,7 @@ namespace Nexus.Link.Libraries.Core.Tests.Misc
     public class CircuitBreakerTests
     {
         private Mock<ICoolDownStrategy> _coolDownStrategyMock;
+        private ICircuitBreaker[] _circuitBreakersUnderTest;
 
         [TestInitialize]
         public void Initialize()
@@ -23,259 +24,295 @@ namespace Nexus.Link.Libraries.Core.Tests.Misc
                 .Setup(strategy => strategy.Reset());
             _coolDownStrategyMock
                 .Setup(strategy => strategy.Next());
+            _circuitBreakersUnderTest = new ICircuitBreaker[]
+            {
+                new CircuitBreaker(_coolDownStrategyMock.Object),
+                new CircuitBreakerWithThrottling(_coolDownStrategyMock.Object, _coolDownStrategyMock.Object, 100)
+            };
         }
 
         [TestMethod]
         public async Task Handles_Success()
         {
-            var circuitBreaker = new CircuitBreaker(_coolDownStrategyMock.Object);
-            await ValidateCircuitBreakerUsageAsync(circuitBreaker, () => Task.CompletedTask);
-            // No circuit break after success
-            await ValidateCircuitBreakerUsageAsync(circuitBreaker, () => Task.CompletedTask);
+            foreach (var circuitBreaker in _circuitBreakersUnderTest)
+            {
+                await ValidateCircuitBreakerUsageAsync(circuitBreaker, () => Task.CompletedTask);
+                // No circuit break after success
+                await ValidateCircuitBreakerUsageAsync(circuitBreaker, () => Task.CompletedTask);
+            }
         }
 
         [TestMethod]
         public async Task Exception_Is_Rethrown_But_Doesnt_Break()
         {
-            var circuitBreaker = new CircuitBreaker(_coolDownStrategyMock.Object);
-            var expectedException = new ApplicationException("Fail");
-            await ValidateCircuitBreakerUsageAsync(circuitBreaker, () => throw expectedException, expectedException);
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsNull(circuitBreaker.FirstFailureAt);
+            foreach (var circuitBreaker in _circuitBreakersUnderTest)
+            {
+                var expectedException = new ApplicationException("Fail");
+                await ValidateCircuitBreakerUsageAsync(circuitBreaker, () => throw expectedException,
+                    expectedException);
+                Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsNull(circuitBreaker.FirstFailureAt);
+            }
         }
 
         [TestMethod]
         public async Task InnerException_Is_Rethrown_And_Breaks()
         {
-            var circuitBreaker = new CircuitBreaker(_coolDownStrategyMock.Object);
-            var expectedException = new ApplicationException("Fail");
-            await ValidateCircuitBreakerUsageAsync(circuitBreaker, () => throw new CircuitBreakerException(expectedException), expectedException);
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsNotNull(circuitBreaker.FirstFailureAt);
+            foreach (var circuitBreaker in _circuitBreakersUnderTest)
+            {
+                var expectedException = new ApplicationException("Fail");
+                await ValidateCircuitBreakerUsageAsync(circuitBreaker,
+                    () => throw new CircuitBreakerException(expectedException), expectedException);
+                Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsNotNull(circuitBreaker.FirstFailureAt);
+            }
         }
 
         [TestMethod]
         public async Task Breaks_Circuit_After_Failure()
         {
-            var circuitBreaker = new CircuitBreaker(_coolDownStrategyMock.Object);
-            
-            var expectedException = new ApplicationException("Fail");
-            await ValidateCircuitBreakerUsageAsync(circuitBreaker, () => throw new CircuitBreakerException(expectedException), expectedException);
+            foreach (var circuitBreaker in _circuitBreakersUnderTest)
+            {
 
-            // Break circuit
-            await ValidateCircuitBreakerUsageAsync(circuitBreaker, () => Task.CompletedTask, expectedException);
+                var expectedException = new ApplicationException("Fail");
+                await ValidateCircuitBreakerUsageAsync(circuitBreaker,
+                    () => throw new CircuitBreakerException(expectedException), expectedException);
+
+                // Break circuit
+                await ValidateCircuitBreakerUsageAsync(circuitBreaker, () => Task.CompletedTask, expectedException);
+            }
         }
 
         [TestMethod]
         public async Task No_Contender_During_CoolDown()
         {
-            var circuitBreaker = new CircuitBreaker(_coolDownStrategyMock.Object);
-            
-            var expectedException = new ApplicationException("Fail");
+            foreach (var circuitBreaker in _circuitBreakersUnderTest)
+            {
 
-            // Fail
-            await ValidateCircuitBreakerUsageAsync(circuitBreaker, () => throw new CircuitBreakerException(expectedException), expectedException);
+                var expectedException = new ApplicationException("Fail");
 
-            _coolDownStrategyMock
-                .SetupGet(strategy => strategy.HasCooledDown)
-                .Returns(false);
+                // Fail
+                await ValidateCircuitBreakerUsageAsync(circuitBreaker,
+                    () => throw new CircuitBreakerException(expectedException), expectedException);
 
-            // Contender should not execute, due to cool down
-            await ValidateCircuitBreakerUsageAsync(circuitBreaker, () => Task.Delay(1), expectedException);
+                _coolDownStrategyMock
+                    .SetupGet(strategy => strategy.HasCooledDown)
+                    .Returns(false);
+
+                // Contender should not execute, due to cool down
+                await ValidateCircuitBreakerUsageAsync(circuitBreaker, () => Task.Delay(1), expectedException);
+            }
         }
 
         [TestMethod]
         public async Task Parallel_Success_Followed_By_Fail_Overrides_CoolDown()
         {
-            var circuitBreaker = new CircuitBreaker(_coolDownStrategyMock.Object);
-            
-            var expectedException1 = new ApplicationException("Fail 1");
-            
-            var expectedException2 = new ApplicationException("Fail 2");
-            
-            // Parallel success
-            var blockSuccess = true;
-            var task1 = ValidateCircuitBreakerUsageAsync(circuitBreaker, async () =>
+            foreach (var circuitBreaker in _circuitBreakersUnderTest)
             {
-                // ReSharper disable once AccessToModifiedClosure
-                while (blockSuccess) await Task.Delay(1);
-            });
 
-            // Parallel fail
-            var blockFail = true;
-            var task2 = ValidateCircuitBreakerUsageAsync(circuitBreaker, async () =>
-            {
-                // ReSharper disable once AccessToModifiedClosure
-                while (blockFail) await Task.Delay(1);
-                throw new CircuitBreakerException(expectedException2);
-            }, expectedException2);
+                var expectedException1 = new ApplicationException("Fail 1");
 
-            // Fail
-            await ValidateCircuitBreakerUsageAsync(circuitBreaker, () => throw new CircuitBreakerException(expectedException1), expectedException1);
+                var expectedException2 = new ApplicationException("Fail 2");
 
-            // Trigger success followed by fail
-            blockSuccess = false;
-            await task1;
-            blockFail = false;
-            await task2;
+                // Parallel success
+                var blockSuccess = true;
+                var task1 = ValidateCircuitBreakerUsageAsync(circuitBreaker, async () =>
+                {
+                    // ReSharper disable once AccessToModifiedClosure
+                    while (blockSuccess) await Task.Delay(1);
+                });
 
-            _coolDownStrategyMock
-                .SetupGet(strategy => strategy.HasCooledDown)
-                .Returns(false);
+                // Parallel fail
+                var blockFail = true;
+                var task2 = ValidateCircuitBreakerUsageAsync(circuitBreaker, async () =>
+                {
+                    // ReSharper disable once AccessToModifiedClosure
+                    while (blockFail) await Task.Delay(1);
+                    throw new CircuitBreakerException(expectedException2);
+                }, expectedException2);
 
-            // Contender should execute, due to cool down is ignored (because of concurrent request succeeded)
-            var blockContender = true;
-            var task3 = ValidateCircuitBreakerUsageAsync(circuitBreaker, async () =>
-            {
-                // ReSharper disable once AccessToModifiedClosure
-                while (blockContender) await Task.Delay(1);
-            });
+                // Fail
+                await ValidateCircuitBreakerUsageAsync(circuitBreaker,
+                    () => throw new CircuitBreakerException(expectedException1), expectedException1);
 
-            // This one should fail, because contender is running.
-            await ValidateCircuitBreakerUsageAsync(circuitBreaker, () => throw new ArgumentException("Should not be thrown."), expectedException2);
-            blockContender = false;
-            await task3;
+                // Trigger success followed by fail
+                blockSuccess = false;
+                await task1;
+                blockFail = false;
+                await task2;
+
+                _coolDownStrategyMock
+                    .SetupGet(strategy => strategy.HasCooledDown)
+                    .Returns(false);
+
+                // Contender should execute, due to cool down is ignored (because of concurrent request succeeded)
+                var blockContender = true;
+                var task3 = ValidateCircuitBreakerUsageAsync(circuitBreaker, async () =>
+                {
+                    // ReSharper disable once AccessToModifiedClosure
+                    while (blockContender) await Task.Delay(1);
+                });
+
+                // This one should fail, because contender is running.
+                await ValidateCircuitBreakerUsageAsync(circuitBreaker,
+                    () => throw new ArgumentException("Should not be thrown."), expectedException2);
+                blockContender = false;
+                await task3;
+            }
         }
 
         [TestMethod]
         public async Task Parallel_Fail_Followed_By_Success_Deactivates_Circuit_Break()
         {
-            var circuitBreaker = new CircuitBreaker(_coolDownStrategyMock.Object);
-            
-            var expectedException1 = new ApplicationException("Fail 1");
-            
-            var expectedException2 = new ApplicationException("Fail 2");
-            
-            // Parallel success
-            var blockSuccess = true;
-            var task1 = ValidateCircuitBreakerUsageAsync(circuitBreaker, async () =>
+            foreach (var circuitBreaker in _circuitBreakersUnderTest)
             {
-                // ReSharper disable once AccessToModifiedClosure
-                while (blockSuccess) await Task.Delay(1);
-            });
 
-            // Parallel fail
-            var blockFail = true;
-            var task2 = ValidateCircuitBreakerUsageAsync(circuitBreaker, async () =>
-            {
-                // ReSharper disable once AccessToModifiedClosure
-                while (blockFail) await Task.Delay(1);
-                throw new CircuitBreakerException(expectedException2);
-            }, expectedException2);
+                var expectedException1 = new ApplicationException("Fail 1");
 
-            // Fail
-            await ValidateCircuitBreakerUsageAsync(circuitBreaker, () => throw new CircuitBreakerException(expectedException1), expectedException1);
+                var expectedException2 = new ApplicationException("Fail 2");
 
-            // Trigger fail followed by success
-            blockFail = false;
-            await task2;
-            blockSuccess = false;
-            await task1;
+                // Parallel success
+                var blockSuccess = true;
+                var task1 = ValidateCircuitBreakerUsageAsync(circuitBreaker, async () =>
+                {
+                    // ReSharper disable once AccessToModifiedClosure
+                    while (blockSuccess) await Task.Delay(1);
+                });
 
-            // All should execute in parallel, as we ended with a success
-            var block1 = true;
-            var task3 = ValidateCircuitBreakerUsageAsync(circuitBreaker, async () =>
-            {
-                // ReSharper disable once AccessToModifiedClosure
-                while (block1) await Task.Delay(1);
-            });
-            await ValidateCircuitBreakerUsageAsync(circuitBreaker, () => Task.Delay(1));
-            block1 = false;
-            await task3;
+                // Parallel fail
+                var blockFail = true;
+                var task2 = ValidateCircuitBreakerUsageAsync(circuitBreaker, async () =>
+                {
+                    // ReSharper disable once AccessToModifiedClosure
+                    while (blockFail) await Task.Delay(1);
+                    throw new CircuitBreakerException(expectedException2);
+                }, expectedException2);
+
+                // Fail
+                await ValidateCircuitBreakerUsageAsync(circuitBreaker,
+                    () => throw new CircuitBreakerException(expectedException1), expectedException1);
+
+                // Trigger fail followed by success
+                blockFail = false;
+                await task2;
+                blockSuccess = false;
+                await task1;
+
+                // All should execute in parallel, as we ended with a success
+                var block1 = true;
+                var task3 = ValidateCircuitBreakerUsageAsync(circuitBreaker, async () =>
+                {
+                    // ReSharper disable once AccessToModifiedClosure
+                    while (block1) await Task.Delay(1);
+                });
+                await ValidateCircuitBreakerUsageAsync(circuitBreaker, () => Task.Delay(1));
+                block1 = false;
+                await task3;
+            }
         }
 
         [TestMethod]
         public async Task Allows_Only_One_Contender_After_Failure()
         {
-            var circuitBreaker = new CircuitBreaker(_coolDownStrategyMock.Object);
-            
-            var expectedException = new ApplicationException("Fail");
-
-            // Fail
-            await ValidateCircuitBreakerUsageAsync(circuitBreaker, () => throw new CircuitBreakerException(expectedException), expectedException);
-
-            _coolDownStrategyMock
-                .SetupGet(strategy => strategy.HasCooledDown)
-                .Returns(true);
-
-            // Contender
-            var block = true;
-            var task1 = ValidateCircuitBreakerUsageAsync(circuitBreaker, async () =>
+            foreach (var circuitBreaker in _circuitBreakersUnderTest)
             {
-                // ReSharper disable once AccessToModifiedClosure
-                while (block) await Task.Delay(1);
-            });
 
-            // This one should fail, because contender is running.
-            await ValidateCircuitBreakerUsageAsync(circuitBreaker, () => throw new ArgumentException("Should not be thrown."), expectedException);
-            block = false;
-            await task1;
+                var expectedException = new ApplicationException("Fail");
+
+                // Fail
+                await ValidateCircuitBreakerUsageAsync(circuitBreaker,
+                    () => throw new CircuitBreakerException(expectedException), expectedException);
+
+                _coolDownStrategyMock
+                    .SetupGet(strategy => strategy.HasCooledDown)
+                    .Returns(true);
+
+                // Contender
+                var block = true;
+                var task1 = ValidateCircuitBreakerUsageAsync(circuitBreaker, async () =>
+                {
+                    // ReSharper disable once AccessToModifiedClosure
+                    while (block) await Task.Delay(1);
+                });
+
+                // This one should fail, because contender is running.
+                await ValidateCircuitBreakerUsageAsync(circuitBreaker,
+                    () => throw new ArgumentException("Should not be thrown."), expectedException);
+                block = false;
+                await task1;
+            }
         }
 
         [TestMethod]
         public async Task No_Contender_While_Others_Are_Executing()
         {
-            var circuitBreaker = new CircuitBreaker(_coolDownStrategyMock.Object);
-            bool block = true;
-            
-            var expectedException = new ApplicationException("Fail");
-
-            // Blocking execution
-            var task1 = ValidateCircuitBreakerUsageAsync(circuitBreaker, async () =>
+            foreach (var circuitBreaker in _circuitBreakersUnderTest)
             {
-                // ReSharper disable once AccessToModifiedClosure
-                while (block) await Task.Delay(1);
-            });
+                bool block = true;
 
-            // Fail
-            await ValidateCircuitBreakerUsageAsync(circuitBreaker, () => throw new CircuitBreakerException(expectedException), expectedException);
+                var expectedException = new ApplicationException("Fail");
 
-            _coolDownStrategyMock
-                .SetupGet(strategy => strategy.HasCooledDown)
-                .Returns(true);
+                // Blocking execution
+                var task1 = ValidateCircuitBreakerUsageAsync(circuitBreaker, async () =>
+                {
+                    // ReSharper disable once AccessToModifiedClosure
+                    while (block) await Task.Delay(1);
+                });
 
-            // This one should fail, because no contender can run as long as earlier requests are still running.
-            await ValidateCircuitBreakerUsageAsync(circuitBreaker, () => Task.Delay(1), expectedException);
-            block = false;
-            await task1;
+                // Fail
+                await ValidateCircuitBreakerUsageAsync(circuitBreaker,
+                    () => throw new CircuitBreakerException(expectedException), expectedException);
 
-            // Allow contender through
-            await ValidateCircuitBreakerUsageAsync(circuitBreaker, () => Task.Delay(1));
+                _coolDownStrategyMock
+                    .SetupGet(strategy => strategy.HasCooledDown)
+                    .Returns(true);
+
+                // This one should fail, because no contender can run as long as earlier requests are still running.
+                await ValidateCircuitBreakerUsageAsync(circuitBreaker, () => Task.Delay(1), expectedException);
+                block = false;
+                await task1;
+
+                // Allow contender through
+                await ValidateCircuitBreakerUsageAsync(circuitBreaker, () => Task.Delay(1));
+            }
         }
 
         [TestMethod]
         public async Task Breaks_Circuit_Fast_For_Many_Parallel()
         {
-            var count = 0;
-            var circuitBreaker = new CircuitBreaker(_coolDownStrategyMock.Object);
-            
-            var expectedException = new ApplicationException("Fail");
-            await ValidateCircuitBreakerUsageAsync(circuitBreaker, () => throw new CircuitBreakerException(expectedException), expectedException);
-            _coolDownStrategyMock
-                .SetupGet(strategy => strategy.HasCooledDown)
-                .Returns(() => count == 0);
-
-            var tasks = new ConcurrentBag<Task>();
-
-            var block = true;
-            // Massive parallel calling "attack", only one contender should be let through
-            for (var i = 0; i < 1000; i++)
+            foreach (var circuitBreaker in _circuitBreakersUnderTest)
             {
-                var task = ValidateCircuitBreakerUsageAsync(circuitBreaker, async () =>
-                {
-                    count++;
-                    // ReSharper disable once AccessToModifiedClosure
-                    while (block) await Task.Delay(1);
-                    throw new CircuitBreakerException(expectedException);
-                }, expectedException);
-                tasks.Add(task);
-            }
+                var count = 0;
 
-            block = false;
-            await Task.WhenAll(tasks);
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual(1, count);
+                var expectedException = new ApplicationException("Fail");
+                await ValidateCircuitBreakerUsageAsync(circuitBreaker,
+                    () => throw new CircuitBreakerException(expectedException), expectedException);
+                _coolDownStrategyMock
+                    .SetupGet(strategy => strategy.HasCooledDown)
+                    .Returns(() => count == 0);
+
+                var tasks = new ConcurrentBag<Task>();
+
+                var block = true;
+                // Massive parallel calling "attack", only one contender should be let through
+                for (var i = 0; i < 1000; i++)
+                {
+                    var task = ValidateCircuitBreakerUsageAsync(circuitBreaker, async () =>
+                    {
+                        count++;
+                        // ReSharper disable once AccessToModifiedClosure
+                        while (block) await Task.Delay(1);
+                        throw new CircuitBreakerException(expectedException);
+                    }, expectedException);
+                    tasks.Add(task);
+                }
+
+                block = false;
+                await Task.WhenAll(tasks);
+                Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual(1, count);
+            }
         }
         
 
-        private async Task ValidateCircuitBreakerUsageAsync(CircuitBreaker circuitBreaker, Func<Task> actionAsync, ApplicationException expectedException = null)
+        private async Task ValidateCircuitBreakerUsageAsync(ICircuitBreaker circuitBreaker, Func<Task> actionAsync, ApplicationException expectedException = null)
         {
             var exceptionThrown = false;
             try

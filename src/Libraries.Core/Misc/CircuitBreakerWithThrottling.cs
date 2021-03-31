@@ -10,7 +10,7 @@ namespace Nexus.Link.Libraries.Core.Misc
     public class CircuitBreakerWithThrottling : CircuitBreaker
     {
         private Exception _latestChokeException;
-        private readonly CoolDownStrategy _chokingCoolDownStrategy;
+        private readonly ICoolDownStrategy _chokingCoolDownStrategy;
         private readonly int _thresholdConcurrency;
         private int _maxConcurrency;
         private bool _choked;
@@ -24,7 +24,7 @@ namespace Nexus.Link.Libraries.Core.Misc
         /// <param name="errorCoolDownStrategy">Cool down strategy for non-choking errors.</param>
         /// <param name="chokingCoolDownStrategy">Cool down strategy for choking situations.</param>
         /// <param name="thresholdConcurrency">When we reach this level of concurrency, the choking situation is considered over.</param>
-        public CircuitBreakerWithThrottling(CoolDownStrategy errorCoolDownStrategy, CoolDownStrategy chokingCoolDownStrategy, int thresholdConcurrency)
+        public CircuitBreakerWithThrottling(ICoolDownStrategy errorCoolDownStrategy, ICoolDownStrategy chokingCoolDownStrategy, int thresholdConcurrency)
         : base(errorCoolDownStrategy)
         {
             InternalContract.RequireNotNull(chokingCoolDownStrategy, nameof(chokingCoolDownStrategy));
