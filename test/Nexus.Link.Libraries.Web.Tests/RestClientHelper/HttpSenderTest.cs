@@ -1,4 +1,5 @@
-﻿using System.Net;
+﻿using System;
+using System.Net;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
@@ -19,16 +20,27 @@ namespace Nexus.Link.Libraries.Web.Tests.RestClientHelper
     {
         private Mock<IHttpClient> _httpClientMock;
         private HttpRequestMessage _actualRequestMessage;
+        private string _actualContent;
+        private ManualResetEvent _callbackResetEvent;
 
         [TestInitialize]
         public void Initialize()
         {
             FulcrumApplicationHelper.UnitTestSetup(typeof(HttpSenderTest).FullName);
             _httpClientMock = new Mock<IHttpClient>();
+            _callbackResetEvent = new ManualResetEvent(false);
             _httpClientMock.Setup(s => s.SendAsync(It.IsAny<HttpRequestMessage>(), It.IsAny<CancellationToken>()))
-                .Callback((HttpRequestMessage m, CancellationToken ct) =>
+                .Callback(async (HttpRequestMessage m, CancellationToken ct) =>
                 {
                     _actualRequestMessage = m;
+                    _actualContent = null;
+                    if (m.Content != null)
+                    {
+                        await m.Content.LoadIntoBufferAsync();
+                        _actualContent = await m.Content.ReadAsStringAsync();
+                    }
+
+                    _callbackResetEvent.Set();
                 })
                 .ReturnsAsync(new HttpResponseMessage(HttpStatusCode.OK));
         }
@@ -78,6 +90,7 @@ namespace Nexus.Link.Libraries.Web.Tests.RestClientHelper
 
             // Act
             await sender.SendRequestAsync(HttpMethod.Get, relativeUrl);
+            _callbackResetEvent.WaitOne(TimeSpan.FromSeconds(1));
 
             // Assert
             Assert.AreEqual(expectedUrl, _actualRequestMessage.RequestUri.OriginalString);
@@ -127,5 +140,31 @@ namespace Nexus.Link.Libraries.Web.Tests.RestClientHelper
             var relativeHttpSender = baseHttpSender.CreateHttpSender(relativeUrl);
             Assert.AreEqual($"{baseUri}{relativeUrl}", relativeHttpSender.BaseUri?.AbsoluteUri);
         }
+
+        [TestMethod]
+        public async Task JTokenAsBody()
+        {
+            // Arrange
+            const string baseUri = "http://example.se/";
+            var contentAsObject = new TestType { A = "The string", B = 113 };
+            var contentAsJson = JsonConvert.SerializeObject(contentAsObject);
+            var contentAsJtoken = JToken.Parse(contentAsJson);
+            var sender = new HttpSender(baseUri) { HttpClient = _httpClientMock.Object };
+
+            // Act
+            var response = await sender.SendRequestAsync(HttpMethod.Post, "", contentAsJtoken);
+            _callbackResetEvent.WaitOne(TimeSpan.FromSeconds(1));
+            var actualContentAsObject = JsonConvert.DeserializeObject<TestType>(_actualContent);
+
+            // Assert
+            Assert.AreEqual(contentAsObject.A, actualContentAsObject.A);
+            Assert.AreEqual(contentAsObject.B, actualContentAsObject.B);
+        }
+    }
+
+    public class TestType
+    {
+        public string A { get; set; }
+        public int B { get; set; }
     }
 }
