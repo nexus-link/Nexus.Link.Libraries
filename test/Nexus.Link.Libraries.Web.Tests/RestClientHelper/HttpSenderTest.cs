@@ -1,4 +1,5 @@
-﻿using System.Net;
+﻿using System;
+using System.Net;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
@@ -20,18 +21,26 @@ namespace Nexus.Link.Libraries.Web.Tests.RestClientHelper
         private Mock<IHttpClient> _httpClientMock;
         private HttpRequestMessage _actualRequestMessage;
         private string _actualContent;
+        private ManualResetEvent _callbackResetEvent;
 
         [TestInitialize]
         public void Initialize()
         {
             FulcrumApplicationHelper.UnitTestSetup(typeof(HttpSenderTest).FullName);
             _httpClientMock = new Mock<IHttpClient>();
+            _callbackResetEvent = new ManualResetEvent(false);
             _httpClientMock.Setup(s => s.SendAsync(It.IsAny<HttpRequestMessage>(), It.IsAny<CancellationToken>()))
                 .Callback(async (HttpRequestMessage m, CancellationToken ct) =>
                 {
-                    await m.Content.LoadIntoBufferAsync();
                     _actualRequestMessage = m;
-                    _actualContent = await m.Content.ReadAsStringAsync();
+                    _actualContent = null;
+                    if (m.Content != null)
+                    {
+                        await m.Content.LoadIntoBufferAsync();
+                        _actualContent = await m.Content.ReadAsStringAsync();
+                    }
+
+                    _callbackResetEvent.Set();
                 })
                 .ReturnsAsync(new HttpResponseMessage(HttpStatusCode.OK));
         }
@@ -81,6 +90,7 @@ namespace Nexus.Link.Libraries.Web.Tests.RestClientHelper
 
             // Act
             await sender.SendRequestAsync(HttpMethod.Get, relativeUrl);
+            _callbackResetEvent.WaitOne(TimeSpan.FromSeconds(1));
 
             // Assert
             Assert.AreEqual(expectedUrl, _actualRequestMessage.RequestUri.OriginalString);
@@ -143,6 +153,7 @@ namespace Nexus.Link.Libraries.Web.Tests.RestClientHelper
 
             // Act
             var response = await sender.SendRequestAsync(HttpMethod.Post, "", contentAsJtoken);
+            _callbackResetEvent.WaitOne(TimeSpan.FromSeconds(1));
             var actualContentAsObject = JsonConvert.DeserializeObject<TestType>(_actualContent);
 
             // Assert
