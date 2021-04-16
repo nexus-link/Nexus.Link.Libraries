@@ -19,6 +19,7 @@ namespace Nexus.Link.Libraries.Web.Tests.RestClientHelper
     {
         private Mock<IHttpClient> _httpClientMock;
         private HttpRequestMessage _actualRequestMessage;
+        private string _actualContent;
 
         [TestInitialize]
         public void Initialize()
@@ -26,9 +27,11 @@ namespace Nexus.Link.Libraries.Web.Tests.RestClientHelper
             FulcrumApplicationHelper.UnitTestSetup(typeof(HttpSenderTest).FullName);
             _httpClientMock = new Mock<IHttpClient>();
             _httpClientMock.Setup(s => s.SendAsync(It.IsAny<HttpRequestMessage>(), It.IsAny<CancellationToken>()))
-                .Callback((HttpRequestMessage m, CancellationToken ct) =>
+                .Callback(async (HttpRequestMessage m, CancellationToken ct) =>
                 {
+                    await m.Content.LoadIntoBufferAsync();
                     _actualRequestMessage = m;
+                    _actualContent = await m.Content.ReadAsStringAsync();
                 })
                 .ReturnsAsync(new HttpResponseMessage(HttpStatusCode.OK));
         }
@@ -127,5 +130,30 @@ namespace Nexus.Link.Libraries.Web.Tests.RestClientHelper
             var relativeHttpSender = baseHttpSender.CreateHttpSender(relativeUrl);
             Assert.AreEqual($"{baseUri}{relativeUrl}", relativeHttpSender.BaseUri?.AbsoluteUri);
         }
+
+        [TestMethod]
+        public async Task JTokenAsBody()
+        {
+            // Arrange
+            const string baseUri = "http://example.se/";
+            var contentAsObject = new TestType { A = "The string", B = 113 };
+            var contentAsJson = JsonConvert.SerializeObject(contentAsObject);
+            var contentAsJtoken = JToken.Parse(contentAsJson);
+            var sender = new HttpSender(baseUri) { HttpClient = _httpClientMock.Object };
+
+            // Act
+            var response = await sender.SendRequestAsync(HttpMethod.Post, "", contentAsJtoken);
+            var actualContentAsObject = JsonConvert.DeserializeObject<TestType>(_actualContent);
+
+            // Assert
+            Assert.AreEqual(contentAsObject.A, actualContentAsObject.A);
+            Assert.AreEqual(contentAsObject.B, actualContentAsObject.B);
+        }
+    }
+
+    public class TestType
+    {
+        public string A { get; set; }
+        public int B { get; set; }
     }
 }
