@@ -20,7 +20,7 @@
 
   <PropertyGroup>
     <PackageId>Nexus.Link.Libraries.Web</PackageId>
-    <Version>2.11.3</Version>
+    <Version>2.11.4</Version>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <PackageTags>nexus;link;fulcrum;lever</PackageTags>
     <Authors>XLENT Link</Authors>
@@ -30,7 +30,7 @@
     <Copyright>Copyright ©2020 Xlent Link AB</Copyright>
     <IncludeSymbols>true</IncludeSymbols>
     <PackageReleaseNotes>
-      2.11.3 Bump
+      2.11.4 Bump
       2.11.2 HttpSender can now be created without baseUrl
       2.11.1 Fix: "Authentication" property of "ClientConfiguration" is no longer required
       2.11.0 Support for propagating header "X-nexus-test-context" in RestClient
