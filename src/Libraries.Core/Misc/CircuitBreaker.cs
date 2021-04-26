@@ -183,5 +183,48 @@ namespace Nexus.Link.Libraries.Core.Misc
                 Interlocked.Decrement(ref ConcurrencyCount);
             }
         }
+
+        /// <inheritdoc />
+        public virtual void ExecuteOrThrow(Action action)
+        {
+            ExecuteOrThrow(() =>
+            {
+                action();
+                return true;
+            });
+        }
+
+        /// <inheritdoc />
+        public virtual T ExecuteOrThrow<T>(Func<T> function)
+        {
+            try
+            {
+                Interlocked.Increment(ref ConcurrencyCount);
+
+                if (IsQuickFailRecommended())
+                {
+                    FulcrumAssert.IsNotNull(LatestException, CodeLocation.AsString());
+                    throw LatestException;
+                }
+
+                try
+                {
+                    var result = function();
+                    ReportSuccess();
+                    return result;
+                }
+                catch (CircuitBreakerException e)
+                {
+                    FulcrumAssert.IsNotNull(e.InnerException, CodeLocation.AsString());
+                    ReportFailure(e.InnerException);
+                    // ReSharper disable once PossibleNullReferenceException
+                    throw e.InnerException;
+                }
+            }
+            finally
+            {
+                Interlocked.Decrement(ref ConcurrencyCount);
+            }
+        }
     }
 }

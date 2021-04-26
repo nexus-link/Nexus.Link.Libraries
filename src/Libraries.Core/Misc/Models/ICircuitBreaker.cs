@@ -72,5 +72,31 @@ namespace Nexus.Link.Libraries.Core.Misc.Models
         /// break the circuit and finally throw the inner exception. The inner exception will be rethrown for every consecutive call to this method
         /// until eventually the circuit breaker will let a call pass through to check if the resource is OK.</exception>
         Task<T> ExecuteOrThrowAsync<T>(Func<CancellationToken, Task<T>> requestAsync, CancellationToken cancellationToken = default);
+
+        /// <summary>
+        /// The main method for the circuit breaker. In the <paramref name="action"/> method, if you experience
+        /// an exception that you think should trigger the circuit breaker, you you should throw a
+        /// <see cref="CircuitBreakerException"/> with the actual exception as it's inner exception. This will break the
+        /// circuit.
+        /// </summary>
+        /// <param name="action">The request that should be executed.</param>
+        /// <exception cref="CircuitBreakerException">When you experience an exception that you think should trigger the circuit breaker, then
+        /// throw a <see cref="CircuitBreakerException"/> with your original exception as the inner exception. This will trigger the circuit breaker to
+        /// break the circuit and finally throw the inner exception. The inner exception will be rethrown for every consecutive call to this method
+        /// until eventually the circuit breaker will let a call pass through to check if the resource is OK.</exception>
+        void ExecuteOrThrow(Action action);
+
+        /// <summary>
+        /// The main method for the circuit breaker. In the <paramref name="function"/> method, if you experience
+        /// an exception that you think should trigger the circuit breaker, you you should throw a
+        /// <see cref="CircuitBreakerException"/> with the actual exception as it's inner exception. This will break the
+        /// circuit.
+        /// </summary>
+        /// <param name="function">The request that should be executed.</param>
+        /// <exception cref="CircuitBreakerException">When you experience an exception that you think should trigger the circuit breaker, then
+        /// throw a <see cref="CircuitBreakerException"/> with your original exception as the inner exception. This will trigger the circuit breaker to
+        /// break the circuit and finally throw the inner exception. The inner exception will be rethrown for every consecutive call to this method
+        /// until eventually the circuit breaker will let a call pass through to check if the resource is OK.</exception>
+        T ExecuteOrThrow<T>(Func<T> function);
     }
 }
