@@ -11,10 +11,10 @@ namespace Nexus.Link.Libraries.Core.Misc
         private readonly CalculateCoolDownDelegate _calculateCoolDown;
 
         private int _level;
-        public DateTimeOffset LastFailAt { get; private set; }
+        public DateTimeOffset CurrentCoolDownStartedAt { get; private set; }
         public DateTimeOffset NextTryAt { get; private set; }
 
-        public bool HasCooledDown => DateTimeOffset.Now >= NextTryAt;
+        public bool HasCooledDown => DateTimeOffset.UtcNow >= NextTryAt;
 
         public CoolDownStrategy(CalculateCoolDownDelegate calculateCoolDown)
         {
@@ -52,11 +52,16 @@ namespace Nexus.Link.Libraries.Core.Misc
             NextTryAt = DateTimeOffset.MaxValue;
         }
 
+        public void ForceEndOfCoolDown()
+        {
+            NextTryAt = CurrentCoolDownStartedAt;
+        }
+
         public void StartNextCoolDownPeriod()
         {
-            LastFailAt = DateTimeOffset.Now;
+            CurrentCoolDownStartedAt = DateTimeOffset.UtcNow;
             _level++;
-            NextTryAt = LastFailAt + _calculateCoolDown(_level);
+            NextTryAt = CurrentCoolDownStartedAt + _calculateCoolDown(_level);
         }
 
         public static TimeSpan Constant(TimeSpan constant)

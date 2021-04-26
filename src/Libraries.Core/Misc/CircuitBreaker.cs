@@ -28,7 +28,7 @@ namespace Nexus.Link.Libraries.Core.Misc
         }
 
         /// <inheritdoc />
-        public DateTimeOffset LastFailAt => _options.CoolDownStrategy.LastFailAt;
+        public DateTimeOffset LastFailAt => _options.CoolDownStrategy.CurrentCoolDownStartedAt;
 
         /// <inheritdoc />
         public virtual bool IsActive => _state != StateEnum.Ok || ConcurrencyCount == 0;
@@ -41,6 +41,9 @@ namespace Nexus.Link.Libraries.Core.Misc
 
         /// <inheritdoc />
         public bool IsRefusing => _state != StateEnum.Ok;
+
+        /// <inheritdoc />
+        public void ForceEndOfCoolDown() => _options.CoolDownStrategy?.ForceEndOfCoolDown();
 
         /// <summary>
         /// Constructor

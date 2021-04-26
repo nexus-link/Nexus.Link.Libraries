@@ -40,6 +40,17 @@ namespace Nexus.Link.Libraries.Core.Misc.Models
         Task<T> ExecuteOrThrowAsync<T>(string key, Func<CancellationToken, Task<T>> requestAsync, CancellationToken cancellationToken = default);
 
         /// <summary>
+        /// Override the cool down period for a specific <see cref="ICircuitBreaker"/>, meaning HasCooledDown == true immediately
+        /// </summary>
+        /// <param name="key">The key for the <see cref="ICircuitBreaker"/> that we want to break the cool down period for.</param>
+        void ForceEndOfCoolDown(string key);
+
+        /// <summary>
+        /// Override the cool down period for all <see cref="ICircuitBreaker"/>, meaning HasCooledDown == true immediately
+        /// </summary>
+        void ForceEndOfCoolDown();
+
+        /// <summary>
         /// Forget about all previous circuit breakers; start with a clean slate.
         /// </summary>
         void ResetCollection();

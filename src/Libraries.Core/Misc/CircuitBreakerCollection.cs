@@ -28,6 +28,8 @@ namespace Nexus.Link.Libraries.Core.Misc
             }
         }
 
+
+
         /// <inheritdoc />
         public async Task ExecuteOrThrowAsync(string key, Func<CancellationToken, Task> requestAsync, CancellationToken cancellationToken = default)
         {
@@ -63,6 +65,28 @@ namespace Nexus.Link.Libraries.Core.Misc
                         _circuitBreakers.Remove(key);
                     }
                 }
+            }
+        }
+
+        /// <inheritdoc />
+        public void ForceEndOfCoolDown()
+        {
+            lock (_circuitBreakers)
+            {
+                foreach (var circuitBreaker in _circuitBreakers.Values)
+                {
+                    circuitBreaker.ForceEndOfCoolDown();
+                }
+            }
+        }
+
+        /// <inheritdoc />
+        public void ForceEndOfCoolDown(string key)
+        {
+            lock (_circuitBreakers)
+            {
+                if (!_circuitBreakers.TryGetValue(key, out var circuitBreaker)) return;
+                circuitBreaker.ForceEndOfCoolDown();
             }
         }
 

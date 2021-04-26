@@ -36,6 +36,11 @@ namespace Nexus.Link.Libraries.Core.Misc.Models
         DateTimeOffset? FirstFailureAt { get; }
 
         /// <summary>
+        /// Override the cool down period, meaning HasCooledDown == true immediately
+        /// </summary>
+        void ForceEndOfCoolDown();
+
+        /// <summary>
         /// True if the circuit breaker is either in an "open" state or if it is executing at least one request currently.
         /// </summary>
         bool IsActive { get; }
