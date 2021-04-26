@@ -48,7 +48,7 @@ namespace Nexus.Link.Libraries.SqlServer.Logic
         {
             var list = new List<string>();
             if (tableMetadata.EtagColumnName != null) list.Add($"{tableMetadata.EtagColumnName}='{Guid.NewGuid()}'");
-            if (tableMetadata.UpdatedAtColumnName != null) list.Add($"{tableMetadata.UpdatedAtColumnName}='{DateTimeOffset.UtcNow}'");
+            if (tableMetadata.UpdatedAtColumnName != null) list.Add($"{tableMetadata.UpdatedAtColumnName}=sysutcdatetime()");
             return list;
         }
 
