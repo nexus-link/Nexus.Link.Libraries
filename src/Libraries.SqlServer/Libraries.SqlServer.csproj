@@ -7,6 +7,7 @@
 
   <ItemGroup>
     <PackageReference Include="Dapper" Version="1.50.5" />
+    <PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="2.1.1" />
   </ItemGroup>
 
   <ItemGroup>
@@ -16,7 +17,7 @@
 
   <PropertyGroup>
     <PackageId>Nexus.Link.Libraries.SqlServer</PackageId>
-    <Version>2.1.4</Version>
+    <Version>2.2.0</Version>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <PackageTags>nexus;link;fulcrum;lever</PackageTags>
     <Authors>XLENT Link</Authors>
@@ -26,6 +27,7 @@
     <Copyright>Copyright ©2019 Xlent Link AB</Copyright>
     <IncludeSymbols>true</IncludeSymbols>
     <PackageReleaseNotes>
+      2.2.0 Sql connection circuit breaker
       2.1.4 Now sets RecordUpdatedAt to DateTimeOffset.UtcNow. Also bump Libraries.Core.
       2.1.3 Bug: Validated the wrong item. Fixed.
       2.1.2 Bug: IRecordVersion was not supported in general. Fix: Moved the support into methods close to DB to cover more methods, even custom methods.

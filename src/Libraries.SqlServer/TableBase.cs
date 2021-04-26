@@ -201,6 +201,7 @@ namespace Nexus.Link.Libraries.SqlServer
             int count;
             using (var db = Database.NewSqlConnection())
             {
+                await db.VerifyAvailabilityAsync(null, token);
                 count = await db.ExecuteAsync(statement, param);
             }
 
@@ -212,6 +213,7 @@ namespace Nexus.Link.Libraries.SqlServer
             InternalContract.RequireNotNullOrWhiteSpace(statement, nameof(statement));
             using (var db = Database.NewSqlConnection())
             {
+                await db.VerifyAvailabilityAsync(null, token);
                 var items = await db.QueryAsync<TDatabaseItem>(statement, param);
                 var itemList = items.ToList();
                 foreach (var item in itemList)
