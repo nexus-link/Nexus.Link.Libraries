@@ -45,8 +45,10 @@ namespace Nexus.Link.Libraries.SqlServer.Logic
             catch (Exception e)
             {
                 var sqlConnection = connection as SqlConnection;
+                var database = connection.Database ?? "(unknown database)";
                 var dataSource = sqlConnection?.DataSource ?? "(unknown data source)";
-                throw new FulcrumResourceException($"Could not open database connection to {connection.Database} on {dataSource}", e);
+                var exception = new FulcrumResourceException($"Could not open database connection to {database} on {dataSource}", e);
+                throw new CircuitBreakerException(exception);
             }
             finally
             {

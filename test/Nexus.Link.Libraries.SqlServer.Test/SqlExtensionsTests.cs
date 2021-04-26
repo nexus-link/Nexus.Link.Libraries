@@ -34,7 +34,16 @@ namespace Nexus.Link.Libraries.SqlServer.Test
                 .Returns(async (string k, Func<CancellationToken, Task> ra, CancellationToken ct) =>
                 {
                     if (_quickFailException != null) throw _quickFailException;
-                    await ra(ct);
+                    try
+                    {
+                        await ra(ct);
+                    }
+                    catch (CircuitBreakerException e)
+                    {
+                        Assert.IsNotNull(e.InnerException);
+                        _quickFailException = e.InnerException;
+                        throw e.InnerException;
+                    }
                 });
         }
 
@@ -88,21 +97,18 @@ namespace Nexus.Link.Libraries.SqlServer.Test
                 }
             });
 
-            Assert.IsTrue(resetEvent.WaitOne(TimeSpan.FromMilliseconds(300)), "A small time span should be enough to wait for all calls");
+            Assert.IsTrue(resetEvent.WaitOne(TimeSpan.FromSeconds(1)), "A small time span should be enough to wait for all calls");
             Assert.AreEqual(parallelCalls, count);
         }
 
         [TestMethod]
         public async Task Recovers_After_Success()
         {
-            const int coolDownMs = 30;
-            var coolDown = new CoolDownStrategy(TimeSpan.FromMilliseconds(coolDownMs));
-
             // 1. Fail
             _connectionMock.Setup(x => x.Open()).Throws(new ApplicationException("unavailable"));
             try
             {
-                await _connectionMock.Object.VerifyAvailabilityAsync(TimeSpan.FromSeconds(1)); // TODO: Lars removed this parameter: , coolDown);
+                await _connectionMock.Object.VerifyAvailabilityAsync(TimeSpan.FromSeconds(1));
                 Assert.Fail("Verify should throw");
             }
             catch (FulcrumResourceException)
@@ -122,7 +128,7 @@ namespace Nexus.Link.Libraries.SqlServer.Test
             }
 
             // 3. Recover
-            await Task.Delay(coolDownMs);
+            _quickFailException = null;
             _connectionMock.Setup(x => x.Open()).Verifiable();
 
             await _connectionMock.Object.VerifyAvailabilityAsync(TimeSpan.FromSeconds(1));
