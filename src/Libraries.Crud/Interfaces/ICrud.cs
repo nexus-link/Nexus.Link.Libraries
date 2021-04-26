@@ -33,6 +33,7 @@ namespace Nexus.Link.Libraries.Crud.Interfaces
 
     /// <inheritdoc cref="ICrud{TModelCreate, TModel,TId}" />
     public interface ICrudWithConnection<TModel, TId> :
+        ICreateConnection,
         ICrud<TModel, TModel, TId>,
         ICreateWithConnection<TModel, TId>,
         ICreateWithSpecifiedIdAndConnection<TModel, TId>,
@@ -45,6 +46,7 @@ namespace Nexus.Link.Libraries.Crud.Interfaces
     /// Interface for CRUD operations."/>.
     /// </summary>
     public interface ICrudWithConnection<in TModelCreate, TModel, TId> :
+        ICreateConnection,
         ICreateWithConnection<TModelCreate, TModel, TId>,
         ICreateAndReturn<TModelCreate, TModel, TId>,
         ICreateWithSpecifiedIdAndConnection<TModelCreate, TModel, TId>,

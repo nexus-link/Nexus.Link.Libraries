@@ -20,7 +20,7 @@ namespace Nexus.Link.Libraries.SqlServer
     /// Helper class for advanced SELECT statements 
     /// </summary>
     public class CrudSqlWithConnection<TDatabaseItem> : CrudSqlWithConnection<TDatabaseItem, TDatabaseItem>,
-        ICrud<TDatabaseItem, Guid>
+        ICrudWithConnection<TDatabaseItem, Guid>
         where TDatabaseItem : IUniquelyIdentifiable<Guid>
     {
         /// <summary>
@@ -239,6 +239,11 @@ namespace Nexus.Link.Libraries.SqlServer
         {
             await CreateWithSpecifiedIdAsync(id, item, connection, token);
             return await ReadAsync(id, token);
+        }
+
+        public IDbConnection CreateConnection()
+        {
+            return Database.NewSqlConnection();
         }
     }
 }

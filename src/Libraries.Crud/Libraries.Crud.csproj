@@ -9,7 +9,7 @@
 
   <PropertyGroup>
     <PackageId>Nexus.Link.Libraries.Crud</PackageId>
-    <Version>2.3.10-beta1</Version>
+    <Version>2.3.10-beta2</Version>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <PackageTags>nexus;link;fulcrum;lever</PackageTags>
     <Authors>XLENT Link</Authors>
