@@ -13,7 +13,7 @@ namespace Nexus.Link.Libraries.SqlServer.Test.Stuff
         public TestTrans2Create()
         {
             Field1 = Guid.NewGuid().ToString().ToLower();
-            Field1 = Guid.NewGuid().ToString().ToLower();
+            Field2 = Guid.NewGuid().ToString().ToLower();
         }
 
         public string Field1 { get; set; }
