@@ -30,4 +30,34 @@ namespace Nexus.Link.Libraries.Crud.Interfaces
         where TModel : TModelCreate
     {
     }
+
+    /// <inheritdoc cref="ICrud{TModelCreate, TModel,TId}" />
+    public interface ICrudWithConnection<TModel, TId> :
+        ICrud<TModel, TModel, TId>,
+        ICreateWithConnection<TModel, TId>,
+        ICreateWithSpecifiedIdAndConnection<TModel, TId>,
+        ICreateAndReturn<TModel, TId>,
+        ICrudBasic<TModel, TId>
+    {
+    }
+
+    /// <summary>
+    /// Interface for CRUD operations."/>.
+    /// </summary>
+    public interface ICrudWithConnection<in TModelCreate, TModel, TId> :
+        ICreateWithConnection<TModelCreate, TModel, TId>,
+        ICreateAndReturn<TModelCreate, TModel, TId>,
+        ICreateWithSpecifiedIdAndConnection<TModelCreate, TModel, TId>,
+        IRead<TModel, TId>,
+        IReadAllWithPaging<TModel, TId>,
+        IReadAll<TModel, TId>,
+        IUpdate<TModel, TId>,
+        IUpdateAndReturn<TModel, TId>,
+        IDelete<TId>,
+        IDeleteAll,
+        ILockable<TId>,
+        ICrudBasic<TModelCreate, TModel, TId>
+        where TModel : TModelCreate
+    {
+    }
 }

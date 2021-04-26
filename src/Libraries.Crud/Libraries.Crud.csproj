@@ -9,7 +9,7 @@
 
   <PropertyGroup>
     <PackageId>Nexus.Link.Libraries.Crud</PackageId>
-    <Version>2.3.9</Version>
+    <Version>2.3.10-beta1</Version>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <PackageTags>nexus;link;fulcrum;lever</PackageTags>
     <Authors>XLENT Link</Authors>
@@ -19,6 +19,7 @@
     <Copyright>Copyright ©2019 Xlent Link AB</Copyright>
     <IncludeSymbols>true</IncludeSymbols>
     <PackageReleaseNotes>
+      2.3.10 Testing reuse connection for create
       2.3.9 Using Microsoft.Extensions.Caching.Abstractions
       2.3.7 Now sets RecordUpdatedAt to DateTimeOffset.UTCNOW. Bump Libraries.Core.
       2.3.6 Added some Obsolete attributes

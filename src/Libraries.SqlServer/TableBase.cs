@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Data.SqlClient;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Threading;
@@ -194,14 +195,21 @@ namespace Nexus.Link.Libraries.SqlServer
         }
 
 
-        protected internal async Task<int> ExecuteAsync(string statement, object param = null, CancellationToken token = default(CancellationToken))
+        protected internal async Task<int> ExecuteAsync(string statement, object param = null, CancellationToken token = default(CancellationToken), IDbConnection connection = null)
         {
             InternalContract.RequireNotNullOrWhiteSpace(statement, nameof(statement));
             MaybeTransformEtagToRecordVersion(param);
             int count;
-            using (var db = Database.NewSqlConnection())
+            if (connection == null)
             {
-                count = await db.ExecuteAsync(statement, param);
+                using (connection = Database.NewSqlConnection())
+                {
+                    count = await connection.ExecuteAsync(statement, param);
+                }
+            }
+            else
+            {
+                count = await connection.ExecuteAsync(statement, param);
             }
 
             return count;

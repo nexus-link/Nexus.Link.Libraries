@@ -17,7 +17,7 @@
 
   <PropertyGroup>
     <PackageId>Nexus.Link.Libraries.SqlServer</PackageId>
-    <Version>2.1.5-rc1</Version>
+    <Version>2.1.5-rc2</Version>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <PackageTags>nexus;link;fulcrum;lever</PackageTags>
     <Authors>XLENT Link</Authors>
