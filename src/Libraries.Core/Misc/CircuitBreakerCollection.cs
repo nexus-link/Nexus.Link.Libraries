@@ -69,6 +69,44 @@ namespace Nexus.Link.Libraries.Core.Misc
         }
 
         /// <inheritdoc />
+        public void ExecuteOrThrow(string key, Action action)
+        {
+            ExecuteOrThrow(key, () =>
+            {
+                action();
+                return true;
+            });
+        }
+
+        /// <inheritdoc />
+        public T ExecuteOrThrow<T>(string key, Func<T> function)
+        {
+            ICircuitBreaker circuitBreaker;
+            lock (_circuitBreakers)
+            {
+                if (!_circuitBreakers.TryGetValue(key, out circuitBreaker))
+                {
+                    circuitBreaker = _createCircuitBreakerDelegate();
+                    _circuitBreakers.Add(key, circuitBreaker);
+                }
+            }
+            try
+            {
+                return circuitBreaker.ExecuteOrThrow(function);
+            }
+            finally
+            {
+                lock (_circuitBreakers)
+                {
+                    if (!circuitBreaker.IsActive)
+                    {
+                        _circuitBreakers.Remove(key);
+                    }
+                }
+            }
+        }
+
+        /// <inheritdoc />
         public void ForceEndOfCoolDown()
         {
             lock (_circuitBreakers)

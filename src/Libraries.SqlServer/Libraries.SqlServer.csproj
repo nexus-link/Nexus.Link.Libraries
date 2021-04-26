@@ -17,7 +17,7 @@
 
   <PropertyGroup>
     <PackageId>Nexus.Link.Libraries.SqlServer</PackageId>
-    <Version>2.3.0</Version>
+    <Version>2.3.1</Version>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <PackageTags>nexus;link;fulcrum;lever</PackageTags>
     <Authors>XLENT Link</Authors>
@@ -27,6 +27,7 @@
     <Copyright>Copyright ©2019 Xlent Link AB</Copyright>
     <IncludeSymbols>true</IncludeSymbols>
     <PackageReleaseNotes>
+      2.3.1 Added synchronous CircuitBreaker.
       2.3.0 Now uses the new CircuitBreaker functionality from Core.
       2.2.0 Sql connection circuit breaker
       2.1.4 Now sets RecordUpdatedAt to DateTimeOffset.UtcNow. Also bump Libraries.Core.
