@@ -61,14 +61,6 @@ namespace Nexus.Link.Libraries.Core.Storage.Logic
         }
 
         /// <summary>
-        /// If <paramref name="item"/> implements <see cref="IValidatable"/>, then it is validated.
-        /// </summary>
-        public static void MaybeValidate<TModel>(TModel item)
-        {
-            if (item is IValidatable validatable) InternalContract.RequireValidated(validatable, nameof(item));
-        }
-
-        /// <summary>
         /// If <paramref name="item"/> implements <see cref="IOptimisticConcurrencyControlByETag"/>
         /// then the Etag of the item is set to a new value.
         /// </summary>
@@ -98,7 +90,7 @@ namespace Nexus.Link.Libraries.Core.Storage.Logic
         public static void MaybeUpdateTimeStamps<TModel>(TModel item, bool updateCreatedToo, DateTimeOffset? timeStamp = null)
         {
             if (!(item is ITimeStamped timeStamped)) return;
-            timeStamp = timeStamp ?? DateTimeOffset.Now;
+            timeStamp = timeStamp ?? DateTimeOffset.UtcNow;
             timeStamped.RecordUpdatedAt = timeStamp.Value;
             if (updateCreatedToo) timeStamped.RecordCreatedAt = timeStamp.Value;
         }

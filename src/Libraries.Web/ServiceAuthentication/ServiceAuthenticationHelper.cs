@@ -108,7 +108,14 @@ namespace Nexus.Link.Libraries.Web.ServiceAuthentication
         private static ClientAuthorizationSettings GetAuthSettingsVersion2(ILeverConfiguration configuration, string client)
         {
             var clientConfiguration = ClientConfigurationHelper.GetConfigurationForClient(configuration, client);
-            if (clientConfiguration == null) return null; 
+            if (clientConfiguration == null) return null;
+            if (string.IsNullOrWhiteSpace(clientConfiguration.Authentication))
+            {
+                return new ClientAuthorizationSettings
+                {
+                    AuthorizationType = ClientAuthorizationSettings.AuthorizationTypeEnum.None
+                };
+            }
 
             var authentications = GetAuthentications(configuration);
             if (authentications == null || !authentications.TryGetValue(clientConfiguration.Authentication, out var authentication))

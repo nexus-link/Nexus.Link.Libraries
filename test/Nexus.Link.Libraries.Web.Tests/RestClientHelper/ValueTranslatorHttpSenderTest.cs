@@ -9,6 +9,7 @@ using Microsoft.Rest;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using Nexus.Link.Libraries.Core.Application;
+using Nexus.Link.Libraries.Core.MultiTenant.Model;
 using Nexus.Link.Libraries.Core.Storage.Model;
 using Nexus.Link.Libraries.Core.Translation;
 using Nexus.Link.Libraries.Web.RestClientHelper;
@@ -111,6 +112,24 @@ namespace Nexus.Link.Libraries.Web.Tests.RestClientHelper
             {
                 VerifyFoo(foo);
             }
+        }
+
+        [TestMethod]
+        public async Task TranslatorServiceIsNotCalledForIfNoTranslations()
+        {
+            _translatorServiceMock = new Mock<ITranslatorService>();
+            _translatorServiceMock
+                .Setup(ts => ts.TranslateAsync(
+                    It.IsAny<IEnumerable<string>>(),
+                    It.IsAny<string>(),
+                    It.IsAny<CancellationToken>()))
+                .ThrowsAsync(new Exception("ITranslatorService should not be called if no translations"));
+            ValueTranslatorHttpSender.TranslatorService = _translatorServiceMock.Object;
+
+            var sender = new ValueTranslatorHttpSender(new HttpSenderMock(), "producer");
+            var inBody = new Tenant("o", "e");
+            // There are no translations in this request, so ITranslatorService.TranslateAsync should not be called
+            await sender.SendRequestAsync(HttpMethod.Get, $"Tenants/{_producerId}", inBody);
         }
 
         private void VerifyFoo(Foo foo)

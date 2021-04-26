@@ -82,9 +82,12 @@ namespace Nexus.Link.Libraries.Web.RestClientHelper
         // ReSharper disable once UnusedParameter.Local
         public HttpSender(string baseUri)
         {
-            InternalContract.RequireNotNullOrWhiteSpace(baseUri, nameof(baseUri));try
+            try
             {
-                BaseUri = new Uri(baseUri);
+                if (!string.IsNullOrWhiteSpace(baseUri))
+                {
+                    BaseUri = new Uri(baseUri);
+                }
             }
             catch (UriFormatException e)
             {
@@ -195,7 +198,7 @@ namespace Nexus.Link.Libraries.Web.RestClientHelper
         {
             var url = ConcatenateBaseUrlAndRelativeUrl(relativeUrl);
             var request = new HttpRequestMessage(method, url);
-            request.Headers.TryAddWithoutValidation("Accept", new List<string> {"application/json"});
+            request.Headers.TryAddWithoutValidation("Accept", new List<string> { "application/json" });
             if (customHeaders != null)
             {
                 foreach (var header in customHeaders)
@@ -246,7 +249,7 @@ namespace Nexus.Link.Libraries.Web.RestClientHelper
                 Body = default(TResponse)
             };
 
-            if (method == HttpMethod.Get || method == HttpMethod.Put || method == HttpMethod.Post || method == PatchMethod )
+            if (method == HttpMethod.Get || method == HttpMethod.Put || method == HttpMethod.Post || method == PatchMethod)
             {
                 if ((method == HttpMethod.Get || method == HttpMethod.Put || method == PatchMethod) && response.StatusCode != HttpStatusCode.OK)
                 {
@@ -304,20 +307,32 @@ namespace Nexus.Link.Libraries.Web.RestClientHelper
 
         private string ConcatenateBaseUrlAndRelativeUrl(string relativeUrl)
         {
-            var baseUri = BaseUri.AbsoluteUri;
-            var relativeUrlBeginsWithSpecialCharacter = relativeUrl.StartsWith("/") || relativeUrl.StartsWith("?");
-            var slashIsRequired = !string.IsNullOrWhiteSpace(relativeUrl) && !relativeUrlBeginsWithSpecialCharacter;
-            if (baseUri.EndsWith("/"))
+            string baseUri = BaseUri?.OriginalString ?? "";
+
+            if (baseUri != "" && !string.IsNullOrWhiteSpace(relativeUrl))
             {
-                // Maybe remove the /
-                if (relativeUrlBeginsWithSpecialCharacter) baseUri = baseUri.Substring(0, baseUri.Length - 1);
-            }
-            else
-            {
-                if (slashIsRequired) baseUri += "/";
+                var relativeUrlBeginsWithSpecialCharacter = relativeUrl.StartsWith("/") || relativeUrl.StartsWith("?");
+                var slashIsRequired = !string.IsNullOrWhiteSpace(relativeUrl) && !relativeUrlBeginsWithSpecialCharacter;
+                if (baseUri.EndsWith("/"))
+                {
+                    // Maybe remove the /
+                    if (relativeUrlBeginsWithSpecialCharacter) baseUri = baseUri.Substring(0, baseUri.Length - 1);
+                }
+                else
+                {
+                    if (slashIsRequired) baseUri += "/";
+                }
             }
 
-            return baseUri + relativeUrl;
+            var concatenatedUrl = baseUri + relativeUrl?.Trim(' ');
+
+            if (!(Uri.TryCreate(concatenatedUrl, UriKind.Absolute, out var uri)
+                && (uri.Scheme == Uri.UriSchemeHttp || uri.Scheme == Uri.UriSchemeHttps)))
+            {
+                InternalContract.Fail($"The format of the concatenated url ({concatenatedUrl}) is not correct. BaseUrl: '{baseUri}'. RelativeUrl: '{relativeUrl}'");
+            }
+
+            return concatenatedUrl;
         }
         #endregion
     }

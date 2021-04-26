@@ -1,6 +1,7 @@
 ﻿using System.Threading.Tasks;
 using Nexus.Link.Libraries.Core.Application;
 using Nexus.Link.Libraries.Core.Assert;
+using Nexus.Link.Libraries.Core.Error.Logic;
 using Nexus.Link.Libraries.Core.Platform.Configurations;
 
 #if NETCOREAPP
@@ -49,7 +50,8 @@ namespace Nexus.Link.Libraries.Web.AspNet.Pipe.Inbound
             InternalContract.Require(!SaveCorrelationId.HasStarted,
                 $"{nameof(SaveCorrelationId)} must not precede {nameof(SaveClientTenantConfiguration)}");
             HasStarted = true;
-            if (FulcrumApplication.Context.ClientTenant != null)
+            var tenant = FulcrumApplication.Context.ClientTenant;
+            if (tenant != null)
             {
                 try
                 {
@@ -63,7 +65,11 @@ namespace Nexus.Link.Libraries.Web.AspNet.Pipe.Inbound
 
                     FulcrumApplication.Context.LeverConfiguration =
                         await _serviceConfiguration.GetConfigurationForAsync(
-                            FulcrumApplication.Context.ClientTenant);
+                            tenant);
+                }
+                catch (FulcrumUnauthorizedException e)
+                {
+                    throw new FulcrumResourceException($"Could not fetch configuration for Tenant: '{tenant}': {e.Message}", e);
                 }
                 catch
                 {

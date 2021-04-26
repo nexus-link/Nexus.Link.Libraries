@@ -27,7 +27,7 @@ namespace Nexus.Link.Libraries.Crud.Test.Cache
         {
             FulcrumApplicationHelper.UnitTestSetup(typeof(TestAutoCacheCrud).FullName);
             _storage = new CrudMemory<string, string, Guid>();
-            Cache = new MemoryDistributedCache();
+            Cache = new CrudMemoryDistributedCache();
             DistributedCacheOptions = new DistributedCacheEntryOptions
             {
                 AbsoluteExpirationRelativeToNow = TimeSpan.FromMilliseconds(1000)

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Nexus.Link.Libraries.Azure.Storage.Queue;
@@ -26,8 +27,13 @@ namespace Nexus.Link.Libraries.Azure.Storage.Test
         public async Task GetDoesNotBlockAsync()
         {
             var getTask = _queue.GetOneMessageNoBlockAsync();
-            await Task.Delay(TimeSpan.FromMilliseconds(100));
-            Assert.IsTrue(getTask.IsCompleted, "Expected the method to finish quickly.");
+            var stopwatch = new Stopwatch();
+            stopwatch.Start();
+            while (!getTask.IsCompleted)
+            {
+                Assert.IsTrue(stopwatch.Elapsed < TimeSpan.FromSeconds(1), "Expected the method to finish quickly.");
+                await Task.Delay(TimeSpan.FromMilliseconds(10));
+            }
             Assert.IsNull(await getTask);
         }
 
@@ -48,6 +54,22 @@ namespace Nexus.Link.Libraries.Azure.Storage.Test
             var result = await _queue.GetOneMessageNoBlockAsync();
             Assert.IsNotNull(result);
             Assert.AreEqual(message.Name, result.Name);
+        }
+
+        [TestMethod]
+        public async Task MessageCountIsIncreasedWhenAddingAsync()
+        {
+            var expectedCount = 5;
+
+            for (int i = 0; i < expectedCount; i++)
+            {
+                var message = new Message { Name = "Message1" };
+                await _queue.AddMessageAsync(message);
+            }
+
+            var result = await _queue.GetApproximateMessageCountAsync();
+            Assert.IsNotNull(result);
+            Assert.AreEqual(expectedCount, result);
         }
 
         [TestMethod]

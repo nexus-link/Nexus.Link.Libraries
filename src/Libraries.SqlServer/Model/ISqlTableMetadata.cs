@@ -5,7 +5,7 @@ using Nexus.Link.Libraries.Core.Storage.Model;
 namespace Nexus.Link.Libraries.SqlServer.Model
 {
     /// <summary>
-    /// Metadata for creating SQL statmements
+    /// Metadata for creating SQL statements
     /// </summary>
     public interface ISqlTableMetadata : IValidatable
     {
@@ -15,7 +15,15 @@ namespace Nexus.Link.Libraries.SqlServer.Model
         /// <remarks>Will be surrounded with dbo.[{TableName}}, i.e. just specify the name, no brackets needed.</remarks>
         string TableName { get; }
 
+        /// <summary>
+        /// The name of the ETag column, or null
+        /// </summary>
         string EtagColumnName { get; }
+
+        /// <summary>
+        /// The name of the rowversion column, or null
+        /// </summary>
+        string RowVersionColumnName { get; }
 
         /// <summary>
         /// The name of column that has the foreign key or null.

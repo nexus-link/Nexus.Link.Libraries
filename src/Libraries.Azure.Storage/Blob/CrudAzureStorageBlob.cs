@@ -11,6 +11,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Nexus.Link.Libraries.Core.Json;
+using Nexus.Link.Libraries.Core.Misc;
 
 namespace Nexus.Link.Libraries.Azure.Storage.Blob
 {
@@ -65,6 +66,7 @@ namespace Nexus.Link.Libraries.Azure.Storage.Blob
             StorageHelper.MaybeCreateNewEtag(dbItem);
             StorageHelper.MaybeUpdateTimeStamps(dbItem, true);
             StorageHelper.MaybeSetId(id, dbItem);
+            InternalContract.RequireValidated(dbItem, nameof(item));
             var content = JsonConvert.SerializeObject(dbItem);
             FulcrumAssert.IsTrue(!await fileExistsTask, null, $"File ({fileName}) unexpectedly already existed in directory {Directory.Name}");
             await file.UploadAsync(content, "application/json");
@@ -97,7 +99,10 @@ namespace Nexus.Link.Libraries.Azure.Storage.Blob
             var file = Directory.CreateFile(fileName);
             if (!await file.ExistsAsync()) return default(TModel);
             var content = await file.DownloadTextAsync();
-            return JsonHelper.SafeDeserializeObject<TModel>(content);
+            var dbItem = JsonHelper.SafeDeserializeObject<TModel>(content);
+            FulcrumAssert.IsNotNull(dbItem, CodeLocation.AsString());
+            FulcrumAssert.IsValidated(dbItem, CodeLocation.AsString());
+            return dbItem;
         }
 
         public async Task DeleteAsync(TId id, CancellationToken token = default(CancellationToken))

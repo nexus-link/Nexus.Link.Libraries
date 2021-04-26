@@ -15,7 +15,7 @@
 
   <PropertyGroup>
     <PackageId>Nexus.Link.Libraries.Azure</PackageId>
-    <Version>3.0.7</Version>
+    <Version>3.1.3</Version>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <PackageTags>nexus;link;fulcrum;lever</PackageTags>
     <Authors>XLENT Link</Authors>
@@ -25,6 +25,10 @@
     <Copyright>Copyright ©2019 Xlent Link AB</Copyright>
     <IncludeSymbols>true</IncludeSymbols>
     <PackageReleaseNotes>
+      3.1.3 Now sets RecordUpdatedAt to DateTimeOffset.UtcNow and bump Libraries.Core.
+      3.1.2 Bump
+      3.1.1 Better validation when creating items. 
+      3.1.0 AzureStorageQueue now implements ICountableQueue
       3.0.7 Bump
       3.0.6 Bump
       3.0.5 Fix: Delete from Table Storage (required ETag property)
