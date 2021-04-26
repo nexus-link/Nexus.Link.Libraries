@@ -19,26 +19,39 @@ namespace Nexus.Link.Libraries.SqlServer.Logic
                 CoolDownStrategy = new CoolDownStrategy(TimeSpan.FromMinutes(1)),
                 CancelConcurrentRequestsWhenOneFails = false
             }));
-        public static async Task VerifyAvailabilityAsync(this IDbConnection connection, TimeSpan connectTimeout, CancellationToken cancellationToken = default)
+
+        /// <summary>
+        /// Verify that the database connection is available by trying to open it.
+        /// </summary>
+        /// <param name="connection">The database connection.</param>
+        /// <param name="connectTimeout">The time that we are willing to wait for the DB response.
+        /// NULL means that we should use the value from the connection string.</param>
+        /// <param name="cancellationToken">The token to monitor for cancellation requests.</param>
+        /// <returns></returns>
+        public static async Task VerifyAvailabilityAsync(this IDbConnection connection, TimeSpan? connectTimeout = null, CancellationToken cancellationToken = default)
         {
             if (connection.State == ConnectionState.Open) return;
 
             await CircuitBreakerCollection.ExecuteOrThrowAsync(
-                connection.ConnectionString, 
-                (t) => ConnectAsync(connection, connectTimeout, t), 
+                connection.ConnectionString,
+                (t) => ConnectAsync(connection, connectTimeout, t),
                 cancellationToken);
         }
 
-        private static async Task ConnectAsync(IDbConnection connection, TimeSpan connectTimeout, CancellationToken cancellationToken)
+        private static async Task ConnectAsync(IDbConnection connection, TimeSpan? connectTimeout, CancellationToken cancellationToken)
         {
             var originalConnectionString = connection.ConnectionString;
             try
             {
-                var connStringBuilder = new SqlConnectionStringBuilder(connection.ConnectionString)
+                if (connectTimeout.HasValue)
                 {
-                    ConnectTimeout = (int)connectTimeout.TotalSeconds
-                };
-                connection.ConnectionString = connStringBuilder.ConnectionString;
+                    var connStringBuilder = new SqlConnectionStringBuilder(connection.ConnectionString)
+                    {
+                        ConnectTimeout = (int) connectTimeout.Value.TotalSeconds
+                    };
+                    connection.ConnectionString = connStringBuilder.ConnectionString;
+                }
+
                 if (connection is SqlConnection sqlConnection) await sqlConnection.OpenAsync(cancellationToken);
                 else connection.Open();
             }
@@ -52,7 +65,7 @@ namespace Nexus.Link.Libraries.SqlServer.Logic
             }
             finally
             {
-                connection.ConnectionString = originalConnectionString;
+                if (connection.State != ConnectionState.Open) connection.ConnectionString = originalConnectionString;
             }
         }
     }
