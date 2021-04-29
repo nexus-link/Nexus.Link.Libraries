@@ -31,7 +31,11 @@ namespace Nexus.Link.Libraries.Crud.Interfaces
         IUpdateSlaveAndReturn<TModel, TId>,
         IDeleteSlave<TId>,
         IDeleteChildren<TId>,
+#pragma warning disable 618
         ILockableSlave<TId>,
+#pragma warning restore 618
+        IDistributedLockSlave<TId>,
+        ITransactionLockSlave<TId>,
         ICrudSlaveToMasterBasic<TModelCreate, TModel, TId>
         where TModel : TModelCreate
     {

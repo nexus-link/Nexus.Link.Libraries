@@ -163,5 +163,23 @@ namespace Nexus.Link.Libraries.Crud.ClientTranslators
         {
             return _service.ReleaseLockAsync(id, lockId, token);
         }
+
+        /// <inheritdoc />
+        public Task<Lock<string>> ClaimDistributedLockAsync(string id, CancellationToken token = default(CancellationToken))
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <inheritdoc />
+        public Task ReleaseDistributedLockAsync(string id, string lockId, CancellationToken token = default(CancellationToken))
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <inheritdoc />
+        public Task ClaimTransactionLockAsync(string id, CancellationToken token = default(CancellationToken))
+        {
+            throw new NotImplementedException();
+        }
     }
 }

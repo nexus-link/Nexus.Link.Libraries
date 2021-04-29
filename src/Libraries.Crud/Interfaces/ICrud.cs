@@ -25,7 +25,11 @@ namespace Nexus.Link.Libraries.Crud.Interfaces
         IUpdateAndReturn<TModel, TId>,
         IDelete<TId>,
         IDeleteAll,
+#pragma warning disable 618
         ILockable<TId>,
+#pragma warning restore 618
+        IDistributedLock<TId>,
+        ITransactionLock<TId>,
         ICrudBasic<TModelCreate, TModel, TId> 
         where TModel : TModelCreate
     {

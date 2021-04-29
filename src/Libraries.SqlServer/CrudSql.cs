@@ -197,5 +197,33 @@ namespace Nexus.Link.Libraries.SqlServer
         {
             throw new FulcrumNotImplementedException();
         }
+
+        /// <inheritdoc />
+        public Task<Lock<Guid>> ClaimDistributedLockAsync(Guid id, CancellationToken token = default(CancellationToken))
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <inheritdoc />
+        public Task ReleaseDistributedLockAsync(Guid id, Guid lockId, CancellationToken token = default(CancellationToken))
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <inheritdoc />
+        public async Task ClaimTransactionLockAsync(Guid id, CancellationToken token = default(CancellationToken))
+        {
+            var selectStatement =
+                $"SELECT {SqlHelper.ReadColumnNames(TableMetadata)} FROM [{TableMetadata.TableName}] WITH (ROWLOCK, UPDLOCK, READPAST) WHERE Id=@Id";
+            var result = await SearchAdvancedSingleAsync(selectStatement, new {Id = id}, token);
+            if (result == null)
+            {
+                throw new FulcrumTryAgainException(
+                        $"Item {id} in table {TableMetadata.TableName} was already locked by another client.")
+                    {
+                        RecommendedWaitTimeInSeconds = 1
+                    };
+            }
+        }
     }
 }

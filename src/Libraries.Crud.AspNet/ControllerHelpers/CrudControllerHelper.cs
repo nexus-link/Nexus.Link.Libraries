@@ -167,5 +167,29 @@ namespace Nexus.Link.Libraries.Crud.AspNet.ControllerHelpers
             ServiceContract.RequireNotNullOrWhiteSpace(lockId, nameof(lockId));
             await Logic.ReleaseLockAsync(id, lockId, token);
         }
+
+        /// <inheritdoc />
+        public async Task<Lock<string>> ClaimDistributedLockAsync(string id, CancellationToken token = default(CancellationToken))
+        {
+            ServiceContract.RequireNotNullOrWhiteSpace(id, nameof(id));
+            var @lock = await Logic.ClaimLockAsync(id, token);
+            FulcrumAssert.IsNotNull(@lock);
+            FulcrumAssert.IsValidated(@lock);
+            return @lock;
+        }
+
+        /// <inheritdoc />
+        public async Task ReleaseDistributedLockAsync(string id, string lockId, CancellationToken token = default(CancellationToken))
+        {
+            ServiceContract.RequireNotNullOrWhiteSpace(id, nameof(id));
+            ServiceContract.RequireNotNullOrWhiteSpace(lockId, nameof(lockId));
+            await Logic.ReleaseLockAsync(id, lockId, token);
+        }
+
+        /// <inheritdoc />
+        public Task ClaimTransactionLockAsync(string id, CancellationToken token = default(CancellationToken))
+        {
+            throw new NotImplementedException();
+        }
     }
 }

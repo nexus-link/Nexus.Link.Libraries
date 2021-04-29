@@ -203,5 +203,23 @@ namespace Nexus.Link.Libraries.Crud.Web.RestClient
         {
             await PostNoResponseContentAsync($"{id}/Locks/{lockId}", cancellationToken: token);
         }
+
+        /// <inheritdoc />
+        public async Task<Lock<TId>> ClaimDistributedLockAsync(TId id, CancellationToken token = default(CancellationToken))
+        {
+            return await PostAsync<Lock<TId>>($"{id}/Locks", cancellationToken: token);
+        }
+
+        /// <inheritdoc />
+        public async Task ReleaseDistributedLockAsync(TId id, TId lockId, CancellationToken token = default(CancellationToken))
+        {
+            await PostNoResponseContentAsync($"{id}/Locks/{lockId}", cancellationToken: token);
+        }
+
+        /// <inheritdoc />
+        public Task ClaimTransactionLockAsync(TId id, CancellationToken token = default(CancellationToken))
+        {
+            throw new NotImplementedException();
+        }
     }
 }

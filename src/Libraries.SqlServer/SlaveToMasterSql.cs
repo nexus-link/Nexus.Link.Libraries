@@ -4,10 +4,12 @@ using System.Threading;
 using System.Threading.Tasks;
 using Nexus.Link.Libraries.Core.Assert;
 using Nexus.Link.Libraries.Core.Crud.Model;
+using Nexus.Link.Libraries.Core.Error.Logic;
 using Nexus.Link.Libraries.Core.Storage.Logic;
 using Nexus.Link.Libraries.Crud.Interfaces;
 using Nexus.Link.Libraries.Core.Storage.Model;
 using Nexus.Link.Libraries.Crud.Model;
+using Nexus.Link.Libraries.SqlServer.Logic;
 using Nexus.Link.Libraries.SqlServer.Model;
 
 namespace Nexus.Link.Libraries.SqlServer
@@ -142,6 +144,35 @@ namespace Nexus.Link.Libraries.SqlServer
         public Task ReleaseLockAsync(Guid masterId, Guid slaveId, Guid lockId, CancellationToken token = new CancellationToken())
         {
             throw new NotImplementedException();
+        }
+
+        /// <inheritdoc />
+        public Task<SlaveLock<Guid>> ClaimDistributedLockAsync(Guid masterId, Guid slaveId, CancellationToken token = default(CancellationToken))
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <inheritdoc />
+        public Task ReleaseDistributedLockAsync(Guid masterId, Guid slaveId, Guid lockId,
+            CancellationToken token = default(CancellationToken))
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <inheritdoc />
+        public async Task ClaimTransactionLockAsync(Guid masterId, Guid slaveId, CancellationToken token = default(CancellationToken))
+        {
+            var selectStatement =
+                $"SELECT {SqlHelper.ReadColumnNames(TableMetadata)} FROM [{TableMetadata.TableName}] WITH (ROWLOCK, UPDLOCK, READPAST) WHERE Id=@Id";
+            var result = await SearchAdvancedSingleAsync(selectStatement, new {Id = slaveId}, token);
+            if (result == null)
+            {
+                throw new FulcrumTryAgainException(
+                    $"Item {slaveId} in table {TableMetadata.TableName} was already locked by another client.")
+                {
+                    RecommendedWaitTimeInSeconds = 1
+                };
+            }
         }
     }
 }

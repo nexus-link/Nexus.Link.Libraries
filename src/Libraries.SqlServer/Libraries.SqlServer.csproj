@@ -12,12 +12,13 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Libraries.Core\Libraries.Core.csproj" />
+    <ProjectReference Include="..\Libraries.Crud.Web\Libraries.Crud.Web.csproj" />
     <ProjectReference Include="..\Libraries.Crud\Libraries.Crud.csproj" />
   </ItemGroup>
 
   <PropertyGroup>
     <PackageId>Nexus.Link.Libraries.SqlServer</PackageId>
-    <Version>2.3.2</Version>
+    <Version>2.4.0</Version>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <PackageTags>nexus;link;fulcrum;lever</PackageTags>
     <Authors>XLENT Link</Authors>
@@ -27,6 +28,7 @@
     <Copyright>Copyright ©2019 Xlent Link AB</Copyright>
     <IncludeSymbols>true</IncludeSymbols>
     <PackageReleaseNotes>
+      2.4.0 Added ITransactionLock.
       2.3.2 Now uses sysutcdatetime() for RecordUpdatedAt.
       2.3.1 Added synchronous CircuitBreaker.
       2.3.0 Now uses the new CircuitBreaker functionality from Core.

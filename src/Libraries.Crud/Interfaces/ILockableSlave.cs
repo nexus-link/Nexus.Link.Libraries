@@ -1,4 +1,5 @@
-﻿using System.Threading;
+﻿using System;
+using System.Threading;
 using System.Threading.Tasks;
 using Nexus.Link.Libraries.Core.Error.Logic;
 using Nexus.Link.Libraries.Crud.Model;
@@ -9,6 +10,7 @@ namespace Nexus.Link.Libraries.Crud.Interfaces
     /// Lock/unlock an item.
     /// </summary>
     /// <typeparam name="TId">The type for the id parameter.</typeparam>
+    [Obsolete("Use IDistributedLockSlave. Obsolete since 2021-04-29")]
     public interface ILockableSlave<TId> : ICrudable<TId>
     {
         /// <summary>

@@ -241,5 +241,24 @@ namespace Nexus.Link.Libraries.Crud.Cache
         {
             return _service.ReleaseLockAsync(masterId, slaveId, lockId, token);
         }
+
+        /// <inheritdoc />
+        public Task<SlaveLock<TId>> ClaimDistributedLockAsync(TId masterId, TId slaveId, CancellationToken token = default(CancellationToken))
+        {
+            return _service.ClaimDistributedLockAsync(masterId, slaveId, token);
+        }
+
+        /// <inheritdoc />
+        public Task ReleaseDistributedLockAsync(TId masterId, TId slaveId, TId lockId,
+            CancellationToken token = default(CancellationToken))
+        {
+            return _service.ReleaseDistributedLockAsync(masterId, slaveId, lockId, token);
+        }
+
+        /// <inheritdoc />
+        public Task ClaimTransactionLockAsync(TId masterId, TId slaveId, CancellationToken token = default(CancellationToken))
+        {
+            return _service.ClaimTransactionLockAsync(masterId, slaveId, token);
+        }
     }
 }

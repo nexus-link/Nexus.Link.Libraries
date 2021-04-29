@@ -151,5 +151,23 @@ namespace Nexus.Link.Libraries.Crud.Mappers
             var serverLockId = MapperHelper.MapToType<TServerId, TClientId>(lockId);
             return _service.ReleaseLockAsync(serverId, serverLockId, token);
         }
+
+        /// <inheritdoc />
+        public Task<Lock<TClientId>> ClaimDistributedLockAsync(TClientId id, CancellationToken token = default(CancellationToken))
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <inheritdoc />
+        public Task ReleaseDistributedLockAsync(TClientId id, TClientId lockId, CancellationToken token = default(CancellationToken))
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <inheritdoc />
+        public Task ClaimTransactionLockAsync(TClientId id, CancellationToken token = default(CancellationToken))
+        {
+            throw new NotImplementedException();
+        }
     }
 }

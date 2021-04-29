@@ -152,5 +152,23 @@ namespace Nexus.Link.Libraries.Azure.Storage.Table
         {
             await Table.DeleteItemsAsync(token);
         }
+
+        /// <inheritdoc />
+        public Task<Lock<TId>> ClaimDistributedLockAsync(TId id, CancellationToken token = default(CancellationToken))
+        {
+            throw new System.NotImplementedException();
+        }
+
+        /// <inheritdoc />
+        public Task ReleaseDistributedLockAsync(TId id, TId lockId, CancellationToken token = default(CancellationToken))
+        {
+            throw new System.NotImplementedException();
+        }
+
+        /// <inheritdoc />
+        public Task ClaimTransactionLockAsync(TId id, CancellationToken token = default(CancellationToken))
+        {
+            throw new System.NotImplementedException();
+        }
     }
 }

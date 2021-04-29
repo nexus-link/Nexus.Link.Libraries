@@ -121,5 +121,23 @@ namespace Nexus.Link.Libraries.Crud.Encrypt
         {
             return _service.ReleaseLockAsync(id, lockId, token);
         }
+
+        /// <inheritdoc />
+        public Task<Lock<TId>> ClaimDistributedLockAsync(TId id, CancellationToken token = default(CancellationToken))
+        {
+            return _service.ClaimDistributedLockAsync(id, token);
+        }
+
+        /// <inheritdoc />
+        public Task ReleaseDistributedLockAsync(TId id, TId lockId, CancellationToken token = default(CancellationToken))
+        {
+            return _service.ReleaseDistributedLockAsync(id, lockId, token);
+        }
+
+        /// <inheritdoc />
+        public Task ClaimTransactionLockAsync(TId id, CancellationToken token = default(CancellationToken))
+        {
+            return _service.ClaimTransactionLockAsync(id, token);
+        }
     }
 }

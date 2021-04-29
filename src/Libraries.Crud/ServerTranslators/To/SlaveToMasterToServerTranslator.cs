@@ -184,5 +184,24 @@ namespace Nexus.Link.Libraries.Crud.ServerTranslators.To
             slaveId = translator.Translate(slaveId);
             await _service.ReleaseLockAsync(masterId, slaveId, lockId, token);
         }
+
+        /// <inheritdoc />
+        public Task<SlaveLock<string>> ClaimDistributedLockAsync(string masterId, string slaveId, CancellationToken token = default(CancellationToken))
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <inheritdoc />
+        public Task ReleaseDistributedLockAsync(string masterId, string slaveId, string lockId,
+            CancellationToken token = default(CancellationToken))
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <inheritdoc />
+        public Task ClaimTransactionLockAsync(string masterId, string slaveId, CancellationToken token = default(CancellationToken))
+        {
+            throw new NotImplementedException();
+        }
     }
 }

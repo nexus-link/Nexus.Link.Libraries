@@ -121,15 +121,40 @@ namespace Nexus.Link.Libraries.Crud.PassThrough
         /// <inheritdoc />
         public virtual Task<Lock<TId>> ClaimLockAsync(TId id, CancellationToken token = default(CancellationToken))
         {
+#pragma warning disable 618
             var implementation = CrudHelper.GetImplementationOrThrow<ILockable<TId>>(Service);
+#pragma warning restore 618
             return implementation.ClaimLockAsync(id, token);
         }
 
         /// <inheritdoc />
         public Task ReleaseLockAsync(TId id, TId lockId, CancellationToken token = default(CancellationToken))
         {
+#pragma warning disable 618
             var implementation = CrudHelper.GetImplementationOrThrow<ILockable<TId>>(Service);
+#pragma warning restore 618
             return implementation.ReleaseLockAsync(id, lockId, token);
+        }
+
+        /// <inheritdoc />
+        public Task<Lock<TId>> ClaimDistributedLockAsync(TId id, CancellationToken token = default(CancellationToken))
+        {
+            var implementation = CrudHelper.GetImplementationOrThrow<IDistributedLock<TId>>(Service);
+            return implementation.ClaimDistributedLockAsync(id, token);
+        }
+
+        /// <inheritdoc />
+        public Task ReleaseDistributedLockAsync(TId id, TId lockId, CancellationToken token = default(CancellationToken))
+        {
+            var implementation = CrudHelper.GetImplementationOrThrow<IDistributedLock<TId>>(Service);
+            return implementation.ReleaseDistributedLockAsync(id, lockId, token);
+        }
+
+        /// <inheritdoc />
+        public Task ClaimTransactionLockAsync(TId id, CancellationToken token = default(CancellationToken))
+        {
+            var implementation = CrudHelper.GetImplementationOrThrow<ITransactionLock<TId>>(Service);
+            return implementation.ClaimTransactionLockAsync(id, token);
         }
     }
 }

@@ -248,6 +248,64 @@ namespace Nexus.Link.Libraries.Crud.MemoryStorage
             return itemCopy;
         }
         #endregion
+
+        /// <inheritdoc />
+        public virtual Task<Lock<TId>> ClaimDistributedLockAsync(TId id, CancellationToken token = default(CancellationToken))
+        {
+            InternalContract.RequireNotDefaultValue(id, nameof(id));
+
+            var key = MapperHelper.MapToType<string, TId>(id);
+            var newLock = new Lock<TId>
+            {
+                Id = MapperHelper.MapToType<TId, Guid>(Guid.NewGuid()),
+                ItemId = id,
+                ValidUntil = DateTimeOffset.Now.AddSeconds(30)
+            };
+            while (true)
+            {
+                token.ThrowIfCancellationRequested();
+                if (_locks.TryAdd(id, newLock)) return Task.FromResult(newLock);
+                if (!_locks.TryGetValue(id, out var oldLock)) continue;
+                var remainingTime = oldLock.ValidUntil.Subtract(DateTimeOffset.Now);
+                if (remainingTime > TimeSpan.Zero)
+                {
+                    var message = $"Item {key} is locked by someone else. The lock will be released before {oldLock.ValidUntil}";
+                    var exception = new FulcrumTryAgainException(message)
+                    {
+                        RecommendedWaitTimeInSeconds = remainingTime.Seconds
+                    };
+                    throw exception;
+                }
+                if (_locks.TryUpdate(id, newLock, oldLock)) return Task.FromResult(newLock);
+            }
+        }
+
+        /// <inheritdoc />
+        public virtual Task ReleaseDistributedLockAsync(TId id, TId lockId, CancellationToken token = default(CancellationToken))
+        {
+            InternalContract.RequireNotDefaultValue(id, nameof(id));
+            InternalContract.RequireNotDefaultValue(lockId, nameof(lockId));
+            if (!_locks.TryGetValue(id, out Lock<TId> @lock)) return Task.CompletedTask;
+            if (!Equals(lockId, @lock.Id)) return Task.CompletedTask;
+            // Try to temporarily add additional time to make sure that nobody steals the lock while we are releasing it.
+            // The TryUpdate will return false if there is no lock or if the current lock differs from the lock we want to release.
+            var newLock = new Lock<TId>
+            {
+                Id = lockId,
+                ItemId = id,
+                ValidUntil = DateTimeOffset.Now.AddSeconds(30)
+            };
+            if (!_locks.TryUpdate(id, @lock, newLock)) return Task.CompletedTask;
+            // Finally remove the lock
+            _locks.TryRemove(id, out var _);
+            return Task.CompletedTask;
+        }
+
+        /// <inheritdoc />
+        public virtual Task ClaimTransactionLockAsync(TId id, CancellationToken token = default(CancellationToken))
+        {
+            throw new NotImplementedException();
+        }
     }
 }
 

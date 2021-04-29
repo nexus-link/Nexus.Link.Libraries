@@ -190,5 +190,37 @@ namespace Nexus.Link.Libraries.Crud.MemoryStorage
             var groupPersistence = GetStorage(masterId);
             return groupPersistence.ReleaseLockAsync(slaveId, lockId, token);
         }
+
+        /// <inheritdoc />
+        public virtual async Task<SlaveLock<TId>> ClaimDistributedLockAsync(TId masterId, TId slaveId, CancellationToken token = default(CancellationToken))
+        {
+            InternalContract.RequireNotDefaultValue(masterId, nameof(masterId));
+            InternalContract.RequireNotDefaultValue(slaveId, nameof(slaveId));
+            var groupPersistence = GetStorage(masterId);
+            var groupLock = await groupPersistence.ClaimLockAsync(slaveId, token);
+            return new SlaveLock<TId>
+            {
+                Id = groupLock.Id,
+                MasterId = masterId,
+                SlaveId = groupLock.ItemId,
+                ValidUntil = groupLock.ValidUntil
+            };
+        }
+
+        /// <inheritdoc />
+        public virtual Task ReleaseDistributedLockAsync(TId masterId, TId slaveId, TId lockId,
+            CancellationToken token = default(CancellationToken))
+        {
+            InternalContract.RequireNotDefaultValue(masterId, nameof(masterId));
+            InternalContract.RequireNotDefaultValue(slaveId, nameof(slaveId));
+            var groupPersistence = GetStorage(masterId);
+            return groupPersistence.ReleaseLockAsync(slaveId, lockId, token);
+        }
+
+        /// <inheritdoc />
+        public virtual Task ClaimTransactionLockAsync(TId masterId, TId slaveId, CancellationToken token = default(CancellationToken))
+        {
+            throw new System.NotImplementedException();
+        }
     }
 }
