@@ -6,7 +6,9 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Dapper;
+using Newtonsoft.Json;
 using Nexus.Link.Libraries.Core.Assert;
+using Nexus.Link.Libraries.Core.Logging;
 using Nexus.Link.Libraries.Core.Storage.Model;
 using Nexus.Link.Libraries.SqlServer.Logic;
 using Nexus.Link.Libraries.SqlServer.Model;
@@ -198,14 +200,23 @@ namespace Nexus.Link.Libraries.SqlServer
         {
             InternalContract.RequireNotNullOrWhiteSpace(statement, nameof(statement));
             MaybeTransformEtagToRecordVersion(param);
-            int count;
             using (var db = Database.NewSqlConnection())
             {
+                int count;
                 await db.VerifyAvailabilityAsync(null, token);
-                count = await db.ExecuteAsync(statement, param);
+                try
+                {
+                    count = await db.ExecuteAsync(statement, param);
+                }
+                catch (Exception)
+                {
+                    var paramAsString = param == null ? "NULL" : JsonConvert.SerializeObject(param);
+                    Log.LogError($"Could not execute statement:\r{statement}\rwith param:\r{paramAsString}");
+                    throw;
+                }
+                return count;
             }
 
-            return count;
         }
 
         protected internal async Task<IEnumerable<TDatabaseItem>> QueryAsync(string statement, object param = null, CancellationToken token = default(CancellationToken))
@@ -214,13 +225,26 @@ namespace Nexus.Link.Libraries.SqlServer
             using (var db = Database.NewSqlConnection())
             {
                 await db.VerifyAvailabilityAsync(null, token);
-                var items = await db.QueryAsync<TDatabaseItem>(statement, param);
+                IEnumerable<TDatabaseItem> items;
+                try
+                {
+                    items = await db.QueryAsync<TDatabaseItem>(statement, param);
+                }
+                catch (Exception)
+                {
+                    var paramAsString = param == null ? "NULL" : JsonConvert.SerializeObject(param);
+                    Log.LogError($"Could not execute query:\r{statement}\rwith param:\r{paramAsString}");
+                    throw;
+                }
+
                 var itemList = items.ToList();
                 foreach (var item in itemList)
                 {
                     MaybeTransformRecordVersionToEtag(item);
                 }
+
                 return itemList;
+
             }
         }
 
