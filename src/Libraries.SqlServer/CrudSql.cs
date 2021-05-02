@@ -214,7 +214,7 @@ namespace Nexus.Link.Libraries.SqlServer
         public async Task ClaimTransactionLockAsync(Guid id, CancellationToken token = default(CancellationToken))
         {
             var selectStatement =
-                $"SELECT {SqlHelper.ReadColumnNames(TableMetadata)} FROM [{TableMetadata.TableName}] WITH (ROWLOCK, UPDLOCK, READPAST) WHERE Id=@Id";
+                $"SELECT {SqlHelper.ReadColumnList(TableMetadata)} FROM [{TableMetadata.TableName}] WITH (ROWLOCK, UPDLOCK, READPAST) WHERE Id=@Id";
             var result = await SearchAdvancedSingleAsync(selectStatement, new {Id = id}, token);
             if (result == null)
             {
