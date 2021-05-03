@@ -102,6 +102,58 @@ namespace Nexus.Link.Libraries.Core.Tests.TestAssert
             }
         }
 
+        [TestMethod]
+        public void AreEqualOk()
+        {
+            const string parameterName = "parameterName";
+            InternalContract.RequireAreEqual(10, 5 * 2, parameterName);
+        }
+
+        [TestMethod]
+        public void AreEqualFail()
+        {
+            const string parameterName = "parameterName";
+            try
+            {
+                InternalContract.RequireAreEqual("Knoll", "Tott", parameterName);
+                UT.Assert.Fail("An exception should have been thrown");
+            }
+            catch (FulcrumContractException fulcrumException)
+            {
+                UT.Assert.IsTrue(fulcrumException.TechnicalMessage.Contains(parameterName));
+            }
+            catch (Exception e)
+            {
+                UT.Assert.Fail($"Expected a specific FulcrumException but got {e.GetType().FullName}.");
+            }
+        }
+
+        [TestMethod]
+        public void AreNotEqualOk()
+        {
+            const string parameterName = "parameterName";
+            InternalContract.RequireAreNotEqual("Knoll","Tott", parameterName);
+        }
+
+        [TestMethod]
+        public void AreNotEqualFail()
+        {
+            const string parameterName = "parameterName";
+            try
+            {
+                InternalContract.RequireAreNotEqual(10, 2*5, parameterName);
+                UT.Assert.Fail("An exception should have been thrown");
+            }
+            catch (FulcrumContractException fulcrumException)
+            {
+                UT.Assert.IsTrue(fulcrumException.TechnicalMessage.Contains(parameterName));
+            }
+            catch (Exception e)
+            {
+                UT.Assert.Fail($"Expected a specific FulcrumException but got {e.GetType().FullName}.");
+            }
+        }
+
         internal enum TestEnum
         {
             Value

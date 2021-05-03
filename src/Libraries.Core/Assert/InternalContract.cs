@@ -150,6 +150,28 @@ namespace Nexus.Link.Libraries.Core.Assert
         }
 
         /// <summary>
+        /// Verify that <paramref name="parameterValue"/> is equal to <paramref name="expectedValue"/>.
+        /// </summary>
+        [StackTraceHidden]
+        public static void RequireAreEqual<T>(T expectedValue, T parameterValue, string parameterName, string customMessage = null)
+            where T : IComparable<T>
+        {
+            RequireNotNull(parameterName, nameof(parameterName));
+            GenericContract<FulcrumContractException>.RequireAreEqual(expectedValue, parameterValue, parameterName, customMessage);
+        }
+
+        /// <summary>
+        /// Verify that <paramref name="parameterValue"/> is not equal to <paramref name="expectedValue"/>.
+        /// </summary>
+        [StackTraceHidden]
+        public static void RequireAreNotEqual<T>(T expectedValue, T parameterValue, string parameterName, string customMessage = null)
+            where T : IComparable<T>
+        {
+            RequireNotNull(parameterName, nameof(parameterName));
+            GenericContract<FulcrumContractException>.RequireAreNotEqual(expectedValue, parameterValue, parameterName, customMessage);
+        }
+
+        /// <summary>
         /// Verify that <paramref name="parameterValue"/> is less than to <paramref name="greaterValue"/>.
         /// </summary>
         [StackTraceHidden]
