@@ -190,6 +190,17 @@ namespace Nexus.Link.Libraries.Core.Assert
             var message = customMessage ?? $"Expected property {propertyName} ({propertyValue}) to not match ({regularExpression}).";
             GenericAssert<ValidationException>.MatchesNotRegExp(regularExpression, propertyValue, errorLocation, message);
         }
+
+        /// <summary>
+        /// Verify that <paramref name="propertyValue"/> is null or has one of the values in <paramref name="enumerationType"/>.
+        /// </summary>
+        [StackTraceHidden]
+        public static void InEnumeration(Type enumerationType, string propertyValue, string propertyName, string errorLocation, string customMessage = null)
+        {
+            InternalContract.RequireNotNull(enumerationType, nameof(enumerationType));
+            var message = customMessage ?? $"Expected property {propertyName} ({propertyValue}) to represent one of the enumeration values for ({enumerationType.FullName}).";
+            GenericAssert<ValidationException>.InEnumeration(enumerationType, propertyValue, errorLocation, message);
+        }
     }
 }
 

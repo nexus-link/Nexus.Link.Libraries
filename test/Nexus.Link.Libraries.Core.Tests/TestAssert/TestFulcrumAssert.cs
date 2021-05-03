@@ -158,6 +158,34 @@ namespace Nexus.Link.Libraries.Core.Tests.TestAssert
             }
         }
 
+        internal enum TestEnum
+        {
+            Value
+        }
+
+        [TestMethod]
+        public void InEnumAssertionOk()
+        {
+            FulcrumAssert.InEnumeration(typeof(TestEnum), "Value");
+        }
+
+        [TestMethod]
+        public void InEnumAssertionFail()
+        {
+            try
+            {
+                FulcrumAssert.InEnumeration(typeof(TestEnum), "Unknown");
+                UT.Assert.Fail("An exception should have been thrown");
+            }
+            catch (FulcrumAssertionFailedException)
+            {
+            }
+            catch (Exception e)
+            {
+                UT.Assert.Fail($"Expected a specific FulcrumException but got {e.GetType().FullName}.");
+            }
+        }
+
         [TestMethod]
         public void AreEqualAssertionFailWithCodeLocation()
         {

@@ -206,6 +206,28 @@ namespace Nexus.Link.Libraries.Core.Assert
         /// Verify that <paramref name="parameterValue"/> is null or matches the regular expression <paramref name="regularExpression"/>.
         /// </summary>
         [StackTraceHidden]
+        public static void RequireMatchesRegExp(string regularExpression, string parameterValue, string parameterName, string customMessage = null)
+        {
+            RequireNotNullOrWhiteSpace(regularExpression, nameof(regularExpression));
+            RequireNotNull(parameterName, nameof(parameterName));
+            GenericContract<FulcrumServiceContractException>.RequireMatchesRegExp(regularExpression, parameterValue, parameterName, customMessage);
+        }
+
+        /// <summary>
+        /// Verify that <paramref name="value"/> is null or not matches the regular expression <paramref name="regularExpression"/>.
+        /// </summary>
+        [StackTraceHidden]
+        public static void RequireMatchesNotRegExp(string regularExpression, string value, string errorLocation, string customMessage = null)
+        {
+            RequireNotNullOrWhiteSpace(regularExpression, nameof(regularExpression));
+            GenericContract<FulcrumServiceContractException>.RequireMatchesNotRegExp(regularExpression, value, errorLocation, customMessage);
+        }
+
+        /// <summary>
+        /// Verify that <paramref name="parameterValue"/> is null or matches the regular expression <paramref name="regularExpression"/>.
+        /// </summary>
+        [StackTraceHidden]
+        [Obsolete("Use RequireMatchesRegExp. Obsolete since 2021-05-03.")]
         public static void MatchesRegExp(string regularExpression, string parameterValue, string parameterName, string customMessage = null)
         {
             RequireNotNullOrWhiteSpace(regularExpression, nameof(regularExpression));
@@ -217,10 +239,22 @@ namespace Nexus.Link.Libraries.Core.Assert
         /// Verify that <paramref name="value"/> is null or not matches the regular expression <paramref name="regularExpression"/>.
         /// </summary>
         [StackTraceHidden]
+        [Obsolete("Use RequireMatchesNotRegExp. Obsolete since 2021-05-03.")]
         public static void MatchesNotRegExp(string regularExpression, string value, string errorLocation, string customMessage = null)
         {
             RequireNotNullOrWhiteSpace(regularExpression, nameof(regularExpression));
             GenericContract<FulcrumServiceContractException>.RequireMatchesNotRegExp(regularExpression, value, errorLocation, customMessage);
+        }
+
+        /// <summary>
+        /// Verify that <paramref name="parameterValue"/> is null or has one of the values in <paramref name="enumerationType"/>.
+        /// </summary>
+        [StackTraceHidden]
+        public static void RequireInEnumeration(Type enumerationType, string parameterValue, string parameterName, string customMessage = null)
+        {
+            RequireNotNull(enumerationType, nameof(enumerationType));
+            Require(enumerationType.IsEnum, $"Parameter {nameof(enumerationType)} must be of type enum.");
+            GenericContract<FulcrumServiceContractException>.RequireInEnumeration(enumerationType, parameterValue, parameterName, customMessage);
         }
 
         /// <summary>

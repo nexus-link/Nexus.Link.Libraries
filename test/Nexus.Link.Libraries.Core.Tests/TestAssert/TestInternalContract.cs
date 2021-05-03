@@ -102,6 +102,37 @@ namespace Nexus.Link.Libraries.Core.Tests.TestAssert
             }
         }
 
+        internal enum TestEnum
+        {
+            Value
+        }
+
+        [TestMethod]
+        public void InEnumOk()
+        {
+            const string parameterName = "parameterName";
+            InternalContract.RequireInEnumeration(typeof(TestEnum), "Value", parameterName);
+        }
+
+        [TestMethod]
+        public void InEnumFail()
+        {
+            const string parameterName = "parameterName";
+            try
+            {
+                InternalContract.RequireInEnumeration(typeof(TestEnum), "Unknown", parameterName);
+                UT.Assert.Fail("An exception should have been thrown");
+            }
+            catch (FulcrumContractException fulcrumException)
+            {
+                UT.Assert.IsTrue(fulcrumException.TechnicalMessage.Contains(parameterName));
+            }
+            catch (Exception e)
+            {
+                UT.Assert.Fail($"Expected a specific FulcrumException but got {e.GetType().FullName}.");
+            }
+        }
+
         [TestMethod]
         public void Fail()
         {

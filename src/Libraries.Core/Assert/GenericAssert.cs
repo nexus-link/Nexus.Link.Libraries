@@ -239,6 +239,19 @@ namespace Nexus.Link.Libraries.Core.Assert
         }
 
         /// <summary>
+        /// Verify that <paramref name="value"/> is null or has one of the values in <paramref name="enumerationType"/>.
+        /// </summary>
+        [StackTraceHidden]
+        public static void InEnumeration(Type enumerationType, string value, string errorLocation = null, string customMessage = null)
+        {
+            InternalContract.RequireNotNull(enumerationType, nameof(enumerationType));
+            InternalContract.Require(enumerationType.IsEnum, $"Parameter {nameof(enumerationType)} must be of type enum.");
+            if (value == null) return;
+            var message = customMessage ?? $"Expected  ({value}) to represent one of the enumeration values for ({enumerationType.FullName}).";
+            IsTrue(Enum.IsDefined(enumerationType, value), errorLocation, message);
+        }
+
+        /// <summary>
         /// If <paramref name="value"/> is not null, then call the Validate() method of that type.
         /// </summary>
         [StackTraceHidden]
