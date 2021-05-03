@@ -191,7 +191,7 @@ namespace Nexus.Link.Libraries.Core.Tests.TestAssert
         [TestMethod]
         public void InEnumAssertionOk()
         {
-            FulcrumAssert.InEnumeration(typeof(TestEnum), "Value");
+            FulcrumAssert.InEnumeration(typeof(TestEnum), "Value1");
         }
 
         [TestMethod]
