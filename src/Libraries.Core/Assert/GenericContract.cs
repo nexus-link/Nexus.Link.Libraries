@@ -91,7 +91,6 @@ namespace Nexus.Link.Libraries.Core.Assert
         /// </summary>
         [StackTraceHidden]
         public static void RequireAreEqual<T>(T expectedValue, T parameterValue, string parameterName, string customMessage = null)
-            where T : IComparable<T>
         {
             InternalContract.RequireNotNull(parameterName, nameof(parameterName));
             var message = customMessage ?? $"ContractViolation: {parameterName} ({parameterValue}) must be equal to ({expectedValue}).";
@@ -103,7 +102,6 @@ namespace Nexus.Link.Libraries.Core.Assert
         /// </summary>
         [StackTraceHidden]
         public static void RequireAreNotEqual<T>(T expectedValue, T parameterValue, string parameterName, string customMessage = null)
-            where T : IComparable<T>
         {
             InternalContract.RequireNotNull(parameterName, nameof(parameterName));
             var message = customMessage ?? $"ContractViolation: {parameterName} ({parameterValue}) must not be equal to ({expectedValue}).";
