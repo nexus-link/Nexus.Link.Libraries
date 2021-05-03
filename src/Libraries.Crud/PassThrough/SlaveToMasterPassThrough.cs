@@ -134,14 +134,18 @@ namespace Nexus.Link.Libraries.Crud.PassThrough
         /// <inheritdoc />
         public virtual Task<SlaveLock<TId>> ClaimLockAsync(TId masterId, TId slaveId, CancellationToken token = default(CancellationToken))
         {
+#pragma warning disable 618
             var implementation = CrudHelper.GetImplementationOrThrow<ILockableSlave<TId>>(Service);
+#pragma warning restore 618
             return implementation.ClaimLockAsync(masterId, slaveId, token);
         }
 
         /// <inheritdoc />
         public virtual Task ReleaseLockAsync(TId masterId, TId slaveId, TId lockId, CancellationToken token = default(CancellationToken))
         {
+#pragma warning disable 618
             var implementation = CrudHelper.GetImplementationOrThrow<ILockableSlave<TId>>(Service);
+#pragma warning restore 618
             return implementation.ReleaseLockAsync(masterId, slaveId, lockId, token);
         }
 
