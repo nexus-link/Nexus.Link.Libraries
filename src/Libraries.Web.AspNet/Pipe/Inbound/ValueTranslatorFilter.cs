@@ -257,10 +257,9 @@ namespace Nexus.Link.Libraries.Web.AspNet.Pipe.Inbound
         {
             if (context?.Result == null) return;
             if (!(context.Result is ObjectResult objectResult)) return;
+            if (objectResult.Value == null) return;
 
             var itemBeforeTranslation = objectResult.Value;
-
-            //  TODO: We crash if null is returned from controller method
 
             await translator.Add(itemBeforeTranslation).ExecuteAsync(cancellationToken);
             var itemAfterTranslation = translator.Translate(itemBeforeTranslation,itemBeforeTranslation.GetType());
