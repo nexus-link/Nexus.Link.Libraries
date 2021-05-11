@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Nexus.Link.Libraries.Core.Application;
 using Nexus.Link.Libraries.Core.Assert;
@@ -16,7 +17,7 @@ namespace Nexus.Link.Libraries.SqlServer.Test
         private ICrud<TestItemBare, TestItemId<Guid>, Guid> _storage;
 
         [TestInitialize]
-        public void Initialize()
+        public async Task Initialize()
         {
             FulcrumApplicationHelper.UnitTestSetup(nameof(CrudTestId));
             var connectionString = TestSettings.ConnectionString;
@@ -28,6 +29,7 @@ namespace Nexus.Link.Libraries.SqlServer.Test
                 OrderBy = new string[] {}
             };
             _storage = new CrudSql<TestItemBare, TestItemId<Guid>>(connectionString, tableMetadata);
+            await _storage.DeleteAllAsync();
         }
 
         protected override ICrud<TestItemBare, TestItemId<Guid>, Guid> CrdStorage => _storage;

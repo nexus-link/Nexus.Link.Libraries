@@ -1,8 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Dapper;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using Nexus.Link.Libraries.Core.Assert;
 using Nexus.Link.Libraries.Crud.Interfaces;
 using Nexus.Link.Libraries.Core.Error.Logic;
@@ -37,7 +40,7 @@ namespace Nexus.Link.Libraries.SqlServer
     /// <summary>
     /// Helper class for advanced SELECT statements
     /// </summary>
-    public class CrudSql<TDatabaseItemCreate, TDatabaseItem> : TableBase<TDatabaseItem>, ICrud<TDatabaseItemCreate, TDatabaseItem, Guid>
+    public class CrudSql<TDatabaseItemCreate, TDatabaseItem> : TableBase<TDatabaseItem>, ICrud<TDatabaseItemCreate, TDatabaseItem, Guid>, ISearch<TDatabaseItem, Guid>
         where TDatabaseItem : TDatabaseItemCreate, IUniquelyIdentifiable<Guid>
     {
         /// <summary>
@@ -117,6 +120,33 @@ namespace Nexus.Link.Libraries.SqlServer
         public Task<PageEnvelope<TDatabaseItem>> ReadAllWithPagingAsync(int offset, int? limit = null, CancellationToken token = default(CancellationToken))
         {
             return SearchAllAsync(null, offset, limit, token);
+        }
+
+        /// <inheritdoc />
+        public async Task<PageEnvelope<TDatabaseItem>> SearchAsync(object condition, int offset = 0, int? limit = null, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            var list = new List<string>();
+            var json = JObject.FromObject(condition);
+            var token = json.First;
+            while (token != null)
+            {
+                if (!(token is JProperty conditionProperty))
+                {
+                    throw new FulcrumContractException($"Condition must be an object with properties:\r{json.ToString(Formatting.Indented)}");
+                }
+
+                if (typeof(TDatabaseItem).GetProperty(conditionProperty.Name) == null)
+                {
+                    throw new FulcrumContractException($"Condition property {conditionProperty.Name} can't be found in type {typeof(TDatabaseItem).FullName}.");
+                }
+
+                list.Add($"[{conditionProperty.Name}] = @{conditionProperty.Name}");
+                token = token.Next;
+            }
+
+            var where = string.Join(", ", list);
+
+            return await SearchWhereAsync(where, null, condition, offset, limit, cancellationToken);
         }
 
         /// <inheritdoc />

@@ -28,7 +28,7 @@ namespace Nexus.Link.Libraries.Crud.UnitTests.Crud
             // Act 
             var search = CrudStorage as ISearch<TestItemId<TId>, TId>;
             Assert.IsNotNull(search, $"{CrudStorage.GetType().Name} was expected to implement {nameof(ISearch<TestItemId<TId>, TId>)}");
-            var page = await search.SearchAsync(JToken.FromObject( new {Value = value}), null, 0, 10);
+            var page = await search.SearchAsync(new { Value = value }, 0, 10);
 
             // Assert
             Assert.AreEqual(1, page.PageInfo.Returned);
@@ -49,7 +49,7 @@ namespace Nexus.Link.Libraries.Crud.UnitTests.Crud
             // Act 
             var search = CrudStorage as ISearch<TestItemId<TId>, TId>;
             Assert.IsNotNull(search, $"{CrudStorage.GetType().Name} was expected to implement {nameof(ISearch<TestItemId<TId>, TId>)}");
-            var page = await search.SearchAsync(JToken.FromObject( new {Value = value}), null, 0, 10);
+            var page = await search.SearchAsync(new { Value = value }, 0, 10);
 
             // Assert
             Assert.AreEqual(2, page.PageInfo.Returned);
@@ -67,7 +67,7 @@ namespace Nexus.Link.Libraries.Crud.UnitTests.Crud
             // Act 
             var search = CrudStorage as ISearch<TestItemId<TId>, TId>;
             Assert.IsNotNull(search, $"{CrudStorage.GetType().Name} was expected to implement {nameof(ISearch<TestItemId<TId>, TId>)}");
-            var page = await search.SearchAsync(JToken.FromObject( new {Value = value}), null, 0, 10);
+            var page = await search.SearchAsync(new { Value = value }, 0, 10);
 
             // Assert
             Assert.AreEqual(0, page.PageInfo.Returned);
@@ -84,7 +84,7 @@ namespace Nexus.Link.Libraries.Crud.UnitTests.Crud
             // Act 
             var search = CrudStorage as ISearch<TestItemId<TId>, TId>;
             Assert.IsNotNull(search, $"{CrudStorage.GetType().Name} was expected to implement {nameof(ISearch<TestItemId<TId>, TId>)}");
-            var page = await search.SearchAsync(JToken.FromObject( new {UnknownProperty = "56"}), null, 0, 10);
+            var page = await search.SearchAsync(new { UnknownProperty = "56" }, 0, 10);
 
             // Assert
             Assert.AreEqual(0, page.PageInfo.Returned);

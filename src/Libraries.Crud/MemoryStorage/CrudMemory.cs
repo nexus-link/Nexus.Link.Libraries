@@ -132,24 +132,20 @@ namespace Nexus.Link.Libraries.Crud.MemoryStorage
         }
 
         /// <inheritdoc />
-        public Task<PageEnvelope<TModel>> SearchAsync(JToken condition, JToken orderBy, int offset = 0, int? limit = null,
-            CancellationToken cancellationToken = default(CancellationToken))
+        public Task<PageEnvelope<TModel>> SearchAsync(object condition, int offset = 0, int? limit = null, CancellationToken cancellationToken = default(CancellationToken))
         {
             limit = limit ?? PageInfo.DefaultLimit;
             InternalContract.RequireGreaterThanOrEqualTo(0, offset, nameof(offset));
             InternalContract.RequireGreaterThan(0, limit.Value, nameof(limit));
-            lock (MemoryItems)
-            {
-                var list = Filter(condition)
-                    .Skip(offset)
-                    .Take(limit.Value)
-                    .ToList();
-                var page = new PageEnvelope<TModel>(offset, limit.Value, MemoryItems.Count, list);
-                return Task.FromResult(page);
-            }
+            var list = Filter(condition)
+                .Skip(offset)
+                .Take(limit.Value)
+                .ToList();
+            var page = new PageEnvelope<TModel>(offset, limit.Value, MemoryItems.Count, list);
+            return Task.FromResult(page);
         }
 
-        private IEnumerable<TModel> Filter(JToken condition)
+        private IEnumerable<TModel> Filter(object condition)
         {
             InternalContract.RequireNotNull(condition, nameof(condition));
             lock (MemoryItems)
@@ -163,15 +159,16 @@ namespace Nexus.Link.Libraries.Crud.MemoryStorage
             }
         }
 
-        private static bool IsMatch(TModel item, JToken condition)
+        private static bool IsMatch(TModel item, object condition)
         {
             var itemAsJson = JObject.FromObject(item);
-            var conditionToken = condition.First;
+            var json = JObject.FromObject(condition);
+            var conditionToken = json.First;
             while (conditionToken != null)
             {
                 if (!(conditionToken is JProperty conditionProperty))
                 {
-                    throw new FulcrumContractException($"Condition must be an object with properties:\r{condition.ToString(Formatting.Indented)}");
+                    throw new FulcrumContractException($"Condition must be an object with properties:\r{json.ToString(Formatting.Indented)}");
                 }
                 var itemValue = itemAsJson.GetValue(conditionProperty.Name);
                 if (itemValue == null)
