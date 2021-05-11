@@ -14,7 +14,7 @@ namespace Nexus.Link.Libraries.Crud.UnitTests.Crud
     /// Tests for testing any storage that implements <see cref="ICrud{TModelCreate,TModel,TId}"/>
     /// </summary>
     [TestClass]
-    public abstract class TestICrudSearch<TId>: TestICrdBase<TestItemBare, TestItemBare, TId>
+    public abstract class TestICrudSearch<TId>: TestICrdBase<TestItemBare, TestItemId<TId>, TId>
     {
         [DataTestMethod]
         [DataRow("Variant1")]
@@ -26,8 +26,8 @@ namespace Nexus.Link.Libraries.Crud.UnitTests.Crud
             await CreateItemAsync(TypeOfTestDataEnum.Variant2);
 
             // Act 
-            var search = CrudStorage as ISearch<TestItemBare, TId>;
-            Assert.IsNotNull(search);
+            var search = CrudStorage as ISearch<TestItemId<TId>, TId>;
+            Assert.IsNotNull(search, $"{CrudStorage.GetType().Name} was expected to implement {nameof(ISearch<TestItemId<TId>, TId>)}");
             var page = await search.SearchAsync(JToken.FromObject( new {Value = value}), null, 0, 10);
 
             // Assert
@@ -47,8 +47,8 @@ namespace Nexus.Link.Libraries.Crud.UnitTests.Crud
             await CreateItemAsync(TypeOfTestDataEnum.Variant2);
 
             // Act 
-            var search = CrudStorage as ISearch<TestItemBare, TId>;
-            Assert.IsNotNull(search);
+            var search = CrudStorage as ISearch<TestItemId<TId>, TId>;
+            Assert.IsNotNull(search, $"{CrudStorage.GetType().Name} was expected to implement {nameof(ISearch<TestItemId<TId>, TId>)}");
             var page = await search.SearchAsync(JToken.FromObject( new {Value = value}), null, 0, 10);
 
             // Assert
@@ -65,9 +65,26 @@ namespace Nexus.Link.Libraries.Crud.UnitTests.Crud
             await CreateItemAsync(TypeOfTestDataEnum.Variant2);
 
             // Act 
-            var search = CrudStorage as ISearch<TestItemBare, TId>;
-            Assert.IsNotNull(search);
+            var search = CrudStorage as ISearch<TestItemId<TId>, TId>;
+            Assert.IsNotNull(search, $"{CrudStorage.GetType().Name} was expected to implement {nameof(ISearch<TestItemId<TId>, TId>)}");
             var page = await search.SearchAsync(JToken.FromObject( new {Value = value}), null, 0, 10);
+
+            // Assert
+            Assert.AreEqual(0, page.PageInfo.Returned);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(FulcrumContractException))]
+        public async Task Unknown_Property_Async()
+        {
+            // Arrange
+            await CreateItemAsync(TypeOfTestDataEnum.Variant1);
+            await CreateItemAsync(TypeOfTestDataEnum.Variant2);
+
+            // Act 
+            var search = CrudStorage as ISearch<TestItemId<TId>, TId>;
+            Assert.IsNotNull(search, $"{CrudStorage.GetType().Name} was expected to implement {nameof(ISearch<TestItemId<TId>, TId>)}");
+            var page = await search.SearchAsync(JToken.FromObject( new {UnknownProperty = "56"}), null, 0, 10);
 
             // Assert
             Assert.AreEqual(0, page.PageInfo.Returned);

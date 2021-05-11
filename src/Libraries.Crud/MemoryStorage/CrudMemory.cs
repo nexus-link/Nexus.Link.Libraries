@@ -174,6 +174,10 @@ namespace Nexus.Link.Libraries.Crud.MemoryStorage
                     throw new FulcrumContractException($"Condition must be an object with properties:\r{condition.ToString(Formatting.Indented)}");
                 }
                 var itemValue = itemAsJson.GetValue(conditionProperty.Name);
+                if (itemValue == null)
+                {
+                    throw new FulcrumContractException($"Condition property {conditionProperty.Name} can't be found in type {typeof(TModel).FullName}.");
+                }
                 if (itemValue.Type != conditionProperty.Value.Type) return false;
                 if (itemValue.ToString() != conditionProperty?.Value.ToString()) return false;
                 conditionToken = conditionToken.Next;
