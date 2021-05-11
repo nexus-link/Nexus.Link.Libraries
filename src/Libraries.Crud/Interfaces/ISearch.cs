@@ -1,0 +1,32 @@
+﻿using System.Threading;
+using System.Threading.Tasks;
+using Newtonsoft.Json.Linq;
+using Nexus.Link.Libraries.Core.Error.Logic;
+using Nexus.Link.Libraries.Core.Storage.Model;
+
+namespace Nexus.Link.Libraries.Crud.Interfaces
+{
+    /// <summary>
+    /// Read items"/>.
+    /// </summary>
+    /// <typeparam name="TModel">The type of objects to search for in persistent storage.</typeparam>
+    /// <typeparam name="TId">The type for the id of the object.</typeparam>
+    public interface ISearch<TModel, in TId> : ICrudable<TModel, TId>
+    {
+        /// <summary>
+        /// Search for matching items and return them as pages.
+        /// </summary>
+        /// <param name="condition">The field </param>
+        /// <param name="orderBy">The fields that we should order by with a boolean value where true means ascending and false means descending.</param>
+        /// <param name="offset">The number of items that will be skipped in result.</param>
+        /// <param name="limit">The maximum number of items to return.</param>
+        /// <param name="cancellationToken">Propagates notification that operations should be canceled</param>
+        /// <returns>A page of the found items.</returns>
+        /// <remarks>
+        /// The implementor of this method can decide that it is not a valid method to expose.
+        /// In that case, the method should throw a <see cref="FulcrumNotImplementedException"/>.
+        /// </remarks>
+        Task<PageEnvelope<TModel>> SearchAsync(JToken condition, JToken orderBy, int offset = 0, int? limit = null,
+            CancellationToken cancellationToken = default(CancellationToken));
+    }
+}

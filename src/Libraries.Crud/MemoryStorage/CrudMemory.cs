@@ -3,9 +3,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using Nexus.Link.Libraries.Core.Assert;
 using Nexus.Link.Libraries.Crud.Interfaces;
 using Nexus.Link.Libraries.Core.Error.Logic;
+using Nexus.Link.Libraries.Core.Misc;
 using Nexus.Link.Libraries.Core.Storage.Logic;
 using Nexus.Link.Libraries.Core.Storage.Model;
 using Nexus.Link.Libraries.Crud.Helpers;
@@ -18,8 +21,8 @@ namespace Nexus.Link.Libraries.Crud.MemoryStorage
     /// </summary>
     /// <typeparam name="TModel">The type of objects that are returned from persistant storage.</typeparam>
     /// <typeparam name="TId"></typeparam>
-    public class CrudMemory<TModel, TId> : 
-        CrudMemory<TModel, TModel, TId>, 
+    public class CrudMemory<TModel, TId> :
+        CrudMemory<TModel, TModel, TId>,
         ICrud<TModel, TId>
     {
     }
@@ -31,9 +34,8 @@ namespace Nexus.Link.Libraries.Crud.MemoryStorage
     /// <typeparam name="TModel">The type of objects that are returned from persistant storage.</typeparam>
     /// <typeparam name="TId"></typeparam>
     public class CrudMemory<TModelCreate, TModel, TId> :
-        MemoryBase<TModel, TId>, 
-        ICrud<TModelCreate, TModel, TId>
-        where TModel : TModelCreate
+        MemoryBase<TModel, TId>,
+        ICrud<TModelCreate, TModel, TId>, ISearch<TModel, TId> where TModel : TModelCreate
     {
         /// <inheritdoc />
         public virtual async Task<TId> CreateAsync(TModelCreate item, CancellationToken token = default(CancellationToken))
@@ -102,10 +104,11 @@ namespace Nexus.Link.Libraries.Crud.MemoryStorage
             InternalContract.RequireGreaterThan(0, limit.Value, nameof(limit));
             lock (MemoryItems)
             {
-                var keys = MemoryItems.Keys.Skip(offset).Take(limit.Value);
-                var list = keys
+                var list = MemoryItems.Keys
                     .Select(id => GetMemoryItem(id, true))
                     .Where(item => item != null)
+                    .Skip(offset)
+                    .Take(limit.Value)
                     .ToList();
                 var page = new PageEnvelope<TModel>(offset, limit.Value, MemoryItems.Count, list);
                 return Task.FromResult(page);
@@ -119,13 +122,63 @@ namespace Nexus.Link.Libraries.Crud.MemoryStorage
             InternalContract.RequireGreaterThan(0, limit, nameof(limit));
             lock (MemoryItems)
             {
-                var keys = MemoryItems.Keys.Take(limit);
-                var list = keys
+                var list = MemoryItems.Keys
                     .Select(id => GetMemoryItem(id, true))
                     .Where(item => item != null)
+                    .Take(limit)
                     .ToList();
                 return Task.FromResult((IEnumerable<TModel>)list);
             }
+        }
+
+        /// <inheritdoc />
+        public Task<PageEnvelope<TModel>> SearchAsync(JToken condition, JToken orderBy, int offset = 0, int? limit = null,
+            CancellationToken cancellationToken = default(CancellationToken))
+        {
+            limit = limit ?? PageInfo.DefaultLimit;
+            InternalContract.RequireGreaterThanOrEqualTo(0, offset, nameof(offset));
+            InternalContract.RequireGreaterThan(0, limit.Value, nameof(limit));
+            lock (MemoryItems)
+            {
+                var list = Filter(condition)
+                    .Skip(offset)
+                    .Take(limit.Value)
+                    .ToList();
+                var page = new PageEnvelope<TModel>(offset, limit.Value, MemoryItems.Count, list);
+                return Task.FromResult(page);
+            }
+        }
+
+        private IEnumerable<TModel> Filter(JToken condition)
+        {
+            InternalContract.RequireNotNull(condition, nameof(condition));
+            lock (MemoryItems)
+            {
+                foreach (var key in MemoryItems.Keys)
+                {
+                    var item = GetMemoryItem(key, false);
+                    if (IsMatch(item, condition))
+                        yield return item;
+                }
+            }
+        }
+
+        private static bool IsMatch(TModel item, JToken condition)
+        {
+            var itemAsJson = JObject.FromObject(item);
+            var conditionToken = condition.First;
+            while (conditionToken != null)
+            {
+                if (!(conditionToken is JProperty conditionProperty))
+                {
+                    throw new FulcrumContractException($"Condition must be an object with properties:\r{condition.ToString(Formatting.Indented)}");
+                }
+                var itemValue = itemAsJson.GetValue(conditionProperty.Name);
+                if (itemValue.Type != conditionProperty.Value.Type) return false;
+                if (itemValue.ToString() != conditionProperty?.Value.ToString()) return false;
+                conditionToken = conditionToken.Next;
+            }
+            return true;
         }
 
         /// <inheritdoc />
