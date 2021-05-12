@@ -133,13 +133,7 @@ namespace Nexus.Link.Libraries.Crud.MemoryStorage
         }
 
         /// <inheritdoc />
-        public Task<PageEnvelope<TModel>> SearchAsync(object condition, int offset = 0, int? limit = null, CancellationToken cancellationToken = default(CancellationToken))
-        {
-            return SearchOrderByAsync(condition, null, offset, limit, cancellationToken);
-        }
-
-        /// <inheritdoc />
-        public Task<PageEnvelope<TModel>> SearchOrderByAsync(object condition, object order, int offset = 0, int? limit = null,
+        public Task<PageEnvelope<TModel>> SearchAsync(object condition, object order, int offset = 0, int? limit = null,
             CancellationToken cancellationToken = default(CancellationToken))
         {
             limit = limit ?? PageInfo.DefaultLimit;

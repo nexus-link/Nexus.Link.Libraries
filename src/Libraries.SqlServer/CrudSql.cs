@@ -123,13 +123,7 @@ namespace Nexus.Link.Libraries.SqlServer
         }
 
         /// <inheritdoc />
-        public Task<PageEnvelope<TDatabaseItem>> SearchAsync(object condition, int offset = 0, int? limit = null, CancellationToken cancellationToken = default(CancellationToken))
-        {
-            return SearchOrderByAsync(condition, null, offset, limit, cancellationToken);
-        }
-
-        /// <inheritdoc />
-        public async Task<PageEnvelope<TDatabaseItem>> SearchOrderByAsync(object condition, object order, int offset, int? limit = null,
+        public async Task<PageEnvelope<TDatabaseItem>> SearchAsync(object condition, object order, int offset, int? limit = null,
             CancellationToken cancellationToken = default(CancellationToken))
         {
             var whereList = new List<string>();
