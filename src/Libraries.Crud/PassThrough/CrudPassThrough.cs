@@ -91,6 +91,14 @@ namespace Nexus.Link.Libraries.Crud.PassThrough
         }
 
         /// <inheritdoc />
+        public Task<PageEnvelope<TModel>> SearchAsync(object condition, object order, int offset, int? limit = null,
+            CancellationToken cancellationToken = default(CancellationToken))
+        {
+            var implementation = CrudHelper.GetImplementationOrThrow<ISearch<TModel, TId>>(Service);
+            return implementation.SearchAsync(condition, order, offset, limit, cancellationToken);
+        }
+
+        /// <inheritdoc />
         public virtual Task UpdateAsync(TId id, TModel item, CancellationToken token = default(CancellationToken))
         {
             var implementation = CrudHelper.GetImplementationOrThrow<IUpdate<TModel, TId>>(Service);

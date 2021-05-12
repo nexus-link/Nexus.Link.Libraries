@@ -174,5 +174,12 @@ namespace Nexus.Link.Libraries.Crud.ServerTranslators.To
             id = translator.Translate(id);
             await _service.ClaimTransactionLockAsync(id, token);
         }
+
+        /// <inheritdoc />
+        public Task<PageEnvelope<TModel>> SearchAsync(object condition, object order, int offset, int? limit = null,
+            CancellationToken cancellationToken = default(CancellationToken))
+        {
+            throw new NotImplementedException();
+        }
     }
 }

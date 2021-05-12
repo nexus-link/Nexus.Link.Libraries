@@ -159,6 +159,13 @@ namespace Nexus.Link.Libraries.Crud.Cache
         }
 
         /// <inheritdoc />
+        public Task<PageEnvelope<TModel>> SearchAsync(object condition, object order, int offset, int? limit = null,
+            CancellationToken cancellationToken = default(CancellationToken))
+        {
+            return _service.SearchAsync(condition, order, offset, limit, cancellationToken);
+        }
+
+        /// <inheritdoc />
         public async Task UpdateAsync(TId id, TModel item, CancellationToken token = default(CancellationToken))
         {
             await _service.UpdateAsync(id, item, token);

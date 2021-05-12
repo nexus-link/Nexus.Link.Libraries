@@ -77,6 +77,14 @@ namespace Nexus.Link.Libraries.Crud.Encrypt
         }
 
         /// <inheritdoc />
+        public async Task<PageEnvelope<TModel>> SearchAsync(object condition, object order, int offset, int? limit = null,
+            CancellationToken cancellationToken = default(CancellationToken))
+        {
+            var page = await _service.SearchAsync(condition, order, offset, limit, cancellationToken);
+            return new PageEnvelope<TModel>(page.PageInfo, page.Data.Select(Decrypt));
+        }
+
+        /// <inheritdoc />
         public async Task<IEnumerable<TModel>> ReadAllAsync(int limit = int.MaxValue, CancellationToken token = default(CancellationToken))
         {
             var storedItems = await _service.ReadAllAsync(limit, token);
