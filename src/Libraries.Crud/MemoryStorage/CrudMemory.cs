@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -134,41 +135,117 @@ namespace Nexus.Link.Libraries.Crud.MemoryStorage
         /// <inheritdoc />
         public Task<PageEnvelope<TModel>> SearchAsync(object condition, int offset = 0, int? limit = null, CancellationToken cancellationToken = default(CancellationToken))
         {
-            limit = limit ?? PageInfo.DefaultLimit;
-            InternalContract.RequireGreaterThanOrEqualTo(0, offset, nameof(offset));
-            InternalContract.RequireGreaterThan(0, limit.Value, nameof(limit));
-            var list = Filter(condition)
-                .Skip(offset)
-                .Take(limit.Value)
-                .ToList();
-            var page = new PageEnvelope<TModel>(offset, limit.Value, MemoryItems.Count, list);
-            return Task.FromResult(page);
+            return SearchOrderByAsync(condition, null, offset, limit, cancellationToken);
         }
 
-        private IEnumerable<TModel> Filter(object condition)
+        /// <inheritdoc />
+        public Task<PageEnvelope<TModel>> SearchOrderByAsync(object condition, object order, int offset = 0, int? limit = null,
+            CancellationToken cancellationToken = default(CancellationToken))
         {
+            limit = limit ?? PageInfo.DefaultLimit;
             InternalContract.RequireNotNull(condition, nameof(condition));
+            InternalContract.RequireGreaterThanOrEqualTo(0, offset, nameof(offset));
+            InternalContract.RequireGreaterThan(0, limit.Value, nameof(limit));
+
             lock (MemoryItems)
             {
-                foreach (var key in MemoryItems.Keys)
-                {
-                    var item = GetMemoryItem(key, false);
-                    if (IsMatch(item, condition))
-                        yield return item;
-                }
+                var list = Filter(condition, order)
+                    .Skip(offset)
+                    .Take(limit.Value)
+                    .ToList();
+                var page = new PageEnvelope<TModel>(offset, limit.Value, MemoryItems.Count, list);
+                return Task.FromResult(page);
             }
         }
 
-        private static bool IsMatch(TModel item, object condition)
+        private IEnumerable<TModel> Filter(object condition, object order)
+        {
+            InternalContract.RequireNotNull(condition, nameof(condition));
+            var conditionAsJObject = JObject.FromObject(condition);
+            var orderAsJObject = order == null ? null : JObject.FromObject(order);
+            foreach (var key in Sort(orderAsJObject).Select(pair => pair.Key))
+            {
+                var item = GetMemoryItem(key, false);
+                if (IsMatch(item, conditionAsJObject))
+                    yield return item;
+            }
+        }
+
+        private IEnumerable<KeyValuePair<TId, TModel>> Sort(JToken order)
+        {
+            if (order == null) return MemoryItems;
+            var dictionary = new Dictionary<string, bool>();
+            var token = order.First;
+            while (token != null)
+            {
+                if (!(token is JProperty property))
+                {
+                    throw new FulcrumContractException(
+                        $"Parameter {nameof(order)}  must be an object with properties:\r{order.ToString(Formatting.Indented)}");
+                }
+
+                if (typeof(TModel).GetProperty(property.Name) == null)
+                {
+                    throw new FulcrumContractException(
+                        $"Parameter {nameof(order)} property {property.Name} can't be found in type {typeof(TModel).FullName}.");
+                }
+
+                if (property.Value.Type != JTokenType.Boolean)
+                {
+                    throw new FulcrumContractException($"Parameter {nameof(order)}, property {property.Name} must be a boolean.");
+                }
+
+                var ascending = (bool)property.Value;
+                dictionary.Add(property.Name, ascending);
+                token = token.Next;
+            }
+
+            var list = MemoryItems.ToList();
+            list.Sort((firstPair, secondPair) => Compare(firstPair.Value, secondPair.Value, dictionary));
+            return list;
+        }
+
+        private static int Compare(TModel firstItem, TModel secondItem, Dictionary<string, bool> dictionary)
+        {
+            foreach (var sortParameter in dictionary)
+            {
+                var property = typeof(TModel).GetProperty(sortParameter.Key);
+                if (property == null)
+                {
+                    throw new FulcrumContractException($"Order property {sortParameter.Key} can't be found in type {typeof(TModel).FullName}.");
+                }
+                if (!typeof(IComparable).IsAssignableFrom(property.PropertyType))
+                {
+                    throw new FulcrumContractException($"Order property {sortParameter.Key} doesn't implement {typeof(IComparable)}.");
+                }
+
+                var revert = sortParameter.Value ? 1 : -1;
+                var value1 = property.GetValue(firstItem) as IComparable;
+                var value2 = property.GetValue(secondItem) as IComparable;
+
+                if (value1 == null)
+                {
+                    if (value2 == null) continue;
+                    return revert;
+                }
+
+                if (value2 == null) return -revert;
+                var result = value1.CompareTo(value2);
+                if (result != 0) return result * revert;
+            }
+
+            return 0;
+        }
+
+        private static bool IsMatch(TModel item, JObject condition)
         {
             var itemAsJson = JObject.FromObject(item);
-            var json = JObject.FromObject(condition);
-            var conditionToken = json.First;
+            var conditionToken = condition.First;
             while (conditionToken != null)
             {
                 if (!(conditionToken is JProperty conditionProperty))
                 {
-                    throw new FulcrumContractException($"Condition must be an object with properties:\r{json.ToString(Formatting.Indented)}");
+                    throw new FulcrumContractException($"Condition must be an object with properties:\r{condition.ToString(Formatting.Indented)}");
                 }
                 var itemValue = itemAsJson.GetValue(conditionProperty.Name);
                 if (itemValue == null)

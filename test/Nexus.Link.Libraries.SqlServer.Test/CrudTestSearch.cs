@@ -14,7 +14,7 @@ namespace Nexus.Link.Libraries.SqlServer.Test
     [TestClass]
     public class CrudTestSearch : TestICrudSearch<Guid>
     {
-        private ICrud<TestItemBare, TestItemId<Guid>, Guid> _storage;
+        private ICrud<TestItemSort<Guid>, TestItemSort<Guid>, Guid> _storage;
 
         [TestInitialize]
         public async Task Initialize()
@@ -25,15 +25,15 @@ namespace Nexus.Link.Libraries.SqlServer.Test
             var tableMetadata = new SqlTableMetadata
             {
                 TableName = "TestItem",
-                CustomColumnNames = new[] { "Value" },
+                CustomColumnNames = new[] { "Value", "IncreasingNumber", "NumberModulo", "DecreasingString" },
                 OrderBy = new string[] {}
             };
-            _storage = new CrudSql<TestItemBare, TestItemId<Guid>>(connectionString, tableMetadata);
+            _storage = new CrudSql<TestItemSort<Guid>, TestItemSort<Guid>>(connectionString, tableMetadata);
             await _storage.DeleteAllAsync();
         }
 
-        protected override ICrud<TestItemBare, TestItemId<Guid>, Guid> CrdStorage => _storage;
+        protected override ICrud<TestItemSort<Guid>, TestItemSort<Guid>, Guid> CrdStorage => _storage;
 
-        protected override ICrud<TestItemBare, TestItemId<Guid>, Guid> CrudStorage => _storage;
+        protected override ICrud<TestItemSort<Guid>, TestItemSort<Guid>, Guid> CrudStorage => _storage;
     }
 }

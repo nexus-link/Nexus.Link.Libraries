@@ -16,6 +16,9 @@ namespace Nexus.Link.Libraries.Crud.UnitTests.Model
 
     public partial class TestItemBare : IItemForTesting
     {
+        public static int Modulo { get; set; } = 3;
+
+        public static int Count { get; set; } = 1;
         public virtual void InitializeWithDataForTesting(TypeOfTestDataEnum typeOfTestData)
         {
             switch (typeOfTestData)
@@ -38,6 +41,14 @@ namespace Nexus.Link.Libraries.Crud.UnitTests.Model
                 default:
                     throw new ArgumentOutOfRangeException(nameof(typeOfTestData), typeOfTestData, null);
             }
+
+            if (this is TestItemSort<Guid> sortItem)
+            {
+                sortItem.IncreasingNumber = Count;
+                sortItem.NumberModulo = Count % Modulo;
+                sortItem.DecreasingString = (short.MaxValue-Count).ToString();
+                Count++;
+            } 
         }
 
         public virtual void ChangeDataToNotEqualForTesting()

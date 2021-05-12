@@ -10,16 +10,16 @@ namespace Nexus.Link.Libraries.Crud.Test.Storage
     [TestClass]
     public class MemoryCrudTestsSearch : TestICrudSearch<Guid>
     {
-        private ICrud<TestItemBare, TestItemId<Guid>, Guid> _storage;
+        private ICrud<TestItemSort<Guid>, TestItemSort<Guid>, Guid> _storage;
 
         [TestInitialize]
         public void Initialize()
         {
-            _storage = new CrudMemory<TestItemBare, TestItemId<Guid>, Guid>();
+            _storage = new CrudMemory<TestItemSort<Guid>, TestItemSort<Guid>, Guid>();
         }
 
-        protected override ICrud<TestItemBare, TestItemId<Guid>, Guid> CrdStorage => _storage;
+        protected override ICrud<TestItemSort<Guid>, TestItemSort<Guid>, Guid> CrdStorage => _storage;
 
-        protected override ICrud<TestItemBare, TestItemId<Guid>, Guid> CrudStorage => _storage;
+        protected override ICrud<TestItemSort<Guid>, TestItemSort<Guid>, Guid> CrudStorage => _storage;
     }
 }

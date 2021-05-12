@@ -14,7 +14,7 @@ namespace Nexus.Link.Libraries.Crud.Interfaces
     public interface ISearch<TModel, in TId> : ICrudable<TModel, TId>
     {
         /// <summary>
-        /// Search for matching items and return them as pages.
+        /// Search for matching items and return them as pages in no specific item order.
         /// </summary>
         /// <param name="condition">The properties with values to search for. </param>
         /// <param name="offset">The number of items that will be skipped in result.</param>
@@ -28,7 +28,7 @@ namespace Nexus.Link.Libraries.Crud.Interfaces
         Task<PageEnvelope<TModel>> SearchAsync(object condition, int offset, int? limit = null, CancellationToken cancellationToken = default(CancellationToken));
 
         ///// <summary>
-        ///// Search for matching items and return them as pages.
+        ///// Search for matching items and return them as pages, with the items ordered as specified.
         ///// </summary>
         ///// <param name="condition">The field </param>
         ///// <param name="order">The fields that we should order by with a boolean value where true means ascending and false means descending.</param>
@@ -40,7 +40,7 @@ namespace Nexus.Link.Libraries.Crud.Interfaces
         ///// The implementor of this method can decide that it is not a valid method to expose.
         ///// In that case, the method should throw a <see cref="FulcrumNotImplementedException"/>.
         ///// </remarks>
-        //Task<PageEnvelope<TModel>> SearchAsync(JToken condition, JToken order, int offset = 0, int? limit = null,
-        //    CancellationToken cancellationToken = default(CancellationToken));
+        Task<PageEnvelope<TModel>> SearchOrderByAsync(object condition, object order, int offset, int? limit = null,
+            CancellationToken cancellationToken = default(CancellationToken));
     }
 }

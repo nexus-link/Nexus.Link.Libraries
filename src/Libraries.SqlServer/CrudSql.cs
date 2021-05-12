@@ -123,30 +123,72 @@ namespace Nexus.Link.Libraries.SqlServer
         }
 
         /// <inheritdoc />
-        public async Task<PageEnvelope<TDatabaseItem>> SearchAsync(object condition, int offset = 0, int? limit = null, CancellationToken cancellationToken = default(CancellationToken))
+        public Task<PageEnvelope<TDatabaseItem>> SearchAsync(object condition, int offset = 0, int? limit = null, CancellationToken cancellationToken = default(CancellationToken))
         {
-            var list = new List<string>();
+            return SearchOrderByAsync(condition, null, offset, limit, cancellationToken);
+        }
+
+        /// <inheritdoc />
+        public async Task<PageEnvelope<TDatabaseItem>> SearchOrderByAsync(object condition, object order, int offset, int? limit = null,
+            CancellationToken cancellationToken = default(CancellationToken))
+        {
+            var whereList = new List<string>();
             var json = JObject.FromObject(condition);
             var token = json.First;
             while (token != null)
             {
                 if (!(token is JProperty conditionProperty))
                 {
-                    throw new FulcrumContractException($"Condition must be an object with properties:\r{json.ToString(Formatting.Indented)}");
+                    throw new FulcrumContractException($"Parameter {nameof(condition)} must be an object with properties:\r{json.ToString(Formatting.Indented)}");
                 }
 
                 if (typeof(TDatabaseItem).GetProperty(conditionProperty.Name) == null)
                 {
-                    throw new FulcrumContractException($"Condition property {conditionProperty.Name} can't be found in type {typeof(TDatabaseItem).FullName}.");
+                    throw new FulcrumContractException($"Parameter {nameof(condition)} property {conditionProperty.Name} can't be found in type {typeof(TDatabaseItem).FullName}.");
                 }
 
-                list.Add($"[{conditionProperty.Name}] = @{conditionProperty.Name}");
+                whereList.Add($"[{conditionProperty.Name}] = @{conditionProperty.Name}");
                 token = token.Next;
             }
+            var where = string.Join(", ", whereList);
 
-            var where = string.Join(", ", list);
+            
+            var orderList = new List<string>();
+            string orderBy = null;
+            if (order != null)
+            {
+                json = JObject.FromObject(order);
+                token = json.First;
+                while (token != null)
+                {
+                    if (!(token is JProperty conditionProperty))
+                    {
+                        throw new FulcrumContractException(
+                            $"Parameter {nameof(order)} must be an object with properties:\r{json.ToString(Formatting.Indented)}");
+                    }
 
-            return await SearchWhereAsync(where, null, condition, offset, limit, cancellationToken);
+                    if (typeof(TDatabaseItem).GetProperty(conditionProperty.Name) == null)
+                    {
+                        throw new FulcrumContractException(
+                            $"Parameter {nameof(order)} property {conditionProperty.Name} can't be found in type {typeof(TDatabaseItem).FullName}.");
+                    }
+
+                    if (conditionProperty.Value.Type != JTokenType.Boolean)
+                    {
+                        throw new FulcrumContractException($"Parameter {nameof(order)}, property {conditionProperty.Name} must be a boolean.");
+                    }
+
+                    var ascending = (bool)conditionProperty.Value;
+
+                    var ascOrDesc = ((bool) conditionProperty.Value) ? "ASC" : "DESC";
+                    orderList.Add($"[{conditionProperty.Name}] {ascOrDesc}");
+                    token = token.Next;
+                }
+
+                orderBy = string.Join(", ", orderList);
+            }
+
+            return await SearchWhereAsync(where, orderBy, condition, offset, limit, cancellationToken);
         }
 
         /// <inheritdoc />
