@@ -195,15 +195,16 @@ namespace Nexus.Link.Libraries.Crud.MemoryStorage
 
                 var revert = sortParameter.Value ? 1 : -1;
                 var value1 = property.GetValue(firstItem) as IComparable;
+                var value2 = property.GetValue(secondItem) as IComparable;
 
                 if (value1 == null)
                 {
-                    if (secondItem == null) continue;
+                    if (value2 == null) continue;
                     return revert;
                 }
 
-                if (secondItem == null) return -revert;
-                var result = value1.CompareTo(secondItem);
+                if (value2 == null) return -revert;
+                var result = value1.CompareTo(value2);
                 if (result != 0) return result * revert;
             }
 
