@@ -119,62 +119,49 @@ namespace Nexus.Link.Libraries.SqlServer
 
         public Task<PageEnvelope<TDatabaseItem>> ReadAllWithPagingAsync(int offset, int? limit = null, CancellationToken token = default(CancellationToken))
         {
+            InternalContract.RequireGreaterThanOrEqualTo(0, offset, nameof(offset));
+            if (limit != null) InternalContract.RequireGreaterThan(0, limit.Value, nameof(limit));
             return SearchAllAsync(null, offset, limit, token);
         }
 
         /// <inheritdoc />
-        public async Task<PageEnvelope<TDatabaseItem>> SearchAsync(object condition, object order, int offset, int? limit = null,
+        public async Task<PageEnvelope<TDatabaseItem>> SearchAsync(SearchDetails<TDatabaseItem> details, int offset, int? limit = null,
             CancellationToken cancellationToken = default(CancellationToken))
         {
-            var whereList = new List<string>();
-            var json = JObject.FromObject(condition);
-            var token = json.First;
-            while (token != null)
+            InternalContract.RequireNotNull(details, nameof(details));
+            InternalContract.RequireValidated(details, nameof(details));
+            InternalContract.RequireGreaterThanOrEqualTo(0, offset, nameof(offset));
+            if (limit != null) InternalContract.RequireGreaterThan(0, limit.Value, nameof(limit));
+
+            var where = "1=1";
+            if (details.Where != null)
             {
-                if (!(token is JProperty conditionProperty))
-                {
-                    throw new FulcrumContractException($"Parameter {nameof(condition)} must be an object with properties:\r{json.ToString(Formatting.Indented)}");
-                }
-
-                if (typeof(TDatabaseItem).GetProperty(conditionProperty.Name) == null)
-                {
-                    throw new FulcrumContractException($"Parameter {nameof(condition)} property {conditionProperty.Name} can't be found in type {typeof(TDatabaseItem).FullName}.");
-                }
-
-                whereList.Add($"[{conditionProperty.Name}] = @{conditionProperty.Name}");
-                token = token.Next;
-            }
-            var where = string.Join(", ", whereList);
-
-            
-            var orderList = new List<string>();
-            string orderBy = null;
-            if (order != null)
-            {
-                json = JObject.FromObject(order);
-                token = json.First;
+                var whereList = new List<string>();
+                var json = JObject.FromObject(details.Where);
+                var token = json.First;
                 while (token != null)
                 {
-                    if (!(token is JProperty conditionProperty))
-                    {
-                        throw new FulcrumContractException(
-                            $"Parameter {nameof(order)} must be an object with properties:\r{json.ToString(Formatting.Indented)}");
-                    }
+                    if (!(token is JProperty conditionProperty)) continue;
+                    whereList.Add($"[{conditionProperty.Name}] = @{conditionProperty.Name}");
+                    token = token.Next;
+                }
 
-                    if (typeof(TDatabaseItem).GetProperty(conditionProperty.Name) == null)
-                    {
-                        throw new FulcrumContractException(
-                            $"Parameter {nameof(order)} property {conditionProperty.Name} can't be found in type {typeof(TDatabaseItem).FullName}.");
-                    }
+                where = string.Join(", ", whereList);
+            }
 
-                    if (conditionProperty.Value.Type != JTokenType.Boolean)
-                    {
-                        throw new FulcrumContractException($"Parameter {nameof(order)}, property {conditionProperty.Name} must be a boolean.");
-                    }
 
+            var orderList = new List<string>();
+            string orderBy = null;
+            if (details.OrderBy != null)
+            {
+                var json = JObject.FromObject(details.OrderBy);
+                var token = json.First;
+                while (token != null)
+                {
+                    if (!(token is JProperty conditionProperty)) continue;
                     var ascending = (bool)conditionProperty.Value;
 
-                    var ascOrDesc = ((bool) conditionProperty.Value) ? "ASC" : "DESC";
+                    var ascOrDesc = ascending ? "ASC" : "DESC";
                     orderList.Add($"[{conditionProperty.Name}] {ascOrDesc}");
                     token = token.Next;
                 }
@@ -182,12 +169,13 @@ namespace Nexus.Link.Libraries.SqlServer
                 orderBy = string.Join(", ", orderList);
             }
 
-            return await SearchWhereAsync(where, orderBy, condition, offset, limit, cancellationToken);
+            return await SearchWhereAsync(where, orderBy, details.Where, offset, limit, cancellationToken);
         }
 
         /// <inheritdoc />
         public async Task<IEnumerable<TDatabaseItem>> ReadAllAsync(int limit = 2147483647, CancellationToken token = new CancellationToken())
         {
+            InternalContract.RequireGreaterThan(0, limit, nameof(limit));
             return await StorageHelper.ReadPagesAsync<TDatabaseItem>(
                 (offset, cancellationToken) => ReadAllWithPagingAsync(offset, null, cancellationToken),
                 limit, token);

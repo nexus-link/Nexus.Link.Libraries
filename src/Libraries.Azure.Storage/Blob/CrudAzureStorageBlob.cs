@@ -225,5 +225,12 @@ namespace Nexus.Link.Libraries.Azure.Storage.Blob
         {
             throw new System.NotImplementedException();
         }
+
+        /// <inheritdoc />
+        public Task<PageEnvelope<TModel>> SearchAsync(SearchDetails<TModel> details, int offset, int? limit = null,
+            CancellationToken cancellationToken = default(CancellationToken))
+        {
+            throw new System.NotImplementedException();
+        }
     }
 }

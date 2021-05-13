@@ -183,7 +183,7 @@ namespace Nexus.Link.Libraries.Crud.ClientTranslators
         }
 
         /// <inheritdoc />
-        public Task<PageEnvelope<TModel>> SearchAsync(object condition, object order, int offset, int? limit = null,
+        public Task<PageEnvelope<TModel>> SearchAsync(SearchDetails<TModel> details, int offset, int? limit = null,
             CancellationToken cancellationToken = default(CancellationToken))
         {
             throw new NotImplementedException();

@@ -4,6 +4,7 @@ using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Rest;
+using Newtonsoft.Json.Linq;
 using Nexus.Link.Libraries.Core.Assert;
 using Nexus.Link.Libraries.Core.Storage.Model;
 using Nexus.Link.Libraries.Core.Translation;
@@ -166,6 +167,25 @@ namespace Nexus.Link.Libraries.Crud.Web.RestClient
         {
             InternalContract.RequireGreaterThan(0, limit, nameof(limit));
             return await GetAsync<IEnumerable<TModel>>($"?limit={limit}", cancellationToken: token);
+        }
+
+        /// <inheritdoc />
+        public async Task<PageEnvelope<TModel>> SearchAsync(SearchDetails<TModel> details, int offset, int? limit = null,
+            CancellationToken cancellationToken = default(CancellationToken))
+        {
+            ServiceContract.RequireNotNull(details, nameof(details));
+            ServiceContract.RequireValidated(details, nameof(details));
+            ServiceContract.RequireGreaterThanOrEqualTo(0, offset, nameof(offset));
+            if (limit != null)
+            {
+                ServiceContract.RequireGreaterThan(0, limit.Value, nameof(limit));
+            }
+            var limitParameter = "";
+            if (limit != null)
+            {
+                limitParameter = $"&limit={limit}";
+            }
+            return await PostAsync<PageEnvelope<TModel>, SearchDetails<TModel>>($"?offset={offset}{limitParameter}", details, cancellationToken: cancellationToken);
         }
 
         /// <inheritdoc />

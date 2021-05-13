@@ -171,7 +171,7 @@ namespace Nexus.Link.Libraries.Crud.Mappers
         }
 
         /// <inheritdoc />
-        public Task<PageEnvelope<TClientModel>> SearchAsync(object condition, object order, int offset, int? limit = null,
+        public Task<PageEnvelope<TClientModel>> SearchAsync(SearchDetails<TClientModel> details, int offset, int? limit = null,
             CancellationToken cancellationToken = default(CancellationToken))
         {
             throw new NotImplementedException();

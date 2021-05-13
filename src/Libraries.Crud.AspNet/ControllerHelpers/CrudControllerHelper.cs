@@ -117,6 +117,24 @@ namespace Nexus.Link.Libraries.Crud.AspNet.ControllerHelpers
         }
 
         /// <inheritdoc />
+        public async Task<PageEnvelope<TModel>> SearchAsync(SearchDetails<TModel> details, int offset, int? limit = null,
+            CancellationToken cancellationToken = default(CancellationToken))
+        {
+            ServiceContract.RequireNotNull(details, nameof(details));
+            ServiceContract.RequireValidated(details, nameof(details));
+            ServiceContract.RequireGreaterThanOrEqualTo(0, offset, nameof(offset));
+            if (limit != null)
+            {
+                ServiceContract.RequireGreaterThan(0, limit.Value, nameof(limit));
+            }
+
+            var page = await Logic.SearchAsync(details, offset, limit, cancellationToken);
+            FulcrumAssert.IsNotNull(page?.Data);
+            FulcrumAssert.IsValidated(page?.Data);
+            return page;
+        }
+
+        /// <inheritdoc />
         public virtual async Task UpdateAsync(string id, TModel item, CancellationToken token = default(CancellationToken))
         {
             ServiceContract.RequireNotNullOrWhiteSpace(id, nameof(id));

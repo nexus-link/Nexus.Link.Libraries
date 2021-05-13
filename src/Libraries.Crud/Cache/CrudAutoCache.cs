@@ -159,10 +159,10 @@ namespace Nexus.Link.Libraries.Crud.Cache
         }
 
         /// <inheritdoc />
-        public Task<PageEnvelope<TModel>> SearchAsync(object condition, object order, int offset, int? limit = null,
+        public Task<PageEnvelope<TModel>> SearchAsync(SearchDetails<TModel> details, int offset, int? limit = null,
             CancellationToken cancellationToken = default(CancellationToken))
         {
-            return _service.SearchAsync(condition, order, offset, limit, cancellationToken);
+            return _service.SearchAsync(details, offset, limit, cancellationToken);
         }
 
         /// <inheritdoc />

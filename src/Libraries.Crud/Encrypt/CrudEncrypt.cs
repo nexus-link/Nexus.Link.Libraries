@@ -3,6 +3,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Nexus.Link.Libraries.Core.Assert;
+using Nexus.Link.Libraries.Core.Error.Logic;
 using Nexus.Link.Libraries.Core.Storage.Logic;
 using Nexus.Link.Libraries.Core.Storage.Model;
 using Nexus.Link.Libraries.Crud.Interfaces;
@@ -77,11 +78,18 @@ namespace Nexus.Link.Libraries.Crud.Encrypt
         }
 
         /// <inheritdoc />
-        public async Task<PageEnvelope<TModel>> SearchAsync(object condition, object order, int offset, int? limit = null,
+        public async Task<PageEnvelope<TModel>> SearchAsync(SearchDetails<TModel> details, int offset, int? limit = null,
             CancellationToken cancellationToken = default(CancellationToken))
         {
-            var page = await _service.SearchAsync(condition, order, offset, limit, cancellationToken);
-            return new PageEnvelope<TModel>(page.PageInfo, page.Data.Select(Decrypt));
+            throw new FulcrumNotImplementedException();
+            //if (!(_service is ISearch<TModel, TId> searcher))
+            //{
+            //    throw new FulcrumContractException(
+            //        $"The service {_service.GetType().FullName} must implement {nameof(ISearch<TModel, TId>)}.");
+            //}
+
+            //var page = await searcher.SearchAsync(details, offset, limit, cancellationToken);
+            //return new PageEnvelope<TModel>(page.PageInfo, page.Data.Select(Decrypt));
         }
 
         /// <inheritdoc />

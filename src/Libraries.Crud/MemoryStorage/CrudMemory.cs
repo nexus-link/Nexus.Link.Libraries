@@ -133,17 +133,18 @@ namespace Nexus.Link.Libraries.Crud.MemoryStorage
         }
 
         /// <inheritdoc />
-        public Task<PageEnvelope<TModel>> SearchAsync(object condition, object order, int offset = 0, int? limit = null,
+        public Task<PageEnvelope<TModel>> SearchAsync(SearchDetails<TModel> details, int offset = 0, int? limit = null,
             CancellationToken cancellationToken = default(CancellationToken))
         {
             limit = limit ?? PageInfo.DefaultLimit;
-            InternalContract.RequireNotNull(condition, nameof(condition));
+            InternalContract.RequireNotNull(details, nameof(details));
+            InternalContract.RequireValidated(details, nameof(details));
             InternalContract.RequireGreaterThanOrEqualTo(0, offset, nameof(offset));
             InternalContract.RequireGreaterThan(0, limit.Value, nameof(limit));
 
             lock (MemoryItems)
             {
-                var list = Filter(condition, order)
+                var list = Filter(details)
                     .Skip(offset)
                     .Take(limit.Value)
                     .ToList();
@@ -152,15 +153,16 @@ namespace Nexus.Link.Libraries.Crud.MemoryStorage
             }
         }
 
-        private IEnumerable<TModel> Filter(object condition, object order)
+        private IEnumerable<TModel> Filter(SearchDetails<TModel> details)
         {
-            InternalContract.RequireNotNull(condition, nameof(condition));
-            var conditionAsJObject = JObject.FromObject(condition);
-            var orderAsJObject = order == null ? null : JObject.FromObject(order);
-            foreach (var key in Sort(orderAsJObject).Select(pair => pair.Key))
+            InternalContract.RequireNotNull(details, nameof(details));
+            InternalContract.RequireValidated(details, nameof(details));
+            var where = details.Where == null ? null : JObject.FromObject(details.Where);
+            var orderBy = details.OrderBy == null ? null : JObject.FromObject(details.OrderBy);
+            foreach (var key in Sort(orderBy).Select(pair => pair.Key))
             {
                 var item = GetMemoryItem(key, false);
-                if (IsMatch(item, conditionAsJObject))
+                if (IsMatch(item, where))
                     yield return item;
             }
         }
@@ -172,23 +174,8 @@ namespace Nexus.Link.Libraries.Crud.MemoryStorage
             var token = order.First;
             while (token != null)
             {
-                if (!(token is JProperty property))
-                {
-                    throw new FulcrumContractException(
-                        $"Parameter {nameof(order)}  must be an object with properties:\r{order.ToString(Formatting.Indented)}");
-                }
-
-                if (typeof(TModel).GetProperty(property.Name) == null)
-                {
-                    throw new FulcrumContractException(
-                        $"Parameter {nameof(order)} property {property.Name} can't be found in type {typeof(TModel).FullName}.");
-                }
-
-                if (property.Value.Type != JTokenType.Boolean)
-                {
-                    throw new FulcrumContractException($"Parameter {nameof(order)}, property {property.Name} must be a boolean.");
-                }
-
+                var property = token as JProperty;
+                if (property == null) continue;
                 var ascending = (bool)property.Value;
                 dictionary.Add(property.Name, ascending);
                 token = token.Next;
@@ -204,27 +191,19 @@ namespace Nexus.Link.Libraries.Crud.MemoryStorage
             foreach (var sortParameter in dictionary)
             {
                 var property = typeof(TModel).GetProperty(sortParameter.Key);
-                if (property == null)
-                {
-                    throw new FulcrumContractException($"Order property {sortParameter.Key} can't be found in type {typeof(TModel).FullName}.");
-                }
-                if (!typeof(IComparable).IsAssignableFrom(property.PropertyType))
-                {
-                    throw new FulcrumContractException($"Order property {sortParameter.Key} doesn't implement {typeof(IComparable)}.");
-                }
+                if (property == null) continue;
 
                 var revert = sortParameter.Value ? 1 : -1;
                 var value1 = property.GetValue(firstItem) as IComparable;
-                var value2 = property.GetValue(secondItem) as IComparable;
 
                 if (value1 == null)
                 {
-                    if (value2 == null) continue;
+                    if (secondItem == null) continue;
                     return revert;
                 }
 
-                if (value2 == null) return -revert;
-                var result = value1.CompareTo(value2);
+                if (secondItem == null) return -revert;
+                var result = value1.CompareTo(secondItem);
                 if (result != 0) return result * revert;
             }
 
@@ -233,19 +212,15 @@ namespace Nexus.Link.Libraries.Crud.MemoryStorage
 
         private static bool IsMatch(TModel item, JObject condition)
         {
+            if (condition == null) return true;
             var itemAsJson = JObject.FromObject(item);
             var conditionToken = condition.First;
             while (conditionToken != null)
             {
-                if (!(conditionToken is JProperty conditionProperty))
-                {
-                    throw new FulcrumContractException($"Condition must be an object with properties:\r{condition.ToString(Formatting.Indented)}");
-                }
+                var conditionProperty = conditionToken as JProperty;
+                if (conditionProperty == null) continue;
                 var itemValue = itemAsJson.GetValue(conditionProperty.Name);
-                if (itemValue == null)
-                {
-                    throw new FulcrumContractException($"Condition property {conditionProperty.Name} can't be found in type {typeof(TModel).FullName}.");
-                }
+                if (itemValue == null) continue;
                 if (itemValue.Type != conditionProperty.Value.Type) return false;
                 if (itemValue.ToString() != conditionProperty?.Value.ToString()) return false;
                 conditionToken = conditionToken.Next;
