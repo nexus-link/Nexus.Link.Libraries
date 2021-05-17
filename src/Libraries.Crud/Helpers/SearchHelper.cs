@@ -11,16 +11,16 @@ namespace Nexus.Link.Libraries.Crud.Helpers
     {
         
 
-        public static IEnumerable<TModel> SortAndFilter(IEnumerable<TModel> items, SearchDetails<TModel> details)
+        public static IEnumerable<TModel> FilterAndSort(IEnumerable<TModel> items, SearchDetails<TModel> details)
         {
             InternalContract.RequireNotNull(details, nameof(details));
             InternalContract.RequireValidated(details, nameof(details));
             var where = details.Where == null ? null : JObject.FromObject(details.Where);
             var orderBy = details.OrderBy == null ? null : JObject.FromObject(details.OrderBy);
-            foreach (var item in Sort(items, orderBy))
-            {
-                if (IsMatch(item, where)) yield return item;
-            }
+
+            var filtered = items.Where(item => IsMatch(item, where));
+            var sorted = Sort(filtered, orderBy);
+            return sorted;
         }
 
         public static IEnumerable<TModel> Sort(IEnumerable<TModel> items, JToken order)

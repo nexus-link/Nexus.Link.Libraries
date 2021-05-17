@@ -166,7 +166,7 @@ namespace Nexus.Link.Libraries.Azure.Storage.Blob
             var allItems = (await ReadAllAsync(int.MaxValue, cancellationToken))
                 .ToList();
 
-            var list = SearchHelper<TModel>.SortAndFilter(allItems, details)
+            var list = SearchHelper<TModel>.FilterAndSort(allItems, details)
                 .Skip(offset)
                 .Take(limit.Value);
             var page = new PageEnvelope<TModel>(offset, limit.Value, allItems.Count(), list);
