@@ -2,6 +2,11 @@
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+#if NETCOREAPP
+using Microsoft.AspNetCore.Mvc;
+#else
+using System.Web.Http;
+#endif
 using Nexus.Link.Libraries.Core.Assert;
 using Nexus.Link.Libraries.Core.Crud.Model;
 using Nexus.Link.Libraries.Core.Storage.Model;
@@ -31,7 +36,7 @@ namespace Nexus.Link.Libraries.Crud.AspNet.ControllerHelpers
         where TModel : TModelCreate
     {
 
-        private ManyToOneConvenience<TModelCreate, TModel, string> _convenience;
+        private readonly ManyToOneConvenience<TModelCreate, TModel, string> _convenience;
         /// <summary>
         /// The logic to be used
         /// </summary>
@@ -81,7 +86,7 @@ namespace Nexus.Link.Libraries.Crud.AspNet.ControllerHelpers
         }
 
         /// <inheritdoc />
-        public async Task<PageEnvelope<TModel>> SearchChildrenAsync(string parentId, SearchDetails<TModel> details, int offset, int? limit = null,
+        public async Task<PageEnvelope<TModel>> SearchChildrenAsync(string parentId, [FromBody] SearchDetails<TModel> details, int offset, int? limit = null,
             CancellationToken cancellationToken = default(CancellationToken))
         {
             ServiceContract.RequireNotNullOrWhiteSpace(parentId, nameof(parentId));
@@ -98,14 +103,14 @@ namespace Nexus.Link.Libraries.Crud.AspNet.ControllerHelpers
         }
 
         /// <inheritdoc />
-        public Task<TModel> SearchFirstChildAsync(string parentId, SearchDetails<TModel> details,
+        public Task<TModel> SearchFirstChildAsync(string parentId, [FromBody] SearchDetails<TModel> details,
             CancellationToken cancellationToken = default(CancellationToken))
         {
             return _convenience.SearchFirstChildAsync(parentId, details, cancellationToken);
         }
 
         /// <inheritdoc />
-        public Task<TModel> FindUniqueChildAsync(string parentId, SearchDetails<TModel> details,
+        public Task<TModel> FindUniqueChildAsync(string parentId, [FromBody] SearchDetails<TModel> details,
             CancellationToken cancellationToken = default(CancellationToken))
         {
             return _convenience.SearchFirstChildAsync(parentId, details, cancellationToken);

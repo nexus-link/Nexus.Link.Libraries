@@ -174,7 +174,7 @@ namespace Nexus.Link.Libraries.Crud.Web.RestClient
                 InternalContract.RequireGreaterThan(0, limit.Value, nameof(limit));
                 limitParameter = $"&limit={limit}";
             }
-            return PostAsync<PageEnvelope<TManyModel>, SearchDetails<TManyModel>>($"{parentId}/{ChildrenName}?offset={offset}{limitParameter}", details, null,cancellationToken );
+            return PostAsync<PageEnvelope<TManyModel>, SearchDetails<TManyModel>>($"{parentId}/{ChildrenName}/Search?offset={offset}{limitParameter}", details, null,cancellationToken );
         }
 
         /// <inheritdoc />
