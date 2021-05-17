@@ -11,6 +11,9 @@ namespace Nexus.Link.Libraries.Crud.Model
     /// </summary>
     public class SearchDetails<TModel> : IValidatable
     {
+        private object _where;
+        private object _orderBy;
+
         /// <summary>
         /// The properties of this optional object and their value will define the search criteria.
         /// The object should look like:
@@ -24,7 +27,36 @@ namespace Nexus.Link.Libraries.Crud.Model
         /// <example>
         /// The object {FirstName = "Joe", ShoeSize = 42} will search for items where both conditions are met.
         /// </example>
-        public object Where { get; set; }
+        public object Where
+        {
+            get => _where;
+            set
+            {
+                if (value != null)
+                {
+                    var where = JToken.FromObject(value);
+                    InternalContract.Require(where.Type == JTokenType.Object,
+                        $"Property {nameof(value)} must be an object with properties:\r{where.ToString(Formatting.Indented)}");
+
+                    var token = where.First;
+                    while (token != null)
+                    {
+                        var property = token as JProperty;
+                        InternalContract.Require(property != null,
+                            $"Property {nameof(value)} must be an object with properties:\r{where.ToString(Formatting.Indented)}");
+                        if (property == null) continue;
+                        InternalContract.Require(typeof(TModel).GetProperty(property.Name) != null,
+                            $"Property {nameof(value)}.{property.Name} can't be found in type {typeof(TModel).FullName}.");
+
+                        InternalContract.Require(property.Value is JValue,
+                            $"Property {nameof(value)}.{property.Name} must be a primitive type such as integer, string or boolean.");
+                        token = token.Next;
+                    }
+                }
+
+                _where = value;
+            }
+        }
 
         /// <summary>
         /// The properties of this optional object and their bool values will define the sort order for the search result.
@@ -39,57 +71,45 @@ namespace Nexus.Link.Libraries.Crud.Model
         /// The object {LastName = true, FirstName = false} will sort by LastName in ascending order and then by
         /// FirstName in descending order.
         /// </example>
-        public object OrderBy { get; set; }
+        public object OrderBy
+        {
+            get => _orderBy;
+            set
+            {
+                if (value != null)
+                {
+                    InternalContract.RequireNotNull(value, nameof(value));
+                    var orderBy = JToken.FromObject(value);
+                    InternalContract.Require(orderBy.Type == JTokenType.Object,
+                        $"Property {nameof(value)} must be an object with properties:\r{orderBy.ToString(Formatting.Indented)}");
+
+                    var token = orderBy.First;
+                    while (token != null)
+                    {
+                        var property = token as JProperty;
+                        InternalContract.Require(property != null,
+                            $"Property {nameof(value)} must be an object with properties:\r{orderBy.ToString(Formatting.Indented)}");
+
+                        var propertyInfo = typeof(TModel).GetProperty(property.Name);
+                        InternalContract.Require(propertyInfo != null,
+                            $"Property {nameof(value)}.{property.Name} can't be found in type {typeof(TModel).FullName}.");
+                        InternalContract.Require(typeof(IComparable).IsAssignableFrom(propertyInfo.PropertyType),
+                            $"The type of property {nameof(value)}.{property.Name} must implement {nameof(IComparable)}.");
+
+                        InternalContract.Require(property.Value.Type == JTokenType.Boolean,
+                            $"Property {nameof(value)}.{property.Name} must be a boolean.");
+                        token = token.Next;
+                    }
+                }
+
+                _orderBy = value;
+            }
+        }
 
         /// <inheritdoc />
         public void Validate(string errorLocation, string propertyPath = "")
         {
-            if (Where != null)
-            {
-                var where = JToken.FromObject(Where);
-                FulcrumValidate.IsTrue(where.Type == JTokenType.Object, errorLocation,
-                    $"Property {propertyPath}.{nameof(Where)} must be an object with properties:\r{where.ToString(Formatting.Indented)}");
-
-                var token = where.First;
-                while (token != null)
-                {
-                    var property = token as JProperty;
-                    FulcrumValidate.IsTrue(property != null, errorLocation,
-                        $"Property {propertyPath}.{nameof(Where)} must be an object with properties:\r{where.ToString(Formatting.Indented)}");
-                    if (property == null) continue;
-                    FulcrumValidate.IsTrue(typeof(TModel).GetProperty(property.Name) != null, errorLocation,
-                        $"Property {propertyPath}.{nameof(Where)}.{property.Name} can't be found in type {typeof(TModel).FullName}.");
-
-                    FulcrumValidate.IsTrue(property.Value is JValue, errorLocation,
-                        $"Property {propertyPath}.{nameof(Where)}.{property.Name} must be a primitive type such as integer, string or boolean.");
-                    token = token.Next;
-                }
-            }
-
-            if (OrderBy != null)
-            {
-                var orderBy = JToken.FromObject(OrderBy);
-                FulcrumValidate.IsTrue(orderBy.Type == JTokenType.Object, errorLocation,
-                    $"Property {propertyPath}.{nameof(OrderBy)} must be an object with properties:\r{orderBy.ToString(Formatting.Indented)}");
-
-                var token = orderBy.First;
-                while (token != null)
-                {
-                    var property = token as JProperty;
-                    FulcrumValidate.IsTrue(property != null, errorLocation,
-                        $"Property {propertyPath}.{nameof(OrderBy)} must be an object with properties:\r{orderBy.ToString(Formatting.Indented)}");
-
-                    var propertyInfo = typeof(TModel).GetProperty(property.Name);
-                    FulcrumValidate.IsTrue(propertyInfo != null, errorLocation,
-                        $"Property {propertyPath}.{nameof(OrderBy)}.{property.Name} can't be found in type {typeof(TModel).FullName}.");
-                    FulcrumValidate.IsTrue(typeof(IComparable).IsAssignableFrom(propertyInfo.PropertyType), errorLocation,
-                        $"The type of property {propertyPath}.{nameof(OrderBy)}.{property.Name} must implement {nameof(IComparable)}.");
-
-                    FulcrumValidate.IsTrue(property.Value.Type == JTokenType.Boolean, errorLocation,
-                    $"Property {propertyPath}.{nameof(OrderBy)}.{property.Name} must be a boolean.");
-                    token = token.Next;
-                }
-            }
+            // The validation is done in the setter methods
         }
     }
 }
