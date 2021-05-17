@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Nexus.Link.Libraries.Core.Assert;
@@ -110,6 +111,48 @@ namespace Nexus.Link.Libraries.Crud.Model
         public void Validate(string errorLocation, string propertyPath = "")
         {
             // The validation is done in the setter methods
+        }
+
+        /// <inheritdoc />
+        public override string ToString()
+        {
+            var whereAsString = "";
+            if (_where != null)
+            {
+                var list = new List<string>();
+                var where = JToken.FromObject(_where);
+                var token = where.First;
+                while (token != null)
+                {
+                    var property = token as JProperty;
+                    if (property == null) continue;
+                    list.Add($"  {property.Name} = {property.Value}");
+                    token = token.Next;
+                }
+
+                whereAsString = "\r" + string.Join(",\r", list) + "\r";
+            }
+
+            var orderByAsString = "";
+            if (_orderBy != null)
+            {
+                var list = new List<string>();
+                var orderBy = JToken.FromObject(_orderBy);
+                var token = orderBy.First;
+                while (token != null)
+                {
+                    var property = token as JProperty;
+                    if (property == null) continue;
+                    string ascendingOrDescending = (bool)property.Value ? "ascending" : "descending";
+                    list.Add($"  {property.Name} = {ascendingOrDescending}");
+                    token = token.Next;
+                }
+
+                orderByAsString = "\r" + string.Join(",\r", list) + "\r";
+            }
+
+            var result = $"Where = {{{whereAsString}}}\rOrderBy = {{{orderByAsString}}}";
+            return result;
         }
     }
 }
