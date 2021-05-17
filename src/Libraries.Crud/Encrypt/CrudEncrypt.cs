@@ -93,6 +93,18 @@ namespace Nexus.Link.Libraries.Crud.Encrypt
         }
 
         /// <inheritdoc />
+        public Task<TModel> SearchFirstAsync(SearchDetails<TModel> details, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            throw new System.NotImplementedException();
+        }
+
+        /// <inheritdoc />
+        public Task<TModel> FindUniqueAsync(SearchDetails<TModel> details, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            throw new System.NotImplementedException();
+        }
+
+        /// <inheritdoc />
         public async Task<IEnumerable<TModel>> ReadAllAsync(int limit = int.MaxValue, CancellationToken token = default(CancellationToken))
         {
             var storedItems = await _service.ReadAllAsync(limit, token);

@@ -30,19 +30,6 @@ namespace Nexus.Link.Libraries.Crud.Interfaces
             CancellationToken cancellationToken = default(CancellationToken));
 
         /// <summary>
-        /// Search for a unique matching item.
-        /// </summary>
-        /// <param name="details">The search details</param>
-        /// <param name="cancellationToken">Propagates notification that operations should be canceled</param>
-        /// <returns>The found item or null.</returns>
-        /// <remarks>
-        /// The implementor of this method can decide that it is not a valid method to expose.
-        /// In that case, the method should throw a <see cref="FulcrumNotImplementedException"/>.
-        /// </remarks>
-        Task<TModel> FindUniqueAsync(SearchDetails<TModel> details,
-            CancellationToken cancellationToken = default(CancellationToken));
-
-        /// <summary>
         /// Search for the first matching item.
         /// </summary>
         /// <param name="details">The search details</param>
@@ -53,6 +40,19 @@ namespace Nexus.Link.Libraries.Crud.Interfaces
         /// In that case, the method should throw a <see cref="FulcrumNotImplementedException"/>.
         /// </remarks>
         Task<TModel> SearchFirstAsync(SearchDetails<TModel> details,
+            CancellationToken cancellationToken = default(CancellationToken));
+
+        /// <summary>
+        /// Search for a unique matching item.
+        /// </summary>
+        /// <param name="details">The search details</param>
+        /// <param name="cancellationToken">Propagates notification that operations should be canceled</param>
+        /// <returns>The found item or null.</returns>
+        /// <remarks>
+        /// The implementor of this method can decide that it is not a valid method to expose.
+        /// In that case, the method should throw a <see cref="FulcrumNotImplementedException"/>.
+        /// </remarks>
+        Task<TModel> FindUniqueAsync(SearchDetails<TModel> details,
             CancellationToken cancellationToken = default(CancellationToken));
     }
 }

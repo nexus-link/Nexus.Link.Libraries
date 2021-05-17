@@ -5,6 +5,7 @@ using Nexus.Link.Libraries.Core.Assert;
 using Nexus.Link.Libraries.Core.Error.Logic;
 using Nexus.Link.Libraries.Core.Storage.Logic;
 using Nexus.Link.Libraries.Core.Storage.Model;
+using Nexus.Link.Libraries.Crud.Helpers;
 using Nexus.Link.Libraries.Crud.Interfaces;
 using Nexus.Link.Libraries.Crud.Model;
 
@@ -31,11 +32,13 @@ namespace Nexus.Link.Libraries.Azure.Storage.Table
         ICrud<TItemCreate, TModel, TId> 
         where TModel : TItemCreate, IOptimisticConcurrencyControlByETag
     {
+        private readonly CrudConvenience<TItemCreate, TModel, TId> _convenience;
         protected AzureStorageTable<TItemCreate, TModel> Table { get; }
 
         public CrudAzureStorageTable(string connectionString, string name)
         {
             Table = new AzureStorageTable<TItemCreate, TModel>(connectionString, name);
+            _convenience = new CrudConvenience<TItemCreate, TModel,TId>(this);
         }
 
         /// <inheritdoc />
@@ -175,7 +178,19 @@ namespace Nexus.Link.Libraries.Azure.Storage.Table
         public Task<PageEnvelope<TModel>> SearchAsync(SearchDetails<TModel> details, int offset, int? limit = null,
             CancellationToken cancellationToken = default(CancellationToken))
         {
-            throw new System.NotImplementedException();
+            return _convenience.SearchAsync(details, offset, limit, cancellationToken);
+        }
+
+        /// <inheritdoc />
+        public Task<TModel> SearchFirstAsync(SearchDetails<TModel> details, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            return _convenience.FindUniqueAsync(details, cancellationToken);
+        }
+
+        /// <inheritdoc />
+        public Task<TModel> FindUniqueAsync(SearchDetails<TModel> details, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            return _convenience.FindUniqueAsync(details, cancellationToken);
         }
     }
 }

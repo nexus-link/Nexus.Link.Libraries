@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.Caching.Distributed;
 using Nexus.Link.Libraries.Core.Assert;
 using Nexus.Link.Libraries.Core.Storage.Model;
+using Nexus.Link.Libraries.Crud.Helpers;
 using Nexus.Link.Libraries.Crud.Interfaces;
 using Nexus.Link.Libraries.Crud.Model;
 using Nexus.Link.Libraries.Crud.PassThrough;
@@ -53,6 +54,7 @@ namespace Nexus.Link.Libraries.Crud.Cache
         where TModel : TModelCreate
     {
         private readonly ICrud<TModelCreate, TModel, TId> _service;
+        private CrudConvenience<TModelCreate, TModel, TId> _convenience;
 
         /// <summary>
         /// Constructor for TModel that implements <see cref="IUniquelyIdentifiable{TId}"/>.
@@ -82,6 +84,7 @@ namespace Nexus.Link.Libraries.Crud.Cache
             InternalContract.RequireNotNull(getIdDelegate, nameof(getIdDelegate));
             InternalContract.RequireNotNull(cache, nameof(cache));
             _service = new CrudPassThrough<TModelCreate, TModel, TId>(service);
+            _convenience = new CrudConvenience<TModelCreate, TModel,TId>(this);
         }
 
         /// <inheritdoc />
@@ -163,6 +166,18 @@ namespace Nexus.Link.Libraries.Crud.Cache
             CancellationToken cancellationToken = default(CancellationToken))
         {
             return _service.SearchAsync(details, offset, limit, cancellationToken);
+        }
+
+        /// <inheritdoc />
+        public Task<TModel> SearchFirstAsync(SearchDetails<TModel> details, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            return _convenience.SearchFirstAsync(details, cancellationToken);
+        }
+
+        /// <inheritdoc />
+        public Task<TModel> FindUniqueAsync(SearchDetails<TModel> details, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            return _convenience.FindUniqueAsync(details, cancellationToken);
         }
 
         /// <inheritdoc />

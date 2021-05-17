@@ -30,10 +30,13 @@ namespace Nexus.Link.Libraries.Azure.Storage.Blob
         ICrud<TModelCreate, TModel, TId>
         where TModel : TModelCreate
     {
+        private CrudConvenience<TModelCreate, TModel, TId> _convenience;
+
         public CrudAzureStorageBlob(string connectionString, string containerName)
         {
             var client = new AzureBlobClient(connectionString);
             Directory = client.GetBlobContainer(containerName);
+            _convenience = new CrudConvenience<TModelCreate, TModel, TId>(this);
         }
 
         public IDirectory Directory { get; }
@@ -171,6 +174,18 @@ namespace Nexus.Link.Libraries.Azure.Storage.Blob
                 .Take(limit.Value);
             var page = new PageEnvelope<TModel>(offset, limit.Value, allItems.Count(), list);
             return page;
+        }
+
+        /// <inheritdoc />
+        public Task<TModel> SearchFirstAsync(SearchDetails<TModel> details, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            return _convenience.SearchFirstAsync(details, cancellationToken);
+        }
+
+        /// <inheritdoc />
+        public Task<TModel> FindUniqueAsync(SearchDetails<TModel> details, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            return _convenience.FindUniqueAsync(details, cancellationToken);
         }
 
         public async Task DeleteAllAsync(CancellationToken token = default(CancellationToken))

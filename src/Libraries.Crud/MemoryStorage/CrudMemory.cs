@@ -38,6 +38,13 @@ namespace Nexus.Link.Libraries.Crud.MemoryStorage
         MemoryBase<TModel, TId>,
         ICrud<TModelCreate, TModel, TId>, ISearch<TModel, TId> where TModel : TModelCreate
     {
+        private readonly CrudConvenience<TModelCreate, TModel, TId> _convenience;
+
+        public CrudMemory()
+        {
+            _convenience = new CrudConvenience<TModelCreate, TModel, TId>(this);
+        }
+
         /// <inheritdoc />
         public virtual async Task<TId> CreateAsync(TModelCreate item, CancellationToken token = default(CancellationToken))
         {
@@ -152,6 +159,18 @@ namespace Nexus.Link.Libraries.Crud.MemoryStorage
                 var page = new PageEnvelope<TModel>(offset, limit.Value, MemoryItems.Count, list);
                 return Task.FromResult(page);
             }
+        }
+
+        /// <inheritdoc />
+        public Task<TModel> SearchFirstAsync(SearchDetails<TModel> details, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            return _convenience.SearchFirstAsync(details, cancellationToken);
+        }
+
+        /// <inheritdoc />
+        public Task<TModel> FindUniqueAsync(SearchDetails<TModel> details, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            return _convenience.FindUniqueAsync(details, cancellationToken);
         }
 
         /// <inheritdoc />

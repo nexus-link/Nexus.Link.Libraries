@@ -12,6 +12,7 @@ using Nexus.Link.Libraries.Core.Error.Logic;
 using Nexus.Link.Libraries.Core.Misc;
 using Nexus.Link.Libraries.Core.Storage.Logic;
 using Nexus.Link.Libraries.Core.Storage.Model;
+using Nexus.Link.Libraries.Crud.Helpers;
 using Nexus.Link.Libraries.Crud.Model;
 using Nexus.Link.Libraries.SqlServer.Logic;
 using Nexus.Link.Libraries.SqlServer.Model;
@@ -43,6 +44,7 @@ namespace Nexus.Link.Libraries.SqlServer
     public class CrudSql<TDatabaseItemCreate, TDatabaseItem> : TableBase<TDatabaseItem>, ICrud<TDatabaseItemCreate, TDatabaseItem, Guid>, ISearch<TDatabaseItem, Guid>
         where TDatabaseItem : TDatabaseItemCreate, IUniquelyIdentifiable<Guid>
     {
+        private readonly CrudConvenience<TDatabaseItemCreate, TDatabaseItem, Guid> _convenience;
         /// <summary>
         /// Constructor
         /// </summary>
@@ -52,6 +54,7 @@ namespace Nexus.Link.Libraries.SqlServer
             : base(connectionString, tableMetadata)
         {
             InternalContract.RequireValidated(tableMetadata, nameof(tableMetadata));
+            _convenience = new CrudConvenience<TDatabaseItemCreate, TDatabaseItem, Guid>(this);
         }
 
         /// <inheritdoc />
@@ -170,6 +173,18 @@ namespace Nexus.Link.Libraries.SqlServer
             }
 
             return await SearchWhereAsync(where, orderBy, details.Where, offset, limit, cancellationToken);
+        }
+
+        /// <inheritdoc />
+        public  Task<TDatabaseItem> FindUniqueAsync(SearchDetails<TDatabaseItem> details, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            return _convenience.FindUniqueAsync(details, cancellationToken);
+        }
+
+        /// <inheritdoc />
+        public Task<TDatabaseItem> SearchFirstAsync(SearchDetails<TDatabaseItem> details, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            return _convenience.SearchFirstAsync(details, cancellationToken);
         }
 
         /// <inheritdoc />

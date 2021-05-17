@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Nexus.Link.Libraries.Core.Assert;
 using Nexus.Link.Libraries.Core.Storage.Model;
 using Nexus.Link.Libraries.Crud.AspNet.Controllers;
+using Nexus.Link.Libraries.Crud.Helpers;
 using Nexus.Link.Libraries.Crud.Interfaces;
 using Nexus.Link.Libraries.Crud.Model;
 using Nexus.Link.Libraries.Crud.PassThrough;
@@ -33,10 +34,13 @@ namespace Nexus.Link.Libraries.Crud.AspNet.ControllerHelpers
         /// </summary>
         protected readonly ICrud<TModelCreate, TModel, string> Logic;
 
+        private readonly CrudConvenience<TModelCreate, TModel, string> _convenience;
+
         /// <inheritdoc />
         public CrudControllerHelper(ICrudable<TModel, string> logic)
         {
             Logic = new CrudPassThrough<TModelCreate, TModel, string>(logic);
+            _convenience = new CrudConvenience<TModelCreate, TModel, string>(this);
         }
 
         /// <inheritdoc />
@@ -132,6 +136,18 @@ namespace Nexus.Link.Libraries.Crud.AspNet.ControllerHelpers
             FulcrumAssert.IsNotNull(page?.Data);
             FulcrumAssert.IsValidated(page?.Data);
             return page;
+        }
+
+        /// <inheritdoc />
+        public Task<TModel> SearchFirstAsync(SearchDetails<TModel> details, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            return _convenience.FindUniqueAsync(details, cancellationToken);
+        }
+
+        /// <inheritdoc />
+        public Task<TModel> FindUniqueAsync(SearchDetails<TModel> details, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            return _convenience.FindUniqueAsync(details, cancellationToken);
         }
 
         /// <inheritdoc />
