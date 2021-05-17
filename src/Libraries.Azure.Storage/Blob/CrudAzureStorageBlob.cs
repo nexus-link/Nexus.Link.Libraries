@@ -12,6 +12,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Nexus.Link.Libraries.Core.Json;
 using Nexus.Link.Libraries.Core.Misc;
+using Nexus.Link.Libraries.Crud.Helpers;
 
 namespace Nexus.Link.Libraries.Azure.Storage.Blob
 {
@@ -152,6 +153,26 @@ namespace Nexus.Link.Libraries.Azure.Storage.Blob
             return StorageHelper.ReadPagesAsync<TModel>((offset, ct) => ReadAllWithPagingAsync(offset, null, ct), limit, token);
         }
 
+        /// <inheritdoc />
+        public async Task<PageEnvelope<TModel>> SearchAsync(SearchDetails<TModel> details, int offset, int? limit = null,
+            CancellationToken cancellationToken = default(CancellationToken))
+        {
+            limit = limit ?? PageInfo.DefaultLimit;
+            InternalContract.RequireNotNull(details, nameof(details));
+            InternalContract.RequireValidated(details, nameof(details));
+            InternalContract.RequireGreaterThanOrEqualTo(0, offset, nameof(offset));
+            InternalContract.RequireGreaterThan(0, limit.Value, nameof(limit));
+
+            var allItems = (await ReadAllAsync(int.MaxValue, cancellationToken))
+                .ToList();
+
+            var list = SearchHelper<TModel>.SortAndFilter(allItems, details)
+                .Skip(offset)
+                .Take(limit.Value);
+            var page = new PageEnvelope<TModel>(offset, limit.Value, allItems.Count(), list);
+            return page;
+        }
+
         public async Task DeleteAllAsync(CancellationToken token = default(CancellationToken))
         {
             if (!await Directory.ExistsAsync()) return;
@@ -222,13 +243,6 @@ namespace Nexus.Link.Libraries.Azure.Storage.Blob
 
         /// <inheritdoc />
         public Task ClaimTransactionLockAsync(TId id, CancellationToken token = default(CancellationToken))
-        {
-            throw new System.NotImplementedException();
-        }
-
-        /// <inheritdoc />
-        public Task<PageEnvelope<TModel>> SearchAsync(SearchDetails<TModel> details, int offset, int? limit = null,
-            CancellationToken cancellationToken = default(CancellationToken))
         {
             throw new System.NotImplementedException();
         }

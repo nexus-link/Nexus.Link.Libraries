@@ -144,89 +144,14 @@ namespace Nexus.Link.Libraries.Crud.MemoryStorage
 
             lock (MemoryItems)
             {
-                var list = Filter(details)
+                var list = SearchHelper<TModel>.SortAndFilter(MemoryItems.Values, details)
                     .Skip(offset)
                     .Take(limit.Value)
+                    .Select(item => CopyItem(item))
                     .ToList();
                 var page = new PageEnvelope<TModel>(offset, limit.Value, MemoryItems.Count, list);
                 return Task.FromResult(page);
             }
-        }
-
-        private IEnumerable<TModel> Filter(SearchDetails<TModel> details)
-        {
-            InternalContract.RequireNotNull(details, nameof(details));
-            InternalContract.RequireValidated(details, nameof(details));
-            var where = details.Where == null ? null : JObject.FromObject(details.Where);
-            var orderBy = details.OrderBy == null ? null : JObject.FromObject(details.OrderBy);
-            foreach (var key in Sort(orderBy).Select(pair => pair.Key))
-            {
-                var item = GetMemoryItem(key, false);
-                if (IsMatch(item, where))
-                    yield return item;
-            }
-        }
-
-        private IEnumerable<KeyValuePair<TId, TModel>> Sort(JToken order)
-        {
-            if (order == null) return MemoryItems;
-            var dictionary = new Dictionary<string, bool>();
-            var token = order.First;
-            while (token != null)
-            {
-                var property = token as JProperty;
-                if (property == null) continue;
-                var ascending = (bool)property.Value;
-                dictionary.Add(property.Name, ascending);
-                token = token.Next;
-            }
-
-            var list = MemoryItems.ToList();
-            list.Sort((firstPair, secondPair) => Compare(firstPair.Value, secondPair.Value, dictionary));
-            return list;
-        }
-
-        private static int Compare(TModel firstItem, TModel secondItem, Dictionary<string, bool> dictionary)
-        {
-            foreach (var sortParameter in dictionary)
-            {
-                var property = typeof(TModel).GetProperty(sortParameter.Key);
-                if (property == null) continue;
-
-                var revert = sortParameter.Value ? 1 : -1;
-                var value1 = property.GetValue(firstItem) as IComparable;
-                var value2 = property.GetValue(secondItem) as IComparable;
-
-                if (value1 == null)
-                {
-                    if (value2 == null) continue;
-                    return revert;
-                }
-
-                if (value2 == null) return -revert;
-                var result = value1.CompareTo(value2);
-                if (result != 0) return result * revert;
-            }
-
-            return 0;
-        }
-
-        private static bool IsMatch(TModel item, JObject condition)
-        {
-            if (condition == null) return true;
-            var itemAsJson = JObject.FromObject(item);
-            var conditionToken = condition.First;
-            while (conditionToken != null)
-            {
-                var conditionProperty = conditionToken as JProperty;
-                if (conditionProperty == null) continue;
-                var itemValue = itemAsJson.GetValue(conditionProperty.Name);
-                if (itemValue == null) continue;
-                if (itemValue.Type != conditionProperty.Value.Type) return false;
-                if (itemValue.ToString() != conditionProperty?.Value.ToString()) return false;
-                conditionToken = conditionToken.Next;
-            }
-            return true;
         }
 
         /// <inheritdoc />

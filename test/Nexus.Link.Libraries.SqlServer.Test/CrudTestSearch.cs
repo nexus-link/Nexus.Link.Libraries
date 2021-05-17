@@ -19,7 +19,7 @@ namespace Nexus.Link.Libraries.SqlServer.Test
         [TestInitialize]
         public async Task Initialize()
         {
-            FulcrumApplicationHelper.UnitTestSetup(nameof(CrudTestId));
+            FulcrumApplicationHelper.UnitTestSetup(nameof(CrudTestSearch));
             var connectionString = TestSettings.ConnectionString;
             FulcrumAssert.IsNotNullOrWhiteSpace(connectionString);
             var tableMetadata = new SqlTableMetadata

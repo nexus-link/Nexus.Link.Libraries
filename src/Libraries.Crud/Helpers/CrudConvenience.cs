@@ -30,20 +30,10 @@ namespace Nexus.Link.Libraries.Crud.Helpers
         }
 
         /// <inheritdoc />
-        public async Task<IEnumerable<TModel>> ReadAllAsync(int limit = Int32.MaxValue, CancellationToken token = default(CancellationToken))
+        public Task<IEnumerable<TModel>> ReadAllAsync(int limit = Int32.MaxValue, CancellationToken token = default(CancellationToken))
         {
-            var pageEnumerator = new PageEnvelopeEnumeratorAsync<TModel>((offset, cancellationToken) =>
-                _service.ReadAllWithPagingAsync(offset, null, cancellationToken), token);
-            var list = new List<TModel>();
-            var count = 0;
-            while (await pageEnumerator.MoveNextAsync())
-            {
-                list.Add(pageEnumerator.Current);
-                count++;
-                if (count >= limit) break;
-            }
-
-            return list;
+            InternalContract.RequireGreaterThan(0, limit, nameof(limit));
+            return StorageHelper.ReadPagesAsync<TModel>((offset, ct) => _service.ReadAllWithPagingAsync(offset, null, ct), limit, token);
         }
     }
 }

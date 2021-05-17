@@ -151,11 +151,11 @@ namespace Nexus.Link.Libraries.Crud.UnitTests.Crud
             // Arrange
             TestItemBare.Modulo = 2;
             TestItemBare.Count = 1;
-            await CreateItemAsync(TypeOfTestDataEnum.Variant1);
-            await CreateItemAsync(TypeOfTestDataEnum.Variant2);
-            await CreateItemAsync(TypeOfTestDataEnum.Variant2);
-            await CreateItemAsync(TypeOfTestDataEnum.Variant2);
-            await CreateItemAsync(TypeOfTestDataEnum.Variant2);
+            await CreateItemAsync(TypeOfTestDataEnum.Variant1); // 1, 1
+            await CreateItemAsync(TypeOfTestDataEnum.Variant2); // 2, 0
+            await CreateItemAsync(TypeOfTestDataEnum.Variant2); // 3, 1
+            await CreateItemAsync(TypeOfTestDataEnum.Variant2); // 4, 0
+            await CreateItemAsync(TypeOfTestDataEnum.Variant2); // 5, 1
 
             // Act 
             var search = CrudStorage as ISearch<TestItemSort<TId>, TId>;
@@ -168,12 +168,12 @@ namespace Nexus.Link.Libraries.Crud.UnitTests.Crud
             Assert.AreEqual(4, page.PageInfo.Returned);
             var array = page.Data.ToArray();
             Assert.AreEqual(0, array[0].NumberModulo);
-            Assert.AreEqual(0, array[1].NumberModulo);
-            Assert.AreEqual(1, array[2].NumberModulo);
-            Assert.AreEqual(1, array[3].NumberModulo);
             Assert.AreEqual(4, array[0].IncreasingNumber);
+            Assert.AreEqual(0, array[1].NumberModulo);
             Assert.AreEqual(2, array[1].IncreasingNumber);
+            Assert.AreEqual(1, array[2].NumberModulo);
             Assert.AreEqual(5, array[2].IncreasingNumber);
+            Assert.AreEqual(1, array[3].NumberModulo);
             Assert.AreEqual(3, array[3].IncreasingNumber);
 
         }
