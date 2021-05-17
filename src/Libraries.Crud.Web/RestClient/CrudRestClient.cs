@@ -189,7 +189,7 @@ namespace Nexus.Link.Libraries.Crud.Web.RestClient
             {
                 limitParameter = $"&limit={limit}";
             }
-            return await PostAsync<PageEnvelope<TModel>, SearchDetails<TModel>>($"/Search?offset={offset}{limitParameter}", details, cancellationToken: cancellationToken);
+            return await PostAsync<PageEnvelope<TModel>, SearchDetails<TModel>>($"/Searches?offset={offset}{limitParameter}", details, cancellationToken: cancellationToken);
         }
 
         /// <inheritdoc />
