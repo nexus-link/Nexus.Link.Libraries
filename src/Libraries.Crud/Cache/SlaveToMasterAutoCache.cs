@@ -7,6 +7,7 @@ using Microsoft.Extensions.Caching.Distributed;
 using Nexus.Link.Libraries.Core.Crud.Model;
 using Nexus.Link.Libraries.Crud.Interfaces;
 using Nexus.Link.Libraries.Core.Storage.Model;
+using Nexus.Link.Libraries.Crud.Helpers;
 using Nexus.Link.Libraries.Crud.Model;
 using Nexus.Link.Libraries.Crud.PassThrough;
 
@@ -62,6 +63,8 @@ namespace Nexus.Link.Libraries.Crud.Cache
         where TManyModel : TManyModelCreate
     {
         private readonly ICrudSlaveToMaster<TManyModelCreate, TManyModel, TId> _service;
+        private readonly SlaveToMasterConvenience<TManyModelCreate, TManyModel, TId> _convenience;
+
         /// <summary>
         /// Constructor for TOneModel that implements <see cref="IUniquelyIdentifiable{TId}"/>.
         /// </summary>
@@ -90,6 +93,7 @@ namespace Nexus.Link.Libraries.Crud.Cache
             InternalContract.RequireNotNull(getIdDelegate, nameof(getIdDelegate));
             InternalContract.RequireNotNull(cache, nameof(cache));
             _service = new SlaveToMasterPassThrough<TManyModelCreate, TManyModel, TId>(service);
+            _convenience = new SlaveToMasterConvenience<TManyModelCreate, TManyModel, TId>(this);
         }
 
         /// <summary>
@@ -184,6 +188,27 @@ namespace Nexus.Link.Libraries.Crud.Cache
             itemsArray = itemsCollection as TManyModel[] ?? itemsCollection.ToArray();
             CacheItemsInBackground(itemsArray, limit, key);
             return itemsArray;
+        }
+
+        /// <inheritdoc />
+        public Task<PageEnvelope<TManyModel>> SearchChildrenAsync(TId parentId, SearchDetails<TManyModel> details, int offset, int? limit = null,
+            CancellationToken cancellationToken = default(CancellationToken))
+        {
+            return _convenience.SearchChildrenAsync(parentId, details, offset, limit, cancellationToken);
+        }
+
+        /// <inheritdoc />
+        public Task<TManyModel> SearchFirstChildAsync(TId parentId, SearchDetails<TManyModel> details,
+            CancellationToken cancellationToken = default(CancellationToken))
+        {
+            return _convenience.SearchFirstChildAsync(parentId, details, cancellationToken);
+        }
+
+        /// <inheritdoc />
+        public Task<TManyModel> FindUniqueChildAsync(TId parentId, SearchDetails<TManyModel> details,
+            CancellationToken cancellationToken = default(CancellationToken))
+        {
+            return _convenience.FindUniqueChildAsync(parentId, details, cancellationToken);
         }
 
         /// <inheritdoc />

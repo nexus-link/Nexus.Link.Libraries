@@ -20,6 +20,8 @@ namespace Nexus.Link.Libraries.Crud.Interfaces
         ICrud<TModelCreate, TModel, TId>,
         ISlaveToMaster<TModel, TId>,
         IReadChildren<TModel, TId>,
+        IReadChildrenWithPaging<TModel, TId>,
+        ISearchChildren<TModel, TId>,
         ICrudManyToOneBasic<TModelCreate, TModel, TId>
         where TModel : TModelCreate
     {

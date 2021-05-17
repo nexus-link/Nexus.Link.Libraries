@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Nexus.Link.Libraries.Core.Storage.Logic;
 using Nexus.Link.Libraries.Crud.Interfaces;
 using Nexus.Link.Libraries.Core.Storage.Model;
+using Nexus.Link.Libraries.Crud.Model;
 using Nexus.Link.Libraries.SqlServer.Model;
 
 namespace Nexus.Link.Libraries.SqlServer
@@ -85,6 +86,27 @@ namespace Nexus.Link.Libraries.SqlServer
         {
             await DeleteWhereAsync($"[{ParentColumnName}] = @ParentId", new { ParentId = parentId }, token);
         }
+
+        /// <inheritdoc />
+        public Task<PageEnvelope<TManyModel>> SearchChildrenAsync(Guid parentId, SearchDetails<TManyModel> details, int offset, int? limit = null,
+            CancellationToken cancellationToken = default(CancellationToken))
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <inheritdoc />
+        public Task<TManyModel> SearchFirstChildAsync(Guid parentId, SearchDetails<TManyModel> details,
+            CancellationToken cancellationToken = default(CancellationToken))
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <inheritdoc />
+        public Task<TManyModel> FindUniqueChildAsync(Guid parentId, SearchDetails<TManyModel> details,
+            CancellationToken cancellationToken = default(CancellationToken))
+        {
+            throw new NotImplementedException();
+        }
     }
 
     public class ManyToOneSql<TManyModelCreate, TManyModel, TOneModel> :
@@ -161,6 +183,27 @@ namespace Nexus.Link.Libraries.SqlServer
         public async Task DeleteChildrenAsync(Guid parentId, CancellationToken token = default(CancellationToken))
         {
             await DeleteWhereAsync($"[{ParentColumnName}] = @ParentId", new { ParentId = parentId }, token);
+        }
+
+        /// <inheritdoc />
+        public Task<PageEnvelope<TManyModel>> SearchChildrenAsync(Guid parentId, SearchDetails<TManyModel> details, int offset, int? limit = null,
+            CancellationToken cancellationToken = default(CancellationToken))
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <inheritdoc />
+        public Task<TManyModel> SearchFirstChildAsync(Guid parentId, SearchDetails<TManyModel> details,
+            CancellationToken cancellationToken = default(CancellationToken))
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <inheritdoc />
+        public Task<TManyModel> FindUniqueChildAsync(Guid parentId, SearchDetails<TManyModel> details,
+            CancellationToken cancellationToken = default(CancellationToken))
+        {
+            throw new NotImplementedException();
         }
     }
 }

@@ -7,6 +7,7 @@ using Microsoft.Rest;
 using Nexus.Link.Libraries.Core.Assert;
 using Nexus.Link.Libraries.Core.Crud.Model;
 using Nexus.Link.Libraries.Core.Storage.Model;
+using Nexus.Link.Libraries.Crud.Helpers;
 using Nexus.Link.Libraries.Crud.Interfaces;
 using Nexus.Link.Libraries.Crud.Model;
 using Nexus.Link.Libraries.Web.RestClientHelper;
@@ -69,6 +70,8 @@ namespace Nexus.Link.Libraries.Crud.Web.RestClient
         ICrudSlaveToMaster<TManyModelCreate, TManyModel, TId> 
         where TManyModel : TManyModelCreate
     {
+        private readonly SlaveToMasterConvenience<TManyModelCreate, TManyModel, TId> _convenience;
+
         /// <summary>
         /// The name of the sub path that is the parent of the children. (Singular)
         /// </summary>
@@ -88,6 +91,7 @@ namespace Nexus.Link.Libraries.Crud.Web.RestClient
         {
             ParentName = parentName;
             ChildrenName = childrenName;
+            _convenience = new SlaveToMasterConvenience<TManyModelCreate, TManyModel, TId>(this);
         }
 
         #region Obsolete constructors
@@ -198,6 +202,35 @@ namespace Nexus.Link.Libraries.Crud.Web.RestClient
                 limitParameter = $"&limit={limit}";
             }
             return GetAsync<PageEnvelope<TManyModel>>($"{parentId}/{ChildrenName}?offset={offset}{limitParameter}", cancellationToken: token);
+        }
+
+        /// <inheritdoc />
+        public Task<PageEnvelope<TManyModel>> SearchChildrenAsync(TId parentId, SearchDetails<TManyModel> details, int offset, int? limit = null,
+            CancellationToken cancellationToken = default(CancellationToken))
+        {
+            InternalContract.RequireNotDefaultValue(parentId, nameof(parentId));
+            InternalContract.RequireGreaterThanOrEqualTo(0, offset, nameof(offset));
+            var limitParameter = "";
+            if (limit != null)
+            {
+                InternalContract.RequireGreaterThan(0, limit.Value, nameof(limit));
+                limitParameter = $"&limit={limit}";
+            }
+            return PostAsync<PageEnvelope<TManyModel>, SearchDetails<TManyModel>>($"{parentId}/{ChildrenName}?offset={offset}{limitParameter}", details, null,cancellationToken );
+        }
+
+        /// <inheritdoc />
+        public Task<TManyModel> SearchFirstChildAsync(TId parentId, SearchDetails<TManyModel> details,
+            CancellationToken cancellationToken = default(CancellationToken))
+        {
+            return _convenience.SearchFirstChildAsync(parentId, details, cancellationToken);
+        }
+
+        /// <inheritdoc />
+        public Task<TManyModel> FindUniqueChildAsync(TId parentId, SearchDetails<TManyModel> details,
+            CancellationToken cancellationToken = default(CancellationToken))
+        {
+            return _convenience.FindUniqueChildAsync(parentId, details, cancellationToken);
         }
 
         /// <inheritdoc />

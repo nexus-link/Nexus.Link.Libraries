@@ -6,6 +6,8 @@ using Nexus.Link.Libraries.Core.Assert;
 using Nexus.Link.Libraries.Crud.Interfaces;
 using Nexus.Link.Libraries.Core.Storage.Logic;
 using Nexus.Link.Libraries.Core.Storage.Model;
+using Nexus.Link.Libraries.Crud.Helpers;
+using Nexus.Link.Libraries.Crud.Model;
 
 namespace Nexus.Link.Libraries.Crud.MemoryStorage
 {
@@ -49,6 +51,7 @@ namespace Nexus.Link.Libraries.Crud.MemoryStorage
         where TModel : TModelCreate
     {
         private readonly GetParentIdDelegate<TModel> _getParentIdDelegate;
+        private readonly ManyToOneConvenience<TModelCreate, TModel, TId> _convenience;
 
         /// <summary>
         /// Constructor
@@ -58,6 +61,7 @@ namespace Nexus.Link.Libraries.Crud.MemoryStorage
         {
             InternalContract.RequireNotNull(getParentIdDelegate, nameof(getParentIdDelegate));
             _getParentIdDelegate = getParentIdDelegate;
+            _convenience = new ManyToOneConvenience<TModelCreate, TModel, TId>(this);
         }
 
         /// <inheritdoc />
@@ -112,6 +116,27 @@ namespace Nexus.Link.Libraries.Crud.MemoryStorage
                 if (!(enumerator.Current is IUniquelyIdentifiable<TId> item)) continue;
                 await DeleteAsync(item.Id, token);
             }
+        }
+
+        /// <inheritdoc />
+        public Task<PageEnvelope<TModel>> SearchChildrenAsync(TId parentId, SearchDetails<TModel> details, int offset, int? limit = null,
+            CancellationToken cancellationToken = default(CancellationToken))
+        {
+            return _convenience.SearchChildrenAsync(parentId, details, offset, limit, cancellationToken);
+        }
+
+        /// <inheritdoc />
+        public Task<TModel> SearchFirstChildAsync(TId parentId, SearchDetails<TModel> details,
+            CancellationToken cancellationToken = default(CancellationToken))
+        {
+            return _convenience.SearchFirstChildAsync(parentId, details, cancellationToken);
+        }
+
+        /// <inheritdoc />
+        public Task<TModel> FindUniqueChildAsync(TId parentId, SearchDetails<TModel> details,
+            CancellationToken cancellationToken = default(CancellationToken))
+        {
+            return _convenience.FindUniqueChildAsync(parentId, details, cancellationToken);
         }
     }
 }

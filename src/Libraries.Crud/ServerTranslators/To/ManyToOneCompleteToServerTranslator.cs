@@ -6,6 +6,7 @@ using Nexus.Link.Libraries.Core.Assert;
 using Nexus.Link.Libraries.Crud.Interfaces;
 using Nexus.Link.Libraries.Core.Storage.Model;
 using Nexus.Link.Libraries.Core.Translation;
+using Nexus.Link.Libraries.Crud.Model;
 using Nexus.Link.Libraries.Crud.PassThrough;
 
 namespace Nexus.Link.Libraries.Crud.ServerTranslators.To
@@ -71,6 +72,27 @@ namespace Nexus.Link.Libraries.Crud.ServerTranslators.To
             await translator.Add(parentId).ExecuteAsync(token);
             parentId = translator.Translate(parentId);
             await _service.DeleteChildrenAsync(parentId, token);
+        }
+
+        /// <inheritdoc />
+        public Task<PageEnvelope<TModel>> SearchChildrenAsync(string parentId, SearchDetails<TModel> details, int offset, int? limit = null,
+            CancellationToken cancellationToken = default(CancellationToken))
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <inheritdoc />
+        public Task<TModel> SearchFirstChildAsync(string parentId, SearchDetails<TModel> details,
+            CancellationToken cancellationToken = default(CancellationToken))
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <inheritdoc />
+        public Task<TModel> FindUniqueChildAsync(string parentId, SearchDetails<TModel> details,
+            CancellationToken cancellationToken = default(CancellationToken))
+        {
+            throw new NotImplementedException();
         }
     }
 }

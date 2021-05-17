@@ -6,6 +6,7 @@ using Nexus.Link.Libraries.Core.Assert;
 using Nexus.Link.Libraries.Core.Crud.Model;
 using Nexus.Link.Libraries.Core.Storage.Model;
 using Nexus.Link.Libraries.Crud.AspNet.Controllers;
+using Nexus.Link.Libraries.Crud.Helpers;
 using Nexus.Link.Libraries.Crud.Interfaces;
 using Nexus.Link.Libraries.Crud.Model;
 using Nexus.Link.Libraries.Crud.PassThrough;
@@ -34,10 +35,13 @@ namespace Nexus.Link.Libraries.Crud.AspNet.ControllerHelpers
         /// </summary>
         protected readonly ICrudSlaveToMaster<TModelCreate, TModel, string> Logic;
 
+        private SlaveToMasterConvenience<TModelCreate, TModel, string> _convenience;
+
         /// <inheritdoc />
         public CrudSlaveToMasterControllerHelper(ICrudable<TModel, string> logic)
         {
             Logic = new SlaveToMasterPassThrough<TModelCreate, TModel, string>(logic);
+            _convenience = new SlaveToMasterConvenience<TModelCreate, TModel, string>(this);
         }
 
         /// <inheritdoc />
@@ -123,6 +127,37 @@ namespace Nexus.Link.Libraries.Crud.AspNet.ControllerHelpers
             FulcrumAssert.IsNotNull(page?.Data);
             FulcrumAssert.IsValidated(page?.Data);
             return page;
+        }
+
+        /// <inheritdoc />
+        public async Task<PageEnvelope<TModel>> SearchChildrenAsync(string parentId, SearchDetails<TModel> details, int offset, int? limit = null,
+            CancellationToken cancellationToken = default(CancellationToken))
+        {
+            ServiceContract.RequireNotNullOrWhiteSpace(parentId, nameof(parentId));
+            ServiceContract.RequireGreaterThanOrEqualTo(0, offset, nameof(offset));
+            if (limit != null)
+            {
+                ServiceContract.RequireGreaterThan(0, limit.Value, nameof(limit));
+            }
+
+            var page = await Logic.SearchChildrenAsync(parentId, details, offset, limit, cancellationToken);
+            FulcrumAssert.IsNotNull(page?.Data);
+            FulcrumAssert.IsValidated(page?.Data);
+            return page;
+        }
+
+        /// <inheritdoc />
+        public Task<TModel> SearchFirstChildAsync(string parentId, SearchDetails<TModel> details,
+            CancellationToken cancellationToken = default(CancellationToken))
+        {
+            return _convenience.SearchFirstChildAsync(parentId, details, cancellationToken);
+        }
+
+        /// <inheritdoc />
+        public Task<TModel> FindUniqueChildAsync(string parentId, SearchDetails<TModel> details,
+            CancellationToken cancellationToken = default(CancellationToken))
+        {
+            return _convenience.SearchFirstChildAsync(parentId, details, cancellationToken);
         }
 
         /// <inheritdoc />

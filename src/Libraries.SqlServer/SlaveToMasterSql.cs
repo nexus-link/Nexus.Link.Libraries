@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using Newtonsoft.Json.Linq;
 using Nexus.Link.Libraries.Core.Assert;
 using Nexus.Link.Libraries.Core.Crud.Model;
 using Nexus.Link.Libraries.Core.Error.Logic;
@@ -107,6 +108,27 @@ namespace Nexus.Link.Libraries.SqlServer
         public Task<IEnumerable<TSlaveModel>> ReadChildrenAsync(Guid parentId, int limit = int.MaxValue, CancellationToken token = default(CancellationToken))
         {
             return StorageHelper.ReadPagesAsync((offset, t) => ReadChildrenWithPagingAsync(parentId, offset, null, t), limit, token);
+        }
+
+        /// <inheritdoc />
+        public Task<PageEnvelope<TSlaveModel>> SearchChildrenAsync(Guid parentId, SearchDetails<TSlaveModel> details, int offset, int? limit = null,
+            CancellationToken cancellationToken = default(CancellationToken))
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <inheritdoc />
+        public Task<TSlaveModel> SearchFirstChildAsync(Guid parentId, SearchDetails<TSlaveModel> details,
+            CancellationToken cancellationToken = default(CancellationToken))
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <inheritdoc />
+        public Task<TSlaveModel> FindUniqueChildAsync(Guid parentId, SearchDetails<TSlaveModel> details,
+            CancellationToken cancellationToken = default(CancellationToken))
+        {
+            throw new NotImplementedException();
         }
 
         /// <inheritdoc />
