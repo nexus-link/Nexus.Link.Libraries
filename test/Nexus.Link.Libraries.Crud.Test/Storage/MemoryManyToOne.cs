@@ -11,21 +11,21 @@ namespace Nexus.Link.Libraries.Crud.Test.Storage
     public class MemoryManyToOneTest : TestIManyToOne<Guid, Guid?>
     {
         private ICrud<TestItemId<Guid>, Guid> _oneStorage;
-        private ICrudManyToOne<TestItemManyToOneCreate<Guid?>, TestItemManyToOne<Guid, Guid?>, Guid> _crudManyStorage;
+        private ICrudManyToOne<TestItemManyToOneCreate<Guid, Guid?>, TestItemManyToOne<Guid, Guid?>, Guid> _crudManyStorage;
 
         [TestInitialize]
-        public void Inititalize()
+        public void Initialize()
         {
             _oneStorage = new CrudMemory<TestItemId<Guid>, Guid>();
-            _crudManyStorage = new ManyToOneMemory<TestItemManyToOneCreate<Guid?>, TestItemManyToOne<Guid, Guid?>, Guid>(item => item.ParentId);
+            _crudManyStorage = new ManyToOneMemory<TestItemManyToOneCreate<Guid, Guid?>, TestItemManyToOne<Guid, Guid?>, Guid>(item => item.ParentId);
         }
 
         /// <inheritdoc />
-        protected override ICrudManyToOne<TestItemManyToOneCreate<Guid?>, TestItemManyToOne<Guid, Guid?>, Guid>
+        protected override ICrudManyToOne<TestItemManyToOneCreate<Guid, Guid?>, TestItemManyToOne<Guid, Guid?>, Guid>
             CrudManyStorageRecursive => null;
 
         /// <inheritdoc />
-        protected override ICrudManyToOne<TestItemManyToOneCreate<Guid?>, TestItemManyToOne<Guid, Guid?>, Guid>
+        protected override ICrudManyToOne<TestItemManyToOneCreate<Guid, Guid?>, TestItemManyToOne<Guid, Guid?>, Guid>
             CrudManyStorageNonRecursive => _crudManyStorage;
 
         /// <inheritdoc />

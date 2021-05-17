@@ -7,11 +7,11 @@ using Nexus.Link.Libraries.Crud.Model;
 
 namespace Nexus.Link.Libraries.Crud.Helpers
 {
-    public static class SearchHelper<TModel>
+    public static class SearchHelper
     {
         
 
-        public static IEnumerable<TModel> FilterAndSort(IEnumerable<TModel> items, SearchDetails<TModel> details)
+        public static IEnumerable<TModel> FilterAndSort<TModel>(IEnumerable<TModel> items, SearchDetails<TModel> details)
         {
             InternalContract.RequireNotNull(details, nameof(details));
             InternalContract.RequireValidated(details, nameof(details));
@@ -23,7 +23,7 @@ namespace Nexus.Link.Libraries.Crud.Helpers
             return sorted;
         }
 
-        public static IEnumerable<TModel> Sort(IEnumerable<TModel> items, JToken order)
+        public static IEnumerable<TModel> Sort<TModel>(IEnumerable<TModel> items, JToken order)
         {
             if (order == null) return items;
             var orderBy = new List<KeyValuePair<string, bool>>();
@@ -42,7 +42,7 @@ namespace Nexus.Link.Libraries.Crud.Helpers
             return list;
         }
 
-        public static int Compare(TModel firstItem, TModel secondItem, List<KeyValuePair<string, bool>> orderBy)
+        public static int Compare<TModel>(TModel firstItem, TModel secondItem, List<KeyValuePair<string, bool>> orderBy)
         {
             foreach (var sortParameter in orderBy)
             {
@@ -67,7 +67,7 @@ namespace Nexus.Link.Libraries.Crud.Helpers
             return 0;
         }
 
-        public static bool IsMatch(TModel item, JObject condition)
+        public static bool IsMatch<TModel>(TModel item, JObject condition)
         {
             if (condition == null) return true;
             var itemAsJson = JObject.FromObject(item);
@@ -83,6 +83,45 @@ namespace Nexus.Link.Libraries.Crud.Helpers
                 conditionToken = conditionToken.Next;
             }
             return true;
+        }
+
+        public static List<string> OrderByAsList<TModel>(SearchDetails<TModel> details)
+        {
+            var orderList = new List<string>();
+            if (details.OrderBy != null)
+            {
+                var json = JObject.FromObject(details.OrderBy);
+                var token = json.First;
+                while (token != null)
+                {
+                    if (!(token is JProperty conditionProperty)) continue;
+                    var ascending = (bool) conditionProperty.Value;
+
+                    var ascOrDesc = @ascending ? "ASC" : "DESC";
+                    orderList.Add($"[{conditionProperty.Name}] {ascOrDesc}");
+                    token = token.Next;
+                }
+            }
+
+            return orderList;
+        }
+
+        public static List<string> WhereAsList<TModel>(SearchDetails<TModel> details)
+        {
+            var whereList = new List<string>();
+            if (details.Where != null)
+            {
+                var json = JObject.FromObject(details.Where);
+                var token = json.First;
+                while (token != null)
+                {
+                    if (!(token is JProperty conditionProperty)) continue;
+                    whereList.Add($"[{conditionProperty.Name}] = @{conditionProperty.Name}");
+                    token = token.Next;
+                }
+            }
+
+            return whereList;
         }
     }
 }

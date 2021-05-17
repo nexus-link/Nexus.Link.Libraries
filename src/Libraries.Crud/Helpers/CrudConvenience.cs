@@ -60,7 +60,7 @@ namespace Nexus.Link.Libraries.Crud.Helpers
             var allItems = (await _service.ReadAllAsync(int.MaxValue, cancellationToken))
                 .ToList();
 
-            var list = SearchHelper<TModel>.FilterAndSort(allItems, details)
+            var list = SearchHelper.FilterAndSort(allItems, details)
                 .Skip(offset)
                 .Take(limit.Value);
             var page = new PageEnvelope<TModel>(offset, limit.Value, allItems.Count(), list);

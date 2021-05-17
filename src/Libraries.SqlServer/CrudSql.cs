@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -139,40 +140,19 @@ namespace Nexus.Link.Libraries.SqlServer
             var where = "1=1";
             if (details.Where != null)
             {
-                var whereList = new List<string>();
-                var json = JObject.FromObject(details.Where);
-                var token = json.First;
-                while (token != null)
-                {
-                    if (!(token is JProperty conditionProperty)) continue;
-                    whereList.Add($"[{conditionProperty.Name}] = @{conditionProperty.Name}");
-                    token = token.Next;
-                }
-
-                where = string.Join(", ", whereList);
+                
+                var whereList = SearchHelper.WhereAsList(details);
+                where = string.Join(" AND ", whereList);
             }
 
-
-            var orderList = new List<string>();
+            var orderList = SearchHelper.OrderByAsList(details);
             string orderBy = null;
-            if (details.OrderBy != null)
+            if (orderList.Any())
             {
-                var json = JObject.FromObject(details.OrderBy);
-                var token = json.First;
-                while (token != null)
-                {
-                    if (!(token is JProperty conditionProperty)) continue;
-                    var ascending = (bool)conditionProperty.Value;
-
-                    var ascOrDesc = ascending ? "ASC" : "DESC";
-                    orderList.Add($"[{conditionProperty.Name}] {ascOrDesc}");
-                    token = token.Next;
-                }
-
                 orderBy = string.Join(", ", orderList);
             }
 
-            return await SearchWhereAsync(where, orderBy, details.Where, offset, limit, cancellationToken);
+            return await SearchWhereAsync(where, orderBy, details.WhereAsModel, offset, limit, cancellationToken);
         }
 
         /// <inheritdoc />

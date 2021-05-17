@@ -151,7 +151,7 @@ namespace Nexus.Link.Libraries.Crud.MemoryStorage
 
             lock (MemoryItems)
             {
-                var list = SearchHelper<TModel>.FilterAndSort(MemoryItems.Values, details)
+                var list = SearchHelper.FilterAndSort(MemoryItems.Values, details)
                     .Skip(offset)
                     .Take(limit.Value)
                     .Select(item => CopyItem(item))

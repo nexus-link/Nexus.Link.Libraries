@@ -16,6 +16,16 @@ namespace Nexus.Link.Libraries.Crud.Model
         private object _orderBy;
 
         /// <summary>
+        /// This is <see cref="Where"/> as a <see cref="TModel"/> object.
+        /// </summary>
+        public TModel WhereAsModel => WhereAsJObject == null ? default : WhereAsJObject.ToObject<TModel>();
+
+        /// <summary>
+        /// This is <see cref="Where"/> as a <see cref="JObject"/>.
+        /// </summary>
+        public JObject WhereAsJObject => Where == null ? null : JObject.FromObject(Where);
+
+        /// <summary>
         /// The properties of this optional object and their value will define the search criteria.
         /// The object should look like:
         /// {

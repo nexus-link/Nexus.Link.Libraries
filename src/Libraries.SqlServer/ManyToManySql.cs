@@ -14,7 +14,7 @@ namespace Nexus.Link.Libraries.SqlServer
     public class ManyToManySql<TManyToManyModel, TReferenceModel1, TReferenceModel2> : ManyToManySql<TManyToManyModel, TManyToManyModel, TReferenceModel1, TReferenceModel2>,
         ICrud<TManyToManyModel, Guid>,
         ICrudManyToMany<TManyToManyModel, TReferenceModel1, TReferenceModel2, Guid>
-        where TManyToManyModel : class, ITableItem, IValidatable
+        where TManyToManyModel : class, ITableItem, IValidatable, new()
         where TReferenceModel1 : ITableItem, IValidatable
         where TReferenceModel2 : ITableItem, IValidatable
     {
@@ -38,7 +38,7 @@ namespace Nexus.Link.Libraries.SqlServer
     public class ManyToManySql<TManyToManyModelCreate, TManyToManyModel, TReferenceModel1, TReferenceModel2> : 
         CrudSql<TManyToManyModelCreate, TManyToManyModel>, 
         ICrudManyToMany<TManyToManyModelCreate, TManyToManyModel, TReferenceModel1, TReferenceModel2, Guid>
-            where TManyToManyModel : class, TManyToManyModelCreate, ITableItem, IValidatable, IUniquelyIdentifiable<Guid>
+            where TManyToManyModel : class, TManyToManyModelCreate, ITableItem, IValidatable, IUniquelyIdentifiable<Guid>, new()
             where TReferenceModel1 : ITableItem, IValidatable
             where TReferenceModel2 : ITableItem, IValidatable
     {
