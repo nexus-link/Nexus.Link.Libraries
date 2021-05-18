@@ -277,7 +277,7 @@ namespace Nexus.Link.Libraries.Crud.UnitTests.Crd
         }
 
         [TestMethod]
-        [ExpectedException(typeof(FulcrumContractException))]
+        [ExpectedException(typeof(FulcrumBusinessRuleException))]
         public async Task FindUnique_WithTooManyFound_Async()
         {
             // Arrange

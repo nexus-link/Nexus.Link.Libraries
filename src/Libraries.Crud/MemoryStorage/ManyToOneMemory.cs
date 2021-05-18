@@ -107,7 +107,7 @@ namespace Nexus.Link.Libraries.Crud.MemoryStorage
         {
             InternalContract.RequireNotNull(masterId, nameof(masterId));
             InternalContract.RequireNotDefaultValue(masterId, nameof(masterId));
-            var errorMessage = $"{nameof(TModel)} must implement the interface {nameof(IUniquelyIdentifiable<TId>)} for this method to work.";
+            var errorMessage = $"{typeof(TModel).Name} must implement the interface {nameof(IUniquelyIdentifiable<TId>)} for this method to work.";
             InternalContract.Require(typeof(IUniquelyIdentifiable<TId>).IsAssignableFrom(typeof(TModel)), errorMessage);
             var items = new PageEnvelopeEnumerableAsync<TModel>((o, t) => ReadChildrenWithPagingAsync(masterId, o, null, t), token);
             var enumerator = items.GetEnumerator();

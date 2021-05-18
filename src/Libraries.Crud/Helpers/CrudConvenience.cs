@@ -75,7 +75,7 @@ namespace Nexus.Link.Libraries.Crud.Helpers
             var page = await _service.SearchAsync(details, 0, 2, cancellationToken);
             if (page.PageInfo.Returned > 1)
             {
-                throw new FulcrumContractException($"Expected to find unique value, but found multiple items for search for model {nameof(TModel)} with {nameof(details)}:\r{details}");
+                throw new FulcrumBusinessRuleException($"Expected to find one unique value, but found multiple items when searching for model {typeof(TModel).Name} with search details {nameof(details)}:\r{details}");
             }
 
             return page.Data.FirstOrDefault();
