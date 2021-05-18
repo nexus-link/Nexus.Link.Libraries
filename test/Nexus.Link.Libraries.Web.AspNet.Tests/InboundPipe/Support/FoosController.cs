@@ -44,6 +44,17 @@ namespace Nexus.Link.Libraries.Web.AspNet.Tests.InboundPipe.Support
             return Task.FromResult(item);
         }
 
+#if NETCOREAPP
+        [HttpGet("NullBars")]
+#else
+        [HttpGet]
+        [Route("NullBars")]
+#endif
+        public Task<Foo> ReadNullAsync(CancellationToken token = default(CancellationToken))
+        {
+            return null;
+        }
+
         /// <inheritdoc />
 #if NETCOREAPP
         [HttpPut("{id}")]
