@@ -28,7 +28,7 @@ namespace Nexus.Link.Libraries.Crud.UnitTests.Crd
             // Act 
             var search = CrudStorage as ISearch<TestItemSort<TId>, TId>;
             Assert.IsNotNull(search, $"{CrudStorage.GetType().Name} was expected to implement {nameof(ISearch<TestItemSort<TId>, TId>)}");
-            var page = await search.SearchAsync(new SearchDetails<TestItemSort<TId>> { Where = new { Value = value }}, 0, 10);
+            var page = await search.SearchAsync(new SearchDetails<TestItemSort<TId>>(new { Value = value }), 0, 10);
 
             // Assert
             Assert.AreEqual(1, page.PageInfo.Returned);
@@ -50,7 +50,7 @@ namespace Nexus.Link.Libraries.Crud.UnitTests.Crd
             // Act 
             var search = CrudStorage as ISearch<TestItemSort<TId>, TId>;
             Assert.IsNotNull(search, $"{CrudStorage.GetType().Name} was expected to implement {nameof(ISearch<TestItemSort<TId>, TId>)}");
-            var page = await search.SearchAsync(new SearchDetails<TestItemSort<TId>>(), 0, 10);
+            var page = await search.SearchAsync(new SearchDetails<TestItemSort<TId>>(null), 0, 10);
 
             // Assert
             Assert.AreEqual(4, page.PageInfo.Returned);
@@ -70,7 +70,7 @@ namespace Nexus.Link.Libraries.Crud.UnitTests.Crd
             // Act 
             var search = CrudStorage as ISearch<TestItemSort<TId>, TId>;
             Assert.IsNotNull(search, $"{CrudStorage.GetType().Name} was expected to implement {nameof(ISearch<TestItemSort<TId>, TId>)}");
-            var page = await search.SearchAsync(new SearchDetails<TestItemSort<TId>> { Where = new { Value = value }}, 0, 10);
+            var page = await search.SearchAsync(new SearchDetails<TestItemSort<TId>>(new { Value = value }), 0, 10);
 
             // Assert
             Assert.AreEqual(2, page.PageInfo.Returned);
@@ -103,12 +103,12 @@ namespace Nexus.Link.Libraries.Crud.UnitTests.Crd
             PageEnvelope<TestItemSort<TId>> page;
             if (orderByNumber)
             {
-                var searchDetails = new SearchDetails<TestItemSort<TId>> { Where = new { Value = value }, OrderBy = new { IncreasingNumber = ascending }};
+                var searchDetails = new SearchDetails<TestItemSort<TId>>(new { Value = value }, new { IncreasingNumber = ascending });
                 page = await search.SearchAsync(searchDetails, 0, 10);
             }
             else
             {
-                var searchDetails = new SearchDetails<TestItemSort<TId>> { Where = new { Value = value }, OrderBy = new { DecreasingString = @ascending }};
+                var searchDetails = new SearchDetails<TestItemSort<TId>>(new { Value = value }, new { DecreasingString = @ascending });
                 page = await search.SearchAsync(searchDetails, 0, 10);
             }
 
@@ -158,7 +158,7 @@ namespace Nexus.Link.Libraries.Crud.UnitTests.Crd
             var search = CrudStorage as ISearch<TestItemSort<TId>, TId>;
             Assert.IsNotNull(search, $"{CrudStorage.GetType().Name} was expected to implement {nameof(ISearch<TestItemSort<TId>, TId>)}");
 
-            var searchDetails = new SearchDetails<TestItemSort<TId>> { Where = new { Value = "Variant2" }, OrderBy = new { NumberModulo = true, IncreasingNumber = false}};
+            var searchDetails = new SearchDetails<TestItemSort<TId>>(new { Value = "Variant2" }, new { NumberModulo = true, IncreasingNumber = false});
             var page = await search.SearchAsync(searchDetails, 0, 10);
             
             // Assert
@@ -187,7 +187,7 @@ namespace Nexus.Link.Libraries.Crud.UnitTests.Crd
             // Act 
             var search = CrudStorage as ISearch<TestItemSort<TId>, TId>;
             Assert.IsNotNull(search, $"{CrudStorage.GetType().Name} was expected to implement {nameof(ISearch<TestItemSort<TId>, TId>)}");
-            var page = await search.SearchAsync(new SearchDetails<TestItemSort<TId>> { Where = new { Value = value }}, 0, 10);
+            var page = await search.SearchAsync(new SearchDetails<TestItemSort<TId>>(new { Value = value }), 0, 10);
 
             // Assert
             Assert.AreEqual(0, page.PageInfo.Returned);
@@ -204,7 +204,7 @@ namespace Nexus.Link.Libraries.Crud.UnitTests.Crd
             // Act 
             var search = CrudStorage as ISearch<TestItemSort<TId>, TId>;
             Assert.IsNotNull(search, $"{CrudStorage.GetType().Name} was expected to implement {nameof(ISearch<TestItemSort<TId>, TId>)}");
-            var page = await search.SearchAsync(new SearchDetails<TestItemSort<TId>> { Where = new { UnknownProperty = "56" }}, 0, 10);
+            var page = await search.SearchAsync(new SearchDetails<TestItemSort<TId>>(new { UnknownProperty = "56" }), 0, 10);
 
             // Assert
             Assert.AreEqual(0, page.PageInfo.Returned);
@@ -233,8 +233,8 @@ namespace Nexus.Link.Libraries.Crud.UnitTests.Crd
             var search = CrudStorage as ISearch<TestItemSort<TId>, TId>;
             Assert.IsNotNull(search, $"{CrudStorage.GetType().Name} was expected to implement {nameof(ISearch<TestItemSort<TId>, TId>)}");
             var searchDetails = orderByNumber
-                ? new SearchDetails<TestItemSort<TId>> { Where = new { Value = value }, OrderBy = new { IncreasingNumber = @ascending }}
-                : new SearchDetails<TestItemSort<TId>> { Where = new { Value = value }, OrderBy = new { DecreasingString = @ascending }};
+                ? new SearchDetails<TestItemSort<TId>>(new { Value = value }, new { IncreasingNumber = @ascending })
+                : new SearchDetails<TestItemSort<TId>>(new { Value = value }, new { DecreasingString = @ascending });
 
             var item = await search.SearchFirstAsync(searchDetails);
 
@@ -268,7 +268,7 @@ namespace Nexus.Link.Libraries.Crud.UnitTests.Crd
             var search = CrudStorage as ISearch<TestItemSort<TId>, TId>;
             Assert.IsNotNull(search, $"{CrudStorage.GetType().Name} was expected to implement {nameof(ISearch<TestItemSort<TId>, TId>)}");
             const string variant = "Variant1";
-            var searchDetails = new SearchDetails<TestItemSort<TId>> { Where = new { Value = variant }};
+            var searchDetails = new SearchDetails<TestItemSort<TId>>(new { Value = variant });
 
             var item = await search.FindUniqueAsync(searchDetails);
 
@@ -289,7 +289,7 @@ namespace Nexus.Link.Libraries.Crud.UnitTests.Crd
             var search = CrudStorage as ISearch<TestItemSort<TId>, TId>;
             Assert.IsNotNull(search, $"{CrudStorage.GetType().Name} was expected to implement {nameof(ISearch<TestItemSort<TId>, TId>)}");
             const string variant = "Variant1";
-            var searchDetails = new SearchDetails<TestItemSort<TId>> { Where = new { Value = variant }};
+            var searchDetails = new SearchDetails<TestItemSort<TId>>(new { Value = variant });
 
             var item = await search.FindUniqueAsync(searchDetails);
 
@@ -310,7 +310,7 @@ namespace Nexus.Link.Libraries.Crud.UnitTests.Crd
             var search = CrudStorage as ISearch<TestItemSort<TId>, TId>;
             Assert.IsNotNull(search, $"{CrudStorage.GetType().Name} was expected to implement {nameof(ISearch<TestItemSort<TId>, TId>)}");
             const string variant = "Variant1";
-            var searchDetails = new SearchDetails<TestItemSort<TId>> { Where = new { Value = variant }};
+            var searchDetails = new SearchDetails<TestItemSort<TId>>(new { Value = variant });
 
             var item = await search.SearchFirstAsync(searchDetails);
 
@@ -332,7 +332,7 @@ namespace Nexus.Link.Libraries.Crud.UnitTests.Crd
             var search = CrudStorage as ISearch<TestItemSort<TId>, TId>;
             Assert.IsNotNull(search, $"{CrudStorage.GetType().Name} was expected to implement {nameof(ISearch<TestItemSort<TId>, TId>)}");
             const string variant = "Variant2";
-            var searchDetails = new SearchDetails<TestItemSort<TId>> { Where = new { Value = variant }};
+            var searchDetails = new SearchDetails<TestItemSort<TId>>(new { Value = variant });
 
             var item = await search.FindUniqueAsync(searchDetails);
 

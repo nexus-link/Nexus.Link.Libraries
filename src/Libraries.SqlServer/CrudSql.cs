@@ -136,21 +136,9 @@ namespace Nexus.Link.Libraries.SqlServer
             InternalContract.RequireValidated(details, nameof(details));
             InternalContract.RequireGreaterThanOrEqualTo(0, offset, nameof(offset));
             if (limit != null) InternalContract.RequireGreaterThan(0, limit.Value, nameof(limit));
-
-            var where = "1=1";
-            if (details.Where != null)
-            {
-                
-                var whereList = SearchHelper.WhereAsList(details);
-                where = string.Join(" AND ", whereList);
-            }
-
-            var orderList = SearchHelper.OrderByAsList(details);
-            string orderBy = null;
-            if (orderList.Any())
-            {
-                orderBy = string.Join(", ", orderList);
-            }
+            
+            var where = CrudSearchHelper.GetWhereStatement(details);
+            var orderBy = CrudSearchHelper.GetOrderByStatement(details);
 
             return await SearchWhereAsync(where, orderBy, details.WhereAsModel, offset, limit, cancellationToken);
         }

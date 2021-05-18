@@ -43,7 +43,7 @@ namespace Nexus.Link.Libraries.Crud.UnitTests.ManyToOne
             // Act 
             var search = CrudManyStorageNonRecursive as ISearchChildren<TestItemManyToOne<TId, TReferenceId>, TId>;
             Assert.IsNotNull(search, $"{CrudManyStorageNonRecursive.GetType().Name} was expected to implement {nameof(ISearch<TestItemSort<TId>, TId>)}");
-            var page = await search.SearchChildrenAsync(parent.Id, new SearchDetails<TestItemManyToOne<TId, TReferenceId>> { Where = new { Value = value }}, 0, 10);
+            var page = await search.SearchChildrenAsync(parent.Id, new SearchDetails<TestItemManyToOne<TId, TReferenceId>>(new { Value = value }), 0, 10);
 
             // Assert
             Assert.AreEqual(1, page.PageInfo.Returned);
@@ -66,7 +66,7 @@ namespace Nexus.Link.Libraries.Crud.UnitTests.ManyToOne
             // Act 
             var search = CrudManyStorageNonRecursive as ISearchChildren<TestItemManyToOne<TId, TReferenceId>, TId>;
             Assert.IsNotNull(search, $"{CrudManyStorageNonRecursive.GetType().Name} was expected to implement {nameof(ISearch<TestItemSort<TId>, TId>)}");
-            var page = await search.SearchChildrenAsync(parent.Id, new SearchDetails<TestItemManyToOne<TId, TReferenceId>>(), 0, 10);
+            var page = await search.SearchChildrenAsync(parent.Id, new SearchDetails<TestItemManyToOne<TId, TReferenceId>>(null), 0, 10);
 
             // Assert
             Assert.AreEqual(4, page.PageInfo.Returned);
@@ -87,7 +87,7 @@ namespace Nexus.Link.Libraries.Crud.UnitTests.ManyToOne
             // Act 
             var search = CrudManyStorageNonRecursive as ISearchChildren<TestItemManyToOne<TId, TReferenceId>, TId>;
             Assert.IsNotNull(search, $"{CrudManyStorageNonRecursive.GetType().Name} was expected to implement {nameof(ISearch<TestItemSort<TId>, TId>)}");
-            var page = await search.SearchChildrenAsync(parent.Id, new SearchDetails<TestItemManyToOne<TId, TReferenceId>> { Where = new { Value = value }}, 0, 10);
+            var page = await search.SearchChildrenAsync(parent.Id, new SearchDetails<TestItemManyToOne<TId, TReferenceId>>(new { Value = value }), 0, 10);
 
             // Assert
             Assert.AreEqual(2, page.PageInfo.Returned);
@@ -121,12 +121,12 @@ namespace Nexus.Link.Libraries.Crud.UnitTests.ManyToOne
             PageEnvelope<TestItemManyToOne<TId, TReferenceId>> page;
             if (orderByNumber)
             {
-                var searchDetails = new SearchDetails<TestItemManyToOne<TId, TReferenceId>> { Where = new { Value = value }, OrderBy = new { IncreasingNumber = ascending }};
+                var searchDetails = new SearchDetails<TestItemManyToOne<TId, TReferenceId>>(new { Value = value },new { IncreasingNumber = ascending });
                 page = await search.SearchChildrenAsync(parent.Id, searchDetails, 0, 10);
             }
             else
             {
-                var searchDetails = new SearchDetails<TestItemManyToOne<TId, TReferenceId>> { Where = new { Value = value }, OrderBy = new { DecreasingString = @ascending }};
+                var searchDetails = new SearchDetails<TestItemManyToOne<TId, TReferenceId>>(new { Value = value },new { DecreasingString = @ascending });
                 page = await search.SearchChildrenAsync(parent.Id, searchDetails, 0, 10);
             }
 
@@ -177,7 +177,7 @@ namespace Nexus.Link.Libraries.Crud.UnitTests.ManyToOne
             var search = CrudManyStorageNonRecursive as ISearchChildren<TestItemManyToOne<TId, TReferenceId>, TId>;
             Assert.IsNotNull(search, $"{CrudManyStorageNonRecursive.GetType().Name} was expected to implement {nameof(ISearch<TestItemSort<TId>, TId>)}");
 
-            var searchDetails = new SearchDetails<TestItemManyToOne<TId, TReferenceId>> { Where = new { Value = "Variant2" }, OrderBy = new { NumberModulo = true, IncreasingNumber = false}};
+            var searchDetails = new SearchDetails<TestItemManyToOne<TId, TReferenceId>>(new { Value = "Variant2" },new { NumberModulo = true, IncreasingNumber = false});
             var page = await search.SearchChildrenAsync(parent.Id, searchDetails, 0, 10);
             
             // Assert
@@ -207,7 +207,7 @@ namespace Nexus.Link.Libraries.Crud.UnitTests.ManyToOne
             // Act 
             var search = CrudManyStorageNonRecursive as ISearchChildren<TestItemManyToOne<TId, TReferenceId>, TId>;
             Assert.IsNotNull(search, $"{CrudManyStorageNonRecursive.GetType().Name} was expected to implement {nameof(ISearch<TestItemSort<TId>, TId>)}");
-            var page = await search.SearchChildrenAsync(parent.Id, new SearchDetails<TestItemManyToOne<TId, TReferenceId>> { Where = new { Value = value }}, 0, 10);
+            var page = await search.SearchChildrenAsync(parent.Id, new SearchDetails<TestItemManyToOne<TId, TReferenceId>>(new { Value = value }), 0, 10);
 
             // Assert
             Assert.AreEqual(0, page.PageInfo.Returned);
@@ -225,7 +225,7 @@ namespace Nexus.Link.Libraries.Crud.UnitTests.ManyToOne
             // Act 
             var search = CrudManyStorageNonRecursive as ISearchChildren<TestItemManyToOne<TId, TReferenceId>, TId>;
             Assert.IsNotNull(search, $"{CrudManyStorageNonRecursive.GetType().Name} was expected to implement {nameof(ISearch<TestItemSort<TId>, TId>)}");
-            var page = await search.SearchChildrenAsync(parent.Id, new SearchDetails<TestItemManyToOne<TId, TReferenceId>> { Where = new { UnknownProperty = "56" }}, 0, 10);
+            var page = await search.SearchChildrenAsync(parent.Id, new SearchDetails<TestItemManyToOne<TId, TReferenceId>>(new { UnknownProperty = "56" }), 0, 10);
 
             // Assert
             Assert.AreEqual(0, page.PageInfo.Returned);
@@ -255,8 +255,8 @@ namespace Nexus.Link.Libraries.Crud.UnitTests.ManyToOne
             var search = CrudManyStorageNonRecursive as ISearchChildren<TestItemManyToOne<TId, TReferenceId>, TId>;
             Assert.IsNotNull(search, $"{CrudManyStorageNonRecursive.GetType().Name} was expected to implement {nameof(ISearch<TestItemSort<TId>, TId>)}");
             var searchDetails = orderByNumber
-                ? new SearchDetails<TestItemManyToOne<TId, TReferenceId>> { Where = new { Value = value }, OrderBy = new { IncreasingNumber = @ascending }}
-                : new SearchDetails<TestItemManyToOne<TId, TReferenceId>> { Where = new { Value = value }, OrderBy = new { DecreasingString = @ascending }};
+                ? new SearchDetails<TestItemManyToOne<TId, TReferenceId>>(new { Value = value },new { IncreasingNumber = @ascending })
+                : new SearchDetails<TestItemManyToOne<TId, TReferenceId>>(new { Value = value },new { DecreasingString = @ascending });
 
             var item = await search.SearchFirstChildAsync(parent.Id, searchDetails);
 
@@ -291,7 +291,7 @@ namespace Nexus.Link.Libraries.Crud.UnitTests.ManyToOne
             var search = CrudManyStorageNonRecursive as ISearchChildren<TestItemManyToOne<TId, TReferenceId>, TId>;
             Assert.IsNotNull(search, $"{CrudManyStorageNonRecursive.GetType().Name} was expected to implement {nameof(ISearch<TestItemSort<TId>, TId>)}");
             const string variant = "Variant1";
-            var searchDetails = new SearchDetails<TestItemManyToOne<TId, TReferenceId>> { Where = new { Value = variant }};
+            var searchDetails = new SearchDetails<TestItemManyToOne<TId, TReferenceId>>(new { Value = variant });
 
             var item = await search.FindUniqueChildAsync(parent.Id, searchDetails);
 
@@ -313,7 +313,7 @@ namespace Nexus.Link.Libraries.Crud.UnitTests.ManyToOne
             var search = CrudManyStorageNonRecursive as ISearchChildren<TestItemManyToOne<TId, TReferenceId>, TId>;
             Assert.IsNotNull(search, $"{CrudManyStorageNonRecursive.GetType().Name} was expected to implement {nameof(ISearch<TestItemSort<TId>, TId>)}");
             const string variant = "Variant1";
-            var searchDetails = new SearchDetails<TestItemManyToOne<TId, TReferenceId>> { Where = new { Value = variant }};
+            var searchDetails = new SearchDetails<TestItemManyToOne<TId, TReferenceId>>(new { Value = variant });
 
             var item = await search.FindUniqueChildAsync(parent.Id, searchDetails);
 
@@ -335,7 +335,7 @@ namespace Nexus.Link.Libraries.Crud.UnitTests.ManyToOne
             var search = CrudManyStorageNonRecursive as ISearchChildren<TestItemManyToOne<TId, TReferenceId>, TId>;
             Assert.IsNotNull(search, $"{CrudManyStorageNonRecursive.GetType().Name} was expected to implement {nameof(ISearch<TestItemSort<TId>, TId>)}");
             const string variant = "Variant1";
-            var searchDetails = new SearchDetails<TestItemManyToOne<TId, TReferenceId>> { Where = new { Value = variant }};
+            var searchDetails = new SearchDetails<TestItemManyToOne<TId, TReferenceId>>(new { Value = variant });
 
             var item = await search.SearchFirstChildAsync(parent.Id, searchDetails);
 
@@ -358,7 +358,7 @@ namespace Nexus.Link.Libraries.Crud.UnitTests.ManyToOne
             var search = CrudManyStorageNonRecursive as ISearchChildren<TestItemManyToOne<TId, TReferenceId>, TId>;
             Assert.IsNotNull(search, $"{CrudManyStorageNonRecursive.GetType().Name} was expected to implement {nameof(ISearch<TestItemSort<TId>, TId>)}");
             const string variant = "Variant2";
-            var searchDetails = new SearchDetails<TestItemManyToOne<TId, TReferenceId>> { Where = new { Value = variant }};
+            var searchDetails = new SearchDetails<TestItemManyToOne<TId, TReferenceId>>(new { Value = variant });
 
             var item = await search.FindUniqueChildAsync(parent.Id, searchDetails);
 

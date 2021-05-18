@@ -78,7 +78,7 @@ namespace Nexus.Link.Libraries.Crud.Encrypt
         }
 
         /// <inheritdoc />
-        public async Task<PageEnvelope<TModel>> SearchAsync(SearchDetails<TModel> details, int offset, int? limit = null,
+        public Task<PageEnvelope<TModel>> SearchAsync(SearchDetails<TModel> details, int offset, int? limit = null,
             CancellationToken cancellationToken = default(CancellationToken))
         {
             throw new FulcrumNotImplementedException();

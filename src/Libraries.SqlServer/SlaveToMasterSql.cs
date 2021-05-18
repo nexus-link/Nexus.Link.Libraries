@@ -129,16 +129,9 @@ namespace Nexus.Link.Libraries.SqlServer
             var property = typeof(TSlaveModel).GetProperty(ParentColumnName);
             FulcrumAssert.IsNotNull(property, CodeLocation.AsString());
             property?.SetValue(param, parentId);
-            var whereList = SearchHelper.WhereAsList(details);
-            whereList.Add($"{ParentColumnName} = @{ParentColumnName}");
-            var where = string.Join(" AND ", whereList);
 
-            var orderList = SearchHelper.OrderByAsList(details);
-            string orderBy = null;
-            if (orderList.Any())
-            {
-                orderBy = string.Join(", ", orderList);
-            }
+            var where = CrudSearchHelper.GetWhereStatement(details, ParentColumnName);
+            var orderBy = CrudSearchHelper.GetOrderByStatement(details);
 
             return SearchWhereAsync(where, orderBy, param, offset, limit, cancellationToken);
         }

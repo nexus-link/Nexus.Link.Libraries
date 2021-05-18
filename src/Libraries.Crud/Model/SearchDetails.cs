@@ -12,18 +12,8 @@ namespace Nexus.Link.Libraries.Crud.Model
     /// </summary>
     public class SearchDetails<TModel> : IValidatable
     {
-        private object _where;
         private object _orderBy;
-
-        /// <summary>
-        /// This is <see cref="Where"/> as a <see cref="TModel"/> object.
-        /// </summary>
-        public TModel WhereAsModel => WhereAsJObject == null ? default : WhereAsJObject.ToObject<TModel>();
-
-        /// <summary>
-        /// This is <see cref="Where"/> as a <see cref="JObject"/>.
-        /// </summary>
-        public JObject WhereAsJObject => Where == null ? null : JObject.FromObject(Where);
+        private object _where;
 
         /// <summary>
         /// The properties of this optional object and their value will define the search criteria.
@@ -36,35 +26,14 @@ namespace Nexus.Link.Libraries.Crud.Model
         /// A null value means return all.
         /// </summary>
         /// <example>
-        /// The object {FirstName = "Joe", ShoeSize = 42} will search for items where both conditions are met.
+        /// With new {FirstName = "Joe", ShoeSize = 42}, we will search for items where both conditions are met.
         /// </example>
         public object Where
         {
             get => _where;
             set
             {
-                if (value != null)
-                {
-                    var where = JToken.FromObject(value);
-                    InternalContract.Require(where.Type == JTokenType.Object,
-                        $"Property {nameof(value)} must be an object with properties:\r{where.ToString(Formatting.Indented)}");
-
-                    var token = where.First;
-                    while (token != null)
-                    {
-                        var property = token as JProperty;
-                        InternalContract.Require(property != null,
-                            $"Property {nameof(value)} must be an object with properties:\r{where.ToString(Formatting.Indented)}");
-                        if (property == null) continue;
-                        InternalContract.Require(typeof(TModel).GetProperty(property.Name) != null,
-                            $"Property {nameof(value)}.{property.Name} can't be found in type {typeof(TModel).FullName}.");
-
-                        InternalContract.Require(property.Value is JValue,
-                            $"Property {nameof(value)}.{property.Name} must be a primitive type such as integer, string or boolean.");
-                        token = token.Next;
-                    }
-                }
-
+                WhereAsSortedDictionary = ParseWhere(value);
                 _where = value;
             }
         }
@@ -76,10 +45,10 @@ namespace Nexus.Link.Libraries.Crud.Model
         ///   SortThenByThisName = TrueIfAscending,
         ///   ...
         /// }
-        /// </summary>
         /// A null value means that the order of items will be arbitrary.
+        /// </summary>
         /// <example>
-        /// The object {LastName = true, FirstName = false} will sort by LastName in ascending order and then by
+        /// With new {LastName = true, FirstName = false}, we will sort by LastName in ascending order and then by
         /// FirstName in descending order.
         /// </example>
         public object OrderBy
@@ -87,34 +56,149 @@ namespace Nexus.Link.Libraries.Crud.Model
             get => _orderBy;
             set
             {
-                if (value != null)
-                {
-                    InternalContract.RequireNotNull(value, nameof(value));
-                    var orderBy = JToken.FromObject(value);
-                    InternalContract.Require(orderBy.Type == JTokenType.Object,
-                        $"Property {nameof(value)} must be an object with properties:\r{orderBy.ToString(Formatting.Indented)}");
-
-                    var token = orderBy.First;
-                    while (token != null)
-                    {
-                        var property = token as JProperty;
-                        InternalContract.Require(property != null,
-                            $"Property {nameof(value)} must be an object with properties:\r{orderBy.ToString(Formatting.Indented)}");
-
-                        var propertyInfo = typeof(TModel).GetProperty(property.Name);
-                        InternalContract.Require(propertyInfo != null,
-                            $"Property {nameof(value)}.{property.Name} can't be found in type {typeof(TModel).FullName}.");
-                        InternalContract.Require(typeof(IComparable).IsAssignableFrom(propertyInfo.PropertyType),
-                            $"The type of property {nameof(value)}.{property.Name} must implement {nameof(IComparable)}.");
-
-                        InternalContract.Require(property.Value.Type == JTokenType.Boolean,
-                            $"Property {nameof(value)}.{property.Name} must be a boolean.");
-                        token = token.Next;
-                    }
-                }
-
+                OrderByAsSortedDictionary = ParseOrderBy(value);
                 _orderBy = value;
             }
+        }
+
+        /// <summary>
+        /// THis constructor is intended for serialization. Use the constructor with parameters in other cases.
+        /// </summary>
+        public SearchDetails()
+        {
+            WhereAsSortedDictionary = new SortedDictionary<string, object>();
+            OrderByAsSortedDictionary = new SortedDictionary<string, bool>();
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="where">
+        /// The properties of this optional object and their value will define the search criteria.
+        /// The object should look like:
+        /// {
+        ///   PropertyName1 = Value1,
+        ///   PropertyName2 = Value2,
+        ///   ...
+        /// }
+        /// A null value means return all.
+        /// </param>
+        /// <param name="orderBy">
+        /// The properties of this optional object and their bool values will define the sort order for the search result.
+        /// {
+        ///   SortFirstByThisName = TrueIfAscending,
+        ///   SortThenByThisName = TrueIfAscending,
+        ///   ...
+        /// }
+        /// A null value means that the order of items will be arbitrary.
+        /// </param>
+        /// <example>
+        /// With <paramref name="where"/> = new {FirstName = "Joe", ShoeSize = 42}, we will search for items where both conditions are met.
+        /// With <paramref name="orderBy"/> = new {LastName = true, FirstName = false}, we will sort by LastName in ascending order and then by
+        /// FirstName in descending order.
+        /// </example>
+        public SearchDetails(object where, object orderBy = null)
+        {
+            this.WhereAsSortedDictionary = ParseWhere(where);
+            _where = where;
+            OrderByAsSortedDictionary = ParseOrderBy(orderBy);
+            _orderBy = orderBy;
+        }
+
+        /// <summary>
+        /// Convenience property. This is <see cref="WhereAsSortedDictionary"/> as a <see cref="TModel"/> object.
+        /// </summary>
+        public TModel WhereAsModel => WhereAsJObject == null ? default : WhereAsJObject.ToObject<TModel>();
+
+        /// <summary>
+        /// Convenience property. This is <see cref="WhereAsSortedDictionary"/> as a <see cref="JObject"/>.
+        /// </summary>
+        public JObject WhereAsJObject => _where == null ? null : JObject.FromObject(_where);
+
+        /// <summary>
+        /// Convenience property. This is <see cref="WhereAsSortedDictionary"/> as a <see cref="SortedDictionary{TKey,TValue}"/>.
+        /// </summary>
+        public SortedDictionary<string, object> WhereAsSortedDictionary { get; private set; }
+
+        private static SortedDictionary<string, object> ParseWhere(object value)
+        {
+            var sd = new SortedDictionary<string, object>();
+            if (value != null)
+            {
+                var modelType = typeof(TModel);
+                var valueType = value.GetType();
+                var where = JToken.FromObject(value);
+                InternalContract.Require(@where.Type == JTokenType.Object,
+                    $"Property {nameof(value)} must be an object with properties:\r{@where.ToString(Formatting.Indented)}");
+
+                var token = @where.First;
+                while (token != null)
+                {
+                    var property = token as JProperty;
+                    InternalContract.Require(property != null,
+                        $"Property {nameof(value)} must be an object with properties:\r{@where.ToString(Formatting.Indented)}");
+                    if (property != null)
+                    {
+                        var propertyInfo = modelType.GetProperty(property.Name);
+                        InternalContract.RequireNotNull(propertyInfo, $"{nameof(value)}.{property.Name}",
+                            $"Property {nameof(value)}.{property.Name} can't be found in type {modelType.Name}.");
+
+                        InternalContract.Require(property.Value is JValue,
+                            $"Property {nameof(value)}.{property.Name} must be a primitive type such as integer, string or boolean.");
+
+
+                        var valueProperty = valueType.GetProperty(property.Name);
+                        if (valueProperty != null)
+                        {
+                            sd.Add(property.Name, valueProperty.GetValue(value));
+                        }
+                    }
+
+                    token = token.Next;
+                }
+            }
+
+            return sd;
+        }
+
+        /// <summary>
+        /// Convenience property. This is <see cref="OrderByAsSortedDictionary"/> as a <see cref="SortedDictionary{TKey,TValue}"/>.
+        /// </summary>
+        public SortedDictionary<string, bool> OrderByAsSortedDictionary { get; private set; }
+
+        private static SortedDictionary<string, bool> ParseOrderBy(object value)
+        {
+            var sd = new SortedDictionary<string, bool>();
+            if (value != null)
+            {
+                InternalContract.RequireNotNull(value, nameof(value));
+                var orderBy = JToken.FromObject(value);
+                InternalContract.Require(orderBy.Type == JTokenType.Object,
+                    $"Property {nameof(value)} must be an object with properties:\r{orderBy.ToString(Formatting.Indented)}");
+
+                var token = orderBy.First;
+                while (token != null)
+                {
+                    var property = token as JProperty;
+                    InternalContract.Require(property != null,
+                        $"Property {nameof(value)} must be an object with properties:\r{orderBy.ToString(Formatting.Indented)}");
+
+                    var propertyInfo = typeof(TModel).GetProperty(property.Name);
+                    InternalContract.Require(propertyInfo != null,
+                        $"Property {nameof(value)}.{property.Name} can't be found in type {typeof(TModel).FullName}.");
+
+                    InternalContract.Require(typeof(IComparable).IsAssignableFrom(propertyInfo.PropertyType),
+                        $"The type of property {nameof(value)}.{property.Name} must implement {nameof(IComparable)}.");
+
+                    InternalContract.Require(property.Value.Type == JTokenType.Boolean,
+                        $"Property {nameof(value)}.{property.Name} must be a boolean.");
+
+                    sd.Add(property.Name, (bool) property.Value);
+                    token = token.Next;
+                }
+            }
+
+            return sd;
         }
 
         /// <inheritdoc />

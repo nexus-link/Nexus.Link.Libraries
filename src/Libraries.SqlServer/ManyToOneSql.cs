@@ -10,6 +10,7 @@ using Nexus.Link.Libraries.Crud.Interfaces;
 using Nexus.Link.Libraries.Core.Storage.Model;
 using Nexus.Link.Libraries.Crud.Helpers;
 using Nexus.Link.Libraries.Crud.Model;
+using Nexus.Link.Libraries.SqlServer.Logic;
 using Nexus.Link.Libraries.SqlServer.Model;
 
 namespace Nexus.Link.Libraries.SqlServer
@@ -107,17 +108,9 @@ namespace Nexus.Link.Libraries.SqlServer
             var property = typeof(TManyModel).GetProperty(ParentColumnName);
             FulcrumAssert.IsNotNull(property, CodeLocation.AsString());
             property?.SetValue(param, parentId);
-            var whereList = SearchHelper.WhereAsList(details);
-            whereList.Add($"{ParentColumnName} = @{ParentColumnName}");
-            var where = string.Join(" AND ", whereList);
-
-            var orderList = SearchHelper.OrderByAsList(details);
-            string orderBy = null;
-            if (orderList.Any())
-            {
-                orderBy = string.Join(", ", orderList);
-            }
-
+            
+            var where = CrudSearchHelper.GetWhereStatement(details, ParentColumnName);
+            var orderBy = CrudSearchHelper.GetOrderByStatement(details);
             return SearchWhereAsync(where, orderBy, param, offset, limit, cancellationToken);
         }
 
@@ -228,16 +221,9 @@ namespace Nexus.Link.Libraries.SqlServer
             var property = typeof(TManyModel).GetProperty(ParentColumnName);
             FulcrumAssert.IsNotNull(property, CodeLocation.AsString());
             property?.SetValue(param, parentId);
-            var whereList = SearchHelper.WhereAsList(details);
-            whereList.Add($"{ParentColumnName} = @{ParentColumnName}");
-            var where = string.Join(" AND ", whereList);
 
-            var orderList = SearchHelper.OrderByAsList(details);
-            string orderBy = null;
-            if (orderList.Any())
-            {
-                orderBy = string.Join(", ", orderList);
-            }
+            var where = CrudSearchHelper.GetWhereStatement(details, ParentColumnName);
+            var orderBy = CrudSearchHelper.GetOrderByStatement(details);
 
             return SearchWhereAsync(where, orderBy, param, offset, limit, cancellationToken);
         }
