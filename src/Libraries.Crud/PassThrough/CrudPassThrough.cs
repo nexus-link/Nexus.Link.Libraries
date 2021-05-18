@@ -99,13 +99,6 @@ namespace Nexus.Link.Libraries.Crud.PassThrough
         }
 
         /// <inheritdoc />
-        public Task<TModel> SearchFirstAsync(SearchDetails<TModel> details, CancellationToken cancellationToken = default(CancellationToken))
-        {
-            var implementation = CrudHelper.GetImplementationOrThrow<ISearch<TModel, TId>>(Service);
-            return implementation.SearchFirstAsync(details, cancellationToken);
-        }
-
-        /// <inheritdoc />
         public Task<TModel> FindUniqueAsync(SearchDetails<TModel> details, CancellationToken cancellationToken = default(CancellationToken))
         {
             var implementation = CrudHelper.GetImplementationOrThrow<ISearch<TModel, TId>>(Service);

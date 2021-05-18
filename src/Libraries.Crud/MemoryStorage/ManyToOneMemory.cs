@@ -126,13 +126,6 @@ namespace Nexus.Link.Libraries.Crud.MemoryStorage
         }
 
         /// <inheritdoc />
-        public Task<TModel> SearchFirstChildAsync(TId parentId, SearchDetails<TModel> details,
-            CancellationToken cancellationToken = default(CancellationToken))
-        {
-            return _convenience.SearchFirstChildAsync(parentId, details, cancellationToken);
-        }
-
-        /// <inheritdoc />
         public Task<TModel> FindUniqueChildAsync(TId parentId, SearchDetails<TModel> details,
             CancellationToken cancellationToken = default(CancellationToken))
         {

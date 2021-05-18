@@ -199,13 +199,6 @@ namespace Nexus.Link.Libraries.Azure.Storage.Table
         }
 
         /// <inheritdoc />
-        public Task<TItem> SearchFirstChildAsync(TId parentId, SearchDetails<TItem> details,
-            CancellationToken cancellationToken = default(CancellationToken))
-        {
-            return _convenience.SearchFirstChildAsync(parentId, details, cancellationToken);
-        }
-
-        /// <inheritdoc />
         public Task<TItem> FindUniqueChildAsync(TId parentId, SearchDetails<TItem> details,
             CancellationToken cancellationToken = default(CancellationToken))
         {

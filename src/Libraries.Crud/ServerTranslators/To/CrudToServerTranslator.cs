@@ -187,11 +187,5 @@ namespace Nexus.Link.Libraries.Crud.ServerTranslators.To
         {
             throw new NotImplementedException();
         }
-
-        /// <inheritdoc />
-        public Task<TModel> SearchFirstAsync(SearchDetails<TModel> details, CancellationToken cancellationToken = default(CancellationToken))
-        {
-            throw new NotImplementedException();
-        }
     }
 }

@@ -67,14 +67,6 @@ namespace Nexus.Link.Libraries.Crud.PassThrough
         }
 
         /// <inheritdoc />
-        public Task<TModel> SearchFirstChildAsync(TId parentId, SearchDetails<TModel> details,
-            CancellationToken cancellationToken = default(CancellationToken))
-        {
-            var implementation = CrudHelper.GetImplementationOrThrow<ISearchChildren<TModel, TId>>(Service);
-            return implementation.SearchFirstChildAsync(parentId, details, cancellationToken);
-        }
-
-        /// <inheritdoc />
         public Task<TModel> FindUniqueChildAsync(TId parentId, SearchDetails<TModel> details,
             CancellationToken cancellationToken = default(CancellationToken))
         {

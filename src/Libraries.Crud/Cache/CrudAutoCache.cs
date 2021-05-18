@@ -169,12 +169,6 @@ namespace Nexus.Link.Libraries.Crud.Cache
         }
 
         /// <inheritdoc />
-        public Task<TModel> SearchFirstAsync(SearchDetails<TModel> details, CancellationToken cancellationToken = default(CancellationToken))
-        {
-            return _convenience.SearchFirstAsync(details, cancellationToken);
-        }
-
-        /// <inheritdoc />
         public Task<TModel> FindUniqueAsync(SearchDetails<TModel> details, CancellationToken cancellationToken = default(CancellationToken))
         {
             return _convenience.FindUniqueAsync(details, cancellationToken);

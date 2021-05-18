@@ -249,13 +249,6 @@ namespace Nexus.Link.Libraries.Crud.Mappers
         }
 
         /// <inheritdoc />
-        public Task<TClientModel> SearchFirstChildAsync(TClientId parentId, SearchDetails<TClientModel> details,
-            CancellationToken cancellationToken = default(CancellationToken))
-        {
-            throw new NotImplementedException();
-        }
-
-        /// <inheritdoc />
         public Task<TClientModel> FindUniqueChildAsync(TClientId parentId, SearchDetails<TClientModel> details,
             CancellationToken cancellationToken = default(CancellationToken))
         {

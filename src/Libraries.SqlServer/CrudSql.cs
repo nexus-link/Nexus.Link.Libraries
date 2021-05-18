@@ -146,12 +146,6 @@ namespace Nexus.Link.Libraries.SqlServer
         }
 
         /// <inheritdoc />
-        public Task<TDatabaseItem> SearchFirstAsync(SearchDetails<TDatabaseItem> details, CancellationToken cancellationToken = default(CancellationToken))
-        {
-            return _convenience.SearchFirstAsync(details, cancellationToken);
-        }
-
-        /// <inheritdoc />
         public  Task<TDatabaseItem> FindUniqueAsync(SearchDetails<TDatabaseItem> details, CancellationToken cancellationToken = default(CancellationToken))
         {
             return _convenience.FindUniqueAsync(details, cancellationToken);

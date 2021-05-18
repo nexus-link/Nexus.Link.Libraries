@@ -116,13 +116,6 @@ namespace Nexus.Link.Libraries.SqlServer
         }
 
         /// <inheritdoc />
-        public Task<TManyModel> SearchFirstChildAsync(Guid parentId, SearchDetails<TManyModel> details,
-            CancellationToken cancellationToken = default(CancellationToken))
-        {
-            return _convenience.SearchFirstChildAsync(parentId, details, cancellationToken);
-        }
-
-        /// <inheritdoc />
         public Task<TManyModel> FindUniqueChildAsync(Guid parentId, SearchDetails<TManyModel> details,
             CancellationToken cancellationToken = default(CancellationToken))
         {
@@ -228,13 +221,6 @@ namespace Nexus.Link.Libraries.SqlServer
             var orderBy = CrudSearchHelper.GetOrderByStatement(details);
 
             return SearchWhereAsync(where, orderBy, param, offset, limit, cancellationToken);
-        }
-
-        /// <inheritdoc />
-        public Task<TManyModel> SearchFirstChildAsync(Guid parentId, SearchDetails<TManyModel> details,
-            CancellationToken cancellationToken = default(CancellationToken))
-        {
-            return _convenience.SearchFirstChildAsync(parentId, details, cancellationToken);
         }
 
         /// <inheritdoc />

@@ -178,13 +178,6 @@ namespace Nexus.Link.Libraries.Crud.Web.RestClient
         }
 
         /// <inheritdoc />
-        public Task<TManyModel> SearchFirstChildAsync(TId parentId, SearchDetails<TManyModel> details,
-            CancellationToken cancellationToken = default(CancellationToken))
-        {
-            return _convenience.SearchFirstChildAsync(parentId, details, cancellationToken);
-        }
-
-        /// <inheritdoc />
         public Task<TManyModel> FindUniqueChildAsync(TId parentId, SearchDetails<TManyModel> details,
             CancellationToken cancellationToken = default(CancellationToken))
         {

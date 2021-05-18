@@ -80,14 +80,5 @@ namespace Nexus.Link.Libraries.Crud.Helpers
 
             return page.Data.FirstOrDefault();
         }
-
-        /// <inheritdoc />
-        public async Task<TModel> SearchFirstAsync(SearchDetails<TModel> details, CancellationToken cancellationToken = default(CancellationToken))
-        {
-            InternalContract.RequireNotNull(details, nameof(details));
-            InternalContract.RequireValidated(details, nameof(details));
-            var page = await _service.SearchAsync(details, 0, 1, cancellationToken);
-            return page.Data.FirstOrDefault();
-        }
     }
 }

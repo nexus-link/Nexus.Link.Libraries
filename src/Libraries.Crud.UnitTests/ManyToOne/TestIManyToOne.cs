@@ -231,54 +231,6 @@ namespace Nexus.Link.Libraries.Crud.UnitTests.ManyToOne
             Assert.AreEqual(0, page.PageInfo.Returned);
         }
 
-        [DataTestMethod]
-        [DataRow("Variant1", true, true)]
-        [DataRow("Variant1", true, false)]
-        [DataRow("Variant1", false, true)]
-        [DataRow("Variant1", false, false)]
-        [DataRow("Variant2", true, true)]
-        [DataRow("Variant2", true, false)]
-        [DataRow("Variant2", false, true)]
-        [DataRow("Variant2", false, false)]
-        public async Task SearchFirst_Async(string value, bool orderByNumber, bool ascending)
-        {
-            TestItemBare.Count = 1;
-            var isVariant1 = value == "Variant1";
-            // Arrange
-            var parent = await CreateItemAsync(TypeOfTestDataEnum.Default);
-            await CreateItemAsync(CrudManyStorageNonRecursive, TypeOfTestDataEnum.Variant1, parent.Id);
-            await CreateItemAsync(CrudManyStorageNonRecursive, TypeOfTestDataEnum.Variant2, parent.Id);
-            await CreateItemAsync(CrudManyStorageNonRecursive, TypeOfTestDataEnum.Variant1, parent.Id);
-            await CreateItemAsync(CrudManyStorageNonRecursive, TypeOfTestDataEnum.Variant2, parent.Id);
-
-            // Act 
-            var search = CrudManyStorageNonRecursive as ISearchChildren<TestItemManyToOne<TId, TReferenceId>, TId>;
-            Assert.IsNotNull(search, $"{CrudManyStorageNonRecursive.GetType().Name} was expected to implement {nameof(ISearch<TestItemSort<TId>, TId>)}");
-            var searchDetails = orderByNumber
-                ? new SearchDetails<TestItemManyToOne<TId, TReferenceId>>(new { Value = value },new { IncreasingNumber = @ascending })
-                : new SearchDetails<TestItemManyToOne<TId, TReferenceId>>(new { Value = value },new { DecreasingString = @ascending });
-
-            var item = await search.SearchFirstChildAsync(parent.Id, searchDetails);
-
-            // Assert
-            Assert.IsNotNull(item);
-            if (orderByNumber)
-            {
-                var expected = @ascending 
-                    ? isVariant1 ? 1 : 2  
-                    : isVariant1 ? 3 : 4;
-                Assert.AreEqual(expected, item.IncreasingNumber);
-            }
-            else
-            {
-                var expected = @ascending 
-                    ? isVariant1 ? short.MaxValue-3 : short.MaxValue-4  
-                    : isVariant1 ? short.MaxValue-1 : short.MaxValue-2;
-                Assert.AreEqual(expected.ToString(), item.DecreasingString);
-            }
-
-        }
-
         [TestMethod]
         public async Task FindUnique_NotFound_Async()
         {
@@ -320,27 +272,6 @@ namespace Nexus.Link.Libraries.Crud.UnitTests.ManyToOne
             // Assert
             Assert.IsNotNull(item);
             Assert.AreEqual(variant, item.Value);
-
-        }
-
-        [TestMethod]
-        public async Task SearchFirst_NotFound_Async()
-        {
-            // Arrange
-            var parent = await CreateItemAsync(TypeOfTestDataEnum.Default);
-            await CreateItemAsync(CrudManyStorageNonRecursive, TypeOfTestDataEnum.Variant2, parent.Id);
-            await CreateItemAsync(CrudManyStorageNonRecursive, TypeOfTestDataEnum.Variant2, parent.Id);
-
-            // Act 
-            var search = CrudManyStorageNonRecursive as ISearchChildren<TestItemManyToOne<TId, TReferenceId>, TId>;
-            Assert.IsNotNull(search, $"{CrudManyStorageNonRecursive.GetType().Name} was expected to implement {nameof(ISearch<TestItemSort<TId>, TId>)}");
-            const string variant = "Variant1";
-            var searchDetails = new SearchDetails<TestItemManyToOne<TId, TReferenceId>>(new { Value = variant });
-
-            var item = await search.SearchFirstChildAsync(parent.Id, searchDetails);
-
-            // Assert
-            Assert.IsNull(item);
 
         }
 

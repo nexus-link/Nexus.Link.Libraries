@@ -138,13 +138,6 @@ namespace Nexus.Link.Libraries.SqlServer
         }
 
         /// <inheritdoc />
-        public Task<TSlaveModel> SearchFirstChildAsync(Guid parentId, SearchDetails<TSlaveModel> details,
-            CancellationToken cancellationToken = default(CancellationToken))
-        {
-            return _convenience.SearchFirstChildAsync(parentId, details, cancellationToken);
-        }
-
-        /// <inheritdoc />
         public Task<TSlaveModel> FindUniqueChildAsync(Guid parentId, SearchDetails<TSlaveModel> details,
             CancellationToken cancellationToken = default(CancellationToken))
         {

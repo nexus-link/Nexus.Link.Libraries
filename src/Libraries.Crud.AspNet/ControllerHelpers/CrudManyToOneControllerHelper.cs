@@ -103,17 +103,10 @@ namespace Nexus.Link.Libraries.Crud.AspNet.ControllerHelpers
         }
 
         /// <inheritdoc />
-        public Task<TModel> SearchFirstChildAsync(string parentId, [FromBody] SearchDetails<TModel> details,
-            CancellationToken cancellationToken = default(CancellationToken))
-        {
-            return _convenience.SearchFirstChildAsync(parentId, details, cancellationToken);
-        }
-
-        /// <inheritdoc />
         public Task<TModel> FindUniqueChildAsync(string parentId, [FromBody] SearchDetails<TModel> details,
             CancellationToken cancellationToken = default(CancellationToken))
         {
-            return _convenience.SearchFirstChildAsync(parentId, details, cancellationToken);
+            return _convenience.FindUniqueChildAsync(parentId, details, cancellationToken);
         }
     }
 }
