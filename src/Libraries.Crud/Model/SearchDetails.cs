@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Nexus.Link.Libraries.Core.Assert;
-using Nexus.Link.Libraries.Core.Error.Logic;
 
 namespace Nexus.Link.Libraries.Crud.Model
 {
@@ -16,6 +15,8 @@ namespace Nexus.Link.Libraries.Crud.Model
         private const string WildCardOneCharacter = "<{wild-card-single-character}>";
         private object _orderBy;
         private object _where;
+        private List<string> _wherePropertyNames;
+        private List<string> _orderByPropertyNames;
 
         /// <summary>
         /// The properties of this optional object and their value will define the search criteria.
@@ -33,11 +34,7 @@ namespace Nexus.Link.Libraries.Crud.Model
         public object Where
         {
             get => _where;
-            set
-            {
-                WhereAsDictionary = ParseWhere(value);
-                _where = value;
-            }
+            set => PrepareWhere(value);
         }
 
         /// <summary>
@@ -56,11 +53,7 @@ namespace Nexus.Link.Libraries.Crud.Model
         public object OrderBy
         {
             get => _orderBy;
-            set
-            {
-                OrderByAsDictionary = ParseOrderBy(value);
-                _orderBy = value;
-            }
+            set => PrepareOrderBy(value);
         }
 
         /// <summary>
@@ -68,8 +61,8 @@ namespace Nexus.Link.Libraries.Crud.Model
         /// </summary>
         public SearchDetails()
         {
-            WhereAsDictionary = new Dictionary<string, WhereCondition>();
-            OrderByAsDictionary = new Dictionary<string, bool>();
+            PrepareWhere(null);
+            PrepareOrderBy(null);
         }
 
         /// <summary>
@@ -101,9 +94,9 @@ namespace Nexus.Link.Libraries.Crud.Model
         /// </example>
         public SearchDetails(object where, object orderBy = null)
         {
-            this.WhereAsDictionary = ParseWhere(where);
+            this.PrepareWhere(where);
             _where = where;
-            OrderByAsDictionary = ParseOrderBy(orderBy);
+            PrepareOrderBy(orderBy);
             _orderBy = orderBy;
         }
 
@@ -112,7 +105,7 @@ namespace Nexus.Link.Libraries.Crud.Model
         /// </summary>
         protected Dictionary<string, WhereCondition> WhereAsDictionary { get; private set; }
 
-        public IEnumerable<string> WherePropertyNames => WhereAsDictionary.Keys;
+        public IEnumerable<string> WherePropertyNames => _wherePropertyNames;
 
         public WhereCondition GetWhereCondition(string key, string wildCardZeroOrMoreCharacters, string wildCardOneCharacter)
         {
@@ -140,7 +133,7 @@ namespace Nexus.Link.Libraries.Crud.Model
                 var whereCondition =
                     GetWhereCondition(property.Name, wildCardZeroOrMoreCharacters, wildCardOneCharacter);
                 if (!whereCondition.IsWildCard) continue;
-                var currentValue = property.Value.ToString();
+                var currentValue = whereCondition.Object.ToString();
                 if (currentValue == null) continue;
                 var newValue = currentValue
                     .Replace(WildCardZeroOrMoreCharacters, wildCardZeroOrMoreCharacters)
@@ -151,8 +144,9 @@ namespace Nexus.Link.Libraries.Crud.Model
             return whereAsJObject.ToObject<TModel>();
         }
 
-        private static Dictionary<string, WhereCondition> ParseWhere(object value)
+        private void PrepareWhere(object value)
         {
+            _wherePropertyNames = new List<string>();
             var sd = new Dictionary<string, WhereCondition>();
             if (value != null)
             {
@@ -167,38 +161,36 @@ namespace Nexus.Link.Libraries.Crud.Model
                     var property = token as JProperty;
                     InternalContract.Require(property != null,
                         $"Property {nameof(value)} must be an object with properties:\r{@where.ToString(Formatting.Indented)}");
-                    if (property != null)
+                    if (property == null) continue;
+                    var propertyInfo = modelType.GetProperty(property.Name);
+                    InternalContract.RequireNotNull(propertyInfo, $"{nameof(value)}.{property.Name}",
+                        $"Property {nameof(value)}.{property.Name} can't be found in type {modelType.Name}.");
+
+                    InternalContract.Require(property.Value is JValue,
+                        $"Property {nameof(value)}.{property.Name} must be a primitive type such as integer, string or boolean.");
+
+
+                    var valueProperty = valueType.GetProperty(property.Name);
+                    if (valueProperty == null) continue;
+                    var v = valueProperty.GetValue(value);
+                    string replaced = null;
+                    var isWildCard = false;
+                    if (v is string s)
                     {
-                        var propertyInfo = modelType.GetProperty(property.Name);
-                        InternalContract.RequireNotNull(propertyInfo, $"{nameof(value)}.{property.Name}",
-                            $"Property {nameof(value)}.{property.Name} can't be found in type {modelType.Name}.");
-
-                        InternalContract.Require(property.Value is JValue,
-                            $"Property {nameof(value)}.{property.Name} must be a primitive type such as integer, string or boolean.");
-
-
-                        var valueProperty = valueType.GetProperty(property.Name);
-                        if (valueProperty != null)
-                        {
-                            var v = valueProperty.GetValue(value);
-                            string replaced = null;
-                            var isWildCard = false;
-                            if (v is string s)
-                            {
-                                (isWildCard, replaced) = ReplaceWildCard(s);
-                            }
-                            var whereProperty = new WhereCondition
-                            {
-                                IsWildCard = isWildCard,
-                                Object = isWildCard ? replaced : v
-                            };
-                            sd.Add(property.Name, whereProperty);
-                        }
+                        (isWildCard, replaced) = ReplaceWildCard(s);
                     }
+                    var whereProperty = new WhereCondition
+                    {
+                        IsWildCard = isWildCard,
+                        Object = isWildCard ? replaced : v
+                    };
+                    _wherePropertyNames.Add(property.Name);
+                    sd.Add(property.Name, whereProperty);
                 }
             }
 
-            return sd;
+            WhereAsDictionary = sd;
+            _where = value;
         }
 
         public static (bool, string) ReplaceWildCard(string value)
@@ -224,10 +216,15 @@ namespace Nexus.Link.Libraries.Crud.Model
         /// <summary>
         /// Convenience property. This is <see cref="OrderByAsDictionary"/> as a <see cref="Dictionary{TKey,TValue}"/>.
         /// </summary>
-        public Dictionary<string, bool> OrderByAsDictionary { get; private set; }
+        protected Dictionary<string, bool> OrderByAsDictionary { get; private set; }
 
-        private static Dictionary<string, bool> ParseOrderBy(object value)
+        public IEnumerable<string> OrderByPropertyNames => _orderByPropertyNames;
+
+        public bool IsAscending(string key) => OrderByAsDictionary[key];
+
+        private void PrepareOrderBy(object value)
         {
+            _orderByPropertyNames = new List<string>();
             var sd = new Dictionary<string, bool>();
             if (value != null)
             {
@@ -241,10 +238,11 @@ namespace Nexus.Link.Libraries.Crud.Model
                     var property = token as JProperty;
                     InternalContract.Require(property != null,
                         $"Property {nameof(value)} must be an object with properties:\r{orderBy.ToString(Formatting.Indented)}");
-
+                    if (property == null) continue;
                     var propertyInfo = typeof(TModel).GetProperty(property.Name);
                     InternalContract.Require(propertyInfo != null,
                         $"Property {nameof(value)}.{property.Name} can't be found in type {typeof(TModel).FullName}.");
+                    if (propertyInfo == null) continue;
 
                     InternalContract.Require(typeof(IComparable).IsAssignableFrom(propertyInfo.PropertyType),
                         $"The type of property {nameof(value)}.{property.Name} must implement {nameof(IComparable)}.");
@@ -252,11 +250,13 @@ namespace Nexus.Link.Libraries.Crud.Model
                     InternalContract.Require(property.Value.Type == JTokenType.Boolean,
                         $"Property {nameof(value)}.{property.Name} must be a boolean.");
 
+                    _orderByPropertyNames.Add(property.Name);
                     sd.Add(property.Name, (bool)property.Value);
                 }
             }
 
-            return sd;
+            OrderByAsDictionary = sd;
+            _orderBy = value;
         }
 
         /// <inheritdoc />

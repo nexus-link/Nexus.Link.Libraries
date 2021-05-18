@@ -28,11 +28,11 @@ namespace Nexus.Link.Libraries.Crud.Helpers
         public static int Compare<TModel>(TModel firstItem, TModel secondItem,  SearchDetails<TModel> details)
         {
             var modelType = typeof(TModel);
-            foreach (var keyValuePair in details.OrderByAsDictionary)
+            foreach (var propertyName in details.OrderByPropertyNames)
             {
-                var propertyInfo = modelType.GetProperty(keyValuePair.Key);
+                var propertyInfo = modelType.GetProperty(propertyName);
                 if (propertyInfo == null) continue;
-                var revertFactor = keyValuePair.Value ? 1 : -1;
+                var revertFactor = details.IsAscending(propertyName) ? 1 : -1;
                 var value1 = propertyInfo.GetValue(firstItem) as IComparable;
                 var value2 = propertyInfo.GetValue(secondItem) as IComparable;
 

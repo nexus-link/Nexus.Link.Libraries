@@ -33,8 +33,8 @@ namespace Nexus.Link.Libraries.SqlServer.Logic
         /// </summary>
         public static string GetOrderByStatement<T>(SearchDetails<T> details)
         {
-            if (!details.OrderByAsDictionary.Any()) return null;
-            var orderItems = details.OrderByAsDictionary.Select(pair => $"[{pair.Key}] {AscOrDesc(pair.Value)}");
+            if (!details.OrderByPropertyNames.Any()) return null;
+            var orderItems = details.OrderByPropertyNames.Select(name => $"[{name}] {AscOrDesc(name, details)}");
             var orderBy = string.Join(", ", orderItems);
 
             return orderBy;
@@ -42,6 +42,6 @@ namespace Nexus.Link.Libraries.SqlServer.Logic
 
         }
 
-        private static string AscOrDesc(bool ascending) => ascending ? "ASC" : "DESC";
+        private static string AscOrDesc<T>(string name, SearchDetails<T> details) => details.IsAscending(name) ? "ASC" : "DESC";
     }
 }
