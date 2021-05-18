@@ -18,7 +18,7 @@
 
   <PropertyGroup>
     <PackageId>Nexus.Link.Libraries.SqlServer</PackageId>
-    <Version>2.4.2</Version>
+    <Version>2.5.0</Version>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <PackageTags>nexus;link;fulcrum;lever</PackageTags>
     <Authors>XLENT Link</Authors>
@@ -28,6 +28,7 @@
     <Copyright>Copyright ©2019 Xlent Link AB</Copyright>
     <IncludeSymbols>true</IncludeSymbols>
     <PackageReleaseNotes>
+      2.5.0 Added Crud ISearch and ISearchChildren
       2.4.2 Corrected failing SQL statement
       2.4.1 Added logging of statement when execution fails.
       2.4.0 Added ITransactionLock.

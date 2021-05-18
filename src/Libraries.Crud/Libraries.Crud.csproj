@@ -9,7 +9,7 @@
 
   <PropertyGroup>
     <PackageId>Nexus.Link.Libraries.Crud</PackageId>
-    <Version>2.4.0</Version>
+    <Version>2.5.0</Version>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <PackageTags>nexus;link;fulcrum;lever</PackageTags>
     <Authors>XLENT Link</Authors>
@@ -19,6 +19,7 @@
     <Copyright>Copyright ©2019 Xlent Link AB</Copyright>
     <IncludeSymbols>true</IncludeSymbols>
     <PackageReleaseNotes>
+      2.5.0 Added Crud ISearch and ISearchChildren
       2.4.0 Added new lock interfaces.
       2.3.9 Using Microsoft.Extensions.Caching.Abstractions
       2.3.7 Now sets RecordUpdatedAt to DateTimeOffset.UTCNOW. Bump Libraries.Core.
