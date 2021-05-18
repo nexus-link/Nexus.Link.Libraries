@@ -12,6 +12,8 @@ namespace Nexus.Link.Libraries.Crud.Model
     /// </summary>
     public class SearchDetails<TModel> : IValidatable
     {
+        private const string WildCardZeroOrMoreCharacters = "<{wild-card-zero-or-more-characters}>";
+        private const string WildCardOneCharacter = "<{wild-card-single-character}>";
         private object _orderBy;
         private object _where;
 
@@ -33,7 +35,7 @@ namespace Nexus.Link.Libraries.Crud.Model
             get => _where;
             set
             {
-                WhereAsSortedDictionary = ParseWhere(value);
+                WhereAsDictionary = ParseWhere(value);
                 _where = value;
             }
         }
@@ -56,7 +58,7 @@ namespace Nexus.Link.Libraries.Crud.Model
             get => _orderBy;
             set
             {
-                OrderByAsSortedDictionary = ParseOrderBy(value);
+                OrderByAsDictionary = ParseOrderBy(value);
                 _orderBy = value;
             }
         }
@@ -66,8 +68,8 @@ namespace Nexus.Link.Libraries.Crud.Model
         /// </summary>
         public SearchDetails()
         {
-            WhereAsSortedDictionary = new SortedDictionary<string, object>();
-            OrderByAsSortedDictionary = new SortedDictionary<string, bool>();
+            WhereAsDictionary = new Dictionary<string, WhereCondition>();
+            OrderByAsDictionary = new Dictionary<string, bool>();
         }
 
         /// <summary>
@@ -99,30 +101,59 @@ namespace Nexus.Link.Libraries.Crud.Model
         /// </example>
         public SearchDetails(object where, object orderBy = null)
         {
-            this.WhereAsSortedDictionary = ParseWhere(where);
+            this.WhereAsDictionary = ParseWhere(where);
             _where = where;
-            OrderByAsSortedDictionary = ParseOrderBy(orderBy);
+            OrderByAsDictionary = ParseOrderBy(orderBy);
             _orderBy = orderBy;
         }
 
         /// <summary>
-        /// Convenience property. This is <see cref="WhereAsSortedDictionary"/> as a <see cref="TModel"/> object.
+        /// Convenience property. This is <see cref="WhereAsDictionary"/> as a <see cref="Dictionary{TKey,TValue}"/>.
         /// </summary>
-        public TModel WhereAsModel => WhereAsJObject == null ? default : WhereAsJObject.ToObject<TModel>();
+        protected Dictionary<string, WhereCondition> WhereAsDictionary { get; private set; }
 
-        /// <summary>
-        /// Convenience property. This is <see cref="WhereAsSortedDictionary"/> as a <see cref="JObject"/>.
-        /// </summary>
-        public JObject WhereAsJObject => _where == null ? null : JObject.FromObject(_where);
+        public IEnumerable<string> WherePropertyNames => WhereAsDictionary.Keys;
 
-        /// <summary>
-        /// Convenience property. This is <see cref="WhereAsSortedDictionary"/> as a <see cref="SortedDictionary{TKey,TValue}"/>.
-        /// </summary>
-        public SortedDictionary<string, object> WhereAsSortedDictionary { get; private set; }
-
-        private static SortedDictionary<string, object> ParseWhere(object value)
+        public WhereCondition GetWhereCondition(string key, string wildCardZeroOrMoreCharacters, string wildCardOneCharacter)
         {
-            var sd = new SortedDictionary<string, object>();
+            var whereCondition = WhereAsDictionary[key];
+            if (!whereCondition.IsWildCard) return whereCondition;
+            if (!(whereCondition.Object is string s)) return whereCondition;
+            var replaced = s
+                .Replace(WildCardZeroOrMoreCharacters, wildCardZeroOrMoreCharacters)
+                .Replace(WildCardOneCharacter, wildCardOneCharacter);
+            return new WhereCondition
+            {
+                IsWildCard = whereCondition.IsWildCard,
+                Object = replaced
+            };
+        }
+
+        public TModel GetWhereAsModel(string wildCardZeroOrMoreCharacters, string wildCardOneCharacter)
+        {
+            if (_where == null) return default;
+            var whereAsJObject = JObject.FromObject(_where);
+            foreach (var token in whereAsJObject.Children())
+            {
+                var property = token as JProperty;
+                if (property == null) continue;
+                var whereCondition =
+                    GetWhereCondition(property.Name, wildCardZeroOrMoreCharacters, wildCardOneCharacter);
+                if (!whereCondition.IsWildCard) continue;
+                var currentValue = property.Value.ToString();
+                if (currentValue == null) continue;
+                var newValue = currentValue
+                    .Replace(WildCardZeroOrMoreCharacters, wildCardZeroOrMoreCharacters)
+                    .Replace(WildCardOneCharacter, wildCardOneCharacter);
+                property.Value = newValue;
+            }
+
+            return whereAsJObject.ToObject<TModel>();
+        }
+
+        private static Dictionary<string, WhereCondition> ParseWhere(object value)
+        {
+            var sd = new Dictionary<string, WhereCondition>();
             if (value != null)
             {
                 var modelType = typeof(TModel);
@@ -131,8 +162,7 @@ namespace Nexus.Link.Libraries.Crud.Model
                 InternalContract.Require(@where.Type == JTokenType.Object,
                     $"Property {nameof(value)} must be an object with properties:\r{@where.ToString(Formatting.Indented)}");
 
-                var token = @where.First;
-                while (token != null)
+                foreach (var token in where.Children())
                 {
                     var property = token as JProperty;
                     InternalContract.Require(property != null,
@@ -150,25 +180,55 @@ namespace Nexus.Link.Libraries.Crud.Model
                         var valueProperty = valueType.GetProperty(property.Name);
                         if (valueProperty != null)
                         {
-                            sd.Add(property.Name, valueProperty.GetValue(value));
+                            var v = valueProperty.GetValue(value);
+                            string replaced = null;
+                            var isWildCard = false;
+                            if (v is string s)
+                            {
+                                (isWildCard, replaced) = ReplaceWildCard(s);
+                            }
+                            var whereProperty = new WhereCondition
+                            {
+                                IsWildCard = isWildCard,
+                                Object = isWildCard ? replaced : v
+                            };
+                            sd.Add(property.Name, whereProperty);
                         }
                     }
-
-                    token = token.Next;
                 }
             }
 
             return sd;
         }
 
-        /// <summary>
-        /// Convenience property. This is <see cref="OrderByAsSortedDictionary"/> as a <see cref="SortedDictionary{TKey,TValue}"/>.
-        /// </summary>
-        public SortedDictionary<string, bool> OrderByAsSortedDictionary { get; private set; }
-
-        private static SortedDictionary<string, bool> ParseOrderBy(object value)
+        public static (bool, string) ReplaceWildCard(string value)
         {
-            var sd = new SortedDictionary<string, bool>();
+            if (value == null) return (false, null);
+            if (!value.Contains("*") && !value.Contains("?")) return (false, value);
+            const string escapedAsterisk = "{escaped-asterisk}";
+            const string escapedQuestionMark = "{escaped-question-mark}";
+            const string escapedBackslash = "{escaped-backslash}";
+            var filtered = value
+                .Replace(@"\\", escapedBackslash)
+                .Replace(@"\?", escapedQuestionMark)
+                .Replace(@"\*", escapedAsterisk);
+            var result = filtered
+                .Replace("*", WildCardZeroOrMoreCharacters)
+                .Replace("?", WildCardOneCharacter)
+                .Replace(escapedBackslash, @"\\")
+                .Replace(escapedQuestionMark, @"\?")
+                .Replace(escapedAsterisk, @"\*");
+            return (filtered.Contains("*") || filtered.Contains("?"), result);
+        }
+
+        /// <summary>
+        /// Convenience property. This is <see cref="OrderByAsDictionary"/> as a <see cref="Dictionary{TKey,TValue}"/>.
+        /// </summary>
+        public Dictionary<string, bool> OrderByAsDictionary { get; private set; }
+
+        private static Dictionary<string, bool> ParseOrderBy(object value)
+        {
+            var sd = new Dictionary<string, bool>();
             if (value != null)
             {
                 InternalContract.RequireNotNull(value, nameof(value));
@@ -176,8 +236,7 @@ namespace Nexus.Link.Libraries.Crud.Model
                 InternalContract.Require(orderBy.Type == JTokenType.Object,
                     $"Property {nameof(value)} must be an object with properties:\r{orderBy.ToString(Formatting.Indented)}");
 
-                var token = orderBy.First;
-                while (token != null)
+                foreach (var token in orderBy.Children())
                 {
                     var property = token as JProperty;
                     InternalContract.Require(property != null,
@@ -193,8 +252,7 @@ namespace Nexus.Link.Libraries.Crud.Model
                     InternalContract.Require(property.Value.Type == JTokenType.Boolean,
                         $"Property {nameof(value)}.{property.Name} must be a boolean.");
 
-                    sd.Add(property.Name, (bool) property.Value);
-                    token = token.Next;
+                    sd.Add(property.Name, (bool)property.Value);
                 }
             }
 
@@ -248,5 +306,12 @@ namespace Nexus.Link.Libraries.Crud.Model
             var result = $"Where = {{{whereAsString}}}\rOrderBy = {{{orderByAsString}}}";
             return result;
         }
+    }
+
+    public class WhereCondition
+    {
+        public bool IsWildCard { get; set; }
+        public object Object { get; set; }
+
     }
 }

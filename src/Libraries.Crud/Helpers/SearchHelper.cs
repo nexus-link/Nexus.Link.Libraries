@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.RegularExpressions;
 using Nexus.Link.Libraries.Core.Assert;
 using Nexus.Link.Libraries.Crud.Model;
 
@@ -8,28 +9,26 @@ namespace Nexus.Link.Libraries.Crud.Helpers
 {
     public static class SearchHelper
     {
-        
-
         public static IEnumerable<TModel> FilterAndSort<TModel>(IEnumerable<TModel> items, SearchDetails<TModel> details)
         {
             InternalContract.RequireNotNull(details, nameof(details));
             InternalContract.RequireValidated(details, nameof(details));
-            var filtered = items.Where(item => IsMatch(item, details.WhereAsSortedDictionary));
-            var sorted = Sort(filtered, details.OrderByAsSortedDictionary);
+            var filtered = items.Where(item => IsMatch(item, details));
+            var sorted = Sort(filtered, details);
             return sorted;
         }
 
-        public static IEnumerable<TModel> Sort<TModel>(IEnumerable<TModel> items, SortedDictionary<string, bool> orderBy)
+        public static IEnumerable<TModel> Sort<TModel>(IEnumerable<TModel> items,  SearchDetails<TModel> details)
         {
             var list = items.ToList();
-            list.Sort((item1, item2) => Compare(item1, item2, orderBy));
+            list.Sort((item1, item2) => Compare(item1, item2, details));
             return list;
         }
 
-        public static int Compare<TModel>(TModel firstItem, TModel secondItem, SortedDictionary<string, bool> orderBy)
+        public static int Compare<TModel>(TModel firstItem, TModel secondItem,  SearchDetails<TModel> details)
         {
             var modelType = typeof(TModel);
-            foreach (var keyValuePair in orderBy)
+            foreach (var keyValuePair in details.OrderByAsDictionary)
             {
                 var propertyInfo = modelType.GetProperty(keyValuePair.Key);
                 if (propertyInfo == null) continue;
@@ -51,20 +50,30 @@ namespace Nexus.Link.Libraries.Crud.Helpers
             return 0;
         }
 
-        public static bool IsMatch<TModel>(TModel item, SortedDictionary<string, object> condition)
+        public static bool IsMatch<TModel>(TModel item, SearchDetails<TModel> details)
         {
-            if (condition == null || !condition.Any()) return true;
+            if (!details.WherePropertyNames.Any()) return true;
             
             var modelType = typeof(TModel);
-            foreach (var keyValuePair in condition)
+            foreach (var propertyName in details.WherePropertyNames)
             {
-                var propertyInfo = modelType.GetProperty(keyValuePair.Key);
+                var propertyInfo = modelType.GetProperty(propertyName);
                 if (propertyInfo == null) continue;
                 var itemValue = propertyInfo.GetValue(item);
                 if (itemValue == null) continue;
-                if (itemValue.GetType() != keyValuePair.Value.GetType()) return false;
-                if (itemValue.ToString() != keyValuePair.Value.ToString()) return false;
+                var whereCondition = details.GetWhereCondition(propertyName, ".*", ".");
+                if (itemValue.GetType() != whereCondition.Object.GetType()) return false;
+                if (whereCondition.IsWildCard)
+                {
+                    var regexp = new Regex((string) whereCondition.Object);
+                    if (!regexp.IsMatch(itemValue.ToString())) return false;
+                }
+                else
+                {
+                    if (itemValue.ToString() != whereCondition.Object.ToString()) return false;
+                }
             }
+
             return true;
         }
     }

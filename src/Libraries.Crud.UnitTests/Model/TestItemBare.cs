@@ -35,6 +35,9 @@ namespace Nexus.Link.Libraries.Crud.UnitTests.Model
                 case TypeOfTestDataEnum.Variant2:
                     Value = "Variant2";
                     break;
+                case TypeOfTestDataEnum.Guid:
+                    Value = Guid.NewGuid().ToString();
+                    break;
                 case TypeOfTestDataEnum.Random:
                     Value = Guid.NewGuid().ToString();
                     break;

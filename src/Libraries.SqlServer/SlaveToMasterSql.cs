@@ -124,8 +124,9 @@ namespace Nexus.Link.Libraries.SqlServer
             InternalContract.RequireValidated(details, nameof(details));
             InternalContract.RequireGreaterThanOrEqualTo(0, offset, nameof(offset));
             if (limit != null) InternalContract.RequireGreaterThan(0, limit.Value, nameof(limit));
-            
-            var param = details.WhereAsModel == null ? new TSlaveModel() : details.WhereAsModel;
+
+            var whereAsModel = details.GetWhereAsModel("%", "_");
+            var param = whereAsModel == null ? new TSlaveModel() : whereAsModel;
             var property = typeof(TSlaveModel).GetProperty(ParentColumnName);
             FulcrumAssert.IsNotNull(property, CodeLocation.AsString());
             property?.SetValue(param, parentId);

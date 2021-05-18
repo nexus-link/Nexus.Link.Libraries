@@ -19,7 +19,7 @@ namespace Nexus.Link.Libraries.Crud.UnitTests.Crd
         [DataTestMethod]
         [DataRow("Variant1")]
         [DataRow("Variant2")]
-        public async Task Find_Item_Async(string value)
+        public async Task Search_Item_Async(string value)
         {
             // Arrange
             await CreateItemAsync(TypeOfTestDataEnum.Variant1);
@@ -35,6 +35,30 @@ namespace Nexus.Link.Libraries.Crud.UnitTests.Crd
             foreach (var item in page.Data)
             {
                 Assert.AreEqual(value, item.Value);
+            }
+        }
+
+        [DataTestMethod]
+        [DataRow("Var*", 2)]
+        [DataRow("Def*", 1)]
+        [DataRow("Variant?", 2)]
+        public async Task SearchWithWildCard_Async(string value, int expectedFound)
+        {
+            // Arrange
+            await CreateItemAsync(TypeOfTestDataEnum.Variant1);
+            await CreateItemAsync(TypeOfTestDataEnum.Default);
+            await CreateItemAsync(TypeOfTestDataEnum.Variant2);
+
+            // Act 
+            var search = CrudStorage as ISearch<TestItemSort<TId>, TId>;
+            Assert.IsNotNull(search, $"{CrudStorage.GetType().Name} was expected to implement {nameof(ISearch<TestItemSort<TId>, TId>)}");
+            var page = await search.SearchAsync(new SearchDetails<TestItemSort<TId>>(new { Value = value }), 0, 10);
+
+            // Assert
+            Assert.AreEqual(expectedFound, page.PageInfo.Returned);
+            foreach (var item in page.Data)
+            {
+                Assert.AreEqual(value.Substring(0,1), item.Value.Substring(0,1));
             }
         }
 

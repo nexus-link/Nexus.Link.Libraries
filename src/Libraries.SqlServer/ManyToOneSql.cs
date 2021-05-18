@@ -104,7 +104,8 @@ namespace Nexus.Link.Libraries.SqlServer
             InternalContract.RequireGreaterThanOrEqualTo(0, offset, nameof(offset));
             if (limit != null) InternalContract.RequireGreaterThan(0, limit.Value, nameof(limit));
             
-            var param = details.WhereAsModel == null ? new TManyModel() : details.WhereAsModel;
+            var whereAsModel = details.GetWhereAsModel("%", "_");
+            var param = whereAsModel == null ? new TManyModel() : whereAsModel;
             var property = typeof(TManyModel).GetProperty(ParentColumnName);
             FulcrumAssert.IsNotNull(property, CodeLocation.AsString());
             property?.SetValue(param, parentId);
@@ -216,8 +217,9 @@ namespace Nexus.Link.Libraries.SqlServer
             InternalContract.RequireValidated(details, nameof(details));
             InternalContract.RequireGreaterThanOrEqualTo(0, offset, nameof(offset));
             if (limit != null) InternalContract.RequireGreaterThan(0, limit.Value, nameof(limit));
-
-            var param = details.WhereAsModel == null ? new TManyModel() : details.WhereAsModel;
+            
+            var whereAsModel = details.GetWhereAsModel("%", "_");
+            var param = whereAsModel == null ? new TManyModel() : whereAsModel;
             var property = typeof(TManyModel).GetProperty(ParentColumnName);
             FulcrumAssert.IsNotNull(property, CodeLocation.AsString());
             property?.SetValue(param, parentId);
