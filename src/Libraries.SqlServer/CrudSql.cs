@@ -1,14 +1,19 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Dapper;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using Nexus.Link.Libraries.Core.Assert;
 using Nexus.Link.Libraries.Crud.Interfaces;
 using Nexus.Link.Libraries.Core.Error.Logic;
 using Nexus.Link.Libraries.Core.Misc;
 using Nexus.Link.Libraries.Core.Storage.Logic;
 using Nexus.Link.Libraries.Core.Storage.Model;
+using Nexus.Link.Libraries.Crud.Helpers;
 using Nexus.Link.Libraries.Crud.Model;
 using Nexus.Link.Libraries.SqlServer.Logic;
 using Nexus.Link.Libraries.SqlServer.Model;
@@ -37,9 +42,10 @@ namespace Nexus.Link.Libraries.SqlServer
     /// <summary>
     /// Helper class for advanced SELECT statements
     /// </summary>
-    public class CrudSql<TDatabaseItemCreate, TDatabaseItem> : TableBase<TDatabaseItem>, ICrud<TDatabaseItemCreate, TDatabaseItem, Guid>
+    public class CrudSql<TDatabaseItemCreate, TDatabaseItem> : TableBase<TDatabaseItem>, ICrud<TDatabaseItemCreate, TDatabaseItem, Guid>, ISearch<TDatabaseItem, Guid>
         where TDatabaseItem : TDatabaseItemCreate, IUniquelyIdentifiable<Guid>
     {
+        private readonly CrudConvenience<TDatabaseItemCreate, TDatabaseItem, Guid> _convenience;
         /// <summary>
         /// Constructor
         /// </summary>
@@ -49,6 +55,7 @@ namespace Nexus.Link.Libraries.SqlServer
             : base(connectionString, tableMetadata)
         {
             InternalContract.RequireValidated(tableMetadata, nameof(tableMetadata));
+            _convenience = new CrudConvenience<TDatabaseItemCreate, TDatabaseItem, Guid>(this);
         }
 
         /// <inheritdoc />
@@ -116,12 +123,38 @@ namespace Nexus.Link.Libraries.SqlServer
 
         public Task<PageEnvelope<TDatabaseItem>> ReadAllWithPagingAsync(int offset, int? limit = null, CancellationToken token = default(CancellationToken))
         {
+            InternalContract.RequireGreaterThanOrEqualTo(0, offset, nameof(offset));
+            if (limit != null) InternalContract.RequireGreaterThan(0, limit.Value, nameof(limit));
             return SearchAllAsync(null, offset, limit, token);
+        }
+
+        /// <inheritdoc />
+        public async Task<PageEnvelope<TDatabaseItem>> SearchAsync(SearchDetails<TDatabaseItem> details, int offset, int? limit = null,
+            CancellationToken cancellationToken = default(CancellationToken))
+        {
+            InternalContract.RequireNotNull(details, nameof(details));
+            InternalContract.RequireValidated(details, nameof(details));
+            InternalContract.RequireGreaterThanOrEqualTo(0, offset, nameof(offset));
+            if (limit != null) InternalContract.RequireGreaterThan(0, limit.Value, nameof(limit));
+            
+            var where = CrudSearchHelper.GetWhereStatement(details);
+            var orderBy = CrudSearchHelper.GetOrderByStatement(details);
+
+            
+
+            return await SearchWhereAsync(where, orderBy, details.GetWhereAsModel("%", "_"), offset, limit, cancellationToken);
+        }
+
+        /// <inheritdoc />
+        public  Task<TDatabaseItem> FindUniqueAsync(SearchDetails<TDatabaseItem> details, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            return _convenience.FindUniqueAsync(details, cancellationToken);
         }
 
         /// <inheritdoc />
         public async Task<IEnumerable<TDatabaseItem>> ReadAllAsync(int limit = 2147483647, CancellationToken token = new CancellationToken())
         {
+            InternalContract.RequireGreaterThan(0, limit, nameof(limit));
             return await StorageHelper.ReadPagesAsync<TDatabaseItem>(
                 (offset, cancellationToken) => ReadAllWithPagingAsync(offset, null, cancellationToken),
                 limit, token);

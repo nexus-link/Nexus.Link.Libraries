@@ -1,13 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Newtonsoft.Json.Linq;
 using Nexus.Link.Libraries.Core.Assert;
 using Nexus.Link.Libraries.Core.Crud.Model;
 using Nexus.Link.Libraries.Core.Error.Logic;
+using Nexus.Link.Libraries.Core.Misc;
 using Nexus.Link.Libraries.Core.Storage.Logic;
 using Nexus.Link.Libraries.Crud.Interfaces;
 using Nexus.Link.Libraries.Core.Storage.Model;
+using Nexus.Link.Libraries.Crud.Helpers;
 using Nexus.Link.Libraries.Crud.Model;
 using Nexus.Link.Libraries.SqlServer.Logic;
 using Nexus.Link.Libraries.SqlServer.Model;
@@ -18,7 +22,7 @@ namespace Nexus.Link.Libraries.SqlServer
     public class SlaveToMasterSql<TSlaveModel, TMasterModel> :
         SlaveToMasterSql<TSlaveModel, TSlaveModel, TMasterModel>,
         ICrudSlaveToMaster<TSlaveModel, Guid>
-        where TSlaveModel : IUniquelyIdentifiable<Guid>
+        where TSlaveModel : IUniquelyIdentifiable<Guid>, new()
         where TMasterModel : IUniquelyIdentifiable<Guid>
     {
         /// <summary>
@@ -39,9 +43,11 @@ namespace Nexus.Link.Libraries.SqlServer
     public class SlaveToMasterSql<TSlaveModelCreate, TSlaveModel, TMasterModel> :
         CrudSql<TSlaveModelCreate, TSlaveModel>,
         ICrudSlaveToMaster<TSlaveModelCreate, TSlaveModel, Guid>
-            where TSlaveModel : TSlaveModelCreate, IUniquelyIdentifiable<Guid>
+            where TSlaveModel : TSlaveModelCreate, IUniquelyIdentifiable<Guid>, new()
             where TMasterModel : IUniquelyIdentifiable<Guid>
     {
+        private readonly SlaveToMasterConvenience<TSlaveModelCreate, TSlaveModel, Guid> _convenience;
+
         public string ParentColumnName { get; }
         protected CrudSql<TSlaveModelCreate, TSlaveModel> SlaveTableHandler { get; }
         protected CrudSql<TMasterModel> MasterTableHandler { get; }
@@ -55,6 +61,7 @@ namespace Nexus.Link.Libraries.SqlServer
             ParentColumnName = parentColumnName;
             SlaveTableHandler = slaveTableHandler;
             MasterTableHandler = masterTableHandler;
+            _convenience = new SlaveToMasterConvenience<TSlaveModelCreate, TSlaveModel, Guid>(this);
         }
 
         /// <inheritdoc />
@@ -110,6 +117,34 @@ namespace Nexus.Link.Libraries.SqlServer
         }
 
         /// <inheritdoc />
+        public Task<PageEnvelope<TSlaveModel>> SearchChildrenAsync(Guid parentId, SearchDetails<TSlaveModel> details, int offset, int? limit = null,
+            CancellationToken cancellationToken = default(CancellationToken))
+        {
+            InternalContract.RequireNotNull(details, nameof(details));
+            InternalContract.RequireValidated(details, nameof(details));
+            InternalContract.RequireGreaterThanOrEqualTo(0, offset, nameof(offset));
+            if (limit != null) InternalContract.RequireGreaterThan(0, limit.Value, nameof(limit));
+
+            var whereAsModel = details.GetWhereAsModel("%", "_");
+            var param = whereAsModel == null ? new TSlaveModel() : whereAsModel;
+            var property = typeof(TSlaveModel).GetProperty(ParentColumnName);
+            FulcrumAssert.IsNotNull(property, CodeLocation.AsString());
+            property?.SetValue(param, parentId);
+
+            var where = CrudSearchHelper.GetWhereStatement(details, ParentColumnName);
+            var orderBy = CrudSearchHelper.GetOrderByStatement(details);
+
+            return SearchWhereAsync(where, orderBy, param, offset, limit, cancellationToken);
+        }
+
+        /// <inheritdoc />
+        public Task<TSlaveModel> FindUniqueChildAsync(Guid parentId, SearchDetails<TSlaveModel> details,
+            CancellationToken cancellationToken = default(CancellationToken))
+        {
+            return _convenience.FindUniqueChildAsync(parentId, details, cancellationToken);
+        }
+
+        /// <inheritdoc />
         public Task UpdateAsync(Guid masterId, Guid slaveId, TSlaveModel item, CancellationToken token = new CancellationToken())
         {
             return SlaveTableHandler.UpdateAsync(slaveId, item, token);
@@ -131,7 +166,7 @@ namespace Nexus.Link.Libraries.SqlServer
         /// <inheritdoc />
         public Task DeleteChildrenAsync(Guid parentId, CancellationToken token = default(CancellationToken))
         {
-			return DeleteWhereAsync($"[{ParentColumnName}] = @ParentId", new { ParentId = parentId }, token);
+            return DeleteWhereAsync($"[{ParentColumnName}] = @ParentId", new { ParentId = parentId }, token);
         }
 
         /// <inheritdoc />
@@ -164,7 +199,7 @@ namespace Nexus.Link.Libraries.SqlServer
         {
             var selectStatement =
                 $"SELECT {SqlHelper.ReadColumnNames(TableMetadata)} FROM [{TableMetadata.TableName}] WITH (ROWLOCK, UPDLOCK, READPAST) WHERE Id=@Id";
-            var result = await SearchAdvancedSingleAsync(selectStatement, new {Id = slaveId}, token);
+            var result = await SearchAdvancedSingleAsync(selectStatement, new { Id = slaveId }, token);
             if (result == null)
             {
                 throw new FulcrumTryAgainException(

@@ -170,5 +170,21 @@ namespace Nexus.Link.Libraries.Crud.PassThrough
             var implementation = CrudHelper.GetImplementationOrThrow<ITransactionLockSlave<TId>>(Service);
             return implementation.ClaimTransactionLockAsync(masterId, slaveId, token);
         }
+
+        /// <inheritdoc />
+        public Task<PageEnvelope<TModel>> SearchChildrenAsync(TId parentId, SearchDetails<TModel> details, int offset, int? limit = null,
+            CancellationToken cancellationToken = default(CancellationToken))
+        {
+            var implementation = CrudHelper.GetImplementationOrThrow<ISearchChildren<TModel,TId>>(Service);
+            return implementation.SearchChildrenAsync(parentId, details, offset, limit, cancellationToken);
+        }
+
+        /// <inheritdoc />
+        public Task<TModel> FindUniqueChildAsync(TId parentId, SearchDetails<TModel> details,
+            CancellationToken cancellationToken = default(CancellationToken))
+        {
+            var implementation = CrudHelper.GetImplementationOrThrow<ISearchChildren<TModel,TId>>(Service);
+            return implementation.FindUniqueChildAsync(parentId, details, cancellationToken);
+        }
     }
 }

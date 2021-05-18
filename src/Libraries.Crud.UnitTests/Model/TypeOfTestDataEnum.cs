@@ -24,6 +24,10 @@ namespace Nexus.Link.Libraries.Crud.UnitTests.Model
         /// <summary>
         /// A random set of data, shouldn't be Equal to any other instance.
         /// </summary>
-        Random
+        Random,
+        /// <summary>
+        /// A new Guid as string.
+        /// </summary>
+        Guid
     };
 }

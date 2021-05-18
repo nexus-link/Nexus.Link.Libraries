@@ -4,9 +4,11 @@ using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Rest;
+using Newtonsoft.Json.Linq;
 using Nexus.Link.Libraries.Core.Assert;
 using Nexus.Link.Libraries.Core.Storage.Model;
 using Nexus.Link.Libraries.Core.Translation;
+using Nexus.Link.Libraries.Crud.Helpers;
 using Nexus.Link.Libraries.Crud.Interfaces;
 using Nexus.Link.Libraries.Crud.Model;
 using Nexus.Link.Libraries.Web.RestClientHelper;
@@ -61,6 +63,8 @@ namespace Nexus.Link.Libraries.Crud.Web.RestClient
         Libraries.Web.RestClientHelper.RestClient,
         ICrud<TModelCreate, TModel, TId> where TModel : TModelCreate
     {
+        private readonly CrudConvenience<TModelCreate, TModel, TId> _convenience;
+
         /// <summary>
         /// Constructor. 
         /// </summary>
@@ -68,6 +72,7 @@ namespace Nexus.Link.Libraries.Crud.Web.RestClient
         public CrudRestClient(IHttpSender httpSender)
             : base(httpSender)
         {
+            _convenience = new CrudConvenience<TModelCreate, TModel,TId>(this);
         }
 
         #region Obsolete constructors
@@ -166,6 +171,31 @@ namespace Nexus.Link.Libraries.Crud.Web.RestClient
         {
             InternalContract.RequireGreaterThan(0, limit, nameof(limit));
             return await GetAsync<IEnumerable<TModel>>($"?limit={limit}", cancellationToken: token);
+        }
+
+        /// <inheritdoc />
+        public async Task<PageEnvelope<TModel>> SearchAsync(SearchDetails<TModel> details, int offset, int? limit = null,
+            CancellationToken cancellationToken = default(CancellationToken))
+        {
+            ServiceContract.RequireNotNull(details, nameof(details));
+            ServiceContract.RequireValidated(details, nameof(details));
+            ServiceContract.RequireGreaterThanOrEqualTo(0, offset, nameof(offset));
+            if (limit != null)
+            {
+                ServiceContract.RequireGreaterThan(0, limit.Value, nameof(limit));
+            }
+            var limitParameter = "";
+            if (limit != null)
+            {
+                limitParameter = $"&limit={limit}";
+            }
+            return await PostAsync<PageEnvelope<TModel>, SearchDetails<TModel>>($"/Searches?offset={offset}{limitParameter}", details, cancellationToken: cancellationToken);
+        }
+
+        /// <inheritdoc />
+        public Task<TModel> FindUniqueAsync(SearchDetails<TModel> details, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            return _convenience.FindUniqueAsync(details, cancellationToken);
         }
 
         /// <inheritdoc />

@@ -12,6 +12,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Nexus.Link.Libraries.Core.Json;
 using Nexus.Link.Libraries.Core.Misc;
+using Nexus.Link.Libraries.Crud.Helpers;
 
 namespace Nexus.Link.Libraries.Azure.Storage.Blob
 {
@@ -29,10 +30,13 @@ namespace Nexus.Link.Libraries.Azure.Storage.Blob
         ICrud<TModelCreate, TModel, TId>
         where TModel : TModelCreate
     {
+        private CrudConvenience<TModelCreate, TModel, TId> _convenience;
+
         public CrudAzureStorageBlob(string connectionString, string containerName)
         {
             var client = new AzureBlobClient(connectionString);
             Directory = client.GetBlobContainer(containerName);
+            _convenience = new CrudConvenience<TModelCreate, TModel, TId>(this);
         }
 
         public IDirectory Directory { get; }
@@ -150,6 +154,32 @@ namespace Nexus.Link.Libraries.Azure.Storage.Blob
         {
             InternalContract.RequireGreaterThan(0, limit, nameof(limit));
             return StorageHelper.ReadPagesAsync<TModel>((offset, ct) => ReadAllWithPagingAsync(offset, null, ct), limit, token);
+        }
+
+        /// <inheritdoc />
+        public async Task<PageEnvelope<TModel>> SearchAsync(SearchDetails<TModel> details, int offset, int? limit = null,
+            CancellationToken cancellationToken = default(CancellationToken))
+        {
+            limit = limit ?? PageInfo.DefaultLimit;
+            InternalContract.RequireNotNull(details, nameof(details));
+            InternalContract.RequireValidated(details, nameof(details));
+            InternalContract.RequireGreaterThanOrEqualTo(0, offset, nameof(offset));
+            InternalContract.RequireGreaterThan(0, limit.Value, nameof(limit));
+
+            var allItems = (await ReadAllAsync(int.MaxValue, cancellationToken))
+                .ToList();
+
+            var list = SearchHelper.FilterAndSort(allItems, details)
+                .Skip(offset)
+                .Take(limit.Value);
+            var page = new PageEnvelope<TModel>(offset, limit.Value, allItems.Count(), list);
+            return page;
+        }
+
+        /// <inheritdoc />
+        public Task<TModel> FindUniqueAsync(SearchDetails<TModel> details, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            return _convenience.FindUniqueAsync(details, cancellationToken);
         }
 
         public async Task DeleteAllAsync(CancellationToken token = default(CancellationToken))

@@ -34,11 +34,13 @@ namespace Nexus.Link.Libraries.Azure.Storage.Table
         ICrudSlaveToMaster<TItemCreate, TItem, TId>
         where TItem : TItemCreate, IOptimisticConcurrencyControlByETag
     {
+        private SlaveToMasterConvenience<TItemCreate, TItem, TId> _convenience;
         protected AzureStorageTable<TItemCreate, TItem> Table { get; }
 
         public SlaveToMasterAzureStorageTable(string connectionString, string name)
         {
             Table = new AzureStorageTable<TItemCreate, TItem>(connectionString, name);
+            _convenience = new SlaveToMasterConvenience<TItemCreate, TItem, TId>(this);
         }
 
         /// <inheritdoc />
@@ -187,6 +189,20 @@ namespace Nexus.Link.Libraries.Azure.Storage.Table
         public Task ClaimTransactionLockAsync(TId masterId, TId slaveId, CancellationToken token = default(CancellationToken))
         {
             throw new NotImplementedException();
+        }
+
+        /// <inheritdoc />
+        public Task<PageEnvelope<TItem>> SearchChildrenAsync(TId parentId, SearchDetails<TItem> details, int offset, int? limit = null,
+            CancellationToken cancellationToken = default(CancellationToken))
+        {
+            return _convenience.SearchChildrenAsync(parentId, details, offset, limit, cancellationToken);
+        }
+
+        /// <inheritdoc />
+        public Task<TItem> FindUniqueChildAsync(TId parentId, SearchDetails<TItem> details,
+            CancellationToken cancellationToken = default(CancellationToken))
+        {
+            return _convenience.FindUniqueChildAsync(parentId, details, cancellationToken);
         }
     }
 }

@@ -31,7 +31,7 @@ namespace Nexus.Link.Libraries.Azure.Storage.Blob
 
         public async Task CreateIfNotExistsAsync()
         {
-            var requestOptions = new BlobRequestOptions { RetryPolicy = new NoRetry() };
+            var requestOptions = new BlobRequestOptions { RetryPolicy = new ExponentialRetry() };
             await _blobContainer.CreateIfNotExistsAsync(requestOptions, null);
         }
 
@@ -49,9 +49,10 @@ namespace Nexus.Link.Libraries.Azure.Storage.Blob
 
         public async Task<IEnumerable<IDirectoryListItem>> ListContentAsync(CancellationToken ct = default(CancellationToken))
         {
-            // TODO: Use the Async method instead.
-            return await Task.FromResult((await ListBlobsAsync(ct))
-                .Select(AzureBlobDirectory.CastToBlob));
+            var blobs = await ListBlobsAsync(ct);
+            var items = blobs
+            .Select(AzureBlobDirectory.CastToBlob);
+            return items;
         }
 
         private async Task<List<IListBlobItem>> ListBlobsAsync(CancellationToken ct = default(CancellationToken))

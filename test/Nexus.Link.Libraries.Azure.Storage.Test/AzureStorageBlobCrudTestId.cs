@@ -19,7 +19,13 @@ namespace Nexus.Link.Libraries.Azure.Storage.Test
         {
             FulcrumApplicationHelper.UnitTestSetup(nameof(AzureStorageBlobCrudTestId));
             var connectionString = TestSettings.ConnectionString;
-            _storage = new CrudAzureStorageBlob<TestItemBare, TestItemId<Guid>, Guid>(connectionString, "test-container");
+            _storage = new CrudAzureStorageBlob<TestItemBare, TestItemId<Guid>, Guid>(connectionString, $"test-container-{Guid.NewGuid()}");
+        }
+
+        [TestCleanup]
+        public async Task TestCleanup()
+        {
+            await _storage.DeleteAllAsync();
         }
 
         protected override ICrud<TestItemBare, TestItemId<Guid>, Guid> CrudStorage => _storage;

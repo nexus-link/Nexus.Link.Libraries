@@ -184,7 +184,7 @@ namespace Nexus.Link.Libraries.Web.AspNet.Startup
             where TControllerInjector : IControllerInjector
         {
             InternalContract.Require(typeof(TControllerInjector).IsInterface, 
-                $"The type ({typeof(TControllerInjector).Name}) passed to {nameof(TControllerInjector)} must be an interface.");
+                $"The type ({typeof(TControllerInjector).Name}) passed to {nameof(RegisterControllersForCapability)} must be an interface.");
             RegisterControllersForCapability(typeof(TControllerInjector), controllerTypes);
         }
 

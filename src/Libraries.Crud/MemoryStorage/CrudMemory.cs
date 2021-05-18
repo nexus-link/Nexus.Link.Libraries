@@ -1,11 +1,15 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using Nexus.Link.Libraries.Core.Assert;
 using Nexus.Link.Libraries.Crud.Interfaces;
 using Nexus.Link.Libraries.Core.Error.Logic;
+using Nexus.Link.Libraries.Core.Misc;
 using Nexus.Link.Libraries.Core.Storage.Logic;
 using Nexus.Link.Libraries.Core.Storage.Model;
 using Nexus.Link.Libraries.Crud.Helpers;
@@ -18,8 +22,8 @@ namespace Nexus.Link.Libraries.Crud.MemoryStorage
     /// </summary>
     /// <typeparam name="TModel">The type of objects that are returned from persistant storage.</typeparam>
     /// <typeparam name="TId"></typeparam>
-    public class CrudMemory<TModel, TId> : 
-        CrudMemory<TModel, TModel, TId>, 
+    public class CrudMemory<TModel, TId> :
+        CrudMemory<TModel, TModel, TId>,
         ICrud<TModel, TId>
     {
     }
@@ -31,10 +35,16 @@ namespace Nexus.Link.Libraries.Crud.MemoryStorage
     /// <typeparam name="TModel">The type of objects that are returned from persistant storage.</typeparam>
     /// <typeparam name="TId"></typeparam>
     public class CrudMemory<TModelCreate, TModel, TId> :
-        MemoryBase<TModel, TId>, 
-        ICrud<TModelCreate, TModel, TId>
-        where TModel : TModelCreate
+        MemoryBase<TModel, TId>,
+        ICrud<TModelCreate, TModel, TId>, ISearch<TModel, TId> where TModel : TModelCreate
     {
+        private readonly CrudConvenience<TModelCreate, TModel, TId> _convenience;
+
+        public CrudMemory()
+        {
+            _convenience = new CrudConvenience<TModelCreate, TModel, TId>(this);
+        }
+
         /// <inheritdoc />
         public virtual async Task<TId> CreateAsync(TModelCreate item, CancellationToken token = default(CancellationToken))
         {
@@ -102,10 +112,11 @@ namespace Nexus.Link.Libraries.Crud.MemoryStorage
             InternalContract.RequireGreaterThan(0, limit.Value, nameof(limit));
             lock (MemoryItems)
             {
-                var keys = MemoryItems.Keys.Skip(offset).Take(limit.Value);
-                var list = keys
+                var list = MemoryItems.Keys
                     .Select(id => GetMemoryItem(id, true))
                     .Where(item => item != null)
+                    .Skip(offset)
+                    .Take(limit.Value)
                     .ToList();
                 var page = new PageEnvelope<TModel>(offset, limit.Value, MemoryItems.Count, list);
                 return Task.FromResult(page);
@@ -119,13 +130,41 @@ namespace Nexus.Link.Libraries.Crud.MemoryStorage
             InternalContract.RequireGreaterThan(0, limit, nameof(limit));
             lock (MemoryItems)
             {
-                var keys = MemoryItems.Keys.Take(limit);
-                var list = keys
+                var list = MemoryItems.Keys
                     .Select(id => GetMemoryItem(id, true))
                     .Where(item => item != null)
+                    .Take(limit)
                     .ToList();
                 return Task.FromResult((IEnumerable<TModel>)list);
             }
+        }
+
+        /// <inheritdoc />
+        public Task<PageEnvelope<TModel>> SearchAsync(SearchDetails<TModel> details, int offset = 0, int? limit = null,
+            CancellationToken cancellationToken = default(CancellationToken))
+        {
+            limit = limit ?? PageInfo.DefaultLimit;
+            InternalContract.RequireNotNull(details, nameof(details));
+            InternalContract.RequireValidated(details, nameof(details));
+            InternalContract.RequireGreaterThanOrEqualTo(0, offset, nameof(offset));
+            InternalContract.RequireGreaterThan(0, limit.Value, nameof(limit));
+
+            lock (MemoryItems)
+            {
+                var list = SearchHelper.FilterAndSort(MemoryItems.Values, details)
+                    .Skip(offset)
+                    .Take(limit.Value)
+                    .Select(item => CopyItem(item))
+                    .ToList();
+                var page = new PageEnvelope<TModel>(offset, limit.Value, MemoryItems.Count, list);
+                return Task.FromResult(page);
+            }
+        }
+
+        /// <inheritdoc />
+        public Task<TModel> FindUniqueAsync(SearchDetails<TModel> details, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            return _convenience.FindUniqueAsync(details, cancellationToken);
         }
 
         /// <inheritdoc />

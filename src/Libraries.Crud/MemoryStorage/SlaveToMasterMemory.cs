@@ -6,6 +6,7 @@ using Nexus.Link.Libraries.Core.Assert;
 using Nexus.Link.Libraries.Core.Crud.Model;
 using Nexus.Link.Libraries.Crud.Interfaces;
 using Nexus.Link.Libraries.Core.Storage.Model;
+using Nexus.Link.Libraries.Crud.Helpers;
 using Nexus.Link.Libraries.Crud.Model;
 
 namespace Nexus.Link.Libraries.Crud.MemoryStorage
@@ -31,6 +32,13 @@ namespace Nexus.Link.Libraries.Crud.MemoryStorage
         /// The storages; One dictionary with a memory storage for each master id.
         /// </summary>
         protected static readonly ConcurrentDictionary<TId, CrudMemory<TModelCreate, TModel, TId>> Storages = new ConcurrentDictionary<TId, CrudMemory<TModelCreate, TModel, TId>>();
+
+        private readonly SlaveToMasterConvenience<TModelCreate, TModel, TId> _convenience;
+
+        public SlaveToMasterMemory()
+        {
+            _convenience = new SlaveToMasterConvenience<TModelCreate, TModel, TId>(this);
+        }
 
 
         /// <inheritdoc />
@@ -221,6 +229,20 @@ namespace Nexus.Link.Libraries.Crud.MemoryStorage
         public virtual Task ClaimTransactionLockAsync(TId masterId, TId slaveId, CancellationToken token = default(CancellationToken))
         {
             throw new System.NotImplementedException();
+        }
+
+        /// <inheritdoc />
+        public Task<PageEnvelope<TModel>> SearchChildrenAsync(TId parentId, SearchDetails<TModel> details, int offset, int? limit = null,
+            CancellationToken cancellationToken = default(CancellationToken))
+        {
+            return _convenience.SearchChildrenAsync(parentId, details, offset, limit, cancellationToken);
+        }
+
+        /// <inheritdoc />
+        public Task<TModel> FindUniqueChildAsync(TId parentId, SearchDetails<TModel> details,
+            CancellationToken cancellationToken = default(CancellationToken))
+        {
+            return _convenience.FindUniqueChildAsync(parentId, details, cancellationToken);
         }
     }
 }

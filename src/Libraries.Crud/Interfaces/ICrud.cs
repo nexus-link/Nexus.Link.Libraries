@@ -21,6 +21,7 @@ namespace Nexus.Link.Libraries.Crud.Interfaces
         IRead<TModel, TId>,
         IReadAllWithPaging<TModel, TId>,
         IReadAll<TModel, TId>,
+        ISearch<TModel, TId>,
         IUpdate<TModel, TId>,
         IUpdateAndReturn<TModel, TId>,
         IDelete<TId>,

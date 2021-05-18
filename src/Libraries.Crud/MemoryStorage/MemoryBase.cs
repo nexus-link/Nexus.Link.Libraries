@@ -77,7 +77,7 @@ namespace Nexus.Link.Libraries.Crud.MemoryStorage
         /// <param name="okIfNotExists">If false, we will throw an exception if the id is not found.</param>
         /// <returns></returns>
         /// <exception cref="FulcrumNotFoundException"></exception>
-        protected TModel GetMemoryItem(TId id, bool okIfNotExists)
+        protected TModel GetMemoryItem(TId id, bool okIfNotExists = false)
         {
             InternalContract.RequireNotDefaultValue(id, nameof(id));
             if (!Exists(id))

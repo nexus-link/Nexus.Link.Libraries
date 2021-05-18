@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Nexus.Link.Libraries.Azure.Storage.Blob;
 using Nexus.Link.Libraries.Core.Application;
@@ -18,7 +19,13 @@ namespace Nexus.Link.Libraries.Azure.Storage.Test
         {
             FulcrumApplicationHelper.UnitTestSetup(nameof(AzureStorageBlobCrudTestBare));
             var connectionString = TestSettings.ConnectionString;
-            _storage = new CrudAzureStorageBlob<TestItemBare, Guid>(connectionString, "test-container");
+            _storage = new CrudAzureStorageBlob<TestItemBare, Guid>(connectionString, $"test-container-{Guid.NewGuid()}");
+        }
+
+        [TestCleanup]
+        public async Task TestCleanup()
+        {
+            await _storage.DeleteAllAsync();
         }
 
         protected override ICrud<TestItemBare, TestItemBare, Guid> CrudStorage => _storage;

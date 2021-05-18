@@ -27,6 +27,7 @@ namespace Nexus.Link.Libraries.Crud.Interfaces
         IRead<TModel, SlaveToMasterId<TId>>,
         IReadChildrenWithPaging<TModel, TId>,
         IReadChildren<TModel, TId>,
+        ISearchChildren<TModel, TId>,
         IUpdateSlave<TModel, TId>,
         IUpdateSlaveAndReturn<TModel, TId>,
         IDeleteSlave<TId>,

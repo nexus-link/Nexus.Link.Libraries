@@ -6,7 +6,9 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.Caching.Distributed;
 using Nexus.Link.Libraries.Core.Assert;
 using Nexus.Link.Libraries.Core.Storage.Model;
+using Nexus.Link.Libraries.Crud.Helpers;
 using Nexus.Link.Libraries.Crud.Interfaces;
+using Nexus.Link.Libraries.Crud.Model;
 
 namespace Nexus.Link.Libraries.Crud.Cache
 {
@@ -52,6 +54,7 @@ namespace Nexus.Link.Libraries.Crud.Cache
         ICrudManyToOne<TManyModelCreate, TManyModel, TId> where TManyModel : TManyModelCreate
     {
         private readonly ICrudManyToOne<TManyModelCreate, TManyModel, TId> _service;
+        private ManyToOneConvenience<TManyModelCreate, TManyModel, TId> _convenience;
 
         /// <summary>
         /// Constructor for TOneModel that implements <see cref="IUniquelyIdentifiable{TId}"/>.
@@ -85,6 +88,7 @@ namespace Nexus.Link.Libraries.Crud.Cache
             InternalContract.RequireNotNull(getIdDelegate, nameof(getIdDelegate));
             InternalContract.RequireNotNull(cache, nameof(cache));
             _service = service;
+            _convenience = new ManyToOneConvenience<TManyModelCreate, TManyModel, TId>(this);
         }
 
         /// <summary>
@@ -153,6 +157,20 @@ namespace Nexus.Link.Libraries.Crud.Cache
         private static string CacheKeyForChildrenCollection(TId parentId)
         {
             return $"childrenOf-{parentId}";
+        }
+
+        /// <inheritdoc />
+        public Task<PageEnvelope<TManyModel>> SearchChildrenAsync(TId parentId, SearchDetails<TManyModel> details, int offset, int? limit = null,
+            CancellationToken cancellationToken = default(CancellationToken))
+        {
+            return _convenience.SearchChildrenAsync(parentId, details, offset, limit, cancellationToken);
+        }
+
+        /// <inheritdoc />
+        public Task<TManyModel> FindUniqueChildAsync(TId parentId, SearchDetails<TManyModel> details,
+            CancellationToken cancellationToken = default(CancellationToken))
+        {
+            return _convenience.FindUniqueChildAsync(parentId, details, cancellationToken);
         }
     }
 }

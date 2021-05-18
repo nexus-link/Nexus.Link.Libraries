@@ -2,9 +2,15 @@
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+#if NETCOREAPP
+using Microsoft.AspNetCore.Mvc;
+#else
+using System.Web.Http;
+#endif
 using Nexus.Link.Libraries.Core.Assert;
 using Nexus.Link.Libraries.Core.Storage.Model;
 using Nexus.Link.Libraries.Crud.AspNet.Controllers;
+using Nexus.Link.Libraries.Crud.Helpers;
 using Nexus.Link.Libraries.Crud.Interfaces;
 using Nexus.Link.Libraries.Crud.Model;
 using Nexus.Link.Libraries.Crud.PassThrough;
@@ -33,10 +39,13 @@ namespace Nexus.Link.Libraries.Crud.AspNet.ControllerHelpers
         /// </summary>
         protected readonly ICrud<TModelCreate, TModel, string> Logic;
 
+        private readonly CrudConvenience<TModelCreate, TModel, string> _convenience;
+
         /// <inheritdoc />
         public CrudControllerHelper(ICrudable<TModel, string> logic)
         {
             Logic = new CrudPassThrough<TModelCreate, TModel, string>(logic);
+            _convenience = new CrudConvenience<TModelCreate, TModel, string>(this);
         }
 
         /// <inheritdoc />
@@ -114,6 +123,36 @@ namespace Nexus.Link.Libraries.Crud.AspNet.ControllerHelpers
             FulcrumAssert.IsNotNull(items);
             FulcrumAssert.IsValidated(items);
             return items;
+        }
+
+        /// <inheritdoc />
+        public async Task<PageEnvelope<TModel>> SearchAsync([FromBody] SearchDetails<TModel> details, int offset, int? limit = null,
+            CancellationToken cancellationToken = default(CancellationToken))
+        {
+            ServiceContract.RequireNotNull(details, nameof(details));
+            ServiceContract.RequireValidated(details, nameof(details));
+            ServiceContract.RequireGreaterThanOrEqualTo(0, offset, nameof(offset));
+            if (limit != null)
+            {
+                ServiceContract.RequireGreaterThan(0, limit.Value, nameof(limit));
+            }
+
+            var page = await Logic.SearchAsync(details, offset, limit, cancellationToken);
+            FulcrumAssert.IsNotNull(page?.Data);
+            FulcrumAssert.IsValidated(page?.Data);
+            return page;
+        }
+
+        /// <inheritdoc />
+        public Task<TModel> SearchFirstAsync([FromBody] SearchDetails<TModel> details, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            return _convenience.FindUniqueAsync(details, cancellationToken);
+        }
+
+        /// <inheritdoc />
+        public Task<TModel> FindUniqueAsync([FromBody] SearchDetails<TModel> details, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            return _convenience.FindUniqueAsync(details, cancellationToken);
         }
 
         /// <inheritdoc />

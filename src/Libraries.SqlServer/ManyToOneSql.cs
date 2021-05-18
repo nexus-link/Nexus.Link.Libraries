@@ -1,10 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Nexus.Link.Libraries.Core.Assert;
+using Nexus.Link.Libraries.Core.Misc;
 using Nexus.Link.Libraries.Core.Storage.Logic;
 using Nexus.Link.Libraries.Crud.Interfaces;
 using Nexus.Link.Libraries.Core.Storage.Model;
+using Nexus.Link.Libraries.Crud.Helpers;
+using Nexus.Link.Libraries.Crud.Model;
+using Nexus.Link.Libraries.SqlServer.Logic;
 using Nexus.Link.Libraries.SqlServer.Model;
 
 namespace Nexus.Link.Libraries.SqlServer
@@ -12,9 +18,11 @@ namespace Nexus.Link.Libraries.SqlServer
     public class ManyToOneSql<TManyModel, TOneModel> :
         CrudSql<TManyModel>,
         ICrudManyToOne<TManyModel, Guid>
-        where TManyModel : IUniquelyIdentifiable<Guid>
+        where TManyModel : IUniquelyIdentifiable<Guid>, new()
         where TOneModel : IUniquelyIdentifiable<Guid>
     {
+        private readonly ManyToOneConvenience<TManyModel, TManyModel, Guid> _convenience;
+
         public string ParentColumnName { get; }
         protected CrudSql<TOneModel> OneTableHandler { get; }
 
@@ -31,6 +39,7 @@ namespace Nexus.Link.Libraries.SqlServer
         {
             ParentColumnName = parentColumnName;
             OneTableHandler = oneTableHandler;
+            _convenience = new ManyToOneConvenience<TManyModel, TManyModel, Guid>(this);
         }
 
         /// <summary>
@@ -85,14 +94,43 @@ namespace Nexus.Link.Libraries.SqlServer
         {
             await DeleteWhereAsync($"[{ParentColumnName}] = @ParentId", new { ParentId = parentId }, token);
         }
+
+        /// <inheritdoc />
+        public Task<PageEnvelope<TManyModel>> SearchChildrenAsync(Guid parentId, SearchDetails<TManyModel> details, int offset, int? limit = null,
+            CancellationToken cancellationToken = default(CancellationToken))
+        {
+            InternalContract.RequireNotNull(details, nameof(details));
+            InternalContract.RequireValidated(details, nameof(details));
+            InternalContract.RequireGreaterThanOrEqualTo(0, offset, nameof(offset));
+            if (limit != null) InternalContract.RequireGreaterThan(0, limit.Value, nameof(limit));
+            
+            var whereAsModel = details.GetWhereAsModel("%", "_");
+            var param = whereAsModel == null ? new TManyModel() : whereAsModel;
+            var property = typeof(TManyModel).GetProperty(ParentColumnName);
+            FulcrumAssert.IsNotNull(property, CodeLocation.AsString());
+            property?.SetValue(param, parentId);
+            
+            var where = CrudSearchHelper.GetWhereStatement(details, ParentColumnName);
+            var orderBy = CrudSearchHelper.GetOrderByStatement(details);
+            return SearchWhereAsync(where, orderBy, param, offset, limit, cancellationToken);
+        }
+
+        /// <inheritdoc />
+        public Task<TManyModel> FindUniqueChildAsync(Guid parentId, SearchDetails<TManyModel> details,
+            CancellationToken cancellationToken = default(CancellationToken))
+        {
+            return _convenience.FindUniqueChildAsync(parentId, details, cancellationToken);
+        }
     }
 
     public class ManyToOneSql<TManyModelCreate, TManyModel, TOneModel> :
         CrudSql<TManyModelCreate, TManyModel>,
         ICrudManyToOne<TManyModelCreate, TManyModel, Guid>
-            where TManyModel : TManyModelCreate, IUniquelyIdentifiable<Guid>
+            where TManyModel : TManyModelCreate, IUniquelyIdentifiable<Guid>, new()
             where TOneModel : IUniquelyIdentifiable<Guid>
     {
+        private readonly ManyToOneConvenience<TManyModelCreate, TManyModel, Guid> _convenience;
+
         public string ParentColumnName { get; }
         protected CrudSql<TOneModel> OneTableHandler { get; }
 
@@ -108,6 +146,7 @@ namespace Nexus.Link.Libraries.SqlServer
         {
             ParentColumnName = parentColumnName;
             OneTableHandler = oneTableHandler;
+            _convenience = new ManyToOneConvenience<TManyModelCreate, TManyModel, Guid>(this);
         }
 
         /// <summary>
@@ -161,6 +200,34 @@ namespace Nexus.Link.Libraries.SqlServer
         public async Task DeleteChildrenAsync(Guid parentId, CancellationToken token = default(CancellationToken))
         {
             await DeleteWhereAsync($"[{ParentColumnName}] = @ParentId", new { ParentId = parentId }, token);
+        }
+
+        /// <inheritdoc />
+        public Task<PageEnvelope<TManyModel>> SearchChildrenAsync(Guid parentId, SearchDetails<TManyModel> details, int offset, int? limit = null,
+            CancellationToken cancellationToken = default(CancellationToken))
+        {
+            InternalContract.RequireNotNull(details, nameof(details));
+            InternalContract.RequireValidated(details, nameof(details));
+            InternalContract.RequireGreaterThanOrEqualTo(0, offset, nameof(offset));
+            if (limit != null) InternalContract.RequireGreaterThan(0, limit.Value, nameof(limit));
+            
+            var whereAsModel = details.GetWhereAsModel("%", "_");
+            var param = whereAsModel == null ? new TManyModel() : whereAsModel;
+            var property = typeof(TManyModel).GetProperty(ParentColumnName);
+            FulcrumAssert.IsNotNull(property, CodeLocation.AsString());
+            property?.SetValue(param, parentId);
+
+            var where = CrudSearchHelper.GetWhereStatement(details, ParentColumnName);
+            var orderBy = CrudSearchHelper.GetOrderByStatement(details);
+
+            return SearchWhereAsync(where, orderBy, param, offset, limit, cancellationToken);
+        }
+
+        /// <inheritdoc />
+        public Task<TManyModel> FindUniqueChildAsync(Guid parentId, SearchDetails<TManyModel> details,
+            CancellationToken cancellationToken = default(CancellationToken))
+        {
+            return _convenience.FindUniqueChildAsync(parentId, details, cancellationToken);
         }
     }
 }

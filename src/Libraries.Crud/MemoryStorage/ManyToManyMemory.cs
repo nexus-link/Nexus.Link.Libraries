@@ -162,7 +162,7 @@ namespace Nexus.Link.Libraries.Crud.MemoryStorage
         {
             throw new FulcrumNotImplementedException("This method needs to be changed and tests");
             //InternalContract.RequireNotNull(id, nameof(id));
-            //var errorMessage = $"{nameof(TManyToManyModel)} must implement the interface {nameof(IUniquelyIdentifiable<TId>)} for this method to work.";
+            //var errorMessage = $"{typeof(TManyToManyModel).Name} must implement the interface {nameof(IUniquelyIdentifiable<TId>)} for this method to work.";
             //InternalContract.Require(typeof(IUniquelyIdentifiable<TId>).IsAssignableFrom(typeof(TManyToManyModel)), errorMessage);
             //List<TManyToManyModel> list;
             //lock (MemoryItems)
