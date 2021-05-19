@@ -167,8 +167,15 @@ namespace Nexus.Link.Libraries.Crud.PassThrough
         /// <inheritdoc />
         public virtual Task ClaimTransactionLockAsync(TId masterId, TId slaveId, CancellationToken token = default(CancellationToken))
         {
-            var implementation = CrudHelper.GetImplementationOrThrow<ITransactionLockSlave<TId>>(Service);
+            var implementation = CrudHelper.GetImplementationOrThrow<ITransactionLockSlave<TModel, TId>>(Service);
             return implementation.ClaimTransactionLockAsync(masterId, slaveId, token);
+        }
+
+        /// <inheritdoc />
+        public Task<TModel> ClaimTransactionLockAndReadAsync(TId masterId, TId slaveId, CancellationToken token = default(CancellationToken))
+        {
+            var implementation = CrudHelper.GetImplementationOrThrow<ITransactionLockSlave<TModel, TId>>(Service);
+            return implementation.ClaimTransactionLockAndReadAsync(masterId, slaveId, token);
         }
 
         /// <inheritdoc />

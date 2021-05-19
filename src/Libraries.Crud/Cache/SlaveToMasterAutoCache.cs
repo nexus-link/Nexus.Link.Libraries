@@ -278,5 +278,11 @@ namespace Nexus.Link.Libraries.Crud.Cache
         {
             return _service.ClaimTransactionLockAsync(masterId, slaveId, token);
         }
+
+        /// <inheritdoc />
+        public Task<TManyModel> ClaimTransactionLockAndReadAsync(TId masterId, TId slaveId, CancellationToken token = default(CancellationToken))
+        {
+            return _convenience.ClaimTransactionLockAndReadAsync(masterId, slaveId, token);
+        }
     }
 }

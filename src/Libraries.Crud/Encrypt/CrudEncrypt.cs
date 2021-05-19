@@ -6,6 +6,7 @@ using Nexus.Link.Libraries.Core.Assert;
 using Nexus.Link.Libraries.Core.Error.Logic;
 using Nexus.Link.Libraries.Core.Storage.Logic;
 using Nexus.Link.Libraries.Core.Storage.Model;
+using Nexus.Link.Libraries.Crud.Helpers;
 using Nexus.Link.Libraries.Crud.Interfaces;
 using Nexus.Link.Libraries.Crud.Model;
 using Nexus.Link.Libraries.Crud.PassThrough;
@@ -18,6 +19,7 @@ namespace Nexus.Link.Libraries.Crud.Encrypt
         ICrud<TModel, TId>
     {
         private readonly ICrud<StorableAsByteArray<TModel, TId>, TId> _service;
+        private readonly CrudConvenience<TModel, TModel, TId> _convenience;
 
         /// <summary>
         /// Constructor
@@ -30,6 +32,7 @@ namespace Nexus.Link.Libraries.Crud.Encrypt
             InternalContract.RequireNotNull(service, nameof(service));
             InternalContract.RequireNotNull(symmetricEncryptionKey, nameof(symmetricEncryptionKey));
             _service = new CrudPassThrough<StorableAsByteArray<TModel, TId>, TId>(service);
+            _convenience = new CrudConvenience<TModel, TModel, TId>(this);
         }
 
         /// <inheritdoc />
@@ -160,6 +163,12 @@ namespace Nexus.Link.Libraries.Crud.Encrypt
         public Task ClaimTransactionLockAsync(TId id, CancellationToken token = default(CancellationToken))
         {
             return _service.ClaimTransactionLockAsync(id, token);
+        }
+
+        /// <inheritdoc />
+        public Task<TModel> ClaimTransactionLockAndReadAsync(TId id, CancellationToken token = default(CancellationToken))
+        {
+            return _convenience.ClaimTransactionLockAndReadAsync(id, token);
         }
     }
 }
