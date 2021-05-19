@@ -251,5 +251,11 @@ namespace Nexus.Link.Libraries.Crud.Web.RestClient
         {
             throw new NotImplementedException();
         }
+
+        /// <inheritdoc />
+        public Task<TModel> ClaimTransactionLockAndReadAsync(TId id, CancellationToken token = default(CancellationToken))
+        {
+            return _convenience.ClaimTransactionLockAndReadAsync(id, token);
+        }
     }
 }

@@ -242,6 +242,13 @@ namespace Nexus.Link.Libraries.Crud.Mappers
         }
 
         /// <inheritdoc />
+        public Task<TClientModel> ClaimTransactionLockAndReadAsync(TClientId masterId, TClientId slaveId,
+            CancellationToken token = default(CancellationToken))
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <inheritdoc />
         public Task<PageEnvelope<TClientModel>> SearchChildrenAsync(TClientId parentId, SearchDetails<TClientModel> details, int offset, int? limit = null,
             CancellationToken cancellationToken = default(CancellationToken))
         {

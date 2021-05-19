@@ -209,5 +209,12 @@ namespace Nexus.Link.Libraries.SqlServer
                 };
             }
         }
+
+        /// <inheritdoc />
+        public Task<TSlaveModel> ClaimTransactionLockAndReadAsync(Guid masterId, Guid slaveId,
+            CancellationToken token = default(CancellationToken))
+        {
+            return _convenience.ClaimTransactionLockAndReadAsync(masterId, slaveId, token);
+        }
     }
 }

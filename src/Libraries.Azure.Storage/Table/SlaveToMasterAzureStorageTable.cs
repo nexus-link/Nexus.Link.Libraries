@@ -192,6 +192,12 @@ namespace Nexus.Link.Libraries.Azure.Storage.Table
         }
 
         /// <inheritdoc />
+        public Task<TItem> ClaimTransactionLockAndReadAsync(TId masterId, TId slaveId, CancellationToken token = default(CancellationToken))
+        {
+            return _convenience.ClaimTransactionLockAndReadAsync(masterId, slaveId, token);
+        }
+
+        /// <inheritdoc />
         public Task<PageEnvelope<TItem>> SearchChildrenAsync(TId parentId, SearchDetails<TItem> details, int offset, int? limit = null,
             CancellationToken cancellationToken = default(CancellationToken))
         {
