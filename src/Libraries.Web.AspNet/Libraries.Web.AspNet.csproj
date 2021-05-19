@@ -27,7 +27,7 @@
 
   <PropertyGroup>
     <PackageId>Nexus.Link.Libraries.Web.AspNet</PackageId>
-    <Version>2.19.4</Version>
+    <Version>2.20.0</Version>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <PackageTags>nexus;link;fulcrum;lever</PackageTags>
     <Authors>XLENT Link</Authors>
@@ -37,6 +37,7 @@
     <Copyright>Copyright ©2019 Xlent Link AB</Copyright>
     <IncludeSymbols>true</IncludeSymbols>
     <PackageReleaseNotes>
+      2.20.0 (netcoreapp) Swagger UI helper methods for grouping by capability and expand/collapse sections
       2.19.4 ValueTranslatorFilter fix: Don't crash if null is returned from controller method
       2.19.3 Bump
       2.19.1 Fix: SaveTenantConfiguration now throws an exception if unauthorized
