@@ -14,7 +14,7 @@ using Nexus.Link.Libraries.Crud.PassThrough;
 
 namespace Nexus.Link.Libraries.Crud.Helpers
 {
-    public class CrudConvenience<TModelCreate, TModel, TId> : ICreateAndReturn<TModelCreate, TModel, TId>, IReadAll<TModel, TId>, ISearch<TModel, TId>
+    public class CrudConvenience<TModelCreate, TModel, TId> : ICreateAndReturn<TModelCreate, TModel, TId>, IReadAll<TModel, TId>, ISearch<TModel, TId>, ITransactionLock<TModel, TId>
         where TModel : TModelCreate
     {
         private readonly ICrud<TModelCreate, TModel, TId> _service;
@@ -79,6 +79,19 @@ namespace Nexus.Link.Libraries.Crud.Helpers
             }
 
             return page.Data.FirstOrDefault();
+        }
+
+        /// <inheritdoc />
+        public Task ClaimTransactionLockAsync(TId id, CancellationToken token = default(CancellationToken))
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <inheritdoc />
+        public async Task<TModel> ClaimTransactionLockAndReadAsync(TId id, CancellationToken token = default(CancellationToken))
+        {
+            await _service.ClaimTransactionLockAsync(id, token);
+            return await _service.ReadAsync(id, token);
         }
     }
 }

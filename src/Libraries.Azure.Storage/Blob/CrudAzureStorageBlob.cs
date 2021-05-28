@@ -255,5 +255,11 @@ namespace Nexus.Link.Libraries.Azure.Storage.Blob
         {
             throw new System.NotImplementedException();
         }
+
+        /// <inheritdoc />
+        public Task<TModel> ClaimTransactionLockAndReadAsync(TId id, CancellationToken token = default(CancellationToken))
+        {
+            return _convenience.ClaimTransactionLockAndReadAsync(id, token);
+        }
     }
 }

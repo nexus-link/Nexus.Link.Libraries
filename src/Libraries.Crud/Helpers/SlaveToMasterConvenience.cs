@@ -14,7 +14,7 @@ using Nexus.Link.Libraries.Crud.PassThrough;
 
 namespace Nexus.Link.Libraries.Crud.Helpers
 {
-    public class SlaveToMasterConvenience<TModelCreate, TModel, TId> : ISearchChildren<TModel, TId>
+    public class SlaveToMasterConvenience<TModelCreate, TModel, TId> : ISearchChildren<TModel, TId>, ITransactionLockSlave<TModel, TId>
         where TModel : TModelCreate
     {
         private readonly ICrudSlaveToMaster<TModelCreate, TModel, TId> _service;
@@ -65,6 +65,19 @@ namespace Nexus.Link.Libraries.Crud.Helpers
             }
 
             return page.Data.FirstOrDefault();
+        }
+
+        /// <inheritdoc />
+        public Task ClaimTransactionLockAsync(TId masterId, TId slaveId, CancellationToken token = default(CancellationToken))
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <inheritdoc />
+        public async Task<TModel> ClaimTransactionLockAndReadAsync(TId masterId, TId slaveId, CancellationToken token = default(CancellationToken))
+        {
+            await _service.ClaimDistributedLockAsync(masterId, slaveId, token);
+            return await _service.ReadAsync(masterId, slaveId, token);
         }
     }
 }

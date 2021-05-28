@@ -18,7 +18,7 @@
 
   <PropertyGroup>
     <PackageId>Nexus.Link.Libraries.SqlServer</PackageId>
-    <Version>2.5.1</Version>
+    <Version>2.6.1</Version>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <PackageTags>nexus;link;fulcrum;lever</PackageTags>
     <Authors>XLENT Link</Authors>
@@ -28,7 +28,8 @@
     <Copyright>Copyright ©2019 Xlent Link AB</Copyright>
     <IncludeSymbols>true</IncludeSymbols>
     <PackageReleaseNotes>
-      2.5.1 Removed assertion that CreateWithSpecifiedIdAsync should have affected 1 row. (E.g. with triggers, more rows can be affected.)
+      2.6.1 Removed assertion that CreateWithSpecifiedIdAsync should have affected 1 row. (E.g. with triggers, more rows can be affected.)
+      2.6.0 Added ClaimTransactionLockAndReadAsycn()
       2.5.0 Added Crud ISearch and ISearchChildren
       2.4.2 Corrected failing SQL statement
       2.4.1 Added logging of statement when execution fails.

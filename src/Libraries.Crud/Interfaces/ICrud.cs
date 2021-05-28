@@ -30,7 +30,7 @@ namespace Nexus.Link.Libraries.Crud.Interfaces
         ILockable<TId>,
 #pragma warning restore 618
         IDistributedLock<TId>,
-        ITransactionLock<TId>,
+        ITransactionLock<TModel, TId>,
         ICrudBasic<TModelCreate, TModel, TId> 
         where TModel : TModelCreate
     {

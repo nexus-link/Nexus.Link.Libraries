@@ -243,5 +243,11 @@ namespace Nexus.Link.Libraries.Crud.AspNet.Controllers
         {
             throw new NotImplementedException();
         }
+
+        /// <inheritdoc />
+        public Task<TModel> ClaimTransactionLockAndReadAsync(string id, CancellationToken token = default(CancellationToken))
+        {
+            throw new NotImplementedException();
+        }
     }
 }

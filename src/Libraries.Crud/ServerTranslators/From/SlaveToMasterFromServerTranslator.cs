@@ -179,6 +179,13 @@ namespace Nexus.Link.Libraries.Crud.ServerTranslators.From
         }
 
         /// <inheritdoc />
+        public Task<TModel> ClaimTransactionLockAndReadAsync(string masterId, string slaveId,
+            CancellationToken token = default(CancellationToken))
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <inheritdoc />
         public Task<PageEnvelope<TModel>> SearchChildrenAsync(string parentId, SearchDetails<TModel> details, int offset, int? limit = null,
             CancellationToken cancellationToken = default(CancellationToken))
         {

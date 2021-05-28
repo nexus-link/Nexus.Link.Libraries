@@ -13,7 +13,7 @@
 
   <PropertyGroup>
     <PackageId>Nexus.Link.Libraries.Crud.AspNet</PackageId>
-    <Version>2.5.0</Version>
+    <Version>2.6.0</Version>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <PackageTags>nexus;link;fulcrum;lever</PackageTags>
     <Authors>XLENT Link</Authors>
@@ -23,6 +23,7 @@
     <Copyright>Copyright ©2019 Xlent Link AB</Copyright>
     <IncludeSymbols>true</IncludeSymbols>
     <PackageReleaseNotes>
+      2.6.0 Added ClaimTransactionLockAndReadAsycn()
       2.5.0 Added Crud ISearch and ISearchChildren
       2.4.0 New lock interfaces.
       2.3.2 Bump

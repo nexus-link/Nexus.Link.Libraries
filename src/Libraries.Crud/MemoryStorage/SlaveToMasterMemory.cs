@@ -228,7 +228,13 @@ namespace Nexus.Link.Libraries.Crud.MemoryStorage
         /// <inheritdoc />
         public virtual Task ClaimTransactionLockAsync(TId masterId, TId slaveId, CancellationToken token = default(CancellationToken))
         {
-            throw new System.NotImplementedException();
+            return Task.CompletedTask;
+        }
+
+        /// <inheritdoc />
+        public Task<TModel> ClaimTransactionLockAndReadAsync(TId masterId, TId slaveId, CancellationToken token = default(CancellationToken))
+        {
+            return _convenience.ClaimTransactionLockAndReadAsync(masterId, slaveId, token);
         }
 
         /// <inheritdoc />
