@@ -2,7 +2,6 @@
 using System;
 using System.Diagnostics;
 using System.Net;
-using System.Threading;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 using Nexus.Link.Libraries.Core.Application;
@@ -18,6 +17,7 @@ namespace Nexus.Link.Libraries.Web.AspNet.Startup
     /// <summary>
     /// Convenience class for helping with application start from Global.asax.cs
     /// </summary>
+    [Obsolete("We don't use Fundamentals for configuration for service tenants anymore")]
     public abstract class NexusWebApiApplication : System.Web.HttpApplication
     {
         /// <summary>
