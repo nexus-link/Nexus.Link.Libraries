@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 using Nexus.Link.Libraries.Core.Application;
 using Nexus.Link.Libraries.Core.Assert;
 using Nexus.Link.Libraries.Core.Logging;
@@ -38,6 +39,7 @@ namespace Nexus.Link.Libraries.Web.AspNet.Pipe.Inbound
         /// <param name="logAllThreshold">The threshold for logging all messages within a batch.</param>
         /// <param name="releaseRecordsAsLateAsPossible">True means that the records will be released at the end of the batch.
         /// False means that they will be released as soon as one message hits the threshold and then all messages will be released instantly until the batch ends.</param>
+        [Obsolete("Please use the class NexusLinkMiddleware. Obsolete since 2021-06-04")]
         public BatchLogs(RequestDelegate next,
             LogSeverityLevel logAllThreshold = LogSeverityLevel.Error, bool releaseRecordsAsLateAsPossible = false)
             : base(next)
@@ -65,9 +67,9 @@ namespace Nexus.Link.Libraries.Web.AspNet.Pipe.Inbound
         protected override async Task InvokeAsync(CompabilityInvocationContext context)
         {
             InternalContract.Require(!LogRequestAndResponse.HasStarted,
-                $"{nameof(LogRequestAndResponse)} must not precede {nameof(SaveCorrelationId)}");
+                $"{nameof(LogRequestAndResponse)} must not precede {nameof(BatchLogs)}");
             InternalContract.Require(!ExceptionToFulcrumResponse.HasStarted,
-                $"{nameof(ExceptionToFulcrumResponse)} must not precede {nameof(SaveCorrelationId)}");
+                $"{nameof(ExceptionToFulcrumResponse)} must not precede {nameof(BatchLogs)}");
             HasStarted = true;
             BatchLogger.StartBatch(_logAllThreshold, _releaseRecordsAsLateAsPossible);
             try
@@ -83,6 +85,7 @@ namespace Nexus.Link.Libraries.Web.AspNet.Pipe.Inbound
 #if NETCOREAPP
     public static class BatchLogsExtension
     {
+        [Obsolete("Please use the class NexusLinkMiddleware. Obsolete since 2021-06-04")]
         public static IApplicationBuilder UseNexusBatchLogs(
             this IApplicationBuilder builder,
             LogSeverityLevel logAllThreshold = LogSeverityLevel.Error, bool releaseRecordsAsLateAsPossible = false)

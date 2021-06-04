@@ -16,7 +16,7 @@ namespace Nexus.Link.Libraries.Web.AspNet.Pipe.Inbound
     /// Extracts organization and environment values from request uri and adds these values to an execution context. 
     /// These values are later used to get organization and environment specific configurations for logging and request handling. 
     /// </summary>
-    [Obsolete("Use SaveClientTenant and SaveClientTenantConfiguration")]
+    [Obsolete("Use SaveClientTenant and SaveClientTenantConfiguration", true)]
     public class SaveConfiguration : CompatibilityDelegatingHandler
     {
         private readonly ILeverServiceConfiguration _serviceConfiguration;

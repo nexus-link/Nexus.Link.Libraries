@@ -1,4 +1,5 @@
 ﻿
+using System;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Nexus.Link.Libraries.Core.Application;
@@ -45,6 +46,7 @@ namespace Nexus.Link.Libraries.Web.AspNet.Pipe.Inbound
 
 #if NETCOREAPP
         /// <inheritdoc />
+        [Obsolete("Please use the class NexusLinkMiddleware. Obsolete since 2021-06-04")]
         public SaveClientTenant(RequestDelegate next, string tenantPrefix)
             : base(next)
         {
@@ -86,6 +88,7 @@ namespace Nexus.Link.Libraries.Web.AspNet.Pipe.Inbound
 #if NETCOREAPP
     public static class SaveClientTenantExtension
     {
+        [Obsolete("Please use the class NexusLinkMiddleware. Obsolete since 2021-06-04")]
         public static IApplicationBuilder UseNexusSaveClientTenant(
             this IApplicationBuilder builder,
             string tenantPrefix)

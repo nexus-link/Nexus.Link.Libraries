@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 using Nexus.Link.Libraries.Core.Application;
 using Nexus.Link.Libraries.Core.Assert;
 using Nexus.Link.Libraries.Core.Logging;
@@ -31,6 +32,7 @@ namespace Nexus.Link.Libraries.Web.AspNet.Pipe.Inbound
 
 #if NETCOREAPP
         /// <inheritdoc />
+        [Obsolete("Please use the class NexusLinkMiddleware. Obsolete since 2021-06-04")]
         public SaveNexusTestContext(RequestDelegate next)
             : base(next)
         {
@@ -90,6 +92,7 @@ namespace Nexus.Link.Libraries.Web.AspNet.Pipe.Inbound
 #if NETCOREAPP
     public static class SaveNexusTestContextExtension
     {
+        [Obsolete("Please use the class NexusLinkMiddleware. Obsolete since 2021-06-04")]
         public static IApplicationBuilder UseNexusSaveTestContext(this IApplicationBuilder builder)
         {
             return builder.UseMiddleware<SaveNexusTestContext>();
