@@ -26,8 +26,8 @@ namespace Nexus.Link.Libraries.Web.AspNet.Pipe
     /// </summary>
     public class NexusLinkMiddleware
     {
-        protected readonly RequestDelegate _next;
-        protected readonly INexusLinkMiddleWareOptions _options;
+        protected readonly RequestDelegate Next;
+        protected readonly INexusLinkMiddleWareOptions Options;
 
         /// <summary>
         /// This middleware is a collection of all the middleware features that are provided by Nexus Link. Use <paramref name="options"/>
@@ -39,8 +39,8 @@ namespace Nexus.Link.Libraries.Web.AspNet.Pipe
         {
             InternalContract.RequireValidated(options, nameof(options));
 
-            _next = next;
-            _options = options;
+            Next = next;
+            Options = options;
             if (options.UseFeatureSaveClientTenantToContext)
             {
                 Regex = new Regex($"{options.SaveClientTenantPrefix}/([^/]+)/([^/]+)/");
@@ -55,30 +55,30 @@ namespace Nexus.Link.Libraries.Web.AspNet.Pipe
 
             try
             {
-                if (_options.UseFeatureBatchLog)
+                if (Options.UseFeatureBatchLog)
                 {
-                    BatchLogger.StartBatch(_options.BatchLogThreshold, _options.BatchLogReleaseRecordsAsLateAsPossible);
+                    BatchLogger.StartBatch(Options.BatchLogThreshold, Options.BatchLogReleaseRecordsAsLateAsPossible);
                 }
 
-                if (_options.UseFeatureSaveClientTenantToContext && Regex != null)
+                if (Options.UseFeatureSaveClientTenantToContext && Regex != null)
                 {
                     var tenant = GetClientTenantFromUrl(context);
                     FulcrumApplication.Context.ClientTenant = tenant;
                 }
 
-                if (_options.UseFeatureSaveCorrelationIdToContext)
+                if (Options.UseFeatureSaveCorrelationIdToContext)
                 {
                     var correlationId = GetOrCreateCorrelationId(context);
                     FulcrumApplication.Context.CorrelationId = correlationId;
                 }
 
-                if (_options.UseFeatureSaveTenantConfigurationToContext)
+                if (Options.UseFeatureSaveTenantConfigurationToContext)
                 {
                     var tenantConfiguration = await GetTenantConfigurationAsync(FulcrumApplication.Context.ClientTenant, context);
                     FulcrumApplication.Context.LeverConfiguration = tenantConfiguration;
                 }
 
-                if (_options.UseFeatureSaveNexusTestContextToContext)
+                if (Options.UseFeatureSaveNexusTestContextToContext)
                 {
                     var testContext = GetNexusTestContextFromHeader(context);
                     FulcrumApplication.Context.NexusTestContext = testContext;
@@ -86,11 +86,11 @@ namespace Nexus.Link.Libraries.Web.AspNet.Pipe
 
                 try
                 {
-                    await _next(context);
+                    await Next(context);
                 }
                 catch (Exception exception)
                 {
-                    if (_options.UseFeatureConvertExceptionToHttpResponse)
+                    if (Options.UseFeatureConvertExceptionToHttpResponse)
                     {
                         await ConvertExceptionToResponseAsync(context, exception);
                     }
@@ -101,7 +101,7 @@ namespace Nexus.Link.Libraries.Web.AspNet.Pipe
                 }
 
                 stopWatch.Stop();
-                if (_options.UseFeatureLogRequestAndResponse)
+                if (Options.UseFeatureLogRequestAndResponse)
                 {
                     await LogResponseAsync(context, stopWatch.Elapsed);
                 }
@@ -110,7 +110,7 @@ namespace Nexus.Link.Libraries.Web.AspNet.Pipe
             {
                 stopWatch.Stop();
 
-                if (_options.UseFeatureLogRequestAndResponse)
+                if (Options.UseFeatureLogRequestAndResponse)
                 {
                     LogException(context, exception, stopWatch.Elapsed);
                 }
@@ -119,7 +119,7 @@ namespace Nexus.Link.Libraries.Web.AspNet.Pipe
             }
             finally
             {
-                if (_options.UseFeatureBatchLog) BatchLogger.EndBatch();
+                if (Options.UseFeatureBatchLog) BatchLogger.EndBatch();
             }
         }
 
@@ -188,7 +188,7 @@ namespace Nexus.Link.Libraries.Web.AspNet.Pipe
             if (tenant == null) return null;
             try
             {
-                var service = _options.GetTenantConfigurationServiceConfiguration;
+                var service = Options.GetTenantConfigurationServiceConfiguration;
                 return await service.GetConfigurationForAsync(tenant);
             }
             catch (FulcrumUnauthorizedException e)
