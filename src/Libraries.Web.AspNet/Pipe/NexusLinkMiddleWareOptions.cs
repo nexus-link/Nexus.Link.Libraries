@@ -47,7 +47,7 @@ namespace Nexus.Link.Libraries.Web.AspNet.Pipe
         public virtual bool UseFeatureSaveTenantConfigurationToContext { get; set; }
 
         /// <inheritdoc />
-        public virtual ILeverServiceConfiguration GetTenantConfigurationServiceConfiguration { get; set; }
+        public virtual ILeverServiceConfiguration SaveTenantConfigurationServiceConfiguration { get; set; }
 
         /// <inheritdoc />
         public virtual bool UseFeatureSaveCorrelationIdToContext { get; set; }
@@ -67,7 +67,7 @@ namespace Nexus.Link.Libraries.Web.AspNet.Pipe
             {
                 FulcrumValidate.IsTrue(UseFeatureSaveClientTenantToContext, errorLocation,
                     $"When you use the feature flag {nameof(UseFeatureSaveTenantConfigurationToContext)}, then you also need {nameof(UseFeatureSaveClientTenantToContext)}");
-                FulcrumValidate.IsNotNull(GetTenantConfigurationServiceConfiguration, nameof(GetTenantConfigurationServiceConfiguration), errorLocation);
+                FulcrumValidate.IsNotNull(SaveTenantConfigurationServiceConfiguration, nameof(SaveTenantConfigurationServiceConfiguration), errorLocation);
             }
         }
     }

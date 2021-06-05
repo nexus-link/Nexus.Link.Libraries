@@ -188,7 +188,7 @@ namespace Nexus.Link.Libraries.Web.AspNet.Pipe
             if (tenant == null) return null;
             try
             {
-                var service = Options.GetTenantConfigurationServiceConfiguration;
+                var service = Options.SaveTenantConfigurationServiceConfiguration;
                 return await service.GetConfigurationForAsync(tenant);
             }
             catch (FulcrumUnauthorizedException e)

@@ -17,6 +17,7 @@ using Microsoft.AspNetCore.Http.Internal;
 using System.IO;
 using System.Net;
 using System.Text.RegularExpressions;
+#pragma warning disable 618
 #else
 using System.Net;
 using System.Net.Http;

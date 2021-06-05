@@ -56,7 +56,7 @@ namespace Nexus.Link.Libraries.Web.AspNet.Pipe
         /// <summary>
         /// 
         /// </summary>
-        ILeverServiceConfiguration GetTenantConfigurationServiceConfiguration { get; set; }
+        ILeverServiceConfiguration SaveTenantConfigurationServiceConfiguration { get; set; }
 
         /// <summary>
         /// This feature gets the first found <see cref="Constants.FulcrumCorrelationIdHeaderName"/> header from the request and saves it to the <see cref="FulcrumApplication.Context"/>.
