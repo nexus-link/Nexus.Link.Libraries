@@ -17,7 +17,9 @@ using Microsoft.AspNetCore.Http.Internal;
 using System.IO;
 using System.Net;
 using System.Text.RegularExpressions;
+using Newtonsoft.Json;
 using Nexus.Link.Libraries.Web.AspNet.Pipe;
+using Nexus.Link.Libraries.Web.Error.Logic;
 
 namespace Nexus.Link.Libraries.Web.AspNet.Tests.InboundPipe
 {
@@ -32,7 +34,7 @@ namespace Nexus.Link.Libraries.Web.AspNet.Tests.InboundPipe
         [SuppressMessage("ReSharper", "ObjectCreationAsStatement")]
         public void TestCaseInitialize()
         {
-            FulcrumApplicationHelper.UnitTestSetup(typeof(InboundPipeTests).FullName);
+            FulcrumApplicationHelper.UnitTestSetup(typeof(NexusLinkMiddlewareTests).FullName);
             FulcrumApplication.Context.CorrelationId = null;
             FulcrumApplication.Context.ClientTenant = null;
             FulcrumApplication.Context.LeverConfiguration = null;
@@ -345,11 +347,137 @@ namespace Nexus.Link.Libraries.Web.AspNet.Tests.InboundPipe
             mockLogger.Verify();
         }
 
+        /// <summary>
+        /// LogRequestAndResponse must not come before BatchLogs in the pipe
+        /// </summary>
+        [TestMethod]
+        public async Task StatusCode200LogInformation()
+        {
+            var highestSeverityLevel = LogSeverityLevel.None;
+            var mockLogger = new Mock<ISyncLogger>();
+            mockLogger
+                .Setup(logger => logger.LogSync(It.IsAny<LogRecord>()))
+                .Callback((LogRecord lr) =>
+                {
+                    if (lr.SeverityLevel > highestSeverityLevel) highestSeverityLevel = lr.SeverityLevel;
+                });
+            FulcrumApplication.Setup.SynchronousFastLogger = mockLogger.Object;
+            const string url = "https://v-mock.org/v2/smoke-testing-company/ver";
+            var innerHandler = new ReturnResponseWithPresetStatusCode(async ctx => await Task.CompletedTask, 200);
+            var options = new NexusLinkMiddleWareOptions
+            {
+                UseFeatureLogRequestAndResponse = true
+            };
+            var outerHandler = new NexusLinkMiddleware(innerHandler.InvokeAsync, options);
+            var context = new DefaultHttpContext();
+            SetRequest(context, url);
+
+            await outerHandler.InvokeAsync(context);
+
+            Assert.AreEqual(LogSeverityLevel.Information, highestSeverityLevel);
+        }
+
+        /// <summary>
+        /// LogRequestAndResponse must not come before BatchLogs in the pipe
+        /// </summary>
+        [TestMethod]
+        public async Task StatusCode400LogWarning()
+        {
+            var highestSeverityLevel = LogSeverityLevel.None;
+            var mockLogger = new Mock<ISyncLogger>();
+            mockLogger.Setup(logger =>
+                    logger.LogSync(
+                        It.IsAny<LogRecord>()))
+                .Callback((LogRecord lr) =>
+                {
+                    if (lr.SeverityLevel > highestSeverityLevel) highestSeverityLevel = lr.SeverityLevel;
+                })
+                .Verifiable();
+            FulcrumApplication.Setup.SynchronousFastLogger = mockLogger.Object;
+            const string url = "https://v-mock.org/v2/smoke-testing-company/ver";
+            var innerHandler = new ReturnResponseWithPresetStatusCode(async ctx => await Task.CompletedTask, 400);
+            var options = new NexusLinkMiddleWareOptions
+            {
+                UseFeatureLogRequestAndResponse = true
+            };
+            var outerHandler = new NexusLinkMiddleware(innerHandler.InvokeAsync, options);
+            var context = new DefaultHttpContext();
+            SetRequest(context, url);
+
+            await outerHandler.InvokeAsync(context);
+
+            Assert.AreEqual(LogSeverityLevel.Warning, highestSeverityLevel);
+        }
+
+        [TestMethod]
+        public async Task StatusCode500LogError()
+        {
+            var highestSeverityLevel = LogSeverityLevel.None;
+            var mockLogger = new Mock<ISyncLogger>();
+            mockLogger.Setup(logger =>
+                    logger.LogSync(
+                        It.IsAny<LogRecord>()))
+                .Callback((LogRecord lr) =>
+                {
+                    if (lr.SeverityLevel > highestSeverityLevel) highestSeverityLevel = lr.SeverityLevel;
+                })
+                .Verifiable();
+            FulcrumApplication.Setup.SynchronousFastLogger = mockLogger.Object;
+            const string url = "https://v-mock.org/v2/smoke-testing-company/ver";
+            var innerHandler = new ReturnResponseWithPresetStatusCode(async ctx => await Task.CompletedTask, 500);
+            var options = new NexusLinkMiddleWareOptions
+            {
+                UseFeatureLogRequestAndResponse = true
+            };
+            var outerHandler = new NexusLinkMiddleware(innerHandler.InvokeAsync, options);
+            var context = new DefaultHttpContext();
+            SetRequest(context, url);
+
+            await outerHandler.InvokeAsync(context);
+
+            Assert.AreEqual(LogSeverityLevel.Error, highestSeverityLevel);
+        }
+
+        private class ReturnResponseWithPresetStatusCode
+        {
+            private readonly int _statusCode;
+            private readonly RequestDelegate _next;
+
+            public ReturnResponseWithPresetStatusCode(RequestDelegate next, int statusCode)
+            {
+                _next = next;
+                _statusCode = statusCode;
+            }
+
+            public async Task InvokeAsync(HttpContext context)
+            {
+                context.Response.StatusCode = _statusCode;
+                FulcrumException fulcrumException = null;
+                if (_statusCode >= 500)
+                {
+                    fulcrumException = new FulcrumAssertionFailedException("Internal error message");
+                }
+                else if (_statusCode >= 400)
+                {
+                    fulcrumException = new FulcrumServiceContractException("Client error message");
+                }
+
+                if (_statusCode >= 400)
+                {
+                    await context.Response.WriteAsync("Test");
+                    context.Response.Body = new MemoryStream();
+                    context.Response.ContentType = "application/json";
+                    var fulcrumError = ExceptionConverter.ToFulcrumError(fulcrumException);
+                    var content = ExceptionConverter.ToJsonString(fulcrumError, Formatting.Indented);
+                    await context.Response.WriteAsync(content);
+                }
+            }
+        }
+
         private class LogFiveTimesHandler
         {
             private readonly RequestDelegate _next;
 
-            /// <inheritdoc />
             public LogFiveTimesHandler(RequestDelegate next)
             {
                 _next = next;
