@@ -50,9 +50,12 @@ namespace Nexus.Link.Libraries.Web.AspNet.Pipe
             Options = options;
             if (options.UseFeatureSaveClientTenantToContext)
             {
-                Regex = new Regex($"{options.SaveClientTenantPrefix}/([^/]+)/([^/]+)/");
+                RegexForFindingTenantInUrl = new Regex($"{options.SaveClientTenantPrefix}/([^/]+)/([^/]+)/");
             }
         }
+
+        // TODO: Make code example complete
+        // TODO: Make callbacks in options
 
         // ReSharper disable once UnusedMember.Global
         /// <summary>
@@ -66,9 +69,10 @@ namespace Nexus.Link.Libraries.Web.AspNet.Pipe
         /// The code looks like
         /// try {
         ///     stopWatch.Start();
-        ///     await BeforeNextAsync(context, stopWatch);
+        ///     await BeforeNext(context, stopWatch);
         ///     try {
         ///         await Next(context);
+        ///         await AfterNextAsync(context, stopWatch);
         ///     } catch (Exception exception)
         ///         stopWatch.Stop();
         ///         var shouldThrow = await CatchAfterNextAsync(context, stopWatch, exception);
@@ -77,7 +81,6 @@ namespace Nexus.Link.Libraries.Web.AspNet.Pipe
         ///         if (stopWatch.IsRunning) stopWatch.Stop();
         ///         await FinallyAfterNext(context, stopWatch);
         ///     }
-        ///     await AfterNextAsync(context, stopWatch);
         /// }
         /// catch (Exception exception) {
         ///     if (stopWatch.IsRunning) stopWatch.Stop();
@@ -96,8 +99,13 @@ namespace Nexus.Link.Libraries.Web.AspNet.Pipe
 
             try
             {
+
+                // Callback
+
                 var callNext = BeforeNext(context, stopWatch);
                 VerifyMethod(ExpectedMethodEnum.BeforeNext);
+
+                // Callback
 
                 try
                 {
@@ -115,6 +123,9 @@ namespace Nexus.Link.Libraries.Web.AspNet.Pipe
                     stopWatch.Stop();
                     if (nextSuccess) middlewareSuccess = false;
                     var shouldThrow = await CatchAfterNextAsync(context, stopWatch, exception, nextSuccess, middlewareSuccess);
+
+                    // Callback
+                    
                     VerifyMethod(ExpectedMethodEnum.CatchAfterNextAsync);
                     if (shouldThrow) throw;
                 }
@@ -166,7 +177,7 @@ namespace Nexus.Link.Libraries.Web.AspNet.Pipe
         protected virtual bool BeforeNext(HttpContext context, Stopwatch stopWatch)
         {
             _latestMethod = ExpectedMethodEnum.BeforeNext;
-            if (Options.UseFeatureSaveClientTenantToContext && Regex != null)
+            if (Options.UseFeatureSaveClientTenantToContext && RegexForFindingTenantInUrl != null)
             {
                 var tenant = GetClientTenantFromUrl(context);
                 FulcrumApplication.Context.ClientTenant = tenant;
@@ -234,6 +245,11 @@ namespace Nexus.Link.Libraries.Web.AspNet.Pipe
             {
                 await ConvertExceptionToResponseAsync(context, exception);
                 throwOriginalException = false;
+                
+                if (Options.UseFeatureLogRequestAndResponse)
+                {
+                    await LogResponseAsync(context, stopWatch.Elapsed);
+                }
             }
 
             return throwOriginalException;
@@ -373,11 +389,11 @@ namespace Nexus.Link.Libraries.Web.AspNet.Pipe
         /// <summary>
         ///  The regular expression that is used to extract the organization and environment from the URL.
         /// </summary>
-        protected readonly Regex Regex;
+        protected readonly Regex RegexForFindingTenantInUrl;
 
         protected Tenant GetClientTenantFromUrl(HttpContext context)
         {
-            var match = Regex.Match(context.Request.Path);
+            var match = RegexForFindingTenantInUrl.Match(context.Request.Path);
             if (!match.Success || match.Groups.Count != 3) return null;
             var organization = match.Groups[1].Value;
             var environment = match.Groups[2].Value;
