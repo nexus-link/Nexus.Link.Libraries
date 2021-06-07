@@ -15,7 +15,6 @@ using Nexus.Link.Libraries.Core.MultiTenant.Model;
 using Nexus.Link.Libraries.Core.Platform.Configurations;
 using Nexus.Link.Libraries.Web.AspNet.Error.Logic;
 using Nexus.Link.Libraries.Web.AspNet.Logging;
-using Nexus.Link.Libraries.Web.AspNet.Pipe.Inbound;
 using Nexus.Link.Libraries.Web.Pipe;
 
 namespace Nexus.Link.Libraries.Web.AspNet.Pipe
@@ -28,9 +27,8 @@ namespace Nexus.Link.Libraries.Web.AspNet.Pipe
     {
         private enum ExpectedMethodEnum
         {
-            BeforeNextAsync,
-            CatchAfterNextAsync, FinallyAfterNext, AfterNextAsync,
-            CatchAfterMiddlewareAsync, FinallyAfterMiddleware
+            BeforeNextAsync, CatchAfterNextAsync, FinallyAfterNextAsync, AfterNextAsync,
+            CatchAfterMiddlewareAsync, FinallyAfterMiddlewareAsync
         };
 
         private ExpectedMethodEnum _latestMethod;
@@ -58,8 +56,12 @@ namespace Nexus.Link.Libraries.Web.AspNet.Pipe
         // ReSharper disable once UnusedMember.Global
         /// <summary>
         /// This method has parts that you can override if you want to inherit from this class
-        /// and add middleware: BeforeNextAsync(), CatchAfterNextAsync(), FinallyAfterNext(), AfterNextAsync(),
-        /// CatchAfterMiddlewareAsync(), FinallyAfterMiddleware(). Always call the base method, or you will lose functionality in the current features.
+        /// and add middleware: BeforeNextAsync(), CatchAfterNextAsync(), FinallyAfterNextAsync(), AfterNextAsync(),
+        /// CatchAfterMiddlewareAsync(), FinallyAfterMiddlewareAsync(). Always call the base method when you override,
+        /// typically before your own functionality.
+        /// </summary>
+        /// <param name="context"></param>
+        /// <remarks>
         /// The code looks like
         /// try {
         ///     stopWatch.Start();
@@ -83,9 +85,7 @@ namespace Nexus.Link.Libraries.Web.AspNet.Pipe
         /// } finally {
         ///     await FinallyAfterMiddleware(context, stopWatch);
         /// }
-        /// </summary>
-        /// <param name="context"></param>
-        /// <returns></returns>
+        /// </remarks>
         public virtual async Task InvokeAsync(HttpContext context)
         {
             var stopWatch = new Stopwatch();
@@ -110,8 +110,8 @@ namespace Nexus.Link.Libraries.Web.AspNet.Pipe
                 finally
                 {
                     if (stopWatch.IsRunning) stopWatch.Stop();
-                    await FinallyAfterNext(context, stopWatch);
-                    VerifyMethod(ExpectedMethodEnum.FinallyAfterNext);
+                    await FinallyAfterNextAsync(context, stopWatch);
+                    VerifyMethod(ExpectedMethodEnum.FinallyAfterNextAsync);
                 }
                 await AfterNextAsync(context, stopWatch);
                 VerifyMethod(ExpectedMethodEnum.AfterNextAsync);
@@ -125,8 +125,8 @@ namespace Nexus.Link.Libraries.Web.AspNet.Pipe
             }
             finally
             {
-                await FinallyAfterMiddleware(context, stopWatch);
-                VerifyMethod(ExpectedMethodEnum.FinallyAfterMiddleware);
+                await FinallyAfterMiddlewareAsync(context, stopWatch);
+                VerifyMethod(ExpectedMethodEnum.FinallyAfterMiddlewareAsync);
             }
         }
 
@@ -182,9 +182,9 @@ namespace Nexus.Link.Libraries.Web.AspNet.Pipe
             return throwOriginalException;
         }
 
-        protected virtual Task FinallyAfterNext(HttpContext context, Stopwatch stopWatch)
+        protected virtual Task FinallyAfterNextAsync(HttpContext context, Stopwatch stopWatch)
         {
-            _latestMethod = ExpectedMethodEnum.FinallyAfterNext;
+            _latestMethod = ExpectedMethodEnum.FinallyAfterNextAsync;
             return Task.CompletedTask;
         }
 
@@ -208,9 +208,9 @@ namespace Nexus.Link.Libraries.Web.AspNet.Pipe
             return Task.FromResult(true);
         }
 
-        protected virtual Task FinallyAfterMiddleware(HttpContext context, Stopwatch stopWatch)
+        protected virtual Task FinallyAfterMiddlewareAsync(HttpContext context, Stopwatch stopWatch)
         {
-            _latestMethod = ExpectedMethodEnum.FinallyAfterMiddleware;
+            _latestMethod = ExpectedMethodEnum.FinallyAfterMiddlewareAsync;
             if (Options.UseFeatureBatchLog) BatchLogger.EndBatch();
             return Task.CompletedTask;
         }
