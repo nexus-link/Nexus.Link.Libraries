@@ -7,6 +7,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Options;
 using Nexus.Link.Libraries.Core.Application;
 using Nexus.Link.Libraries.Core.Assert;
 using Nexus.Link.Libraries.Core.Error.Logic;
@@ -34,7 +35,7 @@ namespace Nexus.Link.Libraries.Web.AspNet.Pipe
 
         private ExpectedMethodEnum _latestMethod;
         protected readonly RequestDelegate Next;
-        protected readonly INexusLinkMiddleWareOptions Options;
+        protected readonly NexusLinkMiddleWareOptions Options;
 
         /// <summary>
         /// This middleware is a collection of all the middleware features that are provided by Nexus Link. Use <paramref name="options"/>
@@ -42,12 +43,13 @@ namespace Nexus.Link.Libraries.Web.AspNet.Pipe
         /// </summary>
         /// <param name="next">The inner handler</param>
         /// <param name="options">Options that controls which features to use and how they should behave.</param>
-        public NexusLinkMiddleware(RequestDelegate next, INexusLinkMiddleWareOptions options)
+        public NexusLinkMiddleware(RequestDelegate next, IOptions<NexusLinkMiddleWareOptions> options)
         {
-            InternalContract.RequireValidated(options, nameof(options));
+            InternalContract.RequireNotNull(options?.Value, nameof(options));
+            InternalContract.RequireValidated(options?.Value, nameof(options));
 
             Next = next;
-            Options = options;
+            Options = options.Value;
             if (options.UseFeatureSaveClientTenantToContext)
             {
                 RegexForFindingTenantInUrl = new Regex($"{options.SaveClientTenantPrefix}/([^/]+)/([^/]+)/");

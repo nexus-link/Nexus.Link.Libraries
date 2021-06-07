@@ -1,4 +1,6 @@
-﻿namespace Nexus.Link.Libraries.Web.Pipe
+﻿using System;
+
+namespace Nexus.Link.Libraries.Web.Pipe
 {
     public class Constants
     {
