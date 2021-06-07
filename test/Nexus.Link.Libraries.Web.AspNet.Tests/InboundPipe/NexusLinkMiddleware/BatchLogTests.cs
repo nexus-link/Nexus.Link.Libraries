@@ -24,7 +24,6 @@ namespace Nexus.Link.Libraries.Web.AspNet.Tests.InboundPipe.NexusLinkMiddleware
         private static int _logCounter;
 
         [TestInitialize]
-        [SuppressMessage("ReSharper", "ObjectCreationAsStatement")]
         public void TestCaseInitialize()
         {
             FulcrumApplicationHelper.UnitTestSetup(typeof(BatchLogTests).FullName);

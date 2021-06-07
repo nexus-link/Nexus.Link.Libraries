@@ -3,6 +3,7 @@ using System;
 using System.Diagnostics;
 using System.Linq;
 using System.Text.RegularExpressions;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
@@ -27,7 +28,7 @@ namespace Nexus.Link.Libraries.Web.AspNet.Pipe
     {
         private enum ExpectedMethodEnum
         {
-            BeforeNextAsync, CatchAfterNextAsync, FinallyAfterNextAsync, AfterNextAsync,
+            BeforeNext, CatchAfterNextAsync, FinallyAfterNextAsync, AfterNextAsync,
             CatchAfterMiddlewareAsync, FinallyAfterMiddlewareAsync
         };
 
@@ -56,11 +57,11 @@ namespace Nexus.Link.Libraries.Web.AspNet.Pipe
         // ReSharper disable once UnusedMember.Global
         /// <summary>
         /// This method has parts that you can override if you want to inherit from this class
-        /// and add middleware: BeforeNextAsync(), CatchAfterNextAsync(), FinallyAfterNextAsync(), AfterNextAsync(),
+        /// and add middleware: BeforeNext(), CatchAfterNextAsync(), FinallyAfterNextAsync(), AfterNextAsync(),
         /// CatchAfterMiddlewareAsync(), FinallyAfterMiddlewareAsync(). Always call the base method when you override,
         /// typically before your own functionality.
         /// </summary>
-        /// <param name="context"></param>
+        /// <param name="context">The information about the current HTTP request.</param>
         /// <remarks>
         /// The code looks like
         /// try {
@@ -90,42 +91,61 @@ namespace Nexus.Link.Libraries.Web.AspNet.Pipe
         {
             var stopWatch = new Stopwatch();
             stopWatch.Start();
+            var nextSuccess = false;
+            var middlewareSuccess = true;
 
             try
             {
-                await BeforeNextAsync(context, stopWatch);
-                VerifyMethod(ExpectedMethodEnum.BeforeNextAsync);
+                var callNext = BeforeNext(context, stopWatch);
+                VerifyMethod(ExpectedMethodEnum.BeforeNext);
 
                 try
                 {
-                    await Next(context);
+                    if (callNext)
+                    {
+                        await Next(context);
+                        nextSuccess = true;
+                    }
+                    await AfterNextAsync(context, stopWatch, callNext);
+                    VerifyMethod(ExpectedMethodEnum.AfterNextAsync);
+                    stopWatch.Stop();
                 }
                 catch (Exception exception)
                 {
                     stopWatch.Stop();
-                    var shouldThrow = await CatchAfterNextAsync(context, stopWatch, exception);
+                    if (nextSuccess) middlewareSuccess = false;
+                    var shouldThrow = await CatchAfterNextAsync(context, stopWatch, exception, nextSuccess, middlewareSuccess);
                     VerifyMethod(ExpectedMethodEnum.CatchAfterNextAsync);
                     if (shouldThrow) throw;
                 }
                 finally
                 {
-                    if (stopWatch.IsRunning) stopWatch.Stop();
-                    await FinallyAfterNextAsync(context, stopWatch);
+                    await FinallyAfterNextAsync(context, stopWatch, nextSuccess, middlewareSuccess);
                     VerifyMethod(ExpectedMethodEnum.FinallyAfterNextAsync);
                 }
-                await AfterNextAsync(context, stopWatch);
-                VerifyMethod(ExpectedMethodEnum.AfterNextAsync);
             }
             catch (Exception exception)
             {
+                if (nextSuccess) middlewareSuccess = false;
                 if (stopWatch.IsRunning) stopWatch.Stop();
-                var shouldThrow = await CatchAfterMiddlewareAsync(context, exception, stopWatch);
-                VerifyMethod(ExpectedMethodEnum.CatchAfterMiddlewareAsync);
-                if (shouldThrow) throw;
+                try
+                {
+                    var shouldThrow = await CatchAfterMiddlewareAsync(context, exception, stopWatch, nextSuccess,
+                        middlewareSuccess);
+                    VerifyMethod(ExpectedMethodEnum.CatchAfterMiddlewareAsync);
+                    if (shouldThrow) throw;
+                }
+                catch (Exception)
+                {
+                    middlewareSuccess = false;
+                    throw;
+                }
+
             }
             finally
             {
-                await FinallyAfterMiddlewareAsync(context, stopWatch);
+                if (stopWatch.IsRunning) stopWatch.Stop();
+                await FinallyAfterMiddlewareAsync(context, stopWatch, nextSuccess, middlewareSuccess);
                 VerifyMethod(ExpectedMethodEnum.FinallyAfterMiddlewareAsync);
             }
         }
@@ -136,9 +156,16 @@ namespace Nexus.Link.Libraries.Web.AspNet.Pipe
                 $"Seems like you have overridden the method {expectedMethod}, but didn't call the base method, which is mandatory.");
         }
 
-        protected virtual async Task BeforeNextAsync(HttpContext context, Stopwatch stopWatch)
+        /// <summary>
+        /// Things that needs to be done before we actually call implementation method.
+        /// </summary>
+        /// <param name="context">The information about the current HTTP request.</param>
+        /// <param name="stopWatch"> A stopwatch that was started when <see cref="InvokeAsync"/> started.</param>
+        /// <returns>A bool that indicates if the <see cref="Next"/> method should be called or not. false means that it should NOT be called.</returns>
+        /// <remarks>This method can't be made async, as it sets <see cref="AsyncLocal{T}"/> variables.</remarks>
+        protected virtual bool BeforeNext(HttpContext context, Stopwatch stopWatch)
         {
-            _latestMethod = ExpectedMethodEnum.BeforeNextAsync;
+            _latestMethod = ExpectedMethodEnum.BeforeNext;
             if (Options.UseFeatureSaveClientTenantToContext && Regex != null)
             {
                 var tenant = GetClientTenantFromUrl(context);
@@ -153,7 +180,7 @@ namespace Nexus.Link.Libraries.Web.AspNet.Pipe
 
             if (Options.UseFeatureSaveTenantConfigurationToContext)
             {
-                var tenantConfiguration = await GetTenantConfigurationAsync(FulcrumApplication.Context.ClientTenant, context);
+                var tenantConfiguration = GetTenantConfigurationAsync(FulcrumApplication.Context.ClientTenant, context).Result;
                 FulcrumApplication.Context.LeverConfiguration = tenantConfiguration;
             }
 
@@ -167,9 +194,39 @@ namespace Nexus.Link.Libraries.Web.AspNet.Pipe
             {
                 BatchLogger.StartBatch(Options.BatchLogThreshold, Options.BatchLogReleaseRecordsAsLateAsPossible);
             }
+
+            return true;
         }
 
-        protected virtual async Task<bool> CatchAfterNextAsync(HttpContext context, Stopwatch stopWatch, Exception exception)
+        /// <summary>
+        /// This method is called immediately after a successful call to <see cref="Next"/>. It is called even when no call to <see cref="Next"/>
+        /// was done (due to a true return value from the <see cref="BeforeNext"/> method).  
+        /// </summary>
+        /// <param name="context">The information about the current HTTP request.</param>
+        /// <param name="stopWatch"> A stopwatch that was started when <see cref="InvokeAsync"/> started.</param>
+        /// <param name="nextWasCalled">True if the <see cref="Next"/> method was called, false if it was not called.</param>
+        /// <returns>A bool that indicates if the original exception should be rethrown.</returns>
+        protected virtual async Task AfterNextAsync(HttpContext context, Stopwatch stopWatch, bool nextWasCalled)
+        {
+            _latestMethod = ExpectedMethodEnum.AfterNextAsync;
+            if (Options.UseFeatureLogRequestAndResponse)
+            {
+                await LogResponseAsync(context, stopWatch.Elapsed);
+            }
+        }
+
+        /// <summary>
+        /// This method is called if one of the <see cref="Next"/> and <see cref="AfterNextAsync"/> methods throws.
+        /// </summary>
+        /// <param name="context">The information about the current HTTP request.</param>
+        /// <param name="stopWatch"> A stopwatch that was started when <see cref="InvokeAsync"/> started.</param>
+        /// <param name="exception">The exception that was thrown.</param>
+        /// <param name="nextSuccess">True if next succeeded.</param>
+        /// <param name="middlewareSuccess">True if the middleware succeeded.</param>
+        /// <returns>A bool that indicates if the original exception should be rethrown.</returns>
+        /// <remarks>At this point only one of <paramref name="nextSuccess"/> and <paramref name="middlewareSuccess"/> can be true.</remarks>
+        protected virtual async Task<bool> CatchAfterNextAsync(HttpContext context, Stopwatch stopWatch,
+            Exception exception, bool nextSuccess, bool middlewareSuccess)
         {
             _latestMethod = ExpectedMethodEnum.CatchAfterNextAsync;
             var throwOriginalException = true;
@@ -182,22 +239,31 @@ namespace Nexus.Link.Libraries.Web.AspNet.Pipe
             return throwOriginalException;
         }
 
-        protected virtual Task FinallyAfterNextAsync(HttpContext context, Stopwatch stopWatch)
+        /// <summary>
+        /// This method is called finally after the <see cref="Next"/> method, no matter if it succeeded or threw an exception.
+        /// </summary>
+        /// <param name="context">The information about the current HTTP request.</param>
+        /// <param name="stopWatch"> A stopwatch that was started when <see cref="InvokeAsync"/> started.</param>
+        /// <param name="nextSuccess">True if next succeeded.</param>
+        /// <param name="middlewareSuccess">True if the middleware succeeded.</param>
+        protected virtual Task FinallyAfterNextAsync(HttpContext context, Stopwatch stopWatch, bool nextSuccess,
+            bool middlewareSuccess)
         {
             _latestMethod = ExpectedMethodEnum.FinallyAfterNextAsync;
             return Task.CompletedTask;
         }
 
-        protected virtual async Task AfterNextAsync(HttpContext context, Stopwatch stopWatch)
-        {
-            _latestMethod = ExpectedMethodEnum.AfterNextAsync;
-            if (Options.UseFeatureLogRequestAndResponse)
-            {
-                await LogResponseAsync(context, stopWatch.Elapsed);
-            }
-        }
-
-        protected virtual Task<bool> CatchAfterMiddlewareAsync(HttpContext context, Exception exception, Stopwatch stopWatch)
+        /// <summary>
+        /// The main objective for this method is to be a catch all, for both exceptions from <see cref="Next"/> and from the middleware logic.
+        /// </summary>
+        /// <param name="context">The information about the current HTTP request.</param>
+        /// <param name="stopWatch"> A stopwatch that was started when <see cref="InvokeAsync"/> started.</param>
+        /// <param name="exception">The exception that was thrown.</param>
+        /// <param name="nextSuccess">True if next succeeded.</param>
+        /// <param name="middlewareSuccess">True if the middleware succeeded.</param>
+        /// <returns>A bool that indicates if the original exception should be rethrown.</returns>
+        protected virtual Task<bool> CatchAfterMiddlewareAsync(HttpContext context, Exception exception,
+            Stopwatch stopWatch, bool nextSuccess, bool middlewareSuccess)
         {
             _latestMethod = ExpectedMethodEnum.CatchAfterMiddlewareAsync;
             if (Options.UseFeatureLogRequestAndResponse)
@@ -208,7 +274,15 @@ namespace Nexus.Link.Libraries.Web.AspNet.Pipe
             return Task.FromResult(true);
         }
 
-        protected virtual Task FinallyAfterMiddlewareAsync(HttpContext context, Stopwatch stopWatch)
+        /// <summary>
+        /// This method is called finally after all other methods have been called, even if an exception was thrown.
+        /// </summary>
+        /// <param name="context">The information about the current HTTP request.</param>
+        /// <param name="stopWatch"> A stopwatch that was started when <see cref="InvokeAsync"/> started.</param>
+        /// <param name="nextSuccess">True if next succeeded.</param>
+        /// <param name="middlewareSuccess">True if the middleware succeeded.</param>
+        protected virtual Task FinallyAfterMiddlewareAsync(HttpContext context, Stopwatch stopWatch, bool nextSuccess,
+            bool middlewareSuccess)
         {
             _latestMethod = ExpectedMethodEnum.FinallyAfterMiddlewareAsync;
             if (Options.UseFeatureBatchLog) BatchLogger.EndBatch();
