@@ -21,7 +21,7 @@ using Nexus.Link.Libraries.Web.Pipe;
 namespace Nexus.Link.Libraries.Web.AspNet.Pipe
 {
     /// <summary>
-    /// This middleware is a collection of all the middleware features that are provided by Nexus Link. Use <see name="INexusLinkMiddleWareOptions"/>
+    /// This middleware is a collection of all the middleware features that are provided by Nexus Link. Use <see name="INexusLinkMiddlewareOptions"/>
     /// to specify exactly how they should behave.
     /// </summary>
     public class NexusLinkMiddleware
@@ -34,7 +34,7 @@ namespace Nexus.Link.Libraries.Web.AspNet.Pipe
 
         private ExpectedMethodEnum _latestMethod;
         protected readonly RequestDelegate Next;
-        protected readonly NexusLinkMiddleWareOptions Options;
+        protected readonly NexusLinkMiddlewareOptions Options;
 
         /// <summary>
         /// This middleware is a collection of all the middleware features that are provided by Nexus Link. Use <paramref name="options"/>
@@ -42,7 +42,7 @@ namespace Nexus.Link.Libraries.Web.AspNet.Pipe
         /// </summary>
         /// <param name="next">The inner handler</param>
         /// <param name="options">Options that controls which features to use and how they should behave.</param>
-        public NexusLinkMiddleware(RequestDelegate next, NexusLinkMiddleWareOptions options)
+        public NexusLinkMiddleware(RequestDelegate next, NexusLinkMiddlewareOptions options)
         {
             InternalContract.RequireValidated(options, nameof(options));
 
@@ -56,7 +56,7 @@ namespace Nexus.Link.Libraries.Web.AspNet.Pipe
         /// </summary>
         /// <param name="next">The inner handler</param>
         /// <param name="options">Options that controls which features to use and how they should behave.</param>
-        public NexusLinkMiddleware(RequestDelegate next, IOptions<NexusLinkMiddleWareOptions> options)
+        public NexusLinkMiddleware(RequestDelegate next, IOptions<NexusLinkMiddlewareOptions> options)
         {
             InternalContract.RequireNotNull(options.Value, nameof(options));
             InternalContract.RequireValidated(options.Value, nameof(options));
@@ -189,33 +189,33 @@ namespace Nexus.Link.Libraries.Web.AspNet.Pipe
         protected virtual bool BeforeNext(HttpContext context, Stopwatch stopWatch)
         {
             _latestMethod = ExpectedMethodEnum.BeforeNext;
-            if (Options.SaveClientTenant.Enabled)
+            if (Options.Features.SaveClientTenant.Enabled)
             {
                 var tenant = GetClientTenantFromUrl(context);
                 FulcrumApplication.Context.ClientTenant = tenant;
             }
 
-            if (Options.SaveCorrelationId.Enabled)
+            if (Options.Features.SaveCorrelationId.Enabled)
             {
                 var correlationId = GetOrCreateCorrelationId(context);
                 FulcrumApplication.Context.CorrelationId = correlationId;
             }
 
-            if (Options.SaveTenantConfiguration.Enabled)
+            if (Options.Features.SaveTenantConfiguration.Enabled)
             {
                 var tenantConfiguration = GetTenantConfigurationAsync(FulcrumApplication.Context.ClientTenant, context).Result;
                 FulcrumApplication.Context.LeverConfiguration = tenantConfiguration;
             }
 
-            if (Options.SaveNexusTestContext.Enabled)
+            if (Options.Features.SaveNexusTestContext.Enabled)
             {
                 var testContext = GetNexusTestContextFromHeader(context);
                 FulcrumApplication.Context.NexusTestContext = testContext;
             }
 
-            if (Options.BatchLog.Enabled)
+            if (Options.Features.BatchLog.Enabled)
             {
-                BatchLogger.StartBatch(Options.BatchLog.Threshold, Options.BatchLog.FlushAsLateAsPossible);
+                BatchLogger.StartBatch(Options.Features.BatchLog.Threshold, Options.Features.BatchLog.FlushAsLateAsPossible);
             }
 
             return true;
@@ -232,7 +232,7 @@ namespace Nexus.Link.Libraries.Web.AspNet.Pipe
         protected virtual async Task AfterNextAsync(HttpContext context, Stopwatch stopWatch, bool nextWasCalled)
         {
             _latestMethod = ExpectedMethodEnum.AfterNextAsync;
-            if (Options.LogRequestAndResponse.Enabled)
+            if (Options.Features.LogRequestAndResponse.Enabled)
             {
                 await LogResponseAsync(context, stopWatch.Elapsed);
             }
@@ -253,12 +253,12 @@ namespace Nexus.Link.Libraries.Web.AspNet.Pipe
         {
             _latestMethod = ExpectedMethodEnum.CatchAfterNextAsync;
             var throwOriginalException = true;
-            if (Options.ConvertExceptionToHttpResponse.Enabled)
+            if (Options.Features.ConvertExceptionToHttpResponse.Enabled)
             {
                 await ConvertExceptionToResponseAsync(context, exception);
                 throwOriginalException = false;
                 
-                if (Options.LogRequestAndResponse.Enabled)
+                if (Options.Features.LogRequestAndResponse.Enabled)
                 {
                     await LogResponseAsync(context, stopWatch.Elapsed);
                 }
@@ -294,7 +294,7 @@ namespace Nexus.Link.Libraries.Web.AspNet.Pipe
             Stopwatch stopWatch, bool nextSuccess, bool middlewareSuccess)
         {
             _latestMethod = ExpectedMethodEnum.CatchAfterMiddlewareAsync;
-            if (Options.LogRequestAndResponse.Enabled)
+            if (Options.Features.LogRequestAndResponse.Enabled)
             {
                 LogException(context, exception, stopWatch.Elapsed);
             }
@@ -313,7 +313,7 @@ namespace Nexus.Link.Libraries.Web.AspNet.Pipe
             bool middlewareSuccess)
         {
             _latestMethod = ExpectedMethodEnum.FinallyAfterMiddlewareAsync;
-            if (Options.BatchLog.Enabled) BatchLogger.EndBatch();
+            if (Options.Features.BatchLog.Enabled) BatchLogger.EndBatch();
             return Task.CompletedTask;
         }
 
@@ -382,7 +382,7 @@ namespace Nexus.Link.Libraries.Web.AspNet.Pipe
             if (tenant == null) return null;
             try
             {
-                var service = Options.SaveTenantConfiguration.ServiceConfiguration;
+                var service = Options.Features.SaveTenantConfiguration.ServiceConfiguration;
                 return await service.GetConfigurationForAsync(tenant);
             }
             catch (FulcrumUnauthorizedException e)
@@ -401,7 +401,7 @@ namespace Nexus.Link.Libraries.Web.AspNet.Pipe
 
         protected Tenant GetClientTenantFromUrl(HttpContext context)
         {
-            var match = Options.SaveClientTenant.RegexForFindingTenantInUrl.Match(context.Request.Path);
+            var match = Options.Features.SaveClientTenant.RegexForFindingTenantInUrl.Match(context.Request.Path);
             if (!match.Success || match.Groups.Count != 3) return null;
             var organization = match.Groups[1].Value;
             var environment = match.Groups[2].Value;
@@ -454,7 +454,7 @@ namespace Nexus.Link.Libraries.Web.AspNet.Pipe
         /// </summary>
         /// <param name="builder">"this"</param>
         /// <param name="options">Options that controls which features to use and how they should behave.</param>
-        public static IApplicationBuilder UseNexusLinkMiddleware(this IApplicationBuilder builder, IOptions<NexusLinkMiddleWareOptions> options)
+        public static IApplicationBuilder UseNexusLinkMiddleware(this IApplicationBuilder builder, IOptions<NexusLinkMiddlewareOptions> options)
         {
             return builder.UseMiddleware<NexusLinkMiddleware>(options);
         }

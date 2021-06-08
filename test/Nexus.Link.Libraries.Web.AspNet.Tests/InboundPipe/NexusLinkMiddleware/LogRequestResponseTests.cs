@@ -48,8 +48,8 @@ namespace Nexus.Link.Libraries.Web.AspNet.Tests.InboundPipe.NexusLinkMiddleware
             FulcrumApplication.Setup.SynchronousFastLogger = mockLogger.Object;
             const string url = "https://v-mock.org/v2/smoke-testing-company/ver";
             var innerHandler = new ReturnResponseWithPresetStatusCode(async ctx => await Task.CompletedTask, 200);
-            var options = new NexusLinkMiddleWareOptions();
-            options.LogRequestAndResponse.Enabled = true;
+            var options = new NexusLinkMiddlewareOptions();
+            options.Features.LogRequestAndResponse.Enabled = true;
             var outerHandler = new Pipe.NexusLinkMiddleware(innerHandler.InvokeAsync, options);
             var context = new DefaultHttpContext();
             Support.SetRequest(context, url);
@@ -78,8 +78,8 @@ namespace Nexus.Link.Libraries.Web.AspNet.Tests.InboundPipe.NexusLinkMiddleware
             FulcrumApplication.Setup.SynchronousFastLogger = mockLogger.Object;
             const string url = "https://v-mock.org/v2/smoke-testing-company/ver";
             var innerHandler = new ReturnResponseWithPresetStatusCode(async ctx => await Task.CompletedTask, 400);
-            var options = new NexusLinkMiddleWareOptions();
-            options.LogRequestAndResponse.Enabled = true;
+            var options = new NexusLinkMiddlewareOptions();
+            options.Features.LogRequestAndResponse.Enabled = true;
             var outerHandler = new Pipe.NexusLinkMiddleware(innerHandler.InvokeAsync, options);
             var context = new DefaultHttpContext();
             Support.SetRequest(context, url);
@@ -105,8 +105,8 @@ namespace Nexus.Link.Libraries.Web.AspNet.Tests.InboundPipe.NexusLinkMiddleware
             FulcrumApplication.Setup.SynchronousFastLogger = mockLogger.Object;
             const string url = "https://v-mock.org/v2/smoke-testing-company/ver";
             var innerHandler = new ReturnResponseWithPresetStatusCode(async ctx => await Task.CompletedTask, 500);
-            var options = new NexusLinkMiddleWareOptions();
-            options.LogRequestAndResponse.Enabled = true;
+            var options = new NexusLinkMiddlewareOptions();
+            options.Features.LogRequestAndResponse.Enabled = true;
             var outerHandler = new Pipe.NexusLinkMiddleware(innerHandler.InvokeAsync, options);
             var context = new DefaultHttpContext();
             Support.SetRequest(context, url);

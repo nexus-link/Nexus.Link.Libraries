@@ -33,7 +33,7 @@ namespace Nexus.Link.Libraries.Web.AspNet.Pipe.Inbound
         /// The way that many XLENT Link services has prefixed tenants in their path. Not recommended. <see cref="ApiVersionTenantPrefix"/> for the recommended prefix.
         /// </summary>
 #if NETCOREAPP
-        [Obsolete("Please use the constants in class NexusLinkMiddleWareOptions. Obsolete since 2021-06-04")]
+        [Obsolete("Please use the constants in class NexusLinkMiddlewareOptions. Obsolete since 2021-06-04")]
 #endif
         public const string LegacyVersionPrefix = "/v[^/]+";
 
@@ -41,7 +41,7 @@ namespace Nexus.Link.Libraries.Web.AspNet.Pipe.Inbound
         /// A slightly safer way than <see cref="LegacyVersionPrefix"/>. Not recommended. <see cref="ApiVersionTenantPrefix"/> for the recommended prefix.
         /// </summary>
 #if NETCOREAPP
-        [Obsolete("Please use the constants in class NexusLinkMiddleWareOptions. Obsolete since 2021-06-04")]
+        [Obsolete("Please use the constants in class NexusLinkMiddlewareOptions. Obsolete since 2021-06-04")]
 #endif
         public const string LegacyApiVersionPrefix = "api/v[^/]+";
 
@@ -49,7 +49,7 @@ namespace Nexus.Link.Libraries.Web.AspNet.Pipe.Inbound
         /// The current recommended prefix for tenant in path
         /// </summary>
 #if NETCOREAPP
-        [Obsolete("Please use the constants in class NexusLinkMiddleWareOptions. Obsolete since 2021-06-04")]
+        [Obsolete("Please use the constants in class NexusLinkMiddlewareOptions. Obsolete since 2021-06-04")]
 #endif
         public const string ApiVersionTenantPrefix = "api/v[^/]+/Tenant";
 

@@ -50,9 +50,9 @@ namespace Nexus.Link.Libraries.Web.AspNet.Tests.InboundPipe.NexusLinkMiddleware
             FulcrumApplication.Setup.LogSeverityLevelThreshold = LogSeverityLevel.Information;
 
             var doLogging = new LogFiveTimesHandler(async c => await Task.CompletedTask);
-            var options = new NexusLinkMiddleWareOptions();
-            options.BatchLog.Enabled = true;
-            options.BatchLog.Threshold = LogSeverityLevel.Warning;
+            var options = new NexusLinkMiddlewareOptions();
+            options.Features.BatchLog.Enabled = true;
+            options.Features.BatchLog.Threshold = LogSeverityLevel.Warning;
             var handler = new Pipe.NexusLinkMiddleware(doLogging.InvokeAsync, options);
             var context = new DefaultHttpContext();
             Assert.IsFalse(FulcrumApplication.Context.IsInBatchLogger);

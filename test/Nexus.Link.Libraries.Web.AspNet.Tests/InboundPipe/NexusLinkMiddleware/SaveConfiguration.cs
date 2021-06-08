@@ -50,12 +50,12 @@ namespace Nexus.Link.Libraries.Web.AspNet.Tests.InboundPipe.NexusLinkMiddleware
             const string corrId = "CorrelationId";
 
             var leverConfig = new Mock<ILeverServiceConfiguration>();
-            var options = new NexusLinkMiddleWareOptions();
-            options.SaveClientTenant.Enabled = true;
-            options.SaveClientTenant.RegexForFindingTenantInUrl = SaveClientTenantOptions.LegacyVersion;
-            options.SaveTenantConfiguration.Enabled = true;
-            options.SaveTenantConfiguration.ServiceConfiguration = leverConfig.Object;
-            options.SaveCorrelationId.Enabled = true;
+            var options = new NexusLinkMiddlewareOptions();
+            options.Features.SaveClientTenant.Enabled = true;
+            options.Features.SaveClientTenant.RegexForFindingTenantInUrl = SaveClientTenantOptions.LegacyVersion;
+            options.Features.SaveTenantConfiguration.Enabled = true;
+            options.Features.SaveTenantConfiguration.ServiceConfiguration = leverConfig.Object;
+            options.Features.SaveCorrelationId.Enabled = true;
 
             var handler = new Pipe.NexusLinkMiddleware(ctx =>
             {

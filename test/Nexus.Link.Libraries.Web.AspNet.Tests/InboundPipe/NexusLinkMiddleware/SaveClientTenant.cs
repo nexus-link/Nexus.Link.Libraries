@@ -30,9 +30,9 @@ namespace Nexus.Link.Libraries.Web.AspNet.Tests.InboundPipe.NexusLinkMiddleware
         [TestMethod]
         public async Task SaveClientTenantOldPrefixSuccess()
         {
-            var options = new NexusLinkMiddleWareOptions();
-            options.SaveClientTenant.Enabled = true;
-            options.SaveClientTenant.RegexForFindingTenantInUrl = SaveClientTenantOptions.LegacyVersion;
+            var options = new NexusLinkMiddlewareOptions();
+            options.Features.SaveClientTenant.Enabled = true;
+            options.Features.SaveClientTenant.RegexForFindingTenantInUrl = SaveClientTenantOptions.LegacyVersion;
             var handler = new Pipe.NexusLinkMiddleware(context =>
             {
                 _foundClientTenant = FulcrumApplication.Context.ClientTenant;
@@ -68,9 +68,9 @@ namespace Nexus.Link.Libraries.Web.AspNet.Tests.InboundPipe.NexusLinkMiddleware
         [TestMethod]
         public async Task SaveClientTenantOldPrefixAcceptsFalsePositives()
         {
-            var options = new NexusLinkMiddleWareOptions();
-            options.SaveClientTenant.Enabled = true;
-            options.SaveClientTenant.RegexForFindingTenantInUrl = SaveClientTenantOptions.LegacyVersion;
+            var options = new NexusLinkMiddlewareOptions();
+            options.Features.SaveClientTenant.Enabled = true;
+            options.Features.SaveClientTenant.RegexForFindingTenantInUrl = SaveClientTenantOptions.LegacyVersion;
             var handler = new Pipe.NexusLinkMiddleware(ctx =>
             {
                 _foundClientTenant = FulcrumApplication.Context.ClientTenant;
@@ -88,9 +88,9 @@ namespace Nexus.Link.Libraries.Web.AspNet.Tests.InboundPipe.NexusLinkMiddleware
         [TestMethod]
         public async Task SaveClientTenantNewPrefixSuccess()
         {
-            var options = new NexusLinkMiddleWareOptions();
-            options.SaveClientTenant.Enabled = true;
-            options.SaveClientTenant.RegexForFindingTenantInUrl = SaveClientTenantOptions.ApiVersionTenant;
+            var options = new NexusLinkMiddlewareOptions();
+            options.Features.SaveClientTenant.Enabled = true;
+            options.Features.SaveClientTenant.RegexForFindingTenantInUrl = SaveClientTenantOptions.ApiVersionTenant;
             var handler = new Pipe.NexusLinkMiddleware(context =>
             {
                 _foundClientTenant = FulcrumApplication.Context.ClientTenant;
@@ -127,9 +127,9 @@ namespace Nexus.Link.Libraries.Web.AspNet.Tests.InboundPipe.NexusLinkMiddleware
         [TestMethod]
         public async Task SaveClientTenantNewPrefixDetectsFalsePositives()
         {
-            var options = new NexusLinkMiddleWareOptions();
-            options.SaveClientTenant.Enabled = true;
-            options.SaveClientTenant.RegexForFindingTenantInUrl = SaveClientTenantOptions.ApiVersionTenant;
+            var options = new NexusLinkMiddlewareOptions();
+            options.Features.SaveClientTenant.Enabled = true;
+            options.Features.SaveClientTenant.RegexForFindingTenantInUrl = SaveClientTenantOptions.ApiVersionTenant;
             var handler = new Pipe.NexusLinkMiddleware(ctx =>
             {
                 _foundClientTenant = FulcrumApplication.Context.ClientTenant;
@@ -148,9 +148,9 @@ namespace Nexus.Link.Libraries.Web.AspNet.Tests.InboundPipe.NexusLinkMiddleware
         [TestMethod]
         public async Task SaveConfigurationFail()
         {
-            var options = new NexusLinkMiddleWareOptions();
-            options.SaveClientTenant.Enabled = true;
-            options.SaveClientTenant.RegexForFindingTenantInUrl = SaveClientTenantOptions.LegacyVersion;
+            var options = new NexusLinkMiddlewareOptions();
+            options.Features.SaveClientTenant.Enabled = true;
+            options.Features.SaveClientTenant.RegexForFindingTenantInUrl = SaveClientTenantOptions.LegacyVersion;
             var handler = new Pipe.NexusLinkMiddleware(ctx => Task.CompletedTask, options);
             FulcrumApplication.Context.ClientTenant = null;
             foreach (var url in new[]
