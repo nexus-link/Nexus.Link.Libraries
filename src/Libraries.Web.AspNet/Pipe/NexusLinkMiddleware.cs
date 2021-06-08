@@ -2,7 +2,6 @@
 using System;
 using System.Diagnostics;
 using System.Linq;
-using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
@@ -68,6 +67,7 @@ namespace Nexus.Link.Libraries.Web.AspNet.Pipe
 
         // TODO: Make code example complete
         // TODO: Make callbacks in options
+        // TODO: Move code into one big invoke
 
         // ReSharper disable once UnusedMember.Global
         /// <summary>

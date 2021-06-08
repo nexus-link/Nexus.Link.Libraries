@@ -5,6 +5,7 @@ using Nexus.Link.Libraries.Web.Pipe;
 
 namespace Nexus.Link.Libraries.Web.AspNet.Pipe
 {
+    // TODO: Move all features into a class, Feature
     public class NexusLinkMiddleWareOptions : IValidatable
     {
         /// <summary>
