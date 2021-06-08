@@ -1,6 +1,7 @@
 ﻿#if NETCOREAPP
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
@@ -14,6 +15,7 @@ using Nexus.Link.Libraries.Core.MultiTenant.Model;
 using Nexus.Link.Libraries.Core.Platform.Configurations;
 using Nexus.Link.Libraries.Web.AspNet.Pipe;
 using Nexus.Link.Libraries.Web.AspNet.Pipe.Inbound;
+using Nexus.Link.Libraries.Web.AspNet.Pipe.Options;
 using Nexus.Link.Libraries.Web.Error.Logic;
 
 namespace Nexus.Link.Libraries.Web.AspNet.Tests.InboundPipe.NexusLinkMiddleware
@@ -48,14 +50,13 @@ namespace Nexus.Link.Libraries.Web.AspNet.Tests.InboundPipe.NexusLinkMiddleware
             const string corrId = "CorrelationId";
 
             var leverConfig = new Mock<ILeverServiceConfiguration>();
-            var options = new NexusLinkMiddleWareOptions
-            {
-                UseFeatureSaveClientTenantToContext = true,
-                SaveClientTenantPrefix = NexusLinkMiddleWareOptions.LegacyVersionPrefix,
-                UseFeatureSaveTenantConfigurationToContext = true,
-                SaveTenantConfigurationServiceConfiguration = leverConfig.Object,
-                UseFeatureSaveCorrelationIdToContext = true
-            };
+            var options = new NexusLinkMiddleWareOptions();
+            options.SaveClientTenant.Enabled = true;
+            options.SaveClientTenant.RegexForFindingTenantInUrl = SaveClientTenantOptions.LegacyVersion;
+            options.SaveTenantConfiguration.Enabled = true;
+            options.SaveTenantConfiguration.ServiceConfiguration = leverConfig.Object;
+            options.SaveCorrelationId.Enabled = true;
+
             var handler = new Pipe.NexusLinkMiddleware(ctx =>
             {
                 _foundCorrelationId = FulcrumApplication.Context.CorrelationId;

@@ -1,12 +1,22 @@
-﻿using Nexus.Link.Libraries.Core.Platform.Configurations;
+﻿using Nexus.Link.Libraries.Core.Assert;
+using Nexus.Link.Libraries.Core.Platform.Configurations;
 
 namespace Nexus.Link.Libraries.Web.AspNet.Pipe.Options
 {
-    public class SaveTenantConfigurationOptions : Feature
+    public class SaveTenantConfigurationOptions : Feature, IValidatable
     {
         /// <summary>
         ///  TODO
         /// </summary>
-        public ILeverServiceConfiguration SaveTenantConfigurationServiceConfiguration { get; set; }
+        public ILeverServiceConfiguration ServiceConfiguration { get; set; }
+
+        /// <inheritdoc />
+        public void Validate(string errorLocation, string propertyPath = "")
+        {
+            if (Enabled)
+            {
+                FulcrumValidate.IsNotNull(ServiceConfiguration, nameof(ServiceConfiguration), errorLocation);
+            }
+        }
     }
 }

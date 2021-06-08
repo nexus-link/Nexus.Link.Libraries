@@ -1,6 +1,12 @@
-﻿namespace Nexus.Link.Libraries.Web.AspNet.Pipe.Options
+﻿using Nexus.Link.Libraries.Core.Assert;
+
+namespace Nexus.Link.Libraries.Web.AspNet.Pipe.Options
 {
-    public class ConvertExceptionToHttpResponseOptions : Feature
+    public class ConvertExceptionToHttpResponseOptions : Feature, IValidatable
     {
+        /// <inheritdoc />
+        public void Validate(string errorLocation, string propertyPath = "")
+        {
+        }
     }
 }

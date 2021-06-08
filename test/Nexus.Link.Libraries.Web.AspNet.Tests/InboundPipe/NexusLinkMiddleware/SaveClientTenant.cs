@@ -1,12 +1,14 @@
 ﻿#if NETCOREAPP
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Nexus.Link.Libraries.Core.Application;
 using Nexus.Link.Libraries.Core.MultiTenant.Model;
 using Nexus.Link.Libraries.Web.AspNet.Pipe;
+using Nexus.Link.Libraries.Web.AspNet.Pipe.Options;
 
 namespace Nexus.Link.Libraries.Web.AspNet.Tests.InboundPipe.NexusLinkMiddleware
 {
@@ -28,11 +30,9 @@ namespace Nexus.Link.Libraries.Web.AspNet.Tests.InboundPipe.NexusLinkMiddleware
         [TestMethod]
         public async Task SaveClientTenantOldPrefixSuccess()
         {
-            var options = new NexusLinkMiddleWareOptions
-            {
-                UseFeatureSaveClientTenantToContext = true,
-                SaveClientTenantPrefix = NexusLinkMiddleWareOptions.LegacyVersionPrefix
-            };
+            var options = new NexusLinkMiddleWareOptions();
+            options.SaveClientTenant.Enabled = true;
+            options.SaveClientTenant.RegexForFindingTenantInUrl = SaveClientTenantOptions.LegacyVersion;
             var handler = new Pipe.NexusLinkMiddleware(context =>
             {
                 _foundClientTenant = FulcrumApplication.Context.ClientTenant;
@@ -68,11 +68,9 @@ namespace Nexus.Link.Libraries.Web.AspNet.Tests.InboundPipe.NexusLinkMiddleware
         [TestMethod]
         public async Task SaveClientTenantOldPrefixAcceptsFalsePositives()
         {
-            var options = new NexusLinkMiddleWareOptions
-            {
-                UseFeatureSaveClientTenantToContext = true,
-                SaveClientTenantPrefix = NexusLinkMiddleWareOptions.LegacyVersionPrefix
-            };
+            var options = new NexusLinkMiddleWareOptions();
+            options.SaveClientTenant.Enabled = true;
+            options.SaveClientTenant.RegexForFindingTenantInUrl = SaveClientTenantOptions.LegacyVersion;
             var handler = new Pipe.NexusLinkMiddleware(ctx =>
             {
                 _foundClientTenant = FulcrumApplication.Context.ClientTenant;
@@ -90,11 +88,9 @@ namespace Nexus.Link.Libraries.Web.AspNet.Tests.InboundPipe.NexusLinkMiddleware
         [TestMethod]
         public async Task SaveClientTenantNewPrefixSuccess()
         {
-            var options = new NexusLinkMiddleWareOptions
-            {
-                UseFeatureSaveClientTenantToContext = true,
-                SaveClientTenantPrefix = NexusLinkMiddleWareOptions.ApiVersionTenantPrefix
-            };
+            var options = new NexusLinkMiddleWareOptions();
+            options.SaveClientTenant.Enabled = true;
+            options.SaveClientTenant.RegexForFindingTenantInUrl = SaveClientTenantOptions.ApiVersionTenant;
             var handler = new Pipe.NexusLinkMiddleware(context =>
             {
                 _foundClientTenant = FulcrumApplication.Context.ClientTenant;
@@ -131,11 +127,9 @@ namespace Nexus.Link.Libraries.Web.AspNet.Tests.InboundPipe.NexusLinkMiddleware
         [TestMethod]
         public async Task SaveClientTenantNewPrefixDetectsFalsePositives()
         {
-            var options = new NexusLinkMiddleWareOptions
-            {
-                UseFeatureSaveClientTenantToContext = true,
-                SaveClientTenantPrefix = NexusLinkMiddleWareOptions.ApiVersionTenantPrefix
-            };
+            var options = new NexusLinkMiddleWareOptions();
+            options.SaveClientTenant.Enabled = true;
+            options.SaveClientTenant.RegexForFindingTenantInUrl = SaveClientTenantOptions.ApiVersionTenant;
             var handler = new Pipe.NexusLinkMiddleware(ctx =>
             {
                 _foundClientTenant = FulcrumApplication.Context.ClientTenant;
@@ -154,11 +148,9 @@ namespace Nexus.Link.Libraries.Web.AspNet.Tests.InboundPipe.NexusLinkMiddleware
         [TestMethod]
         public async Task SaveConfigurationFail()
         {
-            var options = new NexusLinkMiddleWareOptions
-            {
-                UseFeatureSaveClientTenantToContext = true,
-                SaveClientTenantPrefix = NexusLinkMiddleWareOptions.LegacyVersionPrefix
-            };
+            var options = new NexusLinkMiddleWareOptions();
+            options.SaveClientTenant.Enabled = true;
+            options.SaveClientTenant.RegexForFindingTenantInUrl = SaveClientTenantOptions.LegacyVersion;
             var handler = new Pipe.NexusLinkMiddleware(ctx => Task.CompletedTask, options);
             FulcrumApplication.Context.ClientTenant = null;
             foreach (var url in new[]

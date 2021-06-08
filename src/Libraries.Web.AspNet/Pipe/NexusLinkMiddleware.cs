@@ -43,17 +43,27 @@ namespace Nexus.Link.Libraries.Web.AspNet.Pipe
         /// </summary>
         /// <param name="next">The inner handler</param>
         /// <param name="options">Options that controls which features to use and how they should behave.</param>
+        public NexusLinkMiddleware(RequestDelegate next, NexusLinkMiddleWareOptions options)
+        {
+            InternalContract.RequireValidated(options, nameof(options));
+
+            Next = next;
+            Options = options;
+        }
+
+        /// <summary>
+        /// This middleware is a collection of all the middleware features that are provided by Nexus Link. Use <paramref name="options"/>
+        /// to specify exactly how they should behave.
+        /// </summary>
+        /// <param name="next">The inner handler</param>
+        /// <param name="options">Options that controls which features to use and how they should behave.</param>
         public NexusLinkMiddleware(RequestDelegate next, IOptions<NexusLinkMiddleWareOptions> options)
         {
-            InternalContract.RequireNotNull(options?.Value, nameof(options));
-            InternalContract.RequireValidated(options?.Value, nameof(options));
+            InternalContract.RequireNotNull(options.Value, nameof(options));
+            InternalContract.RequireValidated(options.Value, nameof(options));
 
             Next = next;
             Options = options.Value;
-            if (options.UseFeatureSaveClientTenantToContext)
-            {
-                RegexForFindingTenantInUrl = new Regex($"{options.SaveClientTenantPrefix}/([^/]+)/([^/]+)/");
-            }
         }
 
         // TODO: Make code example complete
@@ -179,33 +189,33 @@ namespace Nexus.Link.Libraries.Web.AspNet.Pipe
         protected virtual bool BeforeNext(HttpContext context, Stopwatch stopWatch)
         {
             _latestMethod = ExpectedMethodEnum.BeforeNext;
-            if (Options.UseFeatureSaveClientTenantToContext && RegexForFindingTenantInUrl != null)
+            if (Options.SaveClientTenant.Enabled)
             {
                 var tenant = GetClientTenantFromUrl(context);
                 FulcrumApplication.Context.ClientTenant = tenant;
             }
 
-            if (Options.UseFeatureSaveCorrelationIdToContext)
+            if (Options.SaveCorrelationId.Enabled)
             {
                 var correlationId = GetOrCreateCorrelationId(context);
                 FulcrumApplication.Context.CorrelationId = correlationId;
             }
 
-            if (Options.UseFeatureSaveTenantConfigurationToContext)
+            if (Options.SaveTenantConfiguration.Enabled)
             {
                 var tenantConfiguration = GetTenantConfigurationAsync(FulcrumApplication.Context.ClientTenant, context).Result;
                 FulcrumApplication.Context.LeverConfiguration = tenantConfiguration;
             }
 
-            if (Options.UseFeatureSaveNexusTestContextToContext)
+            if (Options.SaveNexusTestContext.Enabled)
             {
                 var testContext = GetNexusTestContextFromHeader(context);
                 FulcrumApplication.Context.NexusTestContext = testContext;
             }
 
-            if (Options.UseFeatureBatchLog)
+            if (Options.BatchLog.Enabled)
             {
-                BatchLogger.StartBatch(Options.BatchLogThreshold, Options.BatchLogReleaseRecordsAsLateAsPossible);
+                BatchLogger.StartBatch(Options.BatchLog.Threshold, Options.BatchLog.FlushAsLateAsPossible);
             }
 
             return true;
@@ -222,7 +232,7 @@ namespace Nexus.Link.Libraries.Web.AspNet.Pipe
         protected virtual async Task AfterNextAsync(HttpContext context, Stopwatch stopWatch, bool nextWasCalled)
         {
             _latestMethod = ExpectedMethodEnum.AfterNextAsync;
-            if (Options.UseFeatureLogRequestAndResponse)
+            if (Options.LogRequestAndResponse.Enabled)
             {
                 await LogResponseAsync(context, stopWatch.Elapsed);
             }
@@ -243,12 +253,12 @@ namespace Nexus.Link.Libraries.Web.AspNet.Pipe
         {
             _latestMethod = ExpectedMethodEnum.CatchAfterNextAsync;
             var throwOriginalException = true;
-            if (Options.UseFeatureConvertExceptionToHttpResponse)
+            if (Options.ConvertExceptionToHttpResponse.Enabled)
             {
                 await ConvertExceptionToResponseAsync(context, exception);
                 throwOriginalException = false;
                 
-                if (Options.UseFeatureLogRequestAndResponse)
+                if (Options.LogRequestAndResponse.Enabled)
                 {
                     await LogResponseAsync(context, stopWatch.Elapsed);
                 }
@@ -284,7 +294,7 @@ namespace Nexus.Link.Libraries.Web.AspNet.Pipe
             Stopwatch stopWatch, bool nextSuccess, bool middlewareSuccess)
         {
             _latestMethod = ExpectedMethodEnum.CatchAfterMiddlewareAsync;
-            if (Options.UseFeatureLogRequestAndResponse)
+            if (Options.LogRequestAndResponse.Enabled)
             {
                 LogException(context, exception, stopWatch.Elapsed);
             }
@@ -303,7 +313,7 @@ namespace Nexus.Link.Libraries.Web.AspNet.Pipe
             bool middlewareSuccess)
         {
             _latestMethod = ExpectedMethodEnum.FinallyAfterMiddlewareAsync;
-            if (Options.UseFeatureBatchLog) BatchLogger.EndBatch();
+            if (Options.BatchLog.Enabled) BatchLogger.EndBatch();
             return Task.CompletedTask;
         }
 
@@ -372,7 +382,7 @@ namespace Nexus.Link.Libraries.Web.AspNet.Pipe
             if (tenant == null) return null;
             try
             {
-                var service = Options.SaveTenantConfigurationServiceConfiguration;
+                var service = Options.SaveTenantConfiguration.ServiceConfiguration;
                 return await service.GetConfigurationForAsync(tenant);
             }
             catch (FulcrumUnauthorizedException e)
@@ -388,14 +398,10 @@ namespace Nexus.Link.Libraries.Web.AspNet.Pipe
         #endregion
 
         #region SaveClientTenant
-        /// <summary>
-        ///  The regular expression that is used to extract the organization and environment from the URL.
-        /// </summary>
-        protected readonly Regex RegexForFindingTenantInUrl;
 
         protected Tenant GetClientTenantFromUrl(HttpContext context)
         {
-            var match = RegexForFindingTenantInUrl.Match(context.Request.Path);
+            var match = Options.SaveClientTenant.RegexForFindingTenantInUrl.Match(context.Request.Path);
             if (!match.Success || match.Groups.Count != 3) return null;
             var organization = match.Groups[1].Value;
             var environment = match.Groups[2].Value;
@@ -448,7 +454,7 @@ namespace Nexus.Link.Libraries.Web.AspNet.Pipe
         /// </summary>
         /// <param name="builder">"this"</param>
         /// <param name="options">Options that controls which features to use and how they should behave.</param>
-        public static IApplicationBuilder UseNexusLinkMiddleware(this IApplicationBuilder builder, INexusLinkMiddleWareOptions options)
+        public static IApplicationBuilder UseNexusLinkMiddleware(this IApplicationBuilder builder, IOptions<NexusLinkMiddleWareOptions> options)
         {
             return builder.UseMiddleware<NexusLinkMiddleware>(options);
         }
