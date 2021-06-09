@@ -19,7 +19,7 @@ namespace Nexus.Link.Libraries.Core.Json
         public static bool TryDeserializeObject<T>(JObject jObject, out T deserializedObject)
         {
             if (jObject != null) return TryDeserializeObject(jObject.ToString(Formatting.None), out deserializedObject);
-            deserializedObject = default(T);
+            deserializedObject = default;
             return false;
         }
 
@@ -46,7 +46,7 @@ namespace Nexus.Link.Libraries.Core.Json
         /// <returns>True if the deserialization was successful.</returns>
         public static bool TryDeserializeObject<T>(string value, out T deserializedObject)
         {
-            deserializedObject = default(T);
+            deserializedObject = default;
             try
             {
                 deserializedObject = JsonConvert.DeserializeObject<T>(value);
@@ -88,7 +88,7 @@ namespace Nexus.Link.Libraries.Core.Json
         public static T SafeDeserializeObject<T>(JObject jObject)
         {
             return jObject == null ? 
-                default(T) :
+                default :
                 SafeDeserializeObject<T>(jObject.ToString(Formatting.None));
         }
 
@@ -113,7 +113,7 @@ namespace Nexus.Link.Libraries.Core.Json
         /// <returns>The deserialized object or default(T) if the serialization failed.</returns>
         public static T SafeDeserializeObject<T>(string value)
         {
-            return !TryDeserializeObject(value, out T deserializedObject) ? default(T) : deserializedObject;
+            return !TryDeserializeObject(value, out T deserializedObject) ? default : deserializedObject;
         }
 
         /// <summary>

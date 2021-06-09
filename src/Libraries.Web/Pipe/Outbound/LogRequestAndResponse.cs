@@ -56,7 +56,7 @@ namespace Nexus.Link.Libraries.Web.Pipe.Outbound
                     response = await UnitTest_SendAsyncDependencyInjection(request, cancellationToken);
                 }
                 timer.Stop();
-                await LogResponseAsync(request, response, timer.Elapsed);
+                await LogResponseAsync(request, response, timer.Elapsed, cancellationToken);
                 return response;
             }
             catch (Exception e)
@@ -67,7 +67,7 @@ namespace Nexus.Link.Libraries.Web.Pipe.Outbound
             }
         }
 
-        private async Task LogResponseAsync(HttpRequestMessage request, HttpResponseMessage response, TimeSpan elapsedTime)
+        private async Task LogResponseAsync(HttpRequestMessage request, HttpResponseMessage response, TimeSpan elapsedTime, CancellationToken cancellationToken)
         {
             if (request == null) return;
             LogSeverityLevel level;
@@ -75,7 +75,7 @@ namespace Nexus.Link.Libraries.Web.Pipe.Outbound
             else if ((int)response.StatusCode >= 500) level = LogSeverityLevel.Warning;
             else if ((int)response.StatusCode >= 400) level = LogSeverityLevel.Error;
             else level = LogSeverityLevel.Warning;
-            Log.LogOnLevel(level, $"OUTBOUND request-response {await request.ToLogStringAsync(response, elapsedTime)}");
+            Log.LogOnLevel(level, $"OUTBOUND request-response {await request.ToLogStringAsync(response, elapsedTime, cancellationToken: cancellationToken)}");
         }
 
         private void LogException(HttpRequestMessage request, Exception exception, TimeSpan elapsedTime)

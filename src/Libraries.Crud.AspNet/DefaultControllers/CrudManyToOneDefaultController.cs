@@ -49,7 +49,7 @@ namespace Nexus.Link.Libraries.Crud.AspNet.DefaultControllers
         /// <inheritdoc />
         [HttpGet]
         [Route("")]
-        public override Task<PageEnvelope<TModel>> ReadChildrenWithPagingAsync(string parentId, int offset, int? limit = null, CancellationToken token = default(CancellationToken))
+        public override Task<PageEnvelope<TModel>> ReadChildrenWithPagingAsync(string parentId, int offset, int? limit = null, CancellationToken token = default)
         {
             return base.ReadChildrenWithPagingAsync(parentId, offset, limit, token);
         }

@@ -49,7 +49,7 @@ namespace Nexus.Link.Libraries.Core.Threads
         /// <param name="token">Propagates notification that operations should be canceled.</param>
         /// Note! You must use 'try {await semaphore.Raise(); ... your code ...} finally {await semaphore.Lower()}'
         /// to be certain that the semaphore is lowered, or you risk to end up in an endless loop.</remarks>
-        public async Task RaiseAsync(CancellationToken token = default(CancellationToken))
+        public async Task RaiseAsync(CancellationToken token = default)
         {
             while (true)
             {
@@ -70,7 +70,7 @@ namespace Nexus.Link.Libraries.Core.Threads
         /// sure that we eventually lower the semaphore. See <see cref="Raise"/>.
         /// <param name="token">Propagates notification that operations should be canceled.</param>
         /// </summary>
-        public Task LowerAsync(CancellationToken token = default(CancellationToken))
+        public Task LowerAsync(CancellationToken token = default)
         {
             lock (_lock)
             {
@@ -88,7 +88,7 @@ namespace Nexus.Link.Libraries.Core.Threads
         /// <param name="asyncMethod">The method to execute with restricted parallelism.</param>
         /// <param name="token">Propagates notification that operations should be canceled.</param>
         /// <returns></returns>
-        public async Task ExecuteAsync(Func<CancellationToken, Task> asyncMethod, CancellationToken token = default(CancellationToken))
+        public async Task ExecuteAsync(Func<CancellationToken, Task> asyncMethod, CancellationToken token = default)
         {
             try
             {
@@ -109,7 +109,7 @@ namespace Nexus.Link.Libraries.Core.Threads
         /// <param name="asyncMethod">The method to execute with restricted parallelism.</param>
         /// <param name="token">Propagates notification that operations should be canceled.</param>
         /// <returns></returns>
-        public async Task<T> ExecuteAsync<T>(Func<CancellationToken, Task<T>> asyncMethod, CancellationToken token = default(CancellationToken))
+        public async Task<T> ExecuteAsync<T>(Func<CancellationToken, Task<T>> asyncMethod, CancellationToken token = default)
         {
             try
             {
@@ -129,7 +129,7 @@ namespace Nexus.Link.Libraries.Core.Threads
         /// <param name="asyncMethod">The method to execute with restricted parallelism.</param>
         /// <param name="token">Propagates notification that operations should be canceled.</param>
         /// <returns></returns>
-        public Task ExecuteAsync(Func<Task> asyncMethod, CancellationToken token = default(CancellationToken))
+        public Task ExecuteAsync(Func<Task> asyncMethod, CancellationToken token = default)
         {
             return ExecuteAsync((t) => asyncMethod(), token);
         }
@@ -141,7 +141,7 @@ namespace Nexus.Link.Libraries.Core.Threads
         /// <param name="asyncMethod">The method to execute with restricted parallelism.</param>
         /// <param name="token">Propagates notification that operations should be canceled.</param>
         /// <returns></returns>
-        public Task<T> ExecuteAsync<T>(Func<Task<T>> asyncMethod, CancellationToken token = default(CancellationToken))
+        public Task<T> ExecuteAsync<T>(Func<Task<T>> asyncMethod, CancellationToken token = default)
         {
             return ExecuteAsync((t) => asyncMethod(), token);
         }

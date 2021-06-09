@@ -38,7 +38,7 @@ namespace Nexus.Link.Libraries.Web.AspNet.Tests.InboundPipe.Support
         [HttpGet]
         [Route("{id}")]
 #endif
-        public Task<Foo> ReadAsync(string id, CancellationToken token = default(CancellationToken))
+        public Task<Foo> ReadAsync(string id, CancellationToken token = default)
         {
             var item = new Foo {Id = id, Name = "name"};
             return Task.FromResult(item);
@@ -50,7 +50,7 @@ namespace Nexus.Link.Libraries.Web.AspNet.Tests.InboundPipe.Support
         [HttpGet]
         [Route("NullBars")]
 #endif
-        public Task<Foo> ReadNullAsync(CancellationToken token = default(CancellationToken))
+        public Task<Foo> ReadNullAsync(CancellationToken token = default)
         {
             return null;
         }
@@ -63,7 +63,7 @@ namespace Nexus.Link.Libraries.Web.AspNet.Tests.InboundPipe.Support
 #endif
         [Route("{id}")]
         public Task<Foo> UpdateAndReturnAsync([TranslationConcept(Foo.IdConceptName)]string id, Foo item,
-            CancellationToken token = default(CancellationToken))
+            CancellationToken token = default)
         {
             InternalContract.RequireNotNullOrWhiteSpace(id, nameof(id));
             InternalContract.RequireNotNull(item, nameof(item));

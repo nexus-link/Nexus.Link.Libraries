@@ -47,7 +47,7 @@ namespace Nexus.Link.Libraries.Crud.Mappers
 
         /// <inheritdoc />
         public virtual async Task<PageEnvelope<TClientModel>> ReadChildrenWithPagingAsync(TClientId parentId, int offset, int? limit = null,
-            CancellationToken token = default(CancellationToken))
+            CancellationToken token = default)
         {
             var serverId = MapperHelper.MapToType<TServerId, TClientId>(parentId);
             var storagePage = await _service.ReadChildrenWithPagingAsync(serverId, offset, limit, token);
@@ -57,7 +57,7 @@ namespace Nexus.Link.Libraries.Crud.Mappers
         }
 
         /// <inheritdoc />
-        public virtual async Task<IEnumerable<TClientModel>> ReadChildrenAsync(TClientId parentId, int limit = Int32.MaxValue, CancellationToken token = default(CancellationToken))
+        public virtual async Task<IEnumerable<TClientModel>> ReadChildrenAsync(TClientId parentId, int limit = Int32.MaxValue, CancellationToken token = default)
         {
             var serverId = MapperHelper.MapToType<TServerId, TClientId>(parentId);
             var items = await  _service.ReadChildrenAsync(serverId, limit, token);
@@ -66,7 +66,7 @@ namespace Nexus.Link.Libraries.Crud.Mappers
         }
 
         /// <inheritdoc />
-        public virtual Task DeleteChildrenAsync(TClientId parentId, CancellationToken token = default(CancellationToken))
+        public virtual Task DeleteChildrenAsync(TClientId parentId, CancellationToken token = default)
         {
             var serverId = MapperHelper.MapToType<TServerId, TClientId>(parentId);
             return _service.DeleteChildrenAsync(serverId, token);
@@ -74,14 +74,14 @@ namespace Nexus.Link.Libraries.Crud.Mappers
 
         /// <inheritdoc />
         public Task<PageEnvelope<TClientModel>> SearchChildrenAsync(TClientId parentId, SearchDetails<TClientModel> details, int offset, int? limit = null,
-            CancellationToken cancellationToken = default(CancellationToken))
+            CancellationToken cancellationToken = default)
         {
             throw new NotImplementedException();
         }
 
         /// <inheritdoc />
         public Task<TClientModel> FindUniqueChildAsync(TClientId parentId, SearchDetails<TClientModel> details,
-            CancellationToken cancellationToken = default(CancellationToken))
+            CancellationToken cancellationToken = default)
         {
             throw new NotImplementedException();
         }

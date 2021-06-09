@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 using Nexus.Link.Libraries.Core.Application;
@@ -40,7 +41,7 @@ namespace Nexus.Link.Libraries.Web.Logging.Stackify
         public string LastSentEnvelope { get; private set; }
 
         /// <inheritdoc />
-        public async Task LogAsync(LogRecord logRecord)
+        public async Task LogAsync(LogRecord logRecord, CancellationToken cancellationToken = default)
         {
             if (logRecord == null) return;
             var envelope = new Envelope
@@ -73,7 +74,7 @@ namespace Nexus.Link.Libraries.Web.Logging.Stackify
                 }
 
             };
-            if (_client != null) await _client.LogOneMessageAsync(envelope);
+            if (_client != null) await _client.LogOneMessageAsync(envelope, cancellationToken);
             LastSentEnvelope = JsonConvert.SerializeObject(envelope);
         }
     }

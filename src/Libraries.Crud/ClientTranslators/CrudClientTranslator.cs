@@ -47,7 +47,7 @@ namespace Nexus.Link.Libraries.Crud.ClientTranslators
         }
 
         /// <inheritdoc />
-        public async Task<string> CreateAsync(TModelCreate item, CancellationToken token = default(CancellationToken))
+        public async Task<string> CreateAsync(TModelCreate item, CancellationToken token = default)
         {
             var translator = CreateTranslator();
             item = translator.Decorate(item);
@@ -57,7 +57,7 @@ namespace Nexus.Link.Libraries.Crud.ClientTranslators
         }
 
         /// <inheritdoc />
-        public async Task<TModel> CreateAndReturnAsync(TModelCreate item, CancellationToken token = default(CancellationToken))
+        public async Task<TModel> CreateAndReturnAsync(TModelCreate item, CancellationToken token = default)
         {
             var translator = CreateTranslator();
             item = translator.Decorate(item);
@@ -67,7 +67,7 @@ namespace Nexus.Link.Libraries.Crud.ClientTranslators
         }
 
         /// <inheritdoc />
-        public async Task CreateWithSpecifiedIdAsync(string id, TModelCreate item, CancellationToken token = default(CancellationToken))
+        public async Task CreateWithSpecifiedIdAsync(string id, TModelCreate item, CancellationToken token = default)
         {
             var translator = CreateTranslator();
             id = translator.Decorate(IdConceptName, id);
@@ -77,7 +77,7 @@ namespace Nexus.Link.Libraries.Crud.ClientTranslators
 
         /// <inheritdoc />
         public async Task<TModel> CreateWithSpecifiedIdAndReturnAsync(string id, TModelCreate item,
-            CancellationToken token = default(CancellationToken))
+            CancellationToken token = default)
         {
             var translator = CreateTranslator();
             id = translator.Decorate(IdConceptName, id);
@@ -88,7 +88,7 @@ namespace Nexus.Link.Libraries.Crud.ClientTranslators
         }
 
         /// <inheritdoc />
-        public virtual async Task<TModel> ReadAsync(string id, CancellationToken token = default(CancellationToken))
+        public virtual async Task<TModel> ReadAsync(string id, CancellationToken token = default)
         {
             var translator = CreateTranslator();
             id = translator.Decorate(IdConceptName, id);
@@ -98,7 +98,7 @@ namespace Nexus.Link.Libraries.Crud.ClientTranslators
         }
 
         /// <inheritdoc />
-        public virtual async Task<PageEnvelope<TModel>> ReadAllWithPagingAsync(int offset, int? limit = null, CancellationToken token = default(CancellationToken))
+        public virtual async Task<PageEnvelope<TModel>> ReadAllWithPagingAsync(int offset, int? limit = null, CancellationToken token = default)
         {
             var translator = CreateTranslator();
             var decoratedResult = await _service.ReadAllWithPagingAsync(offset, limit, token);
@@ -107,7 +107,7 @@ namespace Nexus.Link.Libraries.Crud.ClientTranslators
         }
 
         /// <inheritdoc />
-        public virtual async Task<IEnumerable<TModel>> ReadAllAsync(int limit = int.MaxValue, CancellationToken token = default(CancellationToken))
+        public virtual async Task<IEnumerable<TModel>> ReadAllAsync(int limit = int.MaxValue, CancellationToken token = default)
         {
             var translator = CreateTranslator();
             var decoratedResult = await _service.ReadAllAsync(limit, token);
@@ -117,7 +117,7 @@ namespace Nexus.Link.Libraries.Crud.ClientTranslators
         }
 
         /// <inheritdoc />
-        public async Task UpdateAsync(string id, TModel item, CancellationToken token = default(CancellationToken))
+        public async Task UpdateAsync(string id, TModel item, CancellationToken token = default)
         {
             var translator = CreateTranslator();
             id = translator.Decorate(IdConceptName, id);
@@ -126,7 +126,7 @@ namespace Nexus.Link.Libraries.Crud.ClientTranslators
         }
 
         /// <inheritdoc />
-        public async Task<TModel> UpdateAndReturnAsync(string id, TModel item, CancellationToken token = default(CancellationToken))
+        public async Task<TModel> UpdateAndReturnAsync(string id, TModel item, CancellationToken token = default)
         {
             var translator = CreateTranslator();
             id = translator.Decorate(IdConceptName, id);
@@ -137,7 +137,7 @@ namespace Nexus.Link.Libraries.Crud.ClientTranslators
         }
 
         /// <inheritdoc />
-        public Task DeleteAsync(string id, CancellationToken token = default(CancellationToken))
+        public Task DeleteAsync(string id, CancellationToken token = default)
         {
             var translator = CreateTranslator();
             id = translator.Decorate(IdConceptName, id);
@@ -145,13 +145,13 @@ namespace Nexus.Link.Libraries.Crud.ClientTranslators
         }
 
         /// <inheritdoc />
-        public Task DeleteAllAsync(CancellationToken token = default(CancellationToken))
+        public Task DeleteAllAsync(CancellationToken token = default)
         {
             return _service.DeleteAllAsync(token);
         }
 
         /// <inheritdoc />
-        public Task<Lock<string>> ClaimLockAsync(string id, CancellationToken token = default(CancellationToken))
+        public Task<Lock<string>> ClaimLockAsync(string id, CancellationToken token = default)
         {
             var translator = CreateTranslator();
             id = translator.Decorate(IdConceptName, id);
@@ -159,44 +159,44 @@ namespace Nexus.Link.Libraries.Crud.ClientTranslators
         }
 
         /// <inheritdoc />
-        public Task ReleaseLockAsync(string id, string lockId, CancellationToken token = default(CancellationToken))
+        public Task ReleaseLockAsync(string id, string lockId, CancellationToken token = default)
         {
             return _service.ReleaseLockAsync(id, lockId, token);
         }
 
         /// <inheritdoc />
-        public Task<Lock<string>> ClaimDistributedLockAsync(string id, CancellationToken token = default(CancellationToken))
+        public Task<Lock<string>> ClaimDistributedLockAsync(string id, CancellationToken token = default)
         {
             throw new NotImplementedException();
         }
 
         /// <inheritdoc />
-        public Task ReleaseDistributedLockAsync(string id, string lockId, CancellationToken token = default(CancellationToken))
+        public Task ReleaseDistributedLockAsync(string id, string lockId, CancellationToken token = default)
         {
             throw new NotImplementedException();
         }
 
         /// <inheritdoc />
-        public Task ClaimTransactionLockAsync(string id, CancellationToken token = default(CancellationToken))
+        public Task ClaimTransactionLockAsync(string id, CancellationToken token = default)
         {
             throw new NotImplementedException();
         }
 
         /// <inheritdoc />
-        public Task<TModel> ClaimTransactionLockAndReadAsync(string id, CancellationToken token = default(CancellationToken))
+        public Task<TModel> ClaimTransactionLockAndReadAsync(string id, CancellationToken token = default)
         {
             throw new NotImplementedException();
         }
 
         /// <inheritdoc />
         public Task<PageEnvelope<TModel>> SearchAsync(SearchDetails<TModel> details, int offset, int? limit = null,
-            CancellationToken cancellationToken = default(CancellationToken))
+            CancellationToken cancellationToken = default)
         {
             throw new NotImplementedException();
         }
 
         /// <inheritdoc />
-        public Task<TModel> FindUniqueAsync(SearchDetails<TModel> details, CancellationToken cancellationToken = default(CancellationToken))
+        public Task<TModel> FindUniqueAsync(SearchDetails<TModel> details, CancellationToken cancellationToken = default)
         {
             throw new NotImplementedException();
         }

@@ -29,7 +29,7 @@ namespace Nexus.Link.Libraries.SqlServer
             ForeignHandler = foreignHandler;
         }
 
-        public async Task<PageEnvelope<TForeignItem>> ReadForeignAsync(Guid groupValue, int offset, int? limit = null, CancellationToken token = default(CancellationToken))
+        public async Task<PageEnvelope<TForeignItem>> ReadForeignAsync(Guid groupValue, int offset, int? limit = null, CancellationToken token = default)
         {
             var selectRest = $"FROM [{TableMetadata.TableName}] AS local" +
                              $" JOIN [{ForeignHandler.TableName}] AS foregin ON (foreign.Id = local.{GroupColumnName})" +

@@ -105,20 +105,20 @@ namespace Nexus.Link.Libraries.SqlServer
         }
 
         /// <inheritdoc />
-        public Task<PageEnvelope<TSlaveModel>> ReadChildrenWithPagingAsync(Guid parentId, int offset, int? limit = null, CancellationToken token = default(CancellationToken))
+        public Task<PageEnvelope<TSlaveModel>> ReadChildrenWithPagingAsync(Guid parentId, int offset, int? limit = null, CancellationToken token = default)
         {
             return SearchWhereAsync($"[{ParentColumnName}] = @ParentId", null, new { ParentId = parentId }, offset, limit, token);
         }
 
         /// <inheritdoc />
-        public Task<IEnumerable<TSlaveModel>> ReadChildrenAsync(Guid parentId, int limit = int.MaxValue, CancellationToken token = default(CancellationToken))
+        public Task<IEnumerable<TSlaveModel>> ReadChildrenAsync(Guid parentId, int limit = int.MaxValue, CancellationToken token = default)
         {
             return StorageHelper.ReadPagesAsync((offset, t) => ReadChildrenWithPagingAsync(parentId, offset, null, t), limit, token);
         }
 
         /// <inheritdoc />
         public Task<PageEnvelope<TSlaveModel>> SearchChildrenAsync(Guid parentId, SearchDetails<TSlaveModel> details, int offset, int? limit = null,
-            CancellationToken cancellationToken = default(CancellationToken))
+            CancellationToken cancellationToken = default)
         {
             InternalContract.RequireNotNull(details, nameof(details));
             InternalContract.RequireValidated(details, nameof(details));
@@ -139,7 +139,7 @@ namespace Nexus.Link.Libraries.SqlServer
 
         /// <inheritdoc />
         public Task<TSlaveModel> FindUniqueChildAsync(Guid parentId, SearchDetails<TSlaveModel> details,
-            CancellationToken cancellationToken = default(CancellationToken))
+            CancellationToken cancellationToken = default)
         {
             return _convenience.FindUniqueChildAsync(parentId, details, cancellationToken);
         }
@@ -164,7 +164,7 @@ namespace Nexus.Link.Libraries.SqlServer
         }
 
         /// <inheritdoc />
-        public Task DeleteChildrenAsync(Guid parentId, CancellationToken token = default(CancellationToken))
+        public Task DeleteChildrenAsync(Guid parentId, CancellationToken token = default)
         {
             return DeleteWhereAsync($"[{ParentColumnName}] = @ParentId", new { ParentId = parentId }, token);
         }
@@ -182,20 +182,20 @@ namespace Nexus.Link.Libraries.SqlServer
         }
 
         /// <inheritdoc />
-        public Task<SlaveLock<Guid>> ClaimDistributedLockAsync(Guid masterId, Guid slaveId, CancellationToken token = default(CancellationToken))
+        public Task<SlaveLock<Guid>> ClaimDistributedLockAsync(Guid masterId, Guid slaveId, CancellationToken token = default)
         {
             throw new NotImplementedException();
         }
 
         /// <inheritdoc />
         public Task ReleaseDistributedLockAsync(Guid masterId, Guid slaveId, Guid lockId,
-            CancellationToken token = default(CancellationToken))
+            CancellationToken token = default)
         {
             throw new NotImplementedException();
         }
 
         /// <inheritdoc />
-        public async Task ClaimTransactionLockAsync(Guid masterId, Guid slaveId, CancellationToken token = default(CancellationToken))
+        public async Task ClaimTransactionLockAsync(Guid masterId, Guid slaveId, CancellationToken token = default)
         {
             var selectStatement =
                 $"SELECT {SqlHelper.ReadColumnNames(TableMetadata)} FROM [{TableMetadata.TableName}] WITH (ROWLOCK, UPDLOCK, READPAST) WHERE Id=@Id";
@@ -212,7 +212,7 @@ namespace Nexus.Link.Libraries.SqlServer
 
         /// <inheritdoc />
         public Task<TSlaveModel> ClaimTransactionLockAndReadAsync(Guid masterId, Guid slaveId,
-            CancellationToken token = default(CancellationToken))
+            CancellationToken token = default)
         {
             return _convenience.ClaimTransactionLockAndReadAsync(masterId, slaveId, token);
         }

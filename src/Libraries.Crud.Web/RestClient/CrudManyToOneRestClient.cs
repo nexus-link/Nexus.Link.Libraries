@@ -136,14 +136,14 @@ namespace Nexus.Link.Libraries.Crud.Web.RestClient
         #endregion
 
         /// <inheritdoc />
-        public virtual async Task DeleteChildrenAsync(TId parentId, CancellationToken token = default(CancellationToken))
+        public virtual async Task DeleteChildrenAsync(TId parentId, CancellationToken token = default)
         {
             InternalContract.RequireNotDefaultValue(parentId, nameof(parentId));
             await DeleteAsync($"{parentId}/{ChildrenName}", cancellationToken: token);
         }
 
         /// <inheritdoc />
-        public virtual async Task<IEnumerable<TManyModel>> ReadChildrenAsync(TId parentId, int limit = int.MaxValue, CancellationToken token = default(CancellationToken))
+        public virtual async Task<IEnumerable<TManyModel>> ReadChildrenAsync(TId parentId, int limit = int.MaxValue, CancellationToken token = default)
         {
             InternalContract.RequireNotDefaultValue(parentId, nameof(parentId));
             InternalContract.RequireGreaterThan(0, limit, nameof(limit));
@@ -151,7 +151,7 @@ namespace Nexus.Link.Libraries.Crud.Web.RestClient
         }
 
         /// <inheritdoc />
-        public virtual async Task<PageEnvelope<TManyModel>> ReadChildrenWithPagingAsync(TId parentId, int offset = 0, int? limit = null, CancellationToken token = default(CancellationToken))
+        public virtual async Task<PageEnvelope<TManyModel>> ReadChildrenWithPagingAsync(TId parentId, int offset = 0, int? limit = null, CancellationToken token = default)
         {
             InternalContract.RequireGreaterThanOrEqualTo(0, offset, nameof(offset));
             var limitParameter = "";
@@ -165,7 +165,7 @@ namespace Nexus.Link.Libraries.Crud.Web.RestClient
 
         /// <inheritdoc />
         public Task<PageEnvelope<TManyModel>> SearchChildrenAsync(TId parentId, SearchDetails<TManyModel> details, int offset, int? limit = null,
-            CancellationToken cancellationToken = default(CancellationToken))
+            CancellationToken cancellationToken = default)
         {
             InternalContract.RequireGreaterThanOrEqualTo(0, offset, nameof(offset));
             var limitParameter = "";
@@ -179,7 +179,7 @@ namespace Nexus.Link.Libraries.Crud.Web.RestClient
 
         /// <inheritdoc />
         public Task<TManyModel> FindUniqueChildAsync(TId parentId, SearchDetails<TManyModel> details,
-            CancellationToken cancellationToken = default(CancellationToken))
+            CancellationToken cancellationToken = default)
         {
             return _convenience.FindUniqueChildAsync(parentId, details, cancellationToken);
         }

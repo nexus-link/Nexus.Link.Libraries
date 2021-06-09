@@ -9,7 +9,7 @@
 
   <PropertyGroup>
     <PackageId>Nexus.Link.Libraries.Crud</PackageId>
-    <Version>2.6.0</Version>
+    <Version>3.0.0</Version>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <PackageTags>nexus;link;fulcrum;lever</PackageTags>
     <Authors>XLENT Link</Authors>
@@ -19,6 +19,7 @@
     <Copyright>Copyright ©2019 Xlent Link AB</Copyright>
     <IncludeSymbols>true</IncludeSymbols>
     <PackageReleaseNotes>
+      3.0.0 Breaking change. Added cancellation support where it was missing. A "nice" breaking change; you may get some compilation errors, but that is only due to some interfaces that now requires a CancellationToken parameter.
       2.6.0 Added ClaimTransactionLockAndReadAsycn()
       2.5.0 Added Crud ISearch and ISearchChildren
       2.4.0 Added new lock interfaces.

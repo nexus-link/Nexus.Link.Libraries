@@ -18,9 +18,9 @@ namespace Nexus.Link.Libraries.Core.Context
         public T GetValue<T>(string key)
         {
             InternalContract.RequireNotNullOrWhiteSpace(key, nameof(key));
-            if (!Dictionary.TryGetValue(key, out AsyncLocal<object> asyncLocalObject)) return default(T);
+            if (!Dictionary.TryGetValue(key, out AsyncLocal<object> asyncLocalObject)) return default;
             var o = asyncLocalObject.Value;
-            if (o == null) return default(T);
+            if (o == null) return default;
             return (T)o;
         }
 

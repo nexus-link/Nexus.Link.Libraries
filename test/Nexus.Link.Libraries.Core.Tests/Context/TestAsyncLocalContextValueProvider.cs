@@ -187,7 +187,7 @@ namespace Nexus.Link.Libraries.Core.Tests.Context
                     ContextId = _provider.ContextId,
                     Context = _provider.SaveContext()
                 };
-                UT.Assert.AreNotEqual(default(Guid), message.ContextId);
+                UT.Assert.AreNotEqual(default, message.ContextId);
                 UT.Assert.IsNotNull(message.Context);
                 queue.Enqueue(message);
             }

@@ -17,6 +17,6 @@ namespace Nexus.Link.Libraries.Crud.Interfaces
         /// The implementor of this method can decide that it is not a valid method to expose.
         /// In that case, the method should throw a <see cref="FulcrumNotImplementedException"/>.
         /// </remarks>
-        Task DeleteAllAsync(CancellationToken token = default(CancellationToken));
+        Task DeleteAllAsync(CancellationToken token = default);
     }
 }

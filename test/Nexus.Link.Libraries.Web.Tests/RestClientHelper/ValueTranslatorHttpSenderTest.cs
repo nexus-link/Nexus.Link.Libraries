@@ -163,8 +163,8 @@ namespace Nexus.Link.Libraries.Web.Tests.RestClientHelper
             }
 
             /// <inheritdoc />
-            public Task<HttpResponseMessage> SendRequestAsync<TBody>(HttpMethod method, string relativeUrl, TBody body = default(TBody),
-                Dictionary<string, List<string>> customHeaders = null, CancellationToken cancellationToken = default(CancellationToken))
+            public Task<HttpResponseMessage> SendRequestAsync<TBody>(HttpMethod method, string relativeUrl, TBody body = default,
+                Dictionary<string, List<string>> customHeaders = null, CancellationToken cancellationToken = default)
             {
                 RelativeUrl = relativeUrl;
                 ReceivedBody = body;
@@ -172,8 +172,8 @@ namespace Nexus.Link.Libraries.Web.Tests.RestClientHelper
             }
 
             /// <inheritdoc />
-            public Task<HttpOperationResponse<TResponse>> SendRequestAsync<TResponse, TBody>(HttpMethod method, string relativeUrl, TBody body = default(TBody),
-                Dictionary<string, List<string>> customHeaders = null, CancellationToken cancellationToken = default(CancellationToken))
+            public Task<HttpOperationResponse<TResponse>> SendRequestAsync<TResponse, TBody>(HttpMethod method, string relativeUrl, TBody body = default,
+                Dictionary<string, List<string>> customHeaders = null, CancellationToken cancellationToken = default)
             {
                 RelativeUrl = relativeUrl;
                 ReceivedBody = body;
@@ -203,7 +203,7 @@ namespace Nexus.Link.Libraries.Web.Tests.RestClientHelper
                 }
                 else
                 {
-                    httpOperationResponse.Body = default(TResponse);
+                    httpOperationResponse.Body = default;
                 }
                 return Task.FromResult(httpOperationResponse);
             }

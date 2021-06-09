@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System.Threading;
+using System.Threading.Tasks;
 
 namespace Nexus.Link.Libraries.Core.Logging
 {
@@ -10,6 +11,6 @@ namespace Nexus.Link.Libraries.Core.Logging
         /// <summary>
         /// Asynchronously log one <paramref name="logRecord"/>.
         /// </summary>
-        Task LogAsync(LogRecord logRecord);
+        Task LogAsync(LogRecord logRecord, CancellationToken cancellationToken = default);
     }
 }

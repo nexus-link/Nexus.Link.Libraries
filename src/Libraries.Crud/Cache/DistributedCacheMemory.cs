@@ -26,7 +26,7 @@ namespace Nexus.Link.Libraries.Crud.Cache
         }
 
         /// <inheritdoc />
-        public async Task<byte[]> GetAsync(string key, CancellationToken token = default(CancellationToken))
+        public async Task<byte[]> GetAsync(string key, CancellationToken token = default)
         {
             InternalContract.RequireNotNullOrWhiteSpace(key, nameof(key));
             return await ItemStorage.ReadAsync(key, token);
@@ -40,7 +40,7 @@ namespace Nexus.Link.Libraries.Crud.Cache
 
         /// <inheritdoc />
         public async Task SetAsync(string key, byte[] value, DistributedCacheEntryOptions options,
-            CancellationToken token = default(CancellationToken))
+            CancellationToken token = default)
         {
             InternalContract.RequireNotNullOrWhiteSpace(key, nameof(key));
             InternalContract.RequireNotNull(value, nameof(value));
@@ -70,7 +70,7 @@ namespace Nexus.Link.Libraries.Crud.Cache
         }
 
         /// <inheritdoc />
-        public Task RefreshAsync(string key, CancellationToken token = default(CancellationToken))
+        public Task RefreshAsync(string key, CancellationToken token = default)
         {
             throw new NotImplementedException();
         }
@@ -82,14 +82,14 @@ namespace Nexus.Link.Libraries.Crud.Cache
         }
 
         /// <inheritdoc />
-        public async Task RemoveAsync(string key, CancellationToken token = default(CancellationToken))
+        public async Task RemoveAsync(string key, CancellationToken token = default)
         {
             InternalContract.RequireNotNullOrWhiteSpace(key, nameof(key));
             await ItemStorage.DeleteAsync(key, token);
         }
 
         /// <inheritdoc />
-        public async Task FlushAsync(CancellationToken token = default(CancellationToken))
+        public async Task FlushAsync(CancellationToken token = default)
         {
             await ItemStorage.DeleteAllAsync(token);
         }

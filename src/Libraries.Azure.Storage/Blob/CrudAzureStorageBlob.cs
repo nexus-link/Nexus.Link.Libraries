@@ -56,7 +56,7 @@ namespace Nexus.Link.Libraries.Azure.Storage.Blob
             return await ReadAsync(id, token);
         }
 
-        public async Task CreateWithSpecifiedIdAsync(TId id, TModelCreate item, CancellationToken token = default(CancellationToken))
+        public async Task CreateWithSpecifiedIdAsync(TId id, TModelCreate item, CancellationToken token = default)
         {
             InternalContract.RequireNotDefaultValue(id, nameof(id));
             InternalContract.RequireNotDefaultValue(item, nameof(item));
@@ -95,13 +95,13 @@ namespace Nexus.Link.Libraries.Azure.Storage.Blob
             throw new FulcrumNotImplementedException();
         }
 
-        public async Task<TModel> ReadAsync(TId id, CancellationToken token = default(CancellationToken))
+        public async Task<TModel> ReadAsync(TId id, CancellationToken token = default)
         {
             InternalContract.RequireNotDefaultValue(id, nameof(id));
-            if (!await Directory.ExistsAsync()) return default(TModel);
+            if (!await Directory.ExistsAsync()) return default;
             var fileName = CreateFileName(id);
             var file = Directory.CreateFile(fileName);
-            if (!await file.ExistsAsync()) return default(TModel);
+            if (!await file.ExistsAsync()) return default;
             var content = await file.DownloadTextAsync();
             var dbItem = JsonHelper.SafeDeserializeObject<TModel>(content);
             FulcrumAssert.IsNotNull(dbItem, CodeLocation.AsString());
@@ -109,7 +109,7 @@ namespace Nexus.Link.Libraries.Azure.Storage.Blob
             return dbItem;
         }
 
-        public async Task DeleteAsync(TId id, CancellationToken token = default(CancellationToken))
+        public async Task DeleteAsync(TId id, CancellationToken token = default)
         {
             InternalContract.RequireNotDefaultValue(id, nameof(id));
             if (!await Directory.ExistsAsync()) return;
@@ -119,7 +119,7 @@ namespace Nexus.Link.Libraries.Azure.Storage.Blob
             await file.DeleteAsync();
         }
 
-        public async Task<PageEnvelope<TModel>> ReadAllWithPagingAsync(int offset, int? limit = null, CancellationToken token = default(CancellationToken))
+        public async Task<PageEnvelope<TModel>> ReadAllWithPagingAsync(int offset, int? limit = null, CancellationToken token = default)
         {
             InternalContract.RequireGreaterThanOrEqualTo(0, offset, nameof(offset));
             limit = limit ?? int.MaxValue;
@@ -158,7 +158,7 @@ namespace Nexus.Link.Libraries.Azure.Storage.Blob
 
         /// <inheritdoc />
         public async Task<PageEnvelope<TModel>> SearchAsync(SearchDetails<TModel> details, int offset, int? limit = null,
-            CancellationToken cancellationToken = default(CancellationToken))
+            CancellationToken cancellationToken = default)
         {
             limit = limit ?? PageInfo.DefaultLimit;
             InternalContract.RequireNotNull(details, nameof(details));
@@ -177,12 +177,12 @@ namespace Nexus.Link.Libraries.Azure.Storage.Blob
         }
 
         /// <inheritdoc />
-        public Task<TModel> FindUniqueAsync(SearchDetails<TModel> details, CancellationToken cancellationToken = default(CancellationToken))
+        public Task<TModel> FindUniqueAsync(SearchDetails<TModel> details, CancellationToken cancellationToken = default)
         {
             return _convenience.FindUniqueAsync(details, cancellationToken);
         }
 
-        public async Task DeleteAllAsync(CancellationToken token = default(CancellationToken))
+        public async Task DeleteAllAsync(CancellationToken token = default)
         {
             if (!await Directory.ExistsAsync()) return;
             await Directory.DeleteAsync();
@@ -190,7 +190,7 @@ namespace Nexus.Link.Libraries.Azure.Storage.Blob
 
         private static string CreateFileName(TId itemId) => $"{itemId}.json";
 
-        public async Task UpdateAsync(TId id, TModel item, CancellationToken token = default(CancellationToken))
+        public async Task UpdateAsync(TId id, TModel item, CancellationToken token = default)
         {
             InternalContract.RequireNotDefaultValue(id, nameof(id));
             InternalContract.RequireNotNull(item, nameof(item));
@@ -224,7 +224,7 @@ namespace Nexus.Link.Libraries.Azure.Storage.Blob
         /// <param name="item"></param>
         /// <param name="token">Propagates notification that operations should be canceled</param>
         /// <returns></returns>
-        protected virtual async Task MaybeVerifyEtagForUpdateAsync(TId id, TModel item, CancellationToken token = default(CancellationToken))
+        protected virtual async Task MaybeVerifyEtagForUpdateAsync(TId id, TModel item, CancellationToken token = default)
         {
             if (item is IOptimisticConcurrencyControlByETag etaggable)
             {
@@ -239,25 +239,25 @@ namespace Nexus.Link.Libraries.Azure.Storage.Blob
         }
 
         /// <inheritdoc />
-        public Task<Lock<TId>> ClaimDistributedLockAsync(TId id, CancellationToken token = default(CancellationToken))
+        public Task<Lock<TId>> ClaimDistributedLockAsync(TId id, CancellationToken token = default)
         {
             throw new System.NotImplementedException();
         }
 
         /// <inheritdoc />
-        public Task ReleaseDistributedLockAsync(TId id, TId lockId, CancellationToken token = default(CancellationToken))
+        public Task ReleaseDistributedLockAsync(TId id, TId lockId, CancellationToken token = default)
         {
             throw new System.NotImplementedException();
         }
 
         /// <inheritdoc />
-        public Task ClaimTransactionLockAsync(TId id, CancellationToken token = default(CancellationToken))
+        public Task ClaimTransactionLockAsync(TId id, CancellationToken token = default)
         {
             throw new System.NotImplementedException();
         }
 
         /// <inheritdoc />
-        public Task<TModel> ClaimTransactionLockAndReadAsync(TId id, CancellationToken token = default(CancellationToken))
+        public Task<TModel> ClaimTransactionLockAndReadAsync(TId id, CancellationToken token = default)
         {
             return _convenience.ClaimTransactionLockAndReadAsync(id, token);
         }

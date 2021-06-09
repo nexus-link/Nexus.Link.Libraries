@@ -83,11 +83,11 @@ namespace Nexus.Link.Libraries.Web.AspNet.Pipe.Inbound
             {
                 try
                 {
-                    await TranslateResponseAsync(context, translator);
+                    await TranslateResponseAsync(context, translator, CancellationToken.None);
                 }
                 catch (Exception exception)
                 {
-                    await LogTranslationFailureAsync(context, exception);
+                    await LogTranslationFailureAsync(context, exception, CancellationToken.None);
                     throw;
                 }
             }
@@ -111,7 +111,7 @@ namespace Nexus.Link.Libraries.Web.AspNet.Pipe.Inbound
                     }
                     catch (Exception exception)
                     {
-                        await LogFailureAsync(actionContext.Request, actionContext.Response, exception);
+                        await LogFailureAsync(actionContext.Request, actionContext.Response, exception, cancellationToken);
                     }
                 }
             }
@@ -168,7 +168,7 @@ namespace Nexus.Link.Libraries.Web.AspNet.Pipe.Inbound
                 }
                 catch (Exception exception)
                 {
-                    await LogFailureAsync(actionExecutedContext.Request, actionExecutedContext.Response, exception);
+                    await LogFailureAsync(actionExecutedContext.Request, actionExecutedContext.Response, exception, cancellationToken);
                     throw;
                 }
             }
@@ -253,7 +253,7 @@ namespace Nexus.Link.Libraries.Web.AspNet.Pipe.Inbound
         }
 
         private static async Task TranslateResponseAsync(ResultExecutingContext context, ITranslator translator,
-            CancellationToken cancellationToken = default(CancellationToken))
+            CancellationToken cancellationToken)
         {
             if (context?.Result == null) return;
             if (!(context.Result is ObjectResult objectResult)) return;
@@ -266,7 +266,7 @@ namespace Nexus.Link.Libraries.Web.AspNet.Pipe.Inbound
             context.Result = new ObjectResult(itemAfterTranslation);
         }
 
-        private static async Task LogTranslationFailureAsync(ResultExecutingContext context, Exception exception)
+        private static async Task LogTranslationFailureAsync(ResultExecutingContext context, Exception exception, CancellationToken cancellationToken)
         {
             string requestAsLog;
             string resultAsLog;
@@ -282,7 +282,7 @@ namespace Nexus.Link.Libraries.Web.AspNet.Pipe.Inbound
 
             try
             {
-                requestAsLog = await context.HttpContext.Request.ToLogStringAsync(context.HttpContext.Response);
+                requestAsLog = await context.HttpContext.Request.ToLogStringAsync(context.HttpContext.Response, cancellationToken: cancellationToken);
             }
             catch (Exception)
             {
@@ -294,7 +294,7 @@ namespace Nexus.Link.Libraries.Web.AspNet.Pipe.Inbound
                 exception);
         }
 #else
-        private static async Task LogFailureAsync(HttpRequestMessage request, HttpResponseMessage response, Exception exception)
+        private static async Task LogFailureAsync(HttpRequestMessage request, HttpResponseMessage response, Exception exception, CancellationToken cancellationToken)
         {
             string requestAsLog;
             string resultAsLog;
@@ -311,7 +311,7 @@ namespace Nexus.Link.Libraries.Web.AspNet.Pipe.Inbound
 
             try
             {
-                requestAsLog = await request.ToLogStringAsync(response);
+                requestAsLog = await request.ToLogStringAsync(response, cancellationToken: cancellationToken);
             }
             catch (Exception)
             {
@@ -321,7 +321,7 @@ namespace Nexus.Link.Libraries.Web.AspNet.Pipe.Inbound
             Log.LogError($"Failed to decorate the arguments for the request {requestAsLog}. Result:\r{resultAsLog}", exception);
         }
 
-        private static async Task TranslateResponseAsync(HttpActionExecutedContext context, ITranslator translator, CancellationToken cancellationToken = default(CancellationToken))
+        private static async Task TranslateResponseAsync(HttpActionExecutedContext context, ITranslator translator, CancellationToken cancellationToken = default)
         {
             if (context.ActionContext?.Response?.Content == null) return;
             await context.ActionContext?.Response.Content.LoadIntoBufferAsync();

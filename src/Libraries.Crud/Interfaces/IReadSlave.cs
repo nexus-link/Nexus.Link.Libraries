@@ -14,6 +14,6 @@ namespace Nexus.Link.Libraries.Crud.Interfaces
         /// Returns the item uniquely identified by <paramref name="masterId"/> and <paramref name="slaveId"/> from storage.
         /// </summary>
         /// <returns>The found item or null.</returns>
-        Task<TModel> ReadAsync(TId masterId, TId slaveId, CancellationToken token = default(CancellationToken));
+        Task<TModel> ReadAsync(TId masterId, TId slaveId, CancellationToken token = default);
     }
 }
