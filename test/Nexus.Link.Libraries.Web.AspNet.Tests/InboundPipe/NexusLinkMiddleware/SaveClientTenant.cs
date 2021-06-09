@@ -8,7 +8,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Nexus.Link.Libraries.Core.Application;
 using Nexus.Link.Libraries.Core.MultiTenant.Model;
 using Nexus.Link.Libraries.Web.AspNet.Pipe;
-using Nexus.Link.Libraries.Web.AspNet.Pipe.Options;
+using Nexus.Link.Libraries.Web.AspNet.Pipe.Support.Options;
 
 namespace Nexus.Link.Libraries.Web.AspNet.Tests.InboundPipe.NexusLinkMiddleware
 {

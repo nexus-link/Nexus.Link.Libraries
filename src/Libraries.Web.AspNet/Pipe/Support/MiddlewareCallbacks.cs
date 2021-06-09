@@ -4,7 +4,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 
-namespace Nexus.Link.Libraries.Web.AspNet.Pipe
+namespace Nexus.Link.Libraries.Web.AspNet.Pipe.Support
 {
     public class MiddlewareCallbacks
     {

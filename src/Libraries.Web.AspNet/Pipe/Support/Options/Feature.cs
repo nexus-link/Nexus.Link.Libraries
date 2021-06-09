@@ -1,4 +1,4 @@
-﻿namespace Nexus.Link.Libraries.Web.AspNet.Pipe.Options
+﻿namespace Nexus.Link.Libraries.Web.AspNet.Pipe.Support.Options
 {
     public abstract class Feature
     {

@@ -15,7 +15,7 @@ using Nexus.Link.Libraries.Core.MultiTenant.Model;
 using Nexus.Link.Libraries.Core.Platform.Configurations;
 using Nexus.Link.Libraries.Web.AspNet.Pipe;
 using Nexus.Link.Libraries.Web.AspNet.Pipe.Inbound;
-using Nexus.Link.Libraries.Web.AspNet.Pipe.Options;
+using Nexus.Link.Libraries.Web.AspNet.Pipe.Support.Options;
 using Nexus.Link.Libraries.Web.Error.Logic;
 
 namespace Nexus.Link.Libraries.Web.AspNet.Tests.InboundPipe.NexusLinkMiddleware

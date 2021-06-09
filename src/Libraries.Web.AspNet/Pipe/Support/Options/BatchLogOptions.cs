@@ -2,7 +2,7 @@
 using Nexus.Link.Libraries.Core.Assert;
 using Nexus.Link.Libraries.Core.Logging;
 
-namespace Nexus.Link.Libraries.Web.AspNet.Pipe.Options
+namespace Nexus.Link.Libraries.Web.AspNet.Pipe.Support.Options
 {
     /// <summary>
     /// If one log message in a batch has a severity level equal to or higher than <see name="LogAllThreshold"/>,

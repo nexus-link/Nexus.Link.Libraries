@@ -1,7 +1,7 @@
 ﻿using System.Text.RegularExpressions;
 using Nexus.Link.Libraries.Core.Assert;
 
-namespace Nexus.Link.Libraries.Web.AspNet.Pipe.Options
+namespace Nexus.Link.Libraries.Web.AspNet.Pipe.Support.Options
 {
     /// <summary>
     /// The prefix before the "/{organization}/{environment}/" part of the path. This is used to pattern match where we would find the organization and environment.

@@ -1,7 +1,7 @@
 ﻿using Nexus.Link.Libraries.Core.Assert;
 using Nexus.Link.Libraries.Core.Platform.Configurations;
 
-namespace Nexus.Link.Libraries.Web.AspNet.Pipe.Options
+namespace Nexus.Link.Libraries.Web.AspNet.Pipe.Support.Options
 {
     public class SaveTenantConfigurationOptions : Feature, IValidatable
     {

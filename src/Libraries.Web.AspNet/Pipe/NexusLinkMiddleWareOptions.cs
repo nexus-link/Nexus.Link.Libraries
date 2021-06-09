@@ -1,5 +1,6 @@
 ﻿#if NETCOREAPP
 using Nexus.Link.Libraries.Core.Assert;
+using Nexus.Link.Libraries.Web.AspNet.Pipe.Support;
 
 namespace Nexus.Link.Libraries.Web.AspNet.Pipe
 {

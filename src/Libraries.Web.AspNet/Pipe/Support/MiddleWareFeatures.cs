@@ -1,9 +1,9 @@
 ﻿using Nexus.Link.Libraries.Core.Application;
 using Nexus.Link.Libraries.Core.Assert;
-using Nexus.Link.Libraries.Web.AspNet.Pipe.Options;
+using Nexus.Link.Libraries.Web.AspNet.Pipe.Support.Options;
 using Nexus.Link.Libraries.Web.Pipe;
 
-namespace Nexus.Link.Libraries.Web.AspNet.Pipe
+namespace Nexus.Link.Libraries.Web.AspNet.Pipe.Support
 {
     // TODO: Move all features into a class, Feature
     public class MiddlewareFeatures : IValidatable
