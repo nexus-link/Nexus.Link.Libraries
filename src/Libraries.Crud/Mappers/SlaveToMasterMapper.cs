@@ -14,7 +14,7 @@ using Nexus.Link.Libraries.Crud.PassThrough;
 namespace Nexus.Link.Libraries.Crud.Mappers
 {
     /// <inheritdoc cref="SlaveToMasterMapper{TClientModelCreate,TClientModel,TClientId,TServerModel,TServerId}" />
-    [Obsolete("We no longer recommend to use this mapping technique. Obsolete since 2020-09-23.")]
+    [Obsolete("We no longer recommend to use this mapping technique. Obsolete warning since 2020-09-23, error since 2021-06-09.", true)]
     public class SlaveToMasterMapper<TClientModel, TClientId, TServerModel, TServerId> :
         SlaveToMasterMapper<TClientModel, TClientModel, TClientId, TServerModel, TServerId>,
         ICrudSlaveToMaster<TClientModel, TClientId>
@@ -29,7 +29,7 @@ namespace Nexus.Link.Libraries.Crud.Mappers
     }
 
     /// <inheritdoc cref="ICrudSlaveToMaster{TModelCreate,TModel,TId}" />
-    [Obsolete("We no longer recommend to use this mapping technique. Obsolete since 2020-09-23.")]
+    [Obsolete("We no longer recommend to use this mapping technique. Obsolete warning since 2020-09-23, error since 2021-06-09.", true)]
     public class SlaveToMasterMapper<TClientModelCreate, TClientModel, TClientId, TServerModel, TServerId> : 
         ICrudSlaveToMaster<TClientModelCreate, TClientModel, TClientId> 
         where TClientModel : TClientModelCreate
@@ -49,7 +49,7 @@ namespace Nexus.Link.Libraries.Crud.Mappers
         }
 
         /// <inheritdoc />
-        public virtual async Task<TClientId> CreateAsync(TClientId masterId, TClientModelCreate item, CancellationToken token = default(CancellationToken))
+        public virtual async Task<TClientId> CreateAsync(TClientId masterId, TClientModelCreate item, CancellationToken token = default)
         {
             InternalContract.RequireNotDefaultValue(masterId, nameof(masterId));
             InternalContract.RequireNotNull(item, nameof(item));
@@ -62,7 +62,7 @@ namespace Nexus.Link.Libraries.Crud.Mappers
         }
 
         /// <inheritdoc />
-        public virtual async Task<TClientModel> CreateAndReturnAsync(TClientId masterId, TClientModelCreate item, CancellationToken token = default(CancellationToken))
+        public virtual async Task<TClientModel> CreateAndReturnAsync(TClientId masterId, TClientModelCreate item, CancellationToken token = default)
         {
             InternalContract.RequireNotDefaultValue(masterId, nameof(masterId));
             InternalContract.RequireNotNull(item, nameof(item));
@@ -76,7 +76,7 @@ namespace Nexus.Link.Libraries.Crud.Mappers
 
         /// <inheritdoc />
         public virtual async Task CreateWithSpecifiedIdAsync(TClientId masterId, TClientId slaveId, TClientModelCreate item,
-            CancellationToken token = default(CancellationToken))
+            CancellationToken token = default)
         {
             InternalContract.RequireNotDefaultValue(masterId, nameof(masterId));
             InternalContract.RequireNotDefaultValue(slaveId, nameof(slaveId));
@@ -90,7 +90,7 @@ namespace Nexus.Link.Libraries.Crud.Mappers
 
         /// <inheritdoc />
         public virtual async Task<TClientModel> CreateWithSpecifiedIdAndReturnAsync(TClientId masterId, TClientId slaveId, TClientModelCreate item,
-            CancellationToken token = default(CancellationToken))
+            CancellationToken token = default)
         {
             InternalContract.RequireNotDefaultValue(masterId, nameof(masterId));
             InternalContract.RequireNotDefaultValue(slaveId, nameof(slaveId));
@@ -104,7 +104,7 @@ namespace Nexus.Link.Libraries.Crud.Mappers
         }
 
         /// <inheritdoc />
-        public virtual async Task<TClientModel> ReadAsync(TClientId masterId, TClientId slaveId, CancellationToken token = default(CancellationToken))
+        public virtual async Task<TClientModel> ReadAsync(TClientId masterId, TClientId slaveId, CancellationToken token = default)
         {
             InternalContract.RequireNotDefaultValue(masterId, nameof(masterId));
             InternalContract.RequireNotDefaultValue(slaveId, nameof(slaveId));
@@ -115,7 +115,7 @@ namespace Nexus.Link.Libraries.Crud.Mappers
         }
 
         /// <inheritdoc />
-        public Task<TClientModel> ReadAsync(SlaveToMasterId<TClientId> id, CancellationToken token = default(CancellationToken))
+        public Task<TClientModel> ReadAsync(SlaveToMasterId<TClientId> id, CancellationToken token = default)
         {
             InternalContract.RequireNotNull(id, nameof(id));
             InternalContract.RequireValidated(id, nameof(id));
@@ -124,7 +124,7 @@ namespace Nexus.Link.Libraries.Crud.Mappers
 
         /// <inheritdoc />
         public virtual async Task<PageEnvelope<TClientModel>> ReadChildrenWithPagingAsync(TClientId parentId, int offset, int? limit = null,
-            CancellationToken token = default(CancellationToken))
+            CancellationToken token = default)
         {
             InternalContract.RequireNotDefaultValue(parentId, nameof(parentId));
             var serverId = MapperHelper.MapToType<TServerId, TClientId>(parentId);
@@ -135,7 +135,7 @@ namespace Nexus.Link.Libraries.Crud.Mappers
         }
 
         /// <inheritdoc />
-        public virtual async Task<IEnumerable<TClientModel>> ReadChildrenAsync(TClientId parentId, int limit = int.MaxValue, CancellationToken token = default(CancellationToken))
+        public virtual async Task<IEnumerable<TClientModel>> ReadChildrenAsync(TClientId parentId, int limit = int.MaxValue, CancellationToken token = default)
         {
             InternalContract.RequireNotDefaultValue(parentId, nameof(parentId));
             var serverId = MapperHelper.MapToType<TServerId, TClientId>(parentId);
@@ -146,7 +146,7 @@ namespace Nexus.Link.Libraries.Crud.Mappers
 
         /// <inheritdoc />
         public virtual Task UpdateAsync(TClientId masterId, TClientId slaveId, TClientModel item,
-            CancellationToken token = default(CancellationToken))
+            CancellationToken token = default)
         {
             InternalContract.RequireNotDefaultValue(masterId, nameof(masterId));
             InternalContract.RequireNotDefaultValue(slaveId, nameof(slaveId));
@@ -160,7 +160,7 @@ namespace Nexus.Link.Libraries.Crud.Mappers
 
         /// <inheritdoc />
         public virtual async Task<TClientModel> UpdateAndReturnAsync(TClientId masterId, TClientId slaveId, TClientModel item,
-            CancellationToken token = default(CancellationToken))
+            CancellationToken token = default)
         {
             InternalContract.RequireNotDefaultValue(masterId, nameof(masterId));
             InternalContract.RequireNotDefaultValue(slaveId, nameof(slaveId));
@@ -174,7 +174,7 @@ namespace Nexus.Link.Libraries.Crud.Mappers
         }
 
         /// <inheritdoc />
-        public virtual Task DeleteChildrenAsync(TClientId parentId, CancellationToken token = default(CancellationToken))
+        public virtual Task DeleteChildrenAsync(TClientId parentId, CancellationToken token = default)
         {
             InternalContract.RequireNotDefaultValue(parentId, nameof(parentId));
             var serverId = MapperHelper.MapToType<TServerId, TClientId>(parentId);
@@ -182,7 +182,7 @@ namespace Nexus.Link.Libraries.Crud.Mappers
         }
 
         /// <inheritdoc />
-        public virtual Task DeleteAsync(TClientId masterId, TClientId slaveId, CancellationToken token = default(CancellationToken))
+        public virtual Task DeleteAsync(TClientId masterId, TClientId slaveId, CancellationToken token = default)
         {
             InternalContract.RequireNotDefaultValue(masterId, nameof(masterId));
             InternalContract.RequireNotDefaultValue(slaveId, nameof(slaveId));
@@ -192,7 +192,7 @@ namespace Nexus.Link.Libraries.Crud.Mappers
         }
 
         /// <inheritdoc />
-        public virtual async Task<SlaveLock<TClientId>> ClaimLockAsync(TClientId masterId, TClientId slaveId, CancellationToken token = default(CancellationToken))
+        public virtual async Task<SlaveLock<TClientId>> ClaimLockAsync(TClientId masterId, TClientId slaveId, CancellationToken token = default)
         {
             InternalContract.RequireNotDefaultValue(masterId, nameof(masterId));
             InternalContract.RequireNotDefaultValue(slaveId, nameof(slaveId));
@@ -210,7 +210,7 @@ namespace Nexus.Link.Libraries.Crud.Mappers
 
         /// <inheritdoc />
         public virtual Task ReleaseLockAsync(TClientId masterId, TClientId slaveId, TClientId lockId,
-            CancellationToken token = default(CancellationToken))
+            CancellationToken token = default)
         {
             InternalContract.RequireNotDefaultValue(masterId, nameof(masterId));
             InternalContract.RequireNotDefaultValue(slaveId, nameof(slaveId));
@@ -222,42 +222,42 @@ namespace Nexus.Link.Libraries.Crud.Mappers
 
         /// <inheritdoc />
         public Task<SlaveLock<TClientId>> ClaimDistributedLockAsync(TClientId masterId, TClientId slaveId,
-            CancellationToken token = default(CancellationToken))
+            CancellationToken token = default)
         {
             throw new NotImplementedException();
         }
 
         /// <inheritdoc />
         public Task ReleaseDistributedLockAsync(TClientId masterId, TClientId slaveId, TClientId lockId,
-            CancellationToken token = default(CancellationToken))
+            CancellationToken token = default)
         {
             throw new NotImplementedException();
         }
 
         /// <inheritdoc />
         public Task ClaimTransactionLockAsync(TClientId masterId, TClientId slaveId,
-            CancellationToken token = default(CancellationToken))
+            CancellationToken token = default)
         {
             throw new NotImplementedException();
         }
 
         /// <inheritdoc />
         public Task<TClientModel> ClaimTransactionLockAndReadAsync(TClientId masterId, TClientId slaveId,
-            CancellationToken token = default(CancellationToken))
+            CancellationToken token = default)
         {
             throw new NotImplementedException();
         }
 
         /// <inheritdoc />
         public Task<PageEnvelope<TClientModel>> SearchChildrenAsync(TClientId parentId, SearchDetails<TClientModel> details, int offset, int? limit = null,
-            CancellationToken cancellationToken = default(CancellationToken))
+            CancellationToken cancellationToken = default)
         {
             throw new NotImplementedException();
         }
 
         /// <inheritdoc />
         public Task<TClientModel> FindUniqueChildAsync(TClientId parentId, SearchDetails<TClientModel> details,
-            CancellationToken cancellationToken = default(CancellationToken))
+            CancellationToken cancellationToken = default)
         {
             throw new NotImplementedException();
         }

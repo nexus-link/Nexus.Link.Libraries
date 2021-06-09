@@ -43,7 +43,7 @@ namespace Nexus.Link.Libraries.Core.Threads
         /// <param name="asyncMethod">The action to run in the background.</param>
         /// <param name="token">Propagates notification that operations should be canceled</param>
         /// <returns>The created thread.</returns>
-        public static Thread FireAndForget(Func<CancellationToken, Task> asyncMethod, CancellationToken token = default(CancellationToken))
+        public static Thread FireAndForget(Func<CancellationToken, Task> asyncMethod, CancellationToken token = default)
         {
             FulcrumApplication.ValidateButNotInProduction();
             var messageIfException = $"Background thread failed.";
@@ -90,13 +90,13 @@ namespace Nexus.Link.Libraries.Core.Threads
         /// <param name="asyncMethod">The action to run in the background.</param>
         /// <param name="token">Propagates notification that operations should be canceled</param>
         /// <returns>The created thread.</returns>
-        public static Thread FireAndForgetResetContext(Func<CancellationToken, Task> asyncMethod, CancellationToken token = default(CancellationToken))
+        public static Thread FireAndForgetResetContext(Func<CancellationToken, Task> asyncMethod, CancellationToken token = default)
         {
             FulcrumApplication.ValidateButNotInProduction();
             return FireAndForget(async () => await ResetBeforeCall(asyncMethod, token));
         }
 
-        private static Task ResetBeforeCall(Func<CancellationToken, Task> asyncMethod, CancellationToken token = default(CancellationToken))
+        private static Task ResetBeforeCall(Func<CancellationToken, Task> asyncMethod, CancellationToken token = default)
         {
             FulcrumApplication.Context.ValueProvider.Reset();
             return asyncMethod(token);
@@ -132,7 +132,7 @@ namespace Nexus.Link.Libraries.Core.Threads
         /// <param name="asyncMethod">The action to run in the background.</param>
         /// <param name="token">Propagates notification that operations should be canceled</param>
         /// <returns>The created thread.</returns>
-        public static Thread FireAndForgetWithExpensiveStackTracePreservation(Func<CancellationToken, Task> asyncMethod, CancellationToken token = default(CancellationToken))
+        public static Thread FireAndForgetWithExpensiveStackTracePreservation(Func<CancellationToken, Task> asyncMethod, CancellationToken token = default)
         {
             FulcrumApplication.ValidateButNotInProduction();
             var context = new StackTracePreservation();
@@ -179,7 +179,7 @@ namespace Nexus.Link.Libraries.Core.Threads
         /// <param name="asyncMethod">The action to run in the background.</param>
         /// <param name="messageIfException">The message to display if there was an exception</param>
         /// <param name="token">Propagates notification that operations should be canceled</param>
-        public static async Task ExecuteActionFailSafeAsync(Func<CancellationToken, Task> asyncMethod, string messageIfException, CancellationToken token = default(CancellationToken))
+        public static async Task ExecuteActionFailSafeAsync(Func<CancellationToken, Task> asyncMethod, string messageIfException, CancellationToken token = default)
         {
             try
             {
@@ -196,7 +196,7 @@ namespace Nexus.Link.Libraries.Core.Threads
         /// </summary>
         /// <param name="asyncMethod">The action to run in the background.</param>
         /// <param name="token">Propagates notification that operations should be canceled</param>
-        public static void CallAsyncFromSync(Func<CancellationToken, Task> asyncMethod, CancellationToken token = default(CancellationToken))
+        public static void CallAsyncFromSync(Func<CancellationToken, Task> asyncMethod, CancellationToken token = default)
         {
             // This way to call an async method from a synchronous method was found here:
             // https://stackoverflow.com/questions/40324300/calling-async-methods-from-non-async-code
@@ -208,7 +208,7 @@ namespace Nexus.Link.Libraries.Core.Threads
         /// </summary>
         /// <param name="asyncMethod">The action to run in the background.</param>
         /// <param name="token">Propagates notification that operations should be canceled</param>
-        public static void CallAsyncFromSync(Func<Task> asyncMethod, CancellationToken token = default(CancellationToken))
+        public static void CallAsyncFromSync(Func<Task> asyncMethod, CancellationToken token = default)
         {
             // This way to call an async method from a synchronous method was found here:
             // https://stackoverflow.com/questions/40324300/calling-async-methods-from-non-async-code
@@ -220,7 +220,7 @@ namespace Nexus.Link.Libraries.Core.Threads
         /// </summary>
         /// <param name="asyncMethod">The action to run in the background.</param>
         /// <param name="token">Propagates notification that operations should be canceled</param>
-        public static T CallAsyncFromSync<T>(Func<CancellationToken, Task<T>> asyncMethod, CancellationToken token = default(CancellationToken))
+        public static T CallAsyncFromSync<T>(Func<CancellationToken, Task<T>> asyncMethod, CancellationToken token = default)
         {
             // This way to call an async method from a synchronous method was found here:
             // https://stackoverflow.com/questions/40324300/calling-async-methods-from-non-async-code
@@ -234,7 +234,7 @@ namespace Nexus.Link.Libraries.Core.Threads
         /// </summary>
         /// <param name="asyncMethod">The action to run in the background.</param>
         /// <param name="token">Propagates notification that operations should be canceled</param>
-        public static T CallAsyncFromSync<T>(Func<Task<T>> asyncMethod, CancellationToken token = default(CancellationToken))
+        public static T CallAsyncFromSync<T>(Func<Task<T>> asyncMethod, CancellationToken token = default)
         {
             // This way to call an async method from a synchronous method was found here:
             // https://stackoverflow.com/questions/40324300/calling-async-methods-from-non-async-code

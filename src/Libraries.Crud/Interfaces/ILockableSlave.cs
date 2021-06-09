@@ -10,7 +10,7 @@ namespace Nexus.Link.Libraries.Crud.Interfaces
     /// Lock/unlock an item.
     /// </summary>
     /// <typeparam name="TId">The type for the id parameter.</typeparam>
-    [Obsolete("Use IDistributedLockSlave. Obsolete since 2021-04-29")]
+    [Obsolete("Use IDistributedLockSlave. Obsolete warning since 2021-04-29")]
     public interface ILockableSlave<TId> : ICrudable<TId>
     {
         /// <summary>
@@ -26,7 +26,7 @@ namespace Nexus.Link.Libraries.Crud.Interfaces
         /// <remarks>
         /// The lock will be automatically released after 30 seconds, but please use <see cref="ReleaseLockAsync"/> to release the lock as soon as you don't need the lock anymore.
         /// </remarks>
-        Task<SlaveLock<TId>> ClaimLockAsync(TId masterId, TId slaveId, CancellationToken token = default(CancellationToken));
+        Task<SlaveLock<TId>> ClaimLockAsync(TId masterId, TId slaveId, CancellationToken token = default);
 
         /// <summary>
         /// Releases the lock for an item.
@@ -35,6 +35,6 @@ namespace Nexus.Link.Libraries.Crud.Interfaces
         /// <param name="slaveId">The id for the slave object.</param>
         /// <param name="lockId">The id of the lock for this item, to prove that you are eligible of unlocking it.</param>
         /// <param name="token">Propagates notification that operations should be canceled</param>
-        Task ReleaseLockAsync(TId masterId, TId slaveId, TId lockId, CancellationToken token = default(CancellationToken));
+        Task ReleaseLockAsync(TId masterId, TId slaveId, TId lockId, CancellationToken token = default);
     }
 }

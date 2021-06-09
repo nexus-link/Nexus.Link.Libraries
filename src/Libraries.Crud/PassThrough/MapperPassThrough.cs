@@ -6,7 +6,7 @@ using Nexus.Link.Libraries.Crud.Mappers;
 namespace Nexus.Link.Libraries.Crud.PassThrough
 {
     /// <inheritdoc cref="MapperPassThrough{TModelCreate,TModel,TId}" />
-    [Obsolete("We no longer recommend to use this mapping technique. Obsolete since 2020-09-23.")]
+    [Obsolete("We no longer recommend to use this mapping technique. Obsolete warning since 2020-09-23, error since 2021-06-09.", true)]
     public class MapperPassThrough<TModel, TServerModel> :
         MapperPassThrough<TModel, TModel, TServerModel>
     {
@@ -23,7 +23,7 @@ namespace Nexus.Link.Libraries.Crud.PassThrough
     /// <summary>
     /// Verify that the service given in the constructor has the neccessary map implementations.
     /// </summary>
-    [Obsolete("We no longer recommend to use this mapping technique. Obsolete since 2020-09-23.")]
+    [Obsolete("We no longer recommend to use this mapping technique. Obsolete warning since 2020-09-23, error since 2021-06-09.", true)]
     public class MapperPassThrough<TModelCreate, TModel, TServerModel> :
         IMapper<TModelCreate, TModel, TServerModel> where TModel : TModelCreate
     {

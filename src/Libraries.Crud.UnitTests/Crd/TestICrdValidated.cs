@@ -33,12 +33,12 @@ namespace Nexus.Link.Libraries.Crud.UnitTests.Crd
         {
             var initialItem = new TestItemValidated<TId>();
             initialItem.InitializeWithDataForTesting(TypeOfTestDataEnum.Default);
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual(default(TId), initialItem.Id);
+            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual(default, initialItem.Id);
             initialItem.Validate(null);
             var id = await CrdStorage.CreateAsync(initialItem);
             var createdItem = await CrdStorage.ReadAsync(id);
             Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsNotNull(createdItem);
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreNotEqual(createdItem.Id, default(TId));
+            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreNotEqual(createdItem.Id, default);
             createdItem.Validate(null);
             initialItem.Id = createdItem.Id;
             Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual(initialItem, createdItem);
@@ -65,11 +65,11 @@ namespace Nexus.Link.Libraries.Crud.UnitTests.Crd
         {
             var initialItem = new TestItemValidated<TId>();
             initialItem.InitializeWithDataForTesting(TypeOfTestDataEnum.Default);
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual(default(TId), initialItem.Id);
+            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual(default, initialItem.Id);
             initialItem.Validate(null);
             var createdItem = await CrdStorage.CreateAndReturnAsync(initialItem);
             Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsNotNull(createdItem);
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreNotEqual(createdItem.Id, default(TId));
+            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreNotEqual(createdItem.Id, default);
             createdItem.Validate(null);
             initialItem.Id = createdItem.Id;
             Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual(initialItem, createdItem);

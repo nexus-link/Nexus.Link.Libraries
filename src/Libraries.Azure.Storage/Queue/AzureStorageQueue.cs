@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.WindowsAzure.Storage;
 using Microsoft.WindowsAzure.Storage.Queue;
@@ -21,54 +22,54 @@ namespace Nexus.Link.Libraries.Azure.Storage.Queue
         public AzureStorageQueue(string connectionString, string name)
         {
             Name = name;
-            _cloudQueueTask = MaybeCreateAndConnectAsync(connectionString, Name);
+            _cloudQueueTask = MaybeCreateAndConnectAsync(connectionString, Name, CancellationToken.None);
         }
 
-        public async Task AddMessageAsync(T message, TimeSpan? timeSpanToWait = null)
+        public async Task AddMessageAsync(T message, TimeSpan? timeSpanToWait = null, CancellationToken cancellationToken = default)
         {
             var queue = (await _cloudQueueTask);
             FulcrumAssert.IsNotNull(queue);
             var messageAsString = SerializeToString(message);
-            await queue.AddMessageAsync(new CloudQueueMessage(messageAsString), null, timeSpanToWait, null, null);
+            await queue.AddMessageAsync(new CloudQueueMessage(messageAsString), null, timeSpanToWait, null, null, cancellationToken);
         }
 
-        public async Task ClearAsync()
+        public async Task ClearAsync(CancellationToken cancellationToken = default)
         {
-            await (await _cloudQueueTask).ClearAsync();
+            await (await _cloudQueueTask).ClearAsync(null, null, cancellationToken);
         }
 
-        public async Task<T> GetOneMessageNoBlockAsync()
+        public async Task<T> GetOneMessageNoBlockAsync(CancellationToken cancellationToken = default)
         {
-            var message = await (await _cloudQueueTask).GetMessageAsync();
-            if (message == null) return default(T);
+            var message = await (await _cloudQueueTask).GetMessageAsync(null, null, null, cancellationToken);
+            if (message == null) return default;
             var response = FromByteArray(message.AsBytes);
-            await (await _cloudQueueTask).DeleteMessageAsync(message.Id, message.PopReceipt);
+            await (await _cloudQueueTask).DeleteMessageAsync(message.Id, message.PopReceipt, null, null, cancellationToken);
             return response;
         }
 
-        public async Task<T> PeekNoBlockAsync()
+        public async Task<T> PeekNoBlockAsync(CancellationToken cancellationToken = default)
         {
-            var message = await (await _cloudQueueTask).PeekMessageAsync();
-            var response = message == null ? default(T) : FromByteArray(message.AsBytes);
+            var message = await (await _cloudQueueTask).PeekMessageAsync(null, null, cancellationToken);
+            var response = message == null ? default : FromByteArray(message.AsBytes);
             return response;
         }
 
-        public async Task<int?> GetApproximateMessageCountAsync()
+        public async Task<int?> GetApproximateMessageCountAsync(CancellationToken cancellationToken = default)
         {
             var cloudQueue = await _cloudQueueTask; 
-            await cloudQueue.FetchAttributesAsync();
+            await cloudQueue.FetchAttributesAsync(null, null, cancellationToken);
             var count = cloudQueue.ApproximateMessageCount;
             return count;
         }
 
-        public async Task<HealthResponse> GetResourceHealthAsync()
+        public async Task<HealthResponse> GetResourceHealthAsync(CancellationToken cancellationToken = default)
         {
             var queue = await _cloudQueueTask;
             var response = new HealthResponse($"Queue {queue?.Name}");
             return await Task.FromResult(response);
         }
 
-        private async Task<CloudQueue> MaybeCreateAndConnectAsync(string connectionString, string name)
+        private async Task<CloudQueue> MaybeCreateAndConnectAsync(string connectionString, string name, CancellationToken cancellationToken)
         {
             InternalContract.RequireNotNullOrWhiteSpace(name, nameof(name));
             var storageAccount = CloudStorageAccount.Parse(connectionString);
@@ -77,7 +78,7 @@ namespace Nexus.Link.Libraries.Azure.Storage.Queue
             FulcrumAssert.IsNotNull(client, null, $"Expected to have a queue client ready for queue {name}.");
             var queue = client.GetQueueReference(name);
             FulcrumAssert.IsNotNull(queue, null, $"Failed to create a queue reference to {name}");
-            await queue.CreateIfNotExistsAsync();
+            await queue.CreateIfNotExistsAsync(null, null, cancellationToken);
             return queue;
         }
 
@@ -93,7 +94,7 @@ namespace Nexus.Link.Libraries.Azure.Storage.Queue
         }
 
         // TODO: Remove dependency to IResourceHealth?
-        public Task<HealthResponse> GetResourceHealthAsync(Tenant tenant)
+        public Task<HealthResponse> GetResourceHealthAsync(Tenant tenant, CancellationToken cancellationToken = default)
         {
             throw new NotImplementedException();
         }

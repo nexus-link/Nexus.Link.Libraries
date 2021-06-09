@@ -29,7 +29,7 @@ namespace Nexus.Link.Libraries.Web.RestClientHelper
         /// <summary></summary>
         /// <param name="baseUri">The base URL that all HTTP calls methods will refer to.</param>
         // ReSharper disable once UnusedParameter.Local
-        [Obsolete("Use the RestClient(IHttpSender) constructor. Obsolete since 2019-11-15.")]
+        [Obsolete("Use the RestClient(IHttpSender) constructor. Obsolete warning since 2019-11-15, error since 2021-06-09.", true)]
         public RestClient(string baseUri) : this(new HttpSender(baseUri))
         {
         }
@@ -37,7 +37,7 @@ namespace Nexus.Link.Libraries.Web.RestClientHelper
         /// <summary></summary>
         /// <param name="baseUri">The base URL that all HTTP calls methods will refer to.</param>
         /// <param name="credentials">The credentials used when making the HTTP calls.</param>
-        [Obsolete("Use the RestClient(IHttpSender) constructor. Obsolete since 2019-11-15.")]
+        [Obsolete("Use the RestClient(IHttpSender) constructor. Obsolete warning since 2019-11-15, error since 2021-06-09.", true)]
         public RestClient(string baseUri, ServiceClientCredentials credentials) : this(new HttpSender(baseUri, credentials))
         {
         }
@@ -46,7 +46,7 @@ namespace Nexus.Link.Libraries.Web.RestClientHelper
         /// <param name="baseUri">The base URL that all HTTP calls methods will refer to.</param>
         /// <param name="httpClient">The HttpClient used when making the HTTP calls.</param>
         /// <param name="credentials">The credentials used when making the HTTP calls.</param>
-        [Obsolete("Use the RestClient(IHttpSender) constructor. Obsolete since 2019-11-15.")]
+        [Obsolete("Use the RestClient(IHttpSender) constructor. Obsolete warning since 2019-11-15, error since 2021-06-09.", true)]
         public RestClient(string baseUri, HttpClient httpClient, ServiceClientCredentials credentials)
             : this(new HttpSender(baseUri, credentials){HttpClient = new HttpClientWrapper(httpClient)})
         {
@@ -56,7 +56,7 @@ namespace Nexus.Link.Libraries.Web.RestClientHelper
         /// <summary></summary>
         /// <param name="baseUri">The base URL that all HTTP calls methods will refer to.</param>
         /// <param name="httpClient">The HttpClient used when making the HTTP calls.</param>
-        [Obsolete("Use the RestClient(IHttpSender) constructor. Obsolete since 2019-11-15.")]
+        [Obsolete("Use the RestClient(IHttpSender) constructor. Obsolete warning since 2019-11-15, error since 2021-06-09.", true)]
         public RestClient(string baseUri, HttpClient httpClient) 
             : this(new HttpSender(baseUri){HttpClient = new HttpClientWrapper(httpClient)})
         {
@@ -98,7 +98,7 @@ namespace Nexus.Link.Libraries.Web.RestClientHelper
         {
             InternalContract.RequireNotNull(relativeUrl, nameof(relativeUrl));
             var response = await SendRequestAsync(HttpMethod.Post, relativeUrl, body, customHeaders, cancellationToken);
-            await VerifySuccessAsync(response);
+            await VerifySuccessAsync(response, cancellationToken);
         }
 
         /// <inheritdoc />
@@ -107,7 +107,7 @@ namespace Nexus.Link.Libraries.Web.RestClientHelper
         {
             InternalContract.RequireNotNull(relativeUrl, nameof(relativeUrl));
             var response = await SendRequestAsync(HttpMethod.Post, relativeUrl, customHeaders, cancellationToken);
-            await VerifySuccessAsync(response);
+            await VerifySuccessAsync(response, cancellationToken);
         }
         #endregion
 
@@ -181,15 +181,15 @@ namespace Nexus.Link.Libraries.Web.RestClientHelper
         {
             InternalContract.RequireNotNull(relativeUrl, nameof(relativeUrl));
             var response = await SendRequestAsync(HttpMethod.Delete, relativeUrl, customHeaders, cancellationToken);
-            await VerifySuccessAsync(response);
+            await VerifySuccessAsync(response, cancellationToken);
         }
         #endregion
 
         #region Send
         /// <inheritdoc />
         public Task<HttpOperationResponse<TResponse>> SendRequestAsync<TResponse, TBody>(HttpMethod method, string relativeUrl,
-            TBody body = default(TBody), Dictionary<string, List<string>> customHeaders = null,
-            CancellationToken cancellationToken = default(CancellationToken))
+            TBody body = default, Dictionary<string, List<string>> customHeaders = null,
+            CancellationToken cancellationToken = default)
         {
             return HttpSender.SendRequestAsync<TResponse, TBody>(method, relativeUrl, body, customHeaders,
                 cancellationToken);
@@ -197,8 +197,8 @@ namespace Nexus.Link.Libraries.Web.RestClientHelper
 
         /// <inheritdoc />
         public Task<HttpResponseMessage> SendRequestAsync<TBody>(HttpMethod method, string relativeUrl,
-            TBody body = default(TBody), Dictionary<string, List<string>> customHeaders = null,
-            CancellationToken cancellationToken = default(CancellationToken))
+            TBody body = default, Dictionary<string, List<string>> customHeaders = null,
+            CancellationToken cancellationToken = default)
         {
             return HttpSender.SendRequestAsync(method, relativeUrl, body, customHeaders,
                 cancellationToken);
@@ -213,7 +213,7 @@ namespace Nexus.Link.Libraries.Web.RestClientHelper
 
         /// <inheritdoc />
         public Task<HttpResponseMessage> SendRequestAsync(HttpMethod method, string relativeUrl,
-            Dictionary<string, List<string>> customHeaders = null, CancellationToken cancellationToken = default(CancellationToken))
+            Dictionary<string, List<string>> customHeaders = null, CancellationToken cancellationToken = default)
         {
             return HttpSender.SendRequestAsync(method, relativeUrl, customHeaders, cancellationToken);
         }
@@ -241,17 +241,17 @@ namespace Nexus.Link.Libraries.Web.RestClientHelper
         {
             InternalContract.RequireNotNull(relativeUrl, nameof(relativeUrl));
             var response = await SendRequestAsync(method, relativeUrl, body, customHeaders, cancellationToken);
-            await VerifySuccessAsync(response);
+            await VerifySuccessAsync(response, cancellationToken);
         }
 
-        private async Task VerifySuccessAsync(HttpResponseMessage response)
+        private async Task VerifySuccessAsync(HttpResponseMessage response, CancellationToken cancellationToken)
         {
             InternalContract.RequireNotNull(response, nameof(response));
             InternalContract.RequireNotNull(response.RequestMessage, $"{nameof(response)}.{nameof(response.RequestMessage)}");
             if (!response.IsSuccessStatusCode)
             {
-                var requestContent = await TryGetContentAsString(response.RequestMessage?.Content, true);
-                var responseContent = await TryGetContentAsString(response.Content, true);
+                var requestContent = await TryGetContentAsString(response.RequestMessage?.Content, true, cancellationToken);
+                var responseContent = await TryGetContentAsString(response.Content, true, cancellationToken);
                 var message = $"{response.StatusCode} {responseContent}";
                 var exception = new HttpOperationException(message)
                 {
@@ -262,7 +262,7 @@ namespace Nexus.Link.Libraries.Web.RestClientHelper
             }
         }
 
-        private async Task<string> TryGetContentAsString(HttpContent content, bool silentlyIgnoreExceptions)
+        private async Task<string> TryGetContentAsString(HttpContent content, bool silentlyIgnoreExceptions, CancellationToken cancellationToken)
         {
             if (content == null) return null;
             try

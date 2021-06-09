@@ -27,7 +27,7 @@ namespace Nexus.Link.Libraries.Crud.Interfaces
         /// <param name="item">The item to create in storage.</param>
         /// <param name="token">Propagates notification that operations should be canceled</param>
         /// <returns>The newly created item.</returns>
-        Task CreateWithSpecifiedIdAsync(TId masterId, TId slaveId, TModelCreate item, CancellationToken token = default(CancellationToken));
+        Task CreateWithSpecifiedIdAsync(TId masterId, TId slaveId, TModelCreate item, CancellationToken token = default);
 
         /// <summary>
         /// Same as <see cref="ICreateSlaveAndReturn{TModelCreate,TModel,TId}.CreateAndReturnAsync"/>, but you can specify the new id.
@@ -43,6 +43,6 @@ namespace Nexus.Link.Libraries.Crud.Interfaces
         /// </remarks>
         /// <seealso cref="IOptimisticConcurrencyControlByETag"/>
         /// <seealso cref="IUniquelyIdentifiable{TId}"/>
-        Task<TModel> CreateWithSpecifiedIdAndReturnAsync(TId masterId, TId slaveId, TModelCreate item, CancellationToken token = default(CancellationToken));
+        Task<TModel> CreateWithSpecifiedIdAndReturnAsync(TId masterId, TId slaveId, TModelCreate item, CancellationToken token = default);
     }
 }

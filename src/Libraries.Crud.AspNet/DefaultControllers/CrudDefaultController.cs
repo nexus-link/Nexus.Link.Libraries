@@ -13,7 +13,7 @@ using System.Web.Http;
 namespace Nexus.Link.Libraries.Crud.AspNet.DefaultControllers
 {
     /// <inheritdoc cref="CrudDefaultController{TModelCreate, TModel}" />
-    [Obsolete("Use Nexus.Link.Libraries.Crud.AspNet.Controllers classes. Obsolete since 2020-09-23.")]
+    [Obsolete("Use Nexus.Link.Libraries.Crud.AspNet.Controllers classes. Obsolete warning since 2020-09-23, error since 2021-06-09.", true)]
     public class CrudDefaultController<TModel> : CrudDefaultController<TModel, TModel>, ICrud<TModel, string>
     {
         /// <inheritdoc />
@@ -24,7 +24,7 @@ namespace Nexus.Link.Libraries.Crud.AspNet.DefaultControllers
     }
 
     /// <inheritdoc cref="CrudController{TModel}" />
-    [Obsolete("Use Nexus.Link.Libraries.Crud.AspNet.Controllers classes. Obsolete since 2020-09-23.")]
+    [Obsolete("Use Nexus.Link.Libraries.Crud.AspNet.Controllers classes. Obsolete warning since 2020-09-23, error since 2021-06-09.", true)]
     public class CrudDefaultController<TModelCreate, TModel> :
         CrudController<TModelCreate, TModel>,
         ICrud<TModelCreate, TModel, string>
@@ -39,7 +39,7 @@ namespace Nexus.Link.Libraries.Crud.AspNet.DefaultControllers
         /// <inheritdoc />
         [HttpGet]
         [Route("{id}")]
-        public override Task<TModel> ReadAsync(string id, CancellationToken token = default(CancellationToken))
+        public override Task<TModel> ReadAsync(string id, CancellationToken token = default)
         {
             return base.ReadAsync(id, token);
         }
@@ -47,7 +47,7 @@ namespace Nexus.Link.Libraries.Crud.AspNet.DefaultControllers
         /// <inheritdoc />
         [HttpGet]
         [Route("")]
-        public override Task<PageEnvelope<TModel>> ReadAllWithPagingAsync(int offset, int? limit = null, CancellationToken token = default(CancellationToken))
+        public override Task<PageEnvelope<TModel>> ReadAllWithPagingAsync(int offset, int? limit = null, CancellationToken token = default)
         {
 
             return base.ReadAllWithPagingAsync(offset, limit, token);
@@ -56,7 +56,7 @@ namespace Nexus.Link.Libraries.Crud.AspNet.DefaultControllers
         /// <inheritdoc />
         [HttpPost]
         [Route("")]
-        public override Task<string> CreateAsync(TModelCreate item, CancellationToken token = default(CancellationToken))
+        public override Task<string> CreateAsync(TModelCreate item, CancellationToken token = default)
         {
             return base.CreateAsync(item, token);
         }
@@ -64,7 +64,7 @@ namespace Nexus.Link.Libraries.Crud.AspNet.DefaultControllers
         /// <inheritdoc />
         [HttpPut]
         [Route("{id}")]
-        public override Task UpdateAsync(string id, TModel item, CancellationToken token = default(CancellationToken))
+        public override Task UpdateAsync(string id, TModel item, CancellationToken token = default)
         {
             return base.UpdateAsync(id, item, token);
         }
@@ -72,7 +72,7 @@ namespace Nexus.Link.Libraries.Crud.AspNet.DefaultControllers
         /// <inheritdoc />
         [HttpDelete]
         [Route("{id}")]
-        public override Task DeleteAsync(string id, CancellationToken token = default(CancellationToken))
+        public override Task DeleteAsync(string id, CancellationToken token = default)
         {
             return base.DeleteAsync(id, token);
         }
@@ -80,7 +80,7 @@ namespace Nexus.Link.Libraries.Crud.AspNet.DefaultControllers
         /// <inheritdoc />
         [HttpDelete]
         [Route("")]
-        public override Task DeleteAllAsync(CancellationToken token = default(CancellationToken))
+        public override Task DeleteAllAsync(CancellationToken token = default)
         {
             return base.DeleteAllAsync(token);
         }

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
+using System.Threading;
 using System.Threading.Tasks;
 using Nexus.Link.Libraries.Core.Assert;
 using Nexus.Link.Libraries.Core.Logging;
@@ -17,7 +18,7 @@ namespace Nexus.Link.Libraries.Web.AspNet.Pipe.Inbound
     /// <summary>
     /// Logs requests and responses in the pipe
     /// </summary>
-    public class LogRequestAndResponse : CompatibilityDelegatingHandler
+    public class LogRequestAndResponse : CompatibilityDelegatingHandlerWithCancellationSupport
     {
         private static readonly DelegateState DelegateState = new DelegateState(typeof(LogRequestAndResponse).FullName);
 
@@ -42,30 +43,30 @@ namespace Nexus.Link.Libraries.Web.AspNet.Pipe.Inbound
         {
         }
 #endif
-        protected override async Task InvokeAsync(CompabilityInvocationContext context)
+        protected override async Task InvokeAsync(CompabilityInvocationContext context, CancellationToken cancellationToken)
         {
             InternalContract.Require(!DelegateState.HasStarted, $"{nameof(LogResponseAsync)} has already been started in this http request.");
             InternalContract.Require(!ExceptionToFulcrumResponse.HasStarted,
                 $"{nameof(ExceptionToFulcrumResponse)} must not precede {nameof(LogRequestAndResponse)}");
             DelegateState.HasStarted = true;
-            var stopWatch = new Stopwatch();
-            stopWatch.Start();
+            var stopwatch = new Stopwatch();
+            stopwatch.Start();
             try
             {
-                await CallNextDelegateAsync(context);
-                stopWatch.Stop();
-                await LogResponseAsync(context, stopWatch.Elapsed);
+                await CallNextDelegateAsync(context, cancellationToken);
+                stopwatch.Stop();
+                await LogResponseAsync(context, stopwatch.Elapsed, cancellationToken);
             }
             catch (Exception exception)
             {
                 // If ExceptionToFulcrumResponse handler is used, we should not end up here.
-                stopWatch.Stop();
-                LogException(context, exception, stopWatch.Elapsed);
+                stopwatch.Stop();
+                LogException(context, exception, stopwatch.Elapsed);
                 throw;
             }
         }
 
-        private static async Task LogResponseAsync(CompabilityInvocationContext context, TimeSpan elapsedTime)
+        private static async Task LogResponseAsync(CompabilityInvocationContext context, TimeSpan elapsedTime, CancellationToken cancellationToken)
         {
             var logLevel = LogSeverityLevel.Information;
 #if NETCOREAPP
@@ -79,7 +80,7 @@ namespace Nexus.Link.Libraries.Web.AspNet.Pipe.Inbound
             if ((int)response.StatusCode >= 500) logLevel = LogSeverityLevel.Error;
             else if ((int)response.StatusCode >= 400) logLevel = LogSeverityLevel.Warning;
 #endif
-            Log.LogOnLevel(logLevel, $"INBOUND request-response {await request.ToLogStringAsync(response, elapsedTime)}");
+            Log.LogOnLevel(logLevel, $"INBOUND request-response {await request.ToLogStringAsync(response, elapsedTime, cancellationToken: cancellationToken)}");
         }
 
         private static void LogException(CompabilityInvocationContext context, Exception exception, TimeSpan elapsedTime)

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading;
 using System.Threading.Tasks;
 using Nexus.Link.Libraries.Core.Health.Model;
 using Nexus.Link.Libraries.Core.MultiTenant.Model;
@@ -24,8 +25,7 @@ namespace Nexus.Link.Libraries.Core.Health.Logic
         /// <summary>
         /// The signature for a resource health method.
         /// </summary>
-        /// <returns></returns>
-        public delegate Task<HealthInfo> GetResourceHealthDelegate(Tenant tenant);
+        public delegate Task<HealthInfo> GetResourceHealthDelegate(Tenant tenant, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Create ResourceHealthAggregator2 with an <see cref="Tenant"/> and the name of the service
@@ -43,9 +43,10 @@ namespace Nexus.Link.Libraries.Core.Health.Logic
         /// </summary>
         /// <param name="resourceName">The name to use for the resource</param>
         /// <param name="resource">A resource that we want to get the health for and add it to the aggregated health.</param>
-        public async Task AddResourceHealthAsync(string resourceName, IResourceHealth2 resource)
+        /// <param name="cancellationToken"></param>
+        public async Task AddResourceHealthAsync(string resourceName, IResourceHealth2 resource, CancellationToken cancellationToken = default)
         {
-            await AddResourceHealthAsync(resourceName, resource.GetResourceHealth2Async);
+            await AddResourceHealthAsync(resourceName, resource.GetResourceHealth2Async, cancellationToken);
         }
 
         /// <summary>
@@ -53,12 +54,13 @@ namespace Nexus.Link.Libraries.Core.Health.Logic
         /// </summary>
         /// <param name="resourceName">The name to use for the resource</param>
         /// <param name="healthDelegate">A method that returns a health, that we will add to the aggregated health.</param>
-        public async Task AddResourceHealthAsync(string resourceName, GetResourceHealthDelegate healthDelegate)
+        /// <param name="cancellationToken"></param>
+        public async Task AddResourceHealthAsync(string resourceName, GetResourceHealthDelegate healthDelegate, CancellationToken cancellationToken = default)
         {
             HealthInfo response;
             try
             {
-                response = await healthDelegate(Tenant);
+                response = await healthDelegate(Tenant, cancellationToken);
                 //Check this?
                 if (string.IsNullOrWhiteSpace(response.Resource)) response.Resource = resourceName;
             }

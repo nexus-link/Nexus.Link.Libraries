@@ -13,7 +13,7 @@ namespace Nexus.Link.Libraries.SqlServer.Logic
 
         public static string Read(ISqlTableMetadata tableMetadata, string where, string orderBy) => $"SELECT {ReadColumnList(tableMetadata)} FROM [{tableMetadata.TableName}] WHERE {where} ORDER BY {orderBy}";
 
-        [Obsolete("Please use UpdateIfSameEtag(). Obsolete since 2020-01-12.", false)]
+        [Obsolete("Please use UpdateIfSameEtag(). Obsolete warning since 2020-01-12, error since 2021-06-09.", true)]
         public static string Update(ISqlTableMetadata tableMetadata, string oldEtag) => $"UPDATE [{tableMetadata.TableName}] SET {UpdateList(tableMetadata)} WHERE Id = @Id AND Etag = '{oldEtag}'";
 
         public static string UpdateIfSameEtag(ISqlTableMetadata tableMetadata, string oldEtag) => $"UPDATE [{tableMetadata.TableName}] SET {UpdateList(tableMetadata)} WHERE Id = @Id AND {tableMetadata.EtagColumnName} = '{oldEtag}'";
@@ -24,14 +24,14 @@ namespace Nexus.Link.Libraries.SqlServer.Logic
 
         public static string Delete(ISqlTableMetadata tableMetadata, string where) => $"DELETE FROM [{tableMetadata.TableName}] WHERE {where}"; 
         
-        [Obsolete("Please use CreateColumnList or ReadColumnList(). Obsolete since 2020-01-12.", false)]
+        [Obsolete("Please use CreateColumnList or ReadColumnList(). Obsolete warning since 2020-01-12, error since 2021-06-09.", true)]
         public static string ColumnList(ISqlTableMetadata tableMetadata) => string.Join(", ", AllColumnNames(tableMetadata).Select(name => $"[{name}]"));
 
         public static string CreateColumnList(ISqlTableMetadata tableMetadata) => string.Join(", ", CreateColumnNames(tableMetadata).Select(name => $"[{name}]"));
 
         public static string ReadColumnList(ISqlTableMetadata tableMetadata) => string.Join(", ", ReadColumnNames(tableMetadata).Select(name => $"[{name}]"));
         
-        [Obsolete("Please use CreateArgumentList(). Obsolete since 2020-01-12.", false)]
+        [Obsolete("Please use CreateArgumentList(). Obsolete warning since 2020-01-12., error since 2021-06-09.", true)]
         public static string ArgumentList(ISqlTableMetadata tableMetadata) => string.Join(", ", AllColumnNames(tableMetadata).Select(name => $"@{name}"));
 
         public static string CreateArgumentList(ISqlTableMetadata tableMetadata) => string.Join(", ", CreateColumnNames(tableMetadata).Select(name => $"@{name}"));

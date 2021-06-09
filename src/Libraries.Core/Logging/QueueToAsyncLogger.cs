@@ -65,7 +65,8 @@ namespace Nexus.Link.Libraries.Core.Logging
         /// Safe logging of messages. Will check for errors, but never throw an exception. If the log can't be made with the chosen logger, a fallback log will be created.
         /// </summary>
         /// <param name="envelope">An envelope with information about the logging.</param>
-        private async Task LogFailSafeAsync(LogQueueEnvelope envelope)
+        /// <param name="cancellationToken"></param>
+        private async Task LogFailSafeAsync(LogQueueEnvelope envelope, CancellationToken cancellationToken = default)
         {
             LoggingInProgress = false;
             if (envelope?.LogRecord == null) return;
@@ -74,7 +75,7 @@ namespace Nexus.Link.Libraries.Core.Logging
             {
                 FulcrumAssert.IsValidated(logRecord);
                 FulcrumApplication.Context.ValueProvider.RestoreContext(envelope.SavedContext);
-                var task = LogWithConfiguredLoggerFailSafeAsync(logRecord);
+                var task = LogWithConfiguredLoggerFailSafeAsync(logRecord, cancellationToken);
                 AlsoLogWithTraceSourceInDevelopment(logRecord.SeverityLevel, logRecord);
                 await task;
             }
@@ -107,12 +108,12 @@ namespace Nexus.Link.Libraries.Core.Logging
             new TraceSourceLogger().SafeLog(severityLevel, logRecord.ToLogString(true));
         }
 
-        private async Task LogWithConfiguredLoggerFailSafeAsync(LogRecord logRecord)
+        private async Task LogWithConfiguredLoggerFailSafeAsync(LogRecord logRecord, CancellationToken cancellationToken)
         {
             try
             {
                 LoggingInProgress = true;
-                await _asyncLogger.LogAsync(logRecord);
+                await _asyncLogger.LogAsync(logRecord, cancellationToken);
             }
             catch (Exception e)
             {

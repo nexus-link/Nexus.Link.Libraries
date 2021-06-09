@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System.Threading;
+using System.Threading.Tasks;
 
 namespace Nexus.Link.Libraries.Core.Queue.Model
 {
@@ -10,6 +11,6 @@ namespace Nexus.Link.Libraries.Core.Queue.Model
         /// <summary>
         /// Returns the front item from the queue without removing it from the queue, or null if no items are on the queue.
         /// </summary>
-        Task<T> PeekNoBlockAsync();
+        Task<T> PeekNoBlockAsync(CancellationToken cancellationToken = default);
     }
 }

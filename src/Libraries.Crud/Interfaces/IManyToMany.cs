@@ -31,7 +31,7 @@ namespace Nexus.Link.Libraries.Crud.Interfaces
         /// <param name="offset">The number of items that will be skipped in result.</param>
         /// <param name="limit">The maximum number of items to return.</param>
         /// <param name="token">Propagates notification that operations should be canceled</param>
-        Task<PageEnvelope<TManyToManyModel>> ReadByReference1WithPagingAsync(TId id, int offset, int? limit = null, CancellationToken token = default(CancellationToken));
+        Task<PageEnvelope<TManyToManyModel>> ReadByReference1WithPagingAsync(TId id, int offset, int? limit = null, CancellationToken token = default);
 
         /// <summary>
         /// Find all items reference 1 set to <paramref name="id"/>.
@@ -39,14 +39,14 @@ namespace Nexus.Link.Libraries.Crud.Interfaces
         /// <param name="id">The specific foreign key value to read the items for.</param>
         /// <param name="limit">The maximum number of items to return.</param>
         /// <param name="token">Propagates notification that operations should be canceled</param>
-        Task<IEnumerable<TManyToManyModel>> ReadByReference1Async(TId id, int limit = int.MaxValue, CancellationToken token = default(CancellationToken));
+        Task<IEnumerable<TManyToManyModel>> ReadByReference1Async(TId id, int limit = int.MaxValue, CancellationToken token = default);
 
         /// <summary>
         /// Delete all items reference 1 set to <paramref name="id"/>.
         /// </summary>
         /// <param name="id">The specific foreign key value to delete the items for.</param>
         /// <param name="token">Propagates notification that operations should be canceled</param>
-        Task DeleteByReference1Async(TId id, CancellationToken token = default(CancellationToken));
+        Task DeleteByReference1Async(TId id, CancellationToken token = default);
         #endregion
 
         #region Access the referenced items by Reference 1
@@ -57,7 +57,7 @@ namespace Nexus.Link.Libraries.Crud.Interfaces
         /// <param name="offset">The number of items that will be skipped in result.</param>
         /// <param name="limit">The maximum number of items to return.</param>
         /// <param name="token">Propagates notification that operations should be canceled</param>
-        Task<PageEnvelope<TReferenceModel2>> ReadReferencedItemsByReference1WithPagingAsync(TId id, int offset, int? limit = null, CancellationToken token = default(CancellationToken));
+        Task<PageEnvelope<TReferenceModel2>> ReadReferencedItemsByReference1WithPagingAsync(TId id, int offset, int? limit = null, CancellationToken token = default);
 
         /// <summary>
         /// Find all referenced items with foreign key 1 set to <paramref name="id"/>.
@@ -65,12 +65,12 @@ namespace Nexus.Link.Libraries.Crud.Interfaces
         /// <param name="id">The specific foreign key value to read the referenced items for.</param>
         /// <param name="limit">The maximum number of items to return.</param>
         /// <param name="token">Propagates notification that operations should be canceled</param>
-        Task<IEnumerable<TReferenceModel2>> ReadReferencedItemsByReference1Async(TId id, int limit = int.MaxValue, CancellationToken token = default(CancellationToken));
+        Task<IEnumerable<TReferenceModel2>> ReadReferencedItemsByReference1Async(TId id, int limit = int.MaxValue, CancellationToken token = default);
 
         /// <summary>
         /// Delete all referenced items where foreign key 1 is set to <paramref name="id"/>.
         /// </summary>
-        Task DeleteReferencedItemsByReference1(TId id, CancellationToken token = default(CancellationToken));
+        Task DeleteReferencedItemsByReference1(TId id, CancellationToken token = default);
         #endregion
 
         #region Access the many-to-many items themselves by Reference 2
@@ -82,7 +82,7 @@ namespace Nexus.Link.Libraries.Crud.Interfaces
         /// <param name="offset">The number of items that will be skipped in result.</param>
         /// <param name="limit">The maximum number of items to return.</param>
         /// <param name="token">Propagates notification that operations should be canceled</param>
-        Task<PageEnvelope<TManyToManyModel>> ReadByReference2WithPagingAsync(TId id, int offset, int? limit = null, CancellationToken token = default(CancellationToken));
+        Task<PageEnvelope<TManyToManyModel>> ReadByReference2WithPagingAsync(TId id, int offset, int? limit = null, CancellationToken token = default);
 
         /// <summary>
         /// Find all items reference 2 set to <paramref name="id"/>.
@@ -90,14 +90,14 @@ namespace Nexus.Link.Libraries.Crud.Interfaces
         /// <param name="id">The specific foreign key value to read the items for.</param>
         /// <param name="limit">The maximum number of items to return.</param>
         /// <param name="token">Propagates notification that operations should be canceled</param>
-        Task<IEnumerable<TManyToManyModel>> ReadByReference2Async(TId id, int limit = int.MaxValue, CancellationToken token = default(CancellationToken));
+        Task<IEnumerable<TManyToManyModel>> ReadByReference2Async(TId id, int limit = int.MaxValue, CancellationToken token = default);
 
         /// <summary>
         /// Delete all items reference 2 set to <paramref name="id"/>.
         /// </summary>
         /// <param name="id">The specific foreign key value to delete the items for.</param>
         /// <param name="token">Propagates notification that operations should be canceled</param>
-        Task DeleteByReference2Async(TId id, CancellationToken token = default(CancellationToken));
+        Task DeleteByReference2Async(TId id, CancellationToken token = default);
         #endregion
 
         #region Access the referenced items by Reference 2
@@ -108,7 +108,7 @@ namespace Nexus.Link.Libraries.Crud.Interfaces
         /// <param name="offset">The number of items that will be skipped in result.</param>
         /// <param name="limit">The maximum number of items to return.</param>
         /// <param name="token">Propagates notification that operations should be canceled</param>
-        Task<PageEnvelope<TReferenceModel1>> ReadReferencedItemsByReference2WithPagingAsync(TId id, int offset, int? limit = null, CancellationToken token = default(CancellationToken));
+        Task<PageEnvelope<TReferenceModel1>> ReadReferencedItemsByReference2WithPagingAsync(TId id, int offset, int? limit = null, CancellationToken token = default);
 
         /// <summary>
         /// Find all referenced items with foreign key 2 set to <paramref name="id"/>.
@@ -116,12 +116,12 @@ namespace Nexus.Link.Libraries.Crud.Interfaces
         /// <param name="id">The specific foreign key value to read the referenced items for.</param>
         /// <param name="limit">The maximum number of items to return.</param>
         /// <param name="token">Propagates notification that operations should be canceled</param>
-        Task<IEnumerable<TReferenceModel1>> ReadReferencedItemsByReference2Async(TId id, int limit = int.MaxValue, CancellationToken token = default(CancellationToken));
+        Task<IEnumerable<TReferenceModel1>> ReadReferencedItemsByReference2Async(TId id, int limit = int.MaxValue, CancellationToken token = default);
 
         /// <summary>
         /// Delete all referenced items where foreign key 2 is set to <paramref name="id"/>.
         /// </summary>
-        Task DeleteReferencedItemsByReference2(TId id, CancellationToken token = default(CancellationToken));
+        Task DeleteReferencedItemsByReference2(TId id, CancellationToken token = default);
         #endregion
     }
 }

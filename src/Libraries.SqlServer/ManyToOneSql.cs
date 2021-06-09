@@ -52,7 +52,7 @@ namespace Nexus.Link.Libraries.SqlServer
         /// <param name="token">Propagates notification that operations should be canceled</param>
         /// <returns></returns>
         /// <remarks>This method is here to support the <see cref="ManyToManySql{TManyToManyModel,TReferenceModel1,TReferenceModel2}."/></remarks>
-        internal async Task<PageEnvelope<TOneModel>> ReadAllParentsInGroupAsync(string groupColumnName, Guid groupColumnValue, int offset, int? limit = null, CancellationToken token = default(CancellationToken))
+        internal async Task<PageEnvelope<TOneModel>> ReadAllParentsInGroupAsync(string groupColumnName, Guid groupColumnValue, int offset, int? limit = null, CancellationToken token = default)
         {
             var selectRest = $"FROM [{TableMetadata.TableName}] AS many" +
                              $" JOIN [{OneTableHandler.TableName}] AS one ON (one.Id = many.[{ParentColumnName}])" +
@@ -78,26 +78,26 @@ namespace Nexus.Link.Libraries.SqlServer
         }
 
         /// <inheritdoc />
-        public async Task<PageEnvelope<TManyModel>> ReadChildrenWithPagingAsync(Guid parentId, int offset, int? limit = null, CancellationToken token = default(CancellationToken))
+        public async Task<PageEnvelope<TManyModel>> ReadChildrenWithPagingAsync(Guid parentId, int offset, int? limit = null, CancellationToken token = default)
         {
             return await SearchWhereAsync($"[{ParentColumnName}] = @ParentId", null, new { ParentId = parentId }, offset, limit, token);
         }
 
         /// <inheritdoc />
-        public async Task<IEnumerable<TManyModel>> ReadChildrenAsync(Guid parentId, int limit = int.MaxValue, CancellationToken token = default(CancellationToken))
+        public async Task<IEnumerable<TManyModel>> ReadChildrenAsync(Guid parentId, int limit = int.MaxValue, CancellationToken token = default)
         {
             return await StorageHelper.ReadPagesAsync((offset, t) => ReadChildrenWithPagingAsync(parentId, offset, null, t), limit, token);
         }
 
         /// <inheritdoc />
-        public async Task DeleteChildrenAsync(Guid parentId, CancellationToken token = default(CancellationToken))
+        public async Task DeleteChildrenAsync(Guid parentId, CancellationToken token = default)
         {
             await DeleteWhereAsync($"[{ParentColumnName}] = @ParentId", new { ParentId = parentId }, token);
         }
 
         /// <inheritdoc />
         public Task<PageEnvelope<TManyModel>> SearchChildrenAsync(Guid parentId, SearchDetails<TManyModel> details, int offset, int? limit = null,
-            CancellationToken cancellationToken = default(CancellationToken))
+            CancellationToken cancellationToken = default)
         {
             InternalContract.RequireNotNull(details, nameof(details));
             InternalContract.RequireValidated(details, nameof(details));
@@ -117,7 +117,7 @@ namespace Nexus.Link.Libraries.SqlServer
 
         /// <inheritdoc />
         public Task<TManyModel> FindUniqueChildAsync(Guid parentId, SearchDetails<TManyModel> details,
-            CancellationToken cancellationToken = default(CancellationToken))
+            CancellationToken cancellationToken = default)
         {
             return _convenience.FindUniqueChildAsync(parentId, details, cancellationToken);
         }
@@ -159,7 +159,7 @@ namespace Nexus.Link.Libraries.SqlServer
         /// <param name="token">Propagates notification that operations should be canceled</param>
         /// <returns></returns>
         /// <remarks>This method is here to support the <see cref="ManyToManySql{TManyToManyModel,TReferenceModel1,TReferenceModel2}."/></remarks>
-        internal async Task<PageEnvelope<TOneModel>> ReadAllParentsInGroupAsync(string groupColumnName, Guid groupColumnValue, int offset, int? limit = null, CancellationToken token = default(CancellationToken))
+        internal async Task<PageEnvelope<TOneModel>> ReadAllParentsInGroupAsync(string groupColumnName, Guid groupColumnValue, int offset, int? limit = null, CancellationToken token = default)
         {
             var selectRest = $"FROM [{TableMetadata.TableName}] AS many" +
                              $" JOIN [{OneTableHandler.TableName}] AS one ON (one.Id = many.[{ParentColumnName}])" +
@@ -185,26 +185,26 @@ namespace Nexus.Link.Libraries.SqlServer
         }
 
         /// <inheritdoc />
-        public async Task<PageEnvelope<TManyModel>> ReadChildrenWithPagingAsync(Guid parentId, int offset, int? limit = null, CancellationToken token = default(CancellationToken))
+        public async Task<PageEnvelope<TManyModel>> ReadChildrenWithPagingAsync(Guid parentId, int offset, int? limit = null, CancellationToken token = default)
         {
             return await SearchWhereAsync($"[{ParentColumnName}] = @ParentId", null, new { ParentId = parentId }, offset, limit, token);
         }
 
         /// <inheritdoc />
-        public async Task<IEnumerable<TManyModel>> ReadChildrenAsync(Guid parentId, int limit = int.MaxValue, CancellationToken token = default(CancellationToken))
+        public async Task<IEnumerable<TManyModel>> ReadChildrenAsync(Guid parentId, int limit = int.MaxValue, CancellationToken token = default)
         {
             return await StorageHelper.ReadPagesAsync((offset, t) => ReadChildrenWithPagingAsync(parentId, offset, null, t), limit, token);
         }
 
         /// <inheritdoc />
-        public async Task DeleteChildrenAsync(Guid parentId, CancellationToken token = default(CancellationToken))
+        public async Task DeleteChildrenAsync(Guid parentId, CancellationToken token = default)
         {
             await DeleteWhereAsync($"[{ParentColumnName}] = @ParentId", new { ParentId = parentId }, token);
         }
 
         /// <inheritdoc />
         public Task<PageEnvelope<TManyModel>> SearchChildrenAsync(Guid parentId, SearchDetails<TManyModel> details, int offset, int? limit = null,
-            CancellationToken cancellationToken = default(CancellationToken))
+            CancellationToken cancellationToken = default)
         {
             InternalContract.RequireNotNull(details, nameof(details));
             InternalContract.RequireValidated(details, nameof(details));
@@ -225,7 +225,7 @@ namespace Nexus.Link.Libraries.SqlServer
 
         /// <inheritdoc />
         public Task<TManyModel> FindUniqueChildAsync(Guid parentId, SearchDetails<TManyModel> details,
-            CancellationToken cancellationToken = default(CancellationToken))
+            CancellationToken cancellationToken = default)
         {
             return _convenience.FindUniqueChildAsync(parentId, details, cancellationToken);
         }

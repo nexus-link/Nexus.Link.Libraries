@@ -60,9 +60,9 @@ namespace Nexus.Link.Libraries.Core.Tests.Queue
             UT.Assert.AreEqual(expectedCount, count);
         }
 
-        private static async Task SlowItemAction(string item)
+        private static async Task SlowItemAction(string item, CancellationToken cancellationToken = default)
         {
-            await Task.Delay(TimeSpan.FromMilliseconds(100));
+            await Task.Delay(TimeSpan.FromMilliseconds(100), cancellationToken);
         }
     }
 }

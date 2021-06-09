@@ -32,7 +32,7 @@ namespace Nexus.Link.Libraries.Crud.Web.RestClient
         #region Obsolete constructors
         /// <summary></summary>
         /// <param name="baseUri">The base URL that all HTTP calls methods will refer to.</param>
-        [Obsolete("Use constructor with IHttpSender. Obsolete since 2019-11-18")]
+        [Obsolete("Use constructor with IHttpSender. Obsolete warning since 2019-11-18, error since 2021-06-09.", true)]
         public CrudRestClient(string baseUri)
             : base(baseUri)
         {
@@ -41,7 +41,7 @@ namespace Nexus.Link.Libraries.Crud.Web.RestClient
         /// <param name="baseUri">The base URL that all HTTP calls methods will refer to.</param>
         /// <param name="httpClient">The HttpClient used when making the HTTP calls.</param>
         /// <param name="credentials">The credentials used when making the HTTP calls.</param>
-        [Obsolete("Use constructor with IHttpSender. Obsolete since 2019-11-18")]
+        [Obsolete("Use constructor with IHttpSender. Obsolete warning since 2019-11-18, error since 2021-06-09.", true)]
         public CrudRestClient(string baseUri, HttpClient httpClient, ServiceClientCredentials credentials)
             : base(baseUri, httpClient, credentials)
         {
@@ -50,7 +50,7 @@ namespace Nexus.Link.Libraries.Crud.Web.RestClient
         /// <summary></summary>
         /// <param name="baseUri">The base URL that all HTTP calls methods will refer to.</param>
         /// <param name="httpClient">The HttpClient used when making the HTTP calls.</param>
-        [Obsolete("Use constructor with IHttpSender. Obsolete since 2019-11-18")]
+        [Obsolete("Use constructor with IHttpSender. Obsolete warning since 2019-11-18, error since 2021-06-09.", true)]
         public CrudRestClient(string baseUri, HttpClient httpClient)
             : base(baseUri, httpClient)
         {
@@ -78,7 +78,7 @@ namespace Nexus.Link.Libraries.Crud.Web.RestClient
         #region Obsolete constructors
         /// <summary></summary>
         /// <param name="baseUri">The base URL that all HTTP calls methods will refer to.</param>
-        [Obsolete("Use constructor with IHttpSender. Obsolete since 2019-11-18")]
+        [Obsolete("Use constructor with IHttpSender. Obsolete warning since 2019-11-18, error since 2021-06-09.", true)]
         public CrudRestClient(string baseUri)
             : base(baseUri)
         {
@@ -88,7 +88,7 @@ namespace Nexus.Link.Libraries.Crud.Web.RestClient
         /// <param name="baseUri">The base URL that all HTTP calls methods will refer to.</param>
         /// <param name="httpClient">The HttpClient used when making the HTTP calls.</param>
         /// <param name="credentials">The credentials used when making the HTTP calls.</param>
-        [Obsolete("Use constructor with IHttpSender. Obsolete since 2019-11-18")]
+        [Obsolete("Use constructor with IHttpSender. Obsolete warning since 2019-11-18, error since 2021-06-09.", true)]
         public CrudRestClient(string baseUri, HttpClient httpClient, ServiceClientCredentials credentials)
             : base(baseUri, httpClient, credentials)
         {
@@ -97,7 +97,7 @@ namespace Nexus.Link.Libraries.Crud.Web.RestClient
         /// <summary></summary>
         /// <param name="baseUri">The base URL that all HTTP calls methods will refer to.</param>
         /// <param name="httpClient">The HttpClient used when making the HTTP calls.</param>
-        [Obsolete("Use constructor with IHttpSender. Obsolete since 2019-11-18")]
+        [Obsolete("Use constructor with IHttpSender. Obsolete warning since 2019-11-18, error since 2021-06-09.", true)]
         public CrudRestClient(string baseUri, HttpClient httpClient)
             : base(baseUri, httpClient)
         {
@@ -105,7 +105,7 @@ namespace Nexus.Link.Libraries.Crud.Web.RestClient
         #endregion
 
         /// <inheritdoc />
-        public virtual async Task<TId> CreateAsync(TModelCreate item, CancellationToken token = default(CancellationToken))
+        public virtual async Task<TId> CreateAsync(TModelCreate item, CancellationToken token = default)
         {
             // TODO: PostAndDecorateResultAsync
             var invoiceId = await PostAsync<TId, TModelCreate>("", item, cancellationToken: token);
@@ -129,32 +129,32 @@ namespace Nexus.Link.Libraries.Crud.Web.RestClient
         }
 
         /// <inheritdoc />
-        public virtual async Task<TModel> CreateAndReturnAsync(TModelCreate item, CancellationToken token = default(CancellationToken))
+        public virtual async Task<TModel> CreateAndReturnAsync(TModelCreate item, CancellationToken token = default)
         {
             return await PostAsync<TModel, TModelCreate>("ReturnCreated", item, cancellationToken: token);
         }
 
         /// <inheritdoc />
-        public virtual async Task CreateWithSpecifiedIdAsync(TId id, TModelCreate item, CancellationToken token = default(CancellationToken))
+        public virtual async Task CreateWithSpecifiedIdAsync(TId id, TModelCreate item, CancellationToken token = default)
         {
             await PostNoResponseContentAsync($"{id}", item, cancellationToken: token);
         }
 
         /// <inheritdoc />
-        public virtual async Task<TModel> CreateWithSpecifiedIdAndReturnAsync(TId id, TModelCreate item, CancellationToken token = default(CancellationToken))
+        public virtual async Task<TModel> CreateWithSpecifiedIdAndReturnAsync(TId id, TModelCreate item, CancellationToken token = default)
         {
             return await PostAsync<TModel, TModelCreate>($"{id}/ReturnCreated", item, cancellationToken: token);
         }
 
         /// <inheritdoc />
-        public virtual async Task<TModel> ReadAsync(TId id, CancellationToken token = default(CancellationToken))
+        public virtual async Task<TModel> ReadAsync(TId id, CancellationToken token = default)
         {
             InternalContract.RequireNotDefaultValue(id, nameof(id));
             return await GetAsync<TModel>($"{id}", cancellationToken: token);
         }
 
         /// <inheritdoc />
-        public virtual async Task<PageEnvelope<TModel>> ReadAllWithPagingAsync(int offset = 0, int? limit = null, CancellationToken token = default(CancellationToken))
+        public virtual async Task<PageEnvelope<TModel>> ReadAllWithPagingAsync(int offset = 0, int? limit = null, CancellationToken token = default)
         {
             InternalContract.RequireGreaterThanOrEqualTo(0, offset, nameof(offset));
             var limitParameter = "";
@@ -167,7 +167,7 @@ namespace Nexus.Link.Libraries.Crud.Web.RestClient
         }
 
         /// <inheritdoc />
-        public virtual async Task<IEnumerable<TModel>> ReadAllAsync(int limit = int.MaxValue, CancellationToken token = default(CancellationToken))
+        public virtual async Task<IEnumerable<TModel>> ReadAllAsync(int limit = int.MaxValue, CancellationToken token = default)
         {
             InternalContract.RequireGreaterThan(0, limit, nameof(limit));
             return await GetAsync<IEnumerable<TModel>>($"?limit={limit}", cancellationToken: token);
@@ -175,7 +175,7 @@ namespace Nexus.Link.Libraries.Crud.Web.RestClient
 
         /// <inheritdoc />
         public async Task<PageEnvelope<TModel>> SearchAsync(SearchDetails<TModel> details, int offset, int? limit = null,
-            CancellationToken cancellationToken = default(CancellationToken))
+            CancellationToken cancellationToken = default)
         {
             ServiceContract.RequireNotNull(details, nameof(details));
             ServiceContract.RequireValidated(details, nameof(details));
@@ -193,31 +193,31 @@ namespace Nexus.Link.Libraries.Crud.Web.RestClient
         }
 
         /// <inheritdoc />
-        public Task<TModel> FindUniqueAsync(SearchDetails<TModel> details, CancellationToken cancellationToken = default(CancellationToken))
+        public Task<TModel> FindUniqueAsync(SearchDetails<TModel> details, CancellationToken cancellationToken = default)
         {
             return _convenience.FindUniqueAsync(details, cancellationToken);
         }
 
         /// <inheritdoc />
-        public virtual async Task UpdateAsync(TId id, TModel item, CancellationToken token = default(CancellationToken))
+        public virtual async Task UpdateAsync(TId id, TModel item, CancellationToken token = default)
         {
             await PutNoResponseContentAsync($"{id}", item, cancellationToken: token);
         }
 
         /// <inheritdoc />
-        public virtual async Task<TModel> UpdateAndReturnAsync(TId id, TModel item, CancellationToken token = default(CancellationToken))
+        public virtual async Task<TModel> UpdateAndReturnAsync(TId id, TModel item, CancellationToken token = default)
         {
             return await PutAndReturnUpdatedObjectAsync($"{id}/ReturnUpdated", item, cancellationToken: token);
         }
 
         /// <inheritdoc />
-        public virtual async Task DeleteAsync(TId id, CancellationToken token = default(CancellationToken))
+        public virtual async Task DeleteAsync(TId id, CancellationToken token = default)
         {
             await DeleteAsync($"{id}", cancellationToken: token);
         }
 
         /// <inheritdoc />
-        public virtual async Task DeleteAllAsync(CancellationToken token = default(CancellationToken))
+        public virtual async Task DeleteAllAsync(CancellationToken token = default)
         {
             await DeleteAsync("", cancellationToken: token);
         }
@@ -235,25 +235,25 @@ namespace Nexus.Link.Libraries.Crud.Web.RestClient
         }
 
         /// <inheritdoc />
-        public async Task<Lock<TId>> ClaimDistributedLockAsync(TId id, CancellationToken token = default(CancellationToken))
+        public async Task<Lock<TId>> ClaimDistributedLockAsync(TId id, CancellationToken token = default)
         {
             return await PostAsync<Lock<TId>>($"{id}/Locks", cancellationToken: token);
         }
 
         /// <inheritdoc />
-        public async Task ReleaseDistributedLockAsync(TId id, TId lockId, CancellationToken token = default(CancellationToken))
+        public async Task ReleaseDistributedLockAsync(TId id, TId lockId, CancellationToken token = default)
         {
             await PostNoResponseContentAsync($"{id}/Locks/{lockId}", cancellationToken: token);
         }
 
         /// <inheritdoc />
-        public Task ClaimTransactionLockAsync(TId id, CancellationToken token = default(CancellationToken))
+        public Task ClaimTransactionLockAsync(TId id, CancellationToken token = default)
         {
             throw new NotImplementedException();
         }
 
         /// <inheritdoc />
-        public Task<TModel> ClaimTransactionLockAndReadAsync(TId id, CancellationToken token = default(CancellationToken))
+        public Task<TModel> ClaimTransactionLockAndReadAsync(TId id, CancellationToken token = default)
         {
             return _convenience.ClaimTransactionLockAndReadAsync(id, token);
         }

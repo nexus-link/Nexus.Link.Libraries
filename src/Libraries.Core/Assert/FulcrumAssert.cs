@@ -176,53 +176,6 @@ namespace Nexus.Link.Libraries.Core.Assert
         }
 
         /// <summary>
-        /// If <paramref name="value"/> is not null, then call the Validate() method of that type.
-        /// </summary>
-        [Obsolete("Use the IsValidated() method.", true)]
-        [StackTraceHidden]
-        public static void IsValidatedOrNull(object value, string errorLocation = null)
-        {
-            if (!(value is IValidatable validatable)) return;
-            IsValidated(value, errorLocation);
-        }
-
-        /// <summary>
-        /// If <paramref name="values"/> is not null, then call the Validate() method for every object in the collection.
-        /// </summary>
-        [Obsolete("Use the IsNotNull() and IsValidated() methods.", true)]
-        [StackTraceHidden]
-        public static void IsValidatedOrNull(IEnumerable<object> values, string errorLocation = null)
-        {
-            if (values == null) return;
-            foreach (var value in values)
-            {
-                IsValidated(value, errorLocation);
-            }
-        }
-
-        /// <summary>
-        /// Verify that <paramref name="value"/> is not null and also call the Validate() method of that type.
-        /// </summary>
-        [Obsolete("Use the IsNotNull() and IsValidated() methods.", true)]
-        [StackTraceHidden]
-        public static void IsValidatedAndNotNull(object value, string errorLocation = null)
-        {
-            IsNotNull(value, errorLocation);
-            IsValidated(value, errorLocation);
-        }
-
-        /// <summary>
-        /// Verify that <paramref name="values"/> is not null and also call the Validate() method for every object in the collection.
-        /// </summary>
-        [Obsolete("Use the IsNotNull() and IsValidated() methods.", true)]
-        [StackTraceHidden]
-        public static void IsValidatedAndNotNull(IEnumerable<object> values, string errorLocation = null)
-        {
-            IsNotNull(values, errorLocation);
-            IsValidated(values, errorLocation);
-        }
-
-        /// <summary>
         /// Call the Validate() method for <paramref name="value"/>
         /// </summary>
         [StackTraceHidden]

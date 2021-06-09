@@ -35,7 +35,7 @@ namespace Nexus.Link.Libraries.Crud.Helpers
         /// <returns>A page of the found items.</returns>
         /// <remarks>If your persistence layer supports search, then avoid using this, at it always reads all the items.</remarks>
         public async Task<PageEnvelope<TModel>> SearchChildrenAsync(TId parentId, SearchDetails<TModel> details, int offset, int? limit = null,
-            CancellationToken cancellationToken = default(CancellationToken))
+            CancellationToken cancellationToken = default)
         {
             limit = limit ?? PageInfo.DefaultLimit;
             InternalContract.RequireNotNull(details, nameof(details));
@@ -54,7 +54,7 @@ namespace Nexus.Link.Libraries.Crud.Helpers
         }
 
         /// <inheritdoc />
-        public async Task<TModel> FindUniqueChildAsync(TId parentId, SearchDetails<TModel> details, CancellationToken cancellationToken = default(CancellationToken))
+        public async Task<TModel> FindUniqueChildAsync(TId parentId, SearchDetails<TModel> details, CancellationToken cancellationToken = default)
         {
             InternalContract.RequireNotNull(details, nameof(details));
             InternalContract.RequireValidated(details, nameof(details));
@@ -68,13 +68,13 @@ namespace Nexus.Link.Libraries.Crud.Helpers
         }
 
         /// <inheritdoc />
-        public Task ClaimTransactionLockAsync(TId masterId, TId slaveId, CancellationToken token = default(CancellationToken))
+        public Task ClaimTransactionLockAsync(TId masterId, TId slaveId, CancellationToken token = default)
         {
             throw new NotImplementedException();
         }
 
         /// <inheritdoc />
-        public async Task<TModel> ClaimTransactionLockAndReadAsync(TId masterId, TId slaveId, CancellationToken token = default(CancellationToken))
+        public async Task<TModel> ClaimTransactionLockAndReadAsync(TId masterId, TId slaveId, CancellationToken token = default)
         {
             await _service.ClaimDistributedLockAsync(masterId, slaveId, token);
             return await _service.ReadAsync(masterId, slaveId, token);

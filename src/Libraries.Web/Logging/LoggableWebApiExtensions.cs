@@ -3,6 +3,7 @@ using System.Globalization;
 using System.Net;
 using System.Net.Http;
 using System.Text.RegularExpressions;
+using System.Threading;
 using System.Threading.Tasks;
 using Nexus.Link.Libraries.Core.Error.Model;
 using Nexus.Link.Libraries.Core.Json;
@@ -27,7 +28,7 @@ namespace Nexus.Link.Libraries.Web.Logging
         {
             if (request == null) return null;
             var message = request.ToLogString();
-            if (elapsedTime != default(TimeSpan))
+            if (elapsedTime != default)
             {
                 var secondsAsString = elapsedTime.TotalSeconds.ToString("0.###", CultureInfo.InvariantCulture);
                 message += $" | {secondsAsString}s";
@@ -36,22 +37,10 @@ namespace Nexus.Link.Libraries.Web.Logging
         }
 
         /// <summary>
-        /// Create a string based on the <paramref name="response"/> that is adequate for logging.
-        /// </summary>
-        [Obsolete("Use ToLogString(HttpRequestMessage, HttpResponseMessage, TimeSpan).", true)]
-        public static string ToLogString(this HttpResponseMessage response, TimeSpan elapsedTime = default(TimeSpan))
-        {
-            if (response == null) return null;
-            var message = response.RequestMessage?.ToLogString(elapsedTime);
-            message += $" | {response.StatusCode.ToLogString()}";
-            return message;
-        }
-
-        /// <summary>
         /// Create a string based on <paramref name="request"/> and <paramref name="response"/> that is adequate for logging.
         /// </summary>
-        [Obsolete("Use ToLogStringAsync() instead")]
-        public static string ToLogString(this HttpRequestMessage request, HttpResponseMessage response, TimeSpan elapsedTime = default(TimeSpan))
+        [Obsolete("Use ToLogStringAsync() instead. Obsolete warning since 2020-06-09, error since 2021-06-09.", true)]
+        public static string ToLogString(this HttpRequestMessage request, HttpResponseMessage response, TimeSpan elapsedTime = default)
         {
             if (request == null) return null;
             var message = request.ToLogString(elapsedTime);
@@ -62,18 +51,18 @@ namespace Nexus.Link.Libraries.Web.Logging
         /// <summary>
         /// Create a string based on <paramref name="request"/> and <paramref name="response"/> that is adequate for logging.
         /// </summary>
-        public static async Task<string> ToLogStringAsync(this HttpRequestMessage request, HttpResponseMessage response, TimeSpan elapsedTime = default(TimeSpan))
+        public static async Task<string> ToLogStringAsync(this HttpRequestMessage request, HttpResponseMessage response, TimeSpan elapsedTime = default, CancellationToken cancellationToken = default)
         {
             if (request == null) return null;
             var message = request.ToLogString(elapsedTime);
-            message += $" | {await response.ToLogStringAsync()}";
+            message += $" | {await response.ToLogStringAsync(cancellationToken)}";
             return message;
         }
 
         /// <summary>
         /// Create a string based on the <paramref name="response"/> that is adequate for logging.
         /// </summary>
-        [Obsolete("Use ToLogStringAsync() instead")]
+        [Obsolete("Use ToLogStringAsync() instead. Obsolete warning since 2020-06-09, error since 2021-06-09.", true)]
         public static string ToLogString(this HttpResponseMessage response)
         {
             return response?.StatusCode.ToLogString();
@@ -82,7 +71,7 @@ namespace Nexus.Link.Libraries.Web.Logging
         /// <summary>
         /// Create a string based on the <paramref name="response"/> that is adequate for logging.
         /// </summary>
-        public static async Task<string> ToLogStringAsync(this HttpResponseMessage response)
+        public static async Task<string> ToLogStringAsync(this HttpResponseMessage response, CancellationToken cancellationToken = default)
         {
             if (response == null) return null;
             var logString = $"{(int) response.StatusCode} ({response.StatusCode})";

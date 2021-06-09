@@ -61,7 +61,7 @@ namespace Nexus.Link.Libraries.Azure.Storage.Table
         }
 
         /// <inheritdoc />
-        public async Task CreateWithSpecifiedIdAsync(TId id, TItemCreate item, CancellationToken token = default(CancellationToken))
+        public async Task CreateWithSpecifiedIdAsync(TId id, TItemCreate item, CancellationToken token = default)
         {
             InternalContract.RequireNotDefaultValue(id, nameof(id));
             InternalContract.RequireNotNull(item, nameof(item));
@@ -95,7 +95,7 @@ namespace Nexus.Link.Libraries.Azure.Storage.Table
         }
 
         /// <inheritdoc />
-        public async Task<TModel> ReadAsync(TId id, CancellationToken token = default(CancellationToken))
+        public async Task<TModel> ReadAsync(TId id, CancellationToken token = default)
         {
             InternalContract.RequireNotDefaultValue(id, nameof(id));
 
@@ -104,7 +104,7 @@ namespace Nexus.Link.Libraries.Azure.Storage.Table
         }
 
         /// <inheritdoc />
-        public async Task UpdateAsync(TId id, TModel item, CancellationToken token = default(CancellationToken))
+        public async Task UpdateAsync(TId id, TModel item, CancellationToken token = default)
         {
             InternalContract.RequireNotDefaultValue(id, nameof(id));
             InternalContract.RequireNotNull(item, nameof(item));
@@ -128,14 +128,14 @@ namespace Nexus.Link.Libraries.Azure.Storage.Table
         /// <remarks>
         /// Idempotent, i.e. will not throw an exception if the item does not exist.
         /// </remarks>
-        public async Task DeleteAsync(TId id, CancellationToken token = default(CancellationToken))
+        public async Task DeleteAsync(TId id, CancellationToken token = default)
         {
             var key = id.ToString();
             await Table.DeleteAsync(key, key, token);
         }
 
         /// <inheritdoc />
-        public async Task<PageEnvelope<TModel>> ReadAllWithPagingAsync(int offset = 0, int? limit = null, CancellationToken token = default(CancellationToken))
+        public async Task<PageEnvelope<TModel>> ReadAllWithPagingAsync(int offset = 0, int? limit = null, CancellationToken token = default)
         {
             InternalContract.RequireGreaterThanOrEqualTo(0, offset, nameof(offset));
             limit = limit ?? int.MaxValue;
@@ -151,44 +151,44 @@ namespace Nexus.Link.Libraries.Azure.Storage.Table
         }
 
         /// <inheritdoc />
-        public async Task DeleteAllAsync(CancellationToken token = default(CancellationToken))
+        public async Task DeleteAllAsync(CancellationToken token = default)
         {
             await Table.DeleteItemsAsync(token);
         }
 
         /// <inheritdoc />
-        public Task<Lock<TId>> ClaimDistributedLockAsync(TId id, CancellationToken token = default(CancellationToken))
+        public Task<Lock<TId>> ClaimDistributedLockAsync(TId id, CancellationToken token = default)
         {
             throw new System.NotImplementedException();
         }
 
         /// <inheritdoc />
-        public Task ReleaseDistributedLockAsync(TId id, TId lockId, CancellationToken token = default(CancellationToken))
+        public Task ReleaseDistributedLockAsync(TId id, TId lockId, CancellationToken token = default)
         {
             throw new System.NotImplementedException();
         }
 
         /// <inheritdoc />
-        public Task ClaimTransactionLockAsync(TId id, CancellationToken token = default(CancellationToken))
+        public Task ClaimTransactionLockAsync(TId id, CancellationToken token = default)
         {
             throw new System.NotImplementedException();
         }
 
         /// <inheritdoc />
-        public Task<TModel> ClaimTransactionLockAndReadAsync(TId id, CancellationToken token = default(CancellationToken))
+        public Task<TModel> ClaimTransactionLockAndReadAsync(TId id, CancellationToken token = default)
         {
             return _convenience.ClaimTransactionLockAndReadAsync(id, token);
         }
 
         /// <inheritdoc />
         public Task<PageEnvelope<TModel>> SearchAsync(SearchDetails<TModel> details, int offset, int? limit = null,
-            CancellationToken cancellationToken = default(CancellationToken))
+            CancellationToken cancellationToken = default)
         {
             return _convenience.SearchAsync(details, offset, limit, cancellationToken);
         }
 
         /// <inheritdoc />
-        public Task<TModel> FindUniqueAsync(SearchDetails<TModel> details, CancellationToken cancellationToken = default(CancellationToken))
+        public Task<TModel> FindUniqueAsync(SearchDetails<TModel> details, CancellationToken cancellationToken = default)
         {
             return _convenience.FindUniqueAsync(details, cancellationToken);
         }

@@ -68,12 +68,6 @@ namespace Nexus.Link.Libraries.Core.Error.Model
         string InstanceId { get; }
 
         /// <summary>
-        /// If the error originated from another error, this is the InstanceId of that parent. A simple form of "InnerError".
-        /// </summary>
-        [Obsolete("Renamed to InnerInstanceId", true)]
-        string ParentInstanceId { get; }
-
-        /// <summary>
         /// If the error originated from another error, this is the InstanceId of that inner error. You can use this id to find more logs related to this error.
         /// </summary>
         string InnerInstanceId { get; }

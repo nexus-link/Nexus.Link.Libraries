@@ -12,7 +12,7 @@ using Nexus.Link.Libraries.Web.AspNet.Annotations;
 namespace Nexus.Link.Libraries.Crud.AspNet.Controllers
 {
     /// <inheritdoc cref="CrudManyToOneController{TModelCreate,TModel}" />
-    [Obsolete("Use Nexus.Link.Libraries.Crud.AspNet.ControllerHelpers. Obsolete since 2020-09-23.")]
+    [Obsolete("Use Nexus.Link.Libraries.Crud.AspNet.ControllerHelpers. Obsolete warning since 2020-09-23, error since 2021-06-09.", true)]
     public abstract class CrudManyToOneController<TModel> :
         CrudManyToOneController<TModel, TModel>,
         ICrudManyToOne<TModel, string>
@@ -25,7 +25,7 @@ namespace Nexus.Link.Libraries.Crud.AspNet.Controllers
     }
 
     /// <inheritdoc cref="CrudController{TModelCreate,TModel}" />
-    [Obsolete("Use Nexus.Link.Libraries.Crud.AspNet.ControllerHelpers. Obsolete since 2020-09-23.")]
+    [Obsolete("Use Nexus.Link.Libraries.Crud.AspNet.ControllerHelpers. Obsolete warning since 2020-09-23, error since 2021-06-09.", true)]
     public abstract class CrudManyToOneController<TModelCreate, TModel> :
         CrudController<TModelCreate, TModel>,
         ICrudManyToOne<TModelCreate, TModel, string>
@@ -88,14 +88,14 @@ namespace Nexus.Link.Libraries.Crud.AspNet.Controllers
 
         /// <inheritdoc />
         public Task<PageEnvelope<TModel>> SearchChildrenAsync(string parentId, SearchDetails<TModel> details, int offset, int? limit = null,
-            CancellationToken cancellationToken = default(CancellationToken))
+            CancellationToken cancellationToken = default)
         {
             throw new NotImplementedException();
         }
 
         /// <inheritdoc />
         public Task<TModel> FindUniqueChildAsync(string parentId, SearchDetails<TModel> details,
-            CancellationToken cancellationToken = default(CancellationToken))
+            CancellationToken cancellationToken = default)
         {
             throw new NotImplementedException();
         }

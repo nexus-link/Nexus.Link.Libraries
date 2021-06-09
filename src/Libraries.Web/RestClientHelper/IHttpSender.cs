@@ -44,9 +44,9 @@ namespace Nexus.Link.Libraries.Web.RestClientHelper
         /// <param name="customHeaders">Optional headers.</param>
         /// <param name="cancellationToken">Optional cancellation token.</param>
         /// <returns></returns>
-        Task<HttpResponseMessage> SendRequestAsync<TBody>(HttpMethod method, string relativeUrl, TBody body = default(TBody),
+        Task<HttpResponseMessage> SendRequestAsync<TBody>(HttpMethod method, string relativeUrl, TBody body = default,
             Dictionary<string, List<string>> customHeaders = null,
-            CancellationToken cancellationToken = default(CancellationToken));
+            CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Send a request with method <paramref name="method"/> to <paramref name="relativeUrl"/> with <paramref name="body"/> and expect a result of a specific type.
@@ -60,7 +60,7 @@ namespace Nexus.Link.Libraries.Web.RestClientHelper
         /// <param name="cancellationToken">Optional cancellation token.</param>
         /// <returns></returns>
         Task<HttpOperationResponse<TResponse>> SendRequestAsync<TResponse, TBody>(HttpMethod method, string relativeUrl,
-            TBody body = default(TBody), Dictionary<string, List<string>> customHeaders = null,
-            CancellationToken cancellationToken = default(CancellationToken));
+            TBody body = default, Dictionary<string, List<string>> customHeaders = null,
+            CancellationToken cancellationToken = default);
     }
 }

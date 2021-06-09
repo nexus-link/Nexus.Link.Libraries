@@ -6,7 +6,7 @@ namespace Nexus.Link.Libraries.Crud.ServerTranslators
     /// <summary>
     /// Decorate values from server and translate concept values to server.
     /// </summary>
-    [Obsolete("Use Libraries.Web ValueTranslatorHttpSender. Obsolete since 2019-11-21.")]
+    [Obsolete("Use Libraries.Web ValueTranslatorHttpSender. Obsolete warning since 2019-11-21, error since 2021-06-09.", true)]
     public abstract class ServerTranslatorBase
     {
         /// <summary>

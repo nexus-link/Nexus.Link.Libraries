@@ -13,7 +13,7 @@ using Nexus.Link.Libraries.Crud.PassThrough;
 namespace Nexus.Link.Libraries.Crud.ServerTranslators.To
 {
     /// <inheritdoc cref="SlaveToMasterToServerTranslator{TModelCreate, TModel}" />
-    [Obsolete("Use Libraries.Web ValueTranslatorHttpSender. Obsolete since 2019-11-21.")]
+    [Obsolete("Use Libraries.Web ValueTranslatorHttpSender. Obsolete warning since 2019-11-21, error since 2021-06-09.", true)]
     public class SlaveToMasterToServerTranslator<TModel> :
         SlaveToMasterToServerTranslator<TModel, TModel>,
         ICrudSlaveToMaster<TModel, string>
@@ -27,7 +27,7 @@ namespace Nexus.Link.Libraries.Crud.ServerTranslators.To
     }
 
     /// <inheritdoc cref="ServerTranslatorBase" />
-    [Obsolete("Use Libraries.Web ValueTranslatorHttpSender. Obsolete since 2019-11-21.")]
+    [Obsolete("Use Libraries.Web ValueTranslatorHttpSender. Obsolete warning since 2019-11-21, error since 2021-06-09.", true)]
     public class SlaveToMasterToServerTranslator<TModelCreate, TModel> : 
         ServerTranslatorBase, 
         ICrudSlaveToMaster<TModelCreate, TModel, string>
@@ -46,7 +46,7 @@ namespace Nexus.Link.Libraries.Crud.ServerTranslators.To
         }
 
         /// <inheritdoc />
-        public async Task<string> CreateAsync(string masterId, TModelCreate item, CancellationToken token = default(CancellationToken))
+        public async Task<string> CreateAsync(string masterId, TModelCreate item, CancellationToken token = default)
         {
             var translator = CreateTranslator();
             await translator.Add(masterId).Add(item).ExecuteAsync(token);
@@ -56,7 +56,7 @@ namespace Nexus.Link.Libraries.Crud.ServerTranslators.To
         }
 
         /// <inheritdoc />
-        public async Task<TModel> CreateAndReturnAsync(string masterId, TModelCreate item, CancellationToken token = default(CancellationToken))
+        public async Task<TModel> CreateAndReturnAsync(string masterId, TModelCreate item, CancellationToken token = default)
         {
             var translator = CreateTranslator();
             await translator.Add(masterId).Add(item).ExecuteAsync(token);
@@ -66,7 +66,7 @@ namespace Nexus.Link.Libraries.Crud.ServerTranslators.To
         }
 
         /// <inheritdoc />
-        public async Task CreateWithSpecifiedIdAsync(string masterId, string slaveId, TModelCreate item, CancellationToken token = default(CancellationToken))
+        public async Task CreateWithSpecifiedIdAsync(string masterId, string slaveId, TModelCreate item, CancellationToken token = default)
         {
             var translator = CreateTranslator();
             await translator.Add(masterId).Add(slaveId).Add(item).ExecuteAsync(token);
@@ -77,7 +77,7 @@ namespace Nexus.Link.Libraries.Crud.ServerTranslators.To
         }
 
         /// <inheritdoc />
-        public async Task<TModel> CreateWithSpecifiedIdAndReturnAsync(string masterId, string slaveId, TModelCreate item, CancellationToken token = default(CancellationToken))
+        public async Task<TModel> CreateWithSpecifiedIdAndReturnAsync(string masterId, string slaveId, TModelCreate item, CancellationToken token = default)
         {
             var translator = CreateTranslator();
             await translator.Add(masterId).Add(slaveId).Add(item).ExecuteAsync(token);
@@ -88,7 +88,7 @@ namespace Nexus.Link.Libraries.Crud.ServerTranslators.To
         }
 
         /// <inheritdoc />
-        public async Task<TModel> ReadAsync(string masterId, string slaveId, CancellationToken token = default(CancellationToken))
+        public async Task<TModel> ReadAsync(string masterId, string slaveId, CancellationToken token = default)
         {
             var translator = CreateTranslator();
             await translator.Add(masterId).Add(slaveId).ExecuteAsync(token);
@@ -98,14 +98,14 @@ namespace Nexus.Link.Libraries.Crud.ServerTranslators.To
         }
 
         /// <inheritdoc />
-        public Task<TModel> ReadAsync(SlaveToMasterId<string> id, CancellationToken token = default(CancellationToken))
+        public Task<TModel> ReadAsync(SlaveToMasterId<string> id, CancellationToken token = default)
         {
             return ReadAsync(id.MasterId, id.SlaveId, token);
         }
 
         /// <inheritdoc />
         public async Task<PageEnvelope<TModel>> ReadChildrenWithPagingAsync(string parentId, int offset, int? limit = null,
-        CancellationToken token = default(CancellationToken))
+        CancellationToken token = default)
         {
             var translator = CreateTranslator();
             await translator.Add(parentId).ExecuteAsync(token);
@@ -114,7 +114,7 @@ namespace Nexus.Link.Libraries.Crud.ServerTranslators.To
         }
 
         /// <inheritdoc />
-        public async Task<IEnumerable<TModel>> ReadChildrenAsync(string parentId, int limit = int.MaxValue, CancellationToken token = default(CancellationToken))
+        public async Task<IEnumerable<TModel>> ReadChildrenAsync(string parentId, int limit = int.MaxValue, CancellationToken token = default)
         {
             var translator = CreateTranslator();
             await translator.Add(parentId).ExecuteAsync(token);
@@ -123,7 +123,7 @@ namespace Nexus.Link.Libraries.Crud.ServerTranslators.To
         }
 
         /// <inheritdoc />
-        public async Task UpdateAsync(string masterId, string slaveId, TModel item, CancellationToken token = default(CancellationToken))
+        public async Task UpdateAsync(string masterId, string slaveId, TModel item, CancellationToken token = default)
         {
             var translator = CreateTranslator();
             await translator.Add(masterId).Add(slaveId).Add(item).ExecuteAsync(token);
@@ -135,7 +135,7 @@ namespace Nexus.Link.Libraries.Crud.ServerTranslators.To
 
         /// <inheritdoc />
         public async Task<TModel> UpdateAndReturnAsync(string masterId, string slaveId, TModel item,
-            CancellationToken token = default(CancellationToken))
+            CancellationToken token = default)
         {
             var translator = CreateTranslator();
             await translator.Add(masterId).Add(slaveId).Add(item).ExecuteAsync(token);
@@ -146,7 +146,7 @@ namespace Nexus.Link.Libraries.Crud.ServerTranslators.To
         }
 
         /// <inheritdoc />
-        public async Task DeleteChildrenAsync(string masterId, CancellationToken token = default(CancellationToken))
+        public async Task DeleteChildrenAsync(string masterId, CancellationToken token = default)
         {
             var translator = CreateTranslator();
             await translator.Add(masterId).ExecuteAsync(token);
@@ -155,7 +155,7 @@ namespace Nexus.Link.Libraries.Crud.ServerTranslators.To
         }
 
         /// <inheritdoc />
-        public async Task DeleteAsync(string masterId, string slaveId, CancellationToken token = default(CancellationToken))
+        public async Task DeleteAsync(string masterId, string slaveId, CancellationToken token = default)
         {
             var translator = CreateTranslator();
             await translator.Add(masterId).Add(slaveId).ExecuteAsync(token);
@@ -165,7 +165,7 @@ namespace Nexus.Link.Libraries.Crud.ServerTranslators.To
         }
 
         /// <inheritdoc />
-        public async Task<SlaveLock<string>> ClaimLockAsync(string masterId, string slaveId, CancellationToken token = default(CancellationToken))
+        public async Task<SlaveLock<string>> ClaimLockAsync(string masterId, string slaveId, CancellationToken token = default)
         {
             var translator = CreateTranslator();
             await translator.Add(masterId).Add(slaveId).ExecuteAsync(token);
@@ -176,7 +176,7 @@ namespace Nexus.Link.Libraries.Crud.ServerTranslators.To
 
         /// <inheritdoc />
         public async Task ReleaseLockAsync(string masterId, string slaveId, string lockId,
-            CancellationToken token = default(CancellationToken))
+            CancellationToken token = default)
         {
             var translator = CreateTranslator();
             await translator.Add(masterId).Add(slaveId).ExecuteAsync(token);
@@ -186,41 +186,41 @@ namespace Nexus.Link.Libraries.Crud.ServerTranslators.To
         }
 
         /// <inheritdoc />
-        public Task<SlaveLock<string>> ClaimDistributedLockAsync(string masterId, string slaveId, CancellationToken token = default(CancellationToken))
+        public Task<SlaveLock<string>> ClaimDistributedLockAsync(string masterId, string slaveId, CancellationToken token = default)
         {
             throw new NotImplementedException();
         }
 
         /// <inheritdoc />
         public Task ReleaseDistributedLockAsync(string masterId, string slaveId, string lockId,
-            CancellationToken token = default(CancellationToken))
+            CancellationToken token = default)
         {
             throw new NotImplementedException();
         }
 
         /// <inheritdoc />
-        public Task ClaimTransactionLockAsync(string masterId, string slaveId, CancellationToken token = default(CancellationToken))
+        public Task ClaimTransactionLockAsync(string masterId, string slaveId, CancellationToken token = default)
         {
             throw new NotImplementedException();
         }
 
         /// <inheritdoc />
         public Task<TModel> ClaimTransactionLockAndReadAsync(string masterId, string slaveId,
-            CancellationToken token = default(CancellationToken))
+            CancellationToken token = default)
         {
             throw new NotImplementedException();
         }
 
         /// <inheritdoc />
         public Task<PageEnvelope<TModel>> SearchChildrenAsync(string parentId, SearchDetails<TModel> details, int offset, int? limit = null,
-            CancellationToken cancellationToken = default(CancellationToken))
+            CancellationToken cancellationToken = default)
         {
             throw new NotImplementedException();
         }
 
         /// <inheritdoc />
         public Task<TModel> FindUniqueChildAsync(string parentId, SearchDetails<TModel> details,
-            CancellationToken cancellationToken = default(CancellationToken))
+            CancellationToken cancellationToken = default)
         {
             throw new NotImplementedException();
         }

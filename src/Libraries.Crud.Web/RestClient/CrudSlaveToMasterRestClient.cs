@@ -34,7 +34,7 @@ namespace Nexus.Link.Libraries.Crud.Web.RestClient
         /// <param name="baseUri">The base URL that all HTTP calls methods will refer to.</param>
         /// <param name="parentName">The name of the sub path that is the parent of the children. (Singular noun)</param>
         /// <param name="childrenName">The name of the sub path that are the children. (Plural noun)</param>
-        [Obsolete("Use constructor with IHttpSender. Obsolete since 2019-11-18")]
+        [Obsolete("Use constructor with IHttpSender. Obsolete warning since 2019-11-18, error since 2021-06-09.", true)]
         public CrudSlaveToMasterRestClient(string baseUri, string parentName, string childrenName)
             : base(baseUri, parentName, childrenName)
         {
@@ -45,7 +45,7 @@ namespace Nexus.Link.Libraries.Crud.Web.RestClient
         /// <param name="credentials">The credentials used when making the HTTP calls</param>
         /// <param name="parentName">The name of the sub path that is the parent of the children. (Singular noun)</param>
         /// <param name="childrenName">The name of the sub path that are the children. (Plural noun)</param>
-        [Obsolete("Use constructor with IHttpSender. Obsolete since 2019-11-18")]
+        [Obsolete("Use constructor with IHttpSender. Obsolete warning since 2019-11-18, error since 2021-06-09.", true)]
         public CrudSlaveToMasterRestClient(string baseUri, HttpClient httpClient, ServiceClientCredentials credentials, string parentName, string childrenName)
             : base(baseUri, httpClient, credentials, parentName, childrenName)
         {
@@ -56,7 +56,7 @@ namespace Nexus.Link.Libraries.Crud.Web.RestClient
         /// <param name="httpClient">The HttpClient used when making the HTTP calls.</param>
         /// <param name="parentName">The name of the sub path that is the parent of the children. (Singular noun)</param>
         /// <param name="childrenName">The name of the sub path that are the children. (Plural noun)</param>
-        [Obsolete("Use constructor with IHttpSender. Obsolete since 2019-11-18")]
+        [Obsolete("Use constructor with IHttpSender. Obsolete warning since 2019-11-18, error since 2021-06-09.", true)]
         public CrudSlaveToMasterRestClient(string baseUri, HttpClient httpClient, string parentName, string childrenName)
             : base(baseUri, httpClient, parentName, childrenName)
         {
@@ -99,7 +99,7 @@ namespace Nexus.Link.Libraries.Crud.Web.RestClient
         /// <param name="baseUri">The base URL that all HTTP calls methods will refer to.</param>
         /// <param name="parentName">The name of the sub path that is the parent of the children. (Singular noun)</param>
         /// <param name="childrenName">The name of the sub path that are the children. (Plural noun)</param>
-        [Obsolete("Use constructor with IHttpSender. Obsolete since 2019-11-18")]
+        [Obsolete("Use constructor with IHttpSender. Obsolete warning since 2019-11-18, error since 2021-06-09.", true)]
         public CrudSlaveToMasterRestClient(string baseUri, string parentName, string childrenName)
             : base(baseUri)
         {
@@ -113,7 +113,7 @@ namespace Nexus.Link.Libraries.Crud.Web.RestClient
         /// <param name="credentials">The credentials used when making the HTTP calls</param>
         /// <param name="parentName">The name of the sub path that is the parent of the children. (Singular noun)</param>
         /// <param name="childrenName">The name of the sub path that are the children. (Plural noun)</param>
-        [Obsolete("Use constructor with IHttpSender. Obsolete since 2019-11-18")]
+        [Obsolete("Use constructor with IHttpSender. Obsolete warning since 2019-11-18, error since 2021-06-09.", true)]
         public CrudSlaveToMasterRestClient(string baseUri, HttpClient httpClient, ServiceClientCredentials credentials, string parentName, string childrenName)
             : base(baseUri, httpClient, credentials)
         {
@@ -126,7 +126,7 @@ namespace Nexus.Link.Libraries.Crud.Web.RestClient
         /// <param name="httpClient">The HttpClient used when making the HTTP calls.</param>
         /// <param name="parentName">The name of the sub path that is the parent of the children. (Singular noun)</param>
         /// <param name="childrenName">The name of the sub path that are the children. (Plural noun)</param>
-        [Obsolete("Use constructor with IHttpSender. Obsolete since 2019-11-18")]
+        [Obsolete("Use constructor with IHttpSender. Obsolete warning since 2019-11-18, error since 2021-06-09.", true)]
         public CrudSlaveToMasterRestClient(string baseUri, HttpClient httpClient, string parentName, string childrenName)
             : base(baseUri, httpClient)
         {
@@ -183,7 +183,7 @@ namespace Nexus.Link.Libraries.Crud.Web.RestClient
         }
 
         /// <inheritdoc />
-        public Task<IEnumerable<TManyModel>> ReadChildrenAsync(TId parentId, int limit = int.MaxValue, CancellationToken token = default(CancellationToken))
+        public Task<IEnumerable<TManyModel>> ReadChildrenAsync(TId parentId, int limit = int.MaxValue, CancellationToken token = default)
         {
             InternalContract.RequireNotDefaultValue(parentId, nameof(parentId));
             InternalContract.RequireGreaterThan(0, limit, nameof(limit));
@@ -191,7 +191,7 @@ namespace Nexus.Link.Libraries.Crud.Web.RestClient
         }
 
         /// <inheritdoc />
-        public Task<PageEnvelope<TManyModel>> ReadChildrenWithPagingAsync(TId parentId, int offset = 0, int? limit = null, CancellationToken token = default(CancellationToken))
+        public Task<PageEnvelope<TManyModel>> ReadChildrenWithPagingAsync(TId parentId, int offset = 0, int? limit = null, CancellationToken token = default)
         {
             InternalContract.RequireNotDefaultValue(parentId, nameof(parentId));
             InternalContract.RequireGreaterThanOrEqualTo(0, offset, nameof(offset));
@@ -206,7 +206,7 @@ namespace Nexus.Link.Libraries.Crud.Web.RestClient
 
         /// <inheritdoc />
         public Task<PageEnvelope<TManyModel>> SearchChildrenAsync(TId parentId, SearchDetails<TManyModel> details, int offset, int? limit = null,
-            CancellationToken cancellationToken = default(CancellationToken))
+            CancellationToken cancellationToken = default)
         {
             InternalContract.RequireNotDefaultValue(parentId, nameof(parentId));
             InternalContract.RequireGreaterThanOrEqualTo(0, offset, nameof(offset));
@@ -221,7 +221,7 @@ namespace Nexus.Link.Libraries.Crud.Web.RestClient
 
         /// <inheritdoc />
         public Task<TManyModel> FindUniqueChildAsync(TId parentId, SearchDetails<TManyModel> details,
-            CancellationToken cancellationToken = default(CancellationToken))
+            CancellationToken cancellationToken = default)
         {
             return _convenience.FindUniqueChildAsync(parentId, details, cancellationToken);
         }
@@ -252,7 +252,7 @@ namespace Nexus.Link.Libraries.Crud.Web.RestClient
         }
 
         /// <inheritdoc />
-        public Task DeleteChildrenAsync(TId parentId, CancellationToken token = default(CancellationToken))
+        public Task DeleteChildrenAsync(TId parentId, CancellationToken token = default)
         {
             InternalContract.RequireNotDefaultValue(parentId, nameof(parentId));
             return DeleteAsync($"{parentId}/{ChildrenName}", cancellationToken: token);
@@ -276,7 +276,7 @@ namespace Nexus.Link.Libraries.Crud.Web.RestClient
         }
 
         /// <inheritdoc />
-        public Task<SlaveLock<TId>> ClaimDistributedLockAsync(TId masterId, TId slaveId, CancellationToken token = default(CancellationToken))
+        public Task<SlaveLock<TId>> ClaimDistributedLockAsync(TId masterId, TId slaveId, CancellationToken token = default)
         {
             InternalContract.RequireNotDefaultValue(masterId, nameof(masterId));
             InternalContract.RequireNotDefaultValue(slaveId, nameof(slaveId));
@@ -285,7 +285,7 @@ namespace Nexus.Link.Libraries.Crud.Web.RestClient
 
         /// <inheritdoc />
         public Task ReleaseDistributedLockAsync(TId masterId, TId slaveId, TId lockId,
-            CancellationToken token = default(CancellationToken))
+            CancellationToken token = default)
         {
             InternalContract.RequireNotDefaultValue(masterId, nameof(masterId));
             InternalContract.RequireNotDefaultValue(slaveId, nameof(slaveId));
@@ -294,13 +294,13 @@ namespace Nexus.Link.Libraries.Crud.Web.RestClient
         }
 
         /// <inheritdoc />
-        public Task ClaimTransactionLockAsync(TId masterId, TId slaveId, CancellationToken token = default(CancellationToken))
+        public Task ClaimTransactionLockAsync(TId masterId, TId slaveId, CancellationToken token = default)
         {
             throw new NotImplementedException();
         }
 
         /// <inheritdoc />
-        public Task<TManyModel> ClaimTransactionLockAndReadAsync(TId masterId, TId slaveId, CancellationToken token = default(CancellationToken))
+        public Task<TManyModel> ClaimTransactionLockAndReadAsync(TId masterId, TId slaveId, CancellationToken token = default)
         {
             return _convenience.ClaimTransactionLockAndReadAsync(masterId, slaveId, token);
         }

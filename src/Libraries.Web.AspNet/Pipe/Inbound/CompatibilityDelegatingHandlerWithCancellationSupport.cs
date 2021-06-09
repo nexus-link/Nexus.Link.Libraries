@@ -1,15 +1,13 @@
-﻿using System;
+﻿using System.Threading;
 using System.Threading.Tasks;
 #if NETCOREAPP
 using Microsoft.AspNetCore.Http;
 #else
 using System.Net.Http;
-using System.Threading;
 #endif
 namespace Nexus.Link.Libraries.Web.AspNet.Pipe.Inbound
 {
-    [Obsolete("Use CompatibilityDelegatingHandlerWithCancellationSupport instead. Obsolete warning since 2021-06-09.")]
-    public abstract class CompatibilityDelegatingHandler
+    public abstract class CompatibilityDelegatingHandlerWithCancellationSupport
 #if NETCOREAPP
 
 #else
@@ -23,7 +21,7 @@ namespace Nexus.Link.Libraries.Web.AspNet.Pipe.Inbound
         protected readonly RequestDelegate _next;
 
         /// <inheritdoc />
-        protected CompatibilityDelegatingHandler(RequestDelegate next)
+        protected CompatibilityDelegatingHandlerWithCancellationSupport(RequestDelegate next)
         {
             _next = next;
         }
@@ -31,7 +29,7 @@ namespace Nexus.Link.Libraries.Web.AspNet.Pipe.Inbound
         public virtual async Task InvokeAsync(HttpContext context)
         {
             var ctx = new CompabilityInvocationContext(context);
-            await InvokeAsync(ctx);
+            await InvokeAsync(ctx, context.RequestAborted);
         }
 #else
         /// <inheritdoc />
@@ -39,7 +37,7 @@ namespace Nexus.Link.Libraries.Web.AspNet.Pipe.Inbound
             CancellationToken cancellationToken)
         {
             var ctx = new CompabilityInvocationContext(request, cancellationToken);
-            await InvokeAsync(ctx);
+            await InvokeAsync(ctx, cancellationToken);
             return ctx.ResponseMessage;
         }
 #endif
@@ -47,13 +45,15 @@ namespace Nexus.Link.Libraries.Web.AspNet.Pipe.Inbound
         /// This is where the compatible invocation takes place. 
         /// </summary>
         /// <param name="context">The compatible delegate context.</param>
-        protected abstract Task InvokeAsync(CompabilityInvocationContext context);
+        /// <param name="cancellationToken">Token for cancellation</param>
+        protected abstract Task InvokeAsync(CompabilityInvocationContext context, CancellationToken cancellationToken);
 
         /// <summary>
         /// Call the next delegate in the chain. 
         /// </summary>
         /// <param name="context">The compatible delegate context.</param>
-        protected virtual async Task CallNextDelegateAsync(CompabilityInvocationContext context)
+        /// <param name="cancellationToken">Token for cancellation</param>
+        protected virtual async Task CallNextDelegateAsync(CompabilityInvocationContext context, CancellationToken cancellationToken)
         {
 
 #if NETCOREAPP

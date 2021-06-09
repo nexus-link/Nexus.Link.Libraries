@@ -20,15 +20,15 @@ namespace Nexus.Link.Libraries.Crud.UnitTests.Crd
         {
             var initialItem = new TestItemTimestamped<TId>();
             initialItem.InitializeWithDataForTesting(TypeOfTestDataEnum.Default);
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual(default(TId), initialItem.Id);
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsTrue(initialItem.RecordCreatedAt == default(DateTimeOffset));
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsTrue(initialItem.RecordUpdatedAt == default(DateTimeOffset));
+            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual(default, initialItem.Id);
+            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsTrue(initialItem.RecordCreatedAt == default);
+            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsTrue(initialItem.RecordUpdatedAt == default);
             var id = await CrdStorage.CreateAsync(initialItem);
             var createdItem = await CrdStorage.ReadAsync(id);
             Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsNotNull(createdItem);
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreNotEqual(createdItem.Id, default(TId));
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsTrue(createdItem.RecordCreatedAt != default(DateTimeOffset));
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsTrue(createdItem.RecordUpdatedAt != default(DateTimeOffset));
+            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreNotEqual(createdItem.Id, default);
+            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsTrue(createdItem.RecordCreatedAt != default);
+            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsTrue(createdItem.RecordUpdatedAt != default);
             initialItem.Id = createdItem.Id;
             initialItem.RecordCreatedAt = createdItem.RecordCreatedAt;
             initialItem.RecordUpdatedAt = createdItem.RecordUpdatedAt;
@@ -43,14 +43,14 @@ namespace Nexus.Link.Libraries.Crud.UnitTests.Crd
         {
             var initialItem = new TestItemTimestamped<TId>();
             initialItem.InitializeWithDataForTesting(TypeOfTestDataEnum.Default);
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual(default(TId), initialItem.Id);
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsTrue(initialItem.RecordCreatedAt == default(DateTimeOffset));
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsTrue(initialItem.RecordUpdatedAt == default(DateTimeOffset));
+            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual(default, initialItem.Id);
+            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsTrue(initialItem.RecordCreatedAt == default);
+            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsTrue(initialItem.RecordUpdatedAt == default);
             var createdItem = await CrdStorage.CreateAndReturnAsync(initialItem);
             Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsNotNull(createdItem);
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreNotEqual(createdItem.Id, default(TId));
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsTrue(createdItem.RecordCreatedAt != default(DateTimeOffset));
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsTrue(createdItem.RecordUpdatedAt != default(DateTimeOffset));
+            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreNotEqual(createdItem.Id, default);
+            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsTrue(createdItem.RecordCreatedAt != default);
+            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsTrue(createdItem.RecordUpdatedAt != default);
             initialItem.Id = createdItem.Id;
             initialItem.RecordCreatedAt = createdItem.RecordCreatedAt;
             initialItem.RecordUpdatedAt = createdItem.RecordUpdatedAt;
