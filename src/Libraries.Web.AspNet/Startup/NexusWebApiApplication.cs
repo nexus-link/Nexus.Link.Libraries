@@ -18,7 +18,7 @@ namespace Nexus.Link.Libraries.Web.AspNet.Startup
     /// <summary>
     /// Convenience class for helping with application start from Global.asax.cs
     /// </summary>
-    [Obsolete("We don't use Fundamentals for configuration for service tenants anymore")]
+    [Obsolete("We don't use Fundamentals for configuration for service tenants anymore. Obsolete warning since 2021-06-09.")]
     public abstract class NexusWebApiApplication : System.Web.HttpApplication
     {
         /// <summary>

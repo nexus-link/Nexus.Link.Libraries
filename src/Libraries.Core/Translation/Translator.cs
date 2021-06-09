@@ -80,28 +80,28 @@ namespace Nexus.Link.Libraries.Core.Translation
         }
 
         /// <inheritdoc />
-        [Obsolete("Use the method Decorate<T>(T). Obsolete since 2019-12-13.")]
+        [Obsolete("Use the method Decorate<T>(T). Obsolete warning since 2019-12-13, error since 2021-06-09.", true)]
         public IEnumerable<T> Decorate<T>(IEnumerable<T> items)
         {
             return items?.Select(Decorate);
         }
 
         /// <inheritdoc />
-        [Obsolete("Use the method Decorate(object, Type). Obsolete since 2019-12-13.")]
+        [Obsolete("Use the method Decorate(object, Type). Obsolete warning since 2019-12-13, error since 2021-06-09.", true)]
         public IEnumerable<object> Decorate(IEnumerable<object> items, Type type)
         {
             return items?.Select(i => Decorate(i, type));
         }
 
         /// <inheritdoc/>
-        [Obsolete("Use the method Decorate<T>(T). Obsolete since 2019-11-21.")]
+        [Obsolete("Use the method Decorate<T>(T). Obsolete warning since 2019-11-21, error since 2021-06-09.", true)]
         public TModel DecorateItem<TModel>(TModel item)
         {
             return Decorate(item);
         }
 
         /// <inheritdoc/>
-        [Obsolete("Use the method Decorate<T>(T). Obsolete since 2019-11-21.")]
+        [Obsolete("Use the method Decorate<T>(T). Obsolete warning since 2019-11-21, error since 2021-06-09.", true)]
         public IEnumerable<TModel> DecorateItems<TModel>(IEnumerable<TModel> items)
         {
             if (items == null) return null;
@@ -115,7 +115,7 @@ namespace Nexus.Link.Libraries.Core.Translation
         }
 
         /// <inheritdoc/>
-        [Obsolete("Use the method Decorate<T>(T). Obsolete since 2019-11-21.")]
+        [Obsolete("Use the method Decorate<T>(T). Obsolete warning since 2019-11-21, error since 2021-06-09.", true)]
         public PageEnvelope<TModel> DecoratePage<TModel>(PageEnvelope<TModel> page)
         {
             if (page == null) return null;

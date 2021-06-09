@@ -14,7 +14,7 @@ using Nexus.Link.Libraries.Crud.PassThrough;
 namespace Nexus.Link.Libraries.Crud.ClientTranslators
 {
     /// <inheritdoc cref="SlaveToMasterClientTranslator{TModelCreate, TModel}" />
-    [Obsolete("Use Libraries.Web.AspNet ValueTranslatorFilter. Obsolete since 2019-11-21.")]
+    [Obsolete("Use Libraries.Web.AspNet ValueTranslatorFilter. Obsolete warning since 2019-11-21, error since 2021-06-09.", true)]
     public class SlaveToMasterClientTranslator<TModel> : 
         SlaveToMasterClientTranslator<TModel, TModel>,
         ICrudSlaveToMaster<TModel, string>
@@ -29,7 +29,7 @@ namespace Nexus.Link.Libraries.Crud.ClientTranslators
     }
 
     /// <inheritdoc cref="ClientTranslatorBase" />
-    [Obsolete("Use Libraries.Web.AspNet ValueTranslatorFilter. Obsolete since 2019-11-21.")]
+    [Obsolete("Use Libraries.Web.AspNet ValueTranslatorFilter. Obsolete warning since 2019-11-21, error since 2021-06-09.", true)]
     public class SlaveToMasterClientTranslator<TModelCreate, TModel> :
         ClientTranslatorBase,
         ICrudSlaveToMaster<TModelCreate, TModel, string>

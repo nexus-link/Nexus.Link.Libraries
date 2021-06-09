@@ -61,30 +61,11 @@ namespace Nexus.Link.Libraries.Web.Error.Logic
             }
         }
 
-        /// <summary>
-        /// Use this method to add a new <see cref="FulcrumException"/>. This means that it will be included in converting.
-        /// </summary>
-        /// <param name="exceptionType">The type of the exception.</param>
-        /// <param name="statusCode">The status code that it should be converted to if we convert it to an HTTP response.</param>
-        [Obsolete("Use the overload with three arguments", true)]
-        public static void AddFulcrumException(Type exceptionType, HttpStatusCode? statusCode = null)
-        {
-            InternalContract.RequireNotNull(exceptionType, nameof(exceptionType));
-            InternalContract.RequireNotNull(statusCode, nameof(statusCode));
-            var createDelegate = GetInstanceDelegate(exceptionType);
-            var exception = createDelegate("test", (Exception)null);
-            // ReSharper disable once PossibleInvalidOperationException
-            AddFulcrumException(exceptionType, statusCode.Value, exception.Type);
-        }
-
         static ExceptionConverter()
         {
             // Core
             AddFulcrumException(typeof(FulcrumAssertionFailedException), HttpStatusCode.InternalServerError, FulcrumResourceException.ExceptionType);
             AddFulcrumException(typeof(FulcrumResourceException), HttpStatusCode.BadGateway, FulcrumResourceException.ExceptionType);
-#pragma warning disable 618
-            AddFulcrumException(typeof(FulcrumResourceContractException), HttpStatusCode.BadGateway, FulcrumResourceException.ExceptionType);
-#pragma warning restore 618
             AddFulcrumException(typeof(FulcrumContractException), HttpStatusCode.InternalServerError, FulcrumResourceException.ExceptionType);
             AddFulcrumException(typeof(FulcrumNotImplementedException), HttpStatusCode.InternalServerError, FulcrumResourceException.ExceptionType);
             AddFulcrumException(typeof(FulcrumTryAgainException), HttpStatusCode.InternalServerError, FulcrumTryAgainException.ExceptionType);

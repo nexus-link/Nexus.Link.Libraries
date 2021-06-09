@@ -10,7 +10,7 @@ namespace Nexus.Link.Libraries.Crud.Interfaces
     /// Lock/unlock an item.
     /// </summary>
     /// <typeparam name="TId">The type for the id parameter.</typeparam>
-    [Obsolete("Use IDistributedLockSlave. Obsolete since 2021-04-29")]
+    [Obsolete("Use IDistributedLockSlave. Obsolete warning since 2021-04-29")]
     public interface ILockableSlave<TId> : ICrudable<TId>
     {
         /// <summary>

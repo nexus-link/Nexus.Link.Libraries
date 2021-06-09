@@ -27,7 +27,7 @@
     <Copyright>Copyright ©2019 Xlent Link AB</Copyright>
     <IncludeSymbols>true</IncludeSymbols>
     <PackageReleaseNotes>
-      1.2.1 Bump
+      1.2.1 Old obsolete stuff with errors has been deleted and old with warning has been updated to error.
       1.2.0 Added ClaimTransactionLockAndReadAsycn()
       1.1.0 Added Crud ISearch and ISearchChildren
       1.0.17 Bump

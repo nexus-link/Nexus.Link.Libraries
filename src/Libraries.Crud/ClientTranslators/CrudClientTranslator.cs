@@ -13,7 +13,7 @@ using Nexus.Link.Libraries.Crud.PassThrough;
 namespace Nexus.Link.Libraries.Crud.ClientTranslators
 {
     /// <inheritdoc cref="CrudClientTranslator{TModelCreate, TModel}" />
-    [Obsolete("Use Libraries.Web.AspNet ValueTranslatorFilter. Obsolete since 2019-11-21.")]
+    [Obsolete("Use Libraries.Web.AspNet ValueTranslatorFilter. Obsolete warning since 2019-11-21, error since 2021-06-09.", true)]
     public class CrudClientTranslator<TModel> : 
         CrudClientTranslator<TModel, TModel>, 
         ICrud<TModel, string>
@@ -27,7 +27,7 @@ namespace Nexus.Link.Libraries.Crud.ClientTranslators
     }
 
     /// <inheritdoc cref="ClientTranslatorBase" />
-    [Obsolete("Use Libraries.Web.AspNet ValueTranslatorFilter. Obsolete since 2019-11-21.")]
+    [Obsolete("Use Libraries.Web.AspNet ValueTranslatorFilter. Obsolete warning since 2019-11-21, error since 2021-06-09.", true)]
     public class CrudClientTranslator<TModelCreate, TModel> : 
         ClientTranslatorBase, 
         ICrud<TModelCreate, TModel, string>

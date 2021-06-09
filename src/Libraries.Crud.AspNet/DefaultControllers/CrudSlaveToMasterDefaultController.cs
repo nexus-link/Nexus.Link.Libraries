@@ -15,7 +15,7 @@ namespace Nexus.Link.Libraries.Crud.AspNet.DefaultControllers
     /// <summary>
     /// ApiController with CRUD-support
     /// </summary>
-    [Obsolete("Use Nexus.Link.Libraries.Crud.AspNet.Controllers classes. Obsolete since 2020-09-23.")]
+    [Obsolete("Use Nexus.Link.Libraries.Crud.AspNet.Controllers classes. Obsolete warning since 2020-09-23, error since 2021-06-09.", true)]
     public class CrudSlaveToMasterDefaultController<TModel> :
         CrudSlaveToMasterDefaultController<TModel, TModel>,
         ICrudSlaveToMaster<TModel, string>
@@ -30,7 +30,7 @@ namespace Nexus.Link.Libraries.Crud.AspNet.DefaultControllers
     }
 
     /// <inheritdoc cref="CrudSlaveToMasterController{TModelCreate, TModel}" />
-    [Obsolete("Use Nexus.Link.Libraries.Crud.AspNet.Controllers classes. Obsolete since 2020-09-23.")]
+    [Obsolete("Use Nexus.Link.Libraries.Crud.AspNet.Controllers classes. Obsolete warning since 2020-09-23, error since 2021-06-09.", true)]
     public class CrudSlaveToMasterDefaultController<TModelCreate, TModel> :
         CrudSlaveToMasterController<TModelCreate, TModel>,
         ICrudSlaveToMaster<TModelCreate, TModel, string>

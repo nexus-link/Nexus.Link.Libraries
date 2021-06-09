@@ -13,7 +13,7 @@ using Nexus.Link.Libraries.Web.AspNet.Annotations;
 namespace Nexus.Link.Libraries.Crud.AspNet.Controllers
 {
     /// <inheritdoc cref="CrudSlaveToMasterController{TModelCreate,TModel}" />
-    [Obsolete("Use Nexus.Link.Libraries.Crud.AspNet.ControllerHelpers. Obsolete since 2020-09-23.")]
+    [Obsolete("Use Nexus.Link.Libraries.Crud.AspNet.ControllerHelpers. Obsolete warning since 2020-09-23, error since 2021-06-09.", true)]
     public abstract class CrudSlaveToMasterController<TModel> :
         CrudSlaveToMasterController<TModel, TModel>,
         ICrudSlaveToMaster<TModel, string>
@@ -28,7 +28,7 @@ namespace Nexus.Link.Libraries.Crud.AspNet.Controllers
     }
 
     /// <inheritdoc cref="CrudControllerBase" />
-    [Obsolete("Use Nexus.Link.Libraries.Crud.AspNet.ControllerHelpers. Obsolete since 2020-09-23.")]
+    [Obsolete("Use Nexus.Link.Libraries.Crud.AspNet.ControllerHelpers. Obsolete warning since 2020-09-23, error since 2021-06-09.", true)]
     public abstract class CrudSlaveToMasterController<TModelCreate, TModel> :
         CrudControllerBase,
         ICrudSlaveToMaster<TModelCreate, TModel, string>

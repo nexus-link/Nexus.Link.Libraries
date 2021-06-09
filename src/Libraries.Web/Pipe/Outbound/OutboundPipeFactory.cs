@@ -49,13 +49,5 @@ namespace Nexus.Link.Libraries.Web.Pipe.Outbound
             }
             return handlers.ToArray();
         }
-
-        [Obsolete("Use overload with no parameters", true)]
-#pragma warning disable 1591
-        public static DelegatingHandler[] CreateDelegatingHandlers(IValueProvider valueProvider)
-#pragma warning restore 1591
-        {
-            return CreateDelegatingHandlers();
-        }
     }
 }

@@ -34,7 +34,7 @@ namespace Nexus.Link.Libraries.Crud.Web.RestClient
         /// <param name="baseUri">The base URL that all HTTP calls methods will refer to.</param>
         /// <param name="parentName">The name of the sub path that is the parent of the children. (Singular noun)</param>
         /// <param name="childrenName">The name of the sub path that are the children. (Plural noun)</param>
-        [Obsolete("Use constructor with IHttpSender. Obsolete since 2019-11-18")]
+        [Obsolete("Use constructor with IHttpSender. Obsolete warning since 2019-11-18, error since 2021-06-09.", true)]
         public CrudSlaveToMasterRestClient(string baseUri, string parentName, string childrenName)
             : base(baseUri, parentName, childrenName)
         {
@@ -45,7 +45,7 @@ namespace Nexus.Link.Libraries.Crud.Web.RestClient
         /// <param name="credentials">The credentials used when making the HTTP calls</param>
         /// <param name="parentName">The name of the sub path that is the parent of the children. (Singular noun)</param>
         /// <param name="childrenName">The name of the sub path that are the children. (Plural noun)</param>
-        [Obsolete("Use constructor with IHttpSender. Obsolete since 2019-11-18")]
+        [Obsolete("Use constructor with IHttpSender. Obsolete warning since 2019-11-18, error since 2021-06-09.", true)]
         public CrudSlaveToMasterRestClient(string baseUri, HttpClient httpClient, ServiceClientCredentials credentials, string parentName, string childrenName)
             : base(baseUri, httpClient, credentials, parentName, childrenName)
         {
@@ -56,7 +56,7 @@ namespace Nexus.Link.Libraries.Crud.Web.RestClient
         /// <param name="httpClient">The HttpClient used when making the HTTP calls.</param>
         /// <param name="parentName">The name of the sub path that is the parent of the children. (Singular noun)</param>
         /// <param name="childrenName">The name of the sub path that are the children. (Plural noun)</param>
-        [Obsolete("Use constructor with IHttpSender. Obsolete since 2019-11-18")]
+        [Obsolete("Use constructor with IHttpSender. Obsolete warning since 2019-11-18, error since 2021-06-09.", true)]
         public CrudSlaveToMasterRestClient(string baseUri, HttpClient httpClient, string parentName, string childrenName)
             : base(baseUri, httpClient, parentName, childrenName)
         {
@@ -99,7 +99,7 @@ namespace Nexus.Link.Libraries.Crud.Web.RestClient
         /// <param name="baseUri">The base URL that all HTTP calls methods will refer to.</param>
         /// <param name="parentName">The name of the sub path that is the parent of the children. (Singular noun)</param>
         /// <param name="childrenName">The name of the sub path that are the children. (Plural noun)</param>
-        [Obsolete("Use constructor with IHttpSender. Obsolete since 2019-11-18")]
+        [Obsolete("Use constructor with IHttpSender. Obsolete warning since 2019-11-18, error since 2021-06-09.", true)]
         public CrudSlaveToMasterRestClient(string baseUri, string parentName, string childrenName)
             : base(baseUri)
         {
@@ -113,7 +113,7 @@ namespace Nexus.Link.Libraries.Crud.Web.RestClient
         /// <param name="credentials">The credentials used when making the HTTP calls</param>
         /// <param name="parentName">The name of the sub path that is the parent of the children. (Singular noun)</param>
         /// <param name="childrenName">The name of the sub path that are the children. (Plural noun)</param>
-        [Obsolete("Use constructor with IHttpSender. Obsolete since 2019-11-18")]
+        [Obsolete("Use constructor with IHttpSender. Obsolete warning since 2019-11-18, error since 2021-06-09.", true)]
         public CrudSlaveToMasterRestClient(string baseUri, HttpClient httpClient, ServiceClientCredentials credentials, string parentName, string childrenName)
             : base(baseUri, httpClient, credentials)
         {
@@ -126,7 +126,7 @@ namespace Nexus.Link.Libraries.Crud.Web.RestClient
         /// <param name="httpClient">The HttpClient used when making the HTTP calls.</param>
         /// <param name="parentName">The name of the sub path that is the parent of the children. (Singular noun)</param>
         /// <param name="childrenName">The name of the sub path that are the children. (Plural noun)</param>
-        [Obsolete("Use constructor with IHttpSender. Obsolete since 2019-11-18")]
+        [Obsolete("Use constructor with IHttpSender. Obsolete warning since 2019-11-18, error since 2021-06-09.", true)]
         public CrudSlaveToMasterRestClient(string baseUri, HttpClient httpClient, string parentName, string childrenName)
             : base(baseUri, httpClient)
         {
