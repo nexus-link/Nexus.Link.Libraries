@@ -170,7 +170,7 @@ namespace Nexus.Link.Libraries.Web.Error.Logic
                 catch (FulcrumException e)
                 {
                     // We will just log this. It is important that we still try to use the response in some way.
-                    Log.LogWarning($"{response.RequestMessage.ToLogStringAsync(response)}\r{e.Message}\r{fulcrumError.ToLogString()}");
+                    Log.LogWarning($"{response.RequestMessage.ToLogStringAsync(response, cancellationToken: cancellationToken)}\r{e.Message}\r{fulcrumError.ToLogString()}");
                 }
             }
 

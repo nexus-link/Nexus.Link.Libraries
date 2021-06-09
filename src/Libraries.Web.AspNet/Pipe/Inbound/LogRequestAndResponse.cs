@@ -79,7 +79,7 @@ namespace Nexus.Link.Libraries.Web.AspNet.Pipe.Inbound
             if ((int)response.StatusCode >= 500) logLevel = LogSeverityLevel.Error;
             else if ((int)response.StatusCode >= 400) logLevel = LogSeverityLevel.Warning;
 #endif
-            Log.LogOnLevel(logLevel, $"INBOUND request-response {await request.ToLogStringAsync(response, elapsedTime)}");
+            Log.LogOnLevel(logLevel, $"INBOUND request-response {await request.ToLogStringAsync(response, elapsedTime, cancellationToken: cancellationToken)}");
         }
 
         private static void LogException(CompabilityInvocationContext context, Exception exception, TimeSpan elapsedTime)

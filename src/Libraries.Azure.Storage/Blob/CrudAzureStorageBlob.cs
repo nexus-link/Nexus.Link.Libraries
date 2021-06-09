@@ -61,11 +61,11 @@ namespace Nexus.Link.Libraries.Azure.Storage.Blob
             InternalContract.RequireNotDefaultValue(id, nameof(id));
             InternalContract.RequireNotDefaultValue(item, nameof(item));
             InternalContract.RequireValidated(item, nameof(item));
-            var createTask = Directory.CreateIfNotExistsAsync();
+            var createTask = Directory.CreateIfNotExistsAsync(token);
             var fileName = CreateFileName(id);
             await createTask;
             var file = Directory.CreateFile(fileName);
-            var fileExistsTask = file.ExistsAsync();
+            var fileExistsTask = file.ExistsAsync(token);
             var dbItem = StorageHelper.DeepCopy<TModel, TModelCreate>(item);
             StorageHelper.MaybeCreateNewEtag(dbItem);
             StorageHelper.MaybeUpdateTimeStamps(dbItem, true);
@@ -73,7 +73,7 @@ namespace Nexus.Link.Libraries.Azure.Storage.Blob
             InternalContract.RequireValidated(dbItem, nameof(item));
             var content = JsonConvert.SerializeObject(dbItem);
             FulcrumAssert.IsTrue(!await fileExistsTask, null, $"File ({fileName}) unexpectedly already existed in directory {Directory.Name}");
-            await file.UploadAsync(content, "application/json");
+            await file.UploadAsync(content, "application/json", token);
         }
 
         /// <inheritdoc />
@@ -98,11 +98,11 @@ namespace Nexus.Link.Libraries.Azure.Storage.Blob
         public async Task<TModel> ReadAsync(TId id, CancellationToken token = default)
         {
             InternalContract.RequireNotDefaultValue(id, nameof(id));
-            if (!await Directory.ExistsAsync()) return default;
+            if (!await Directory.ExistsAsync(token)) return default;
             var fileName = CreateFileName(id);
             var file = Directory.CreateFile(fileName);
-            if (!await file.ExistsAsync()) return default;
-            var content = await file.DownloadTextAsync();
+            if (!await file.ExistsAsync(token)) return default;
+            var content = await file.DownloadTextAsync(token);
             var dbItem = JsonHelper.SafeDeserializeObject<TModel>(content);
             FulcrumAssert.IsNotNull(dbItem, CodeLocation.AsString());
             FulcrumAssert.IsValidated(dbItem, CodeLocation.AsString());
@@ -112,11 +112,11 @@ namespace Nexus.Link.Libraries.Azure.Storage.Blob
         public async Task DeleteAsync(TId id, CancellationToken token = default)
         {
             InternalContract.RequireNotDefaultValue(id, nameof(id));
-            if (!await Directory.ExistsAsync()) return;
+            if (!await Directory.ExistsAsync(token)) return;
             var fileName = CreateFileName(id);
             var file = Directory.CreateFile(fileName);
-            if (!await file.ExistsAsync()) return;
-            await file.DeleteAsync();
+            if (!await file.ExistsAsync(token)) return;
+            await file.DeleteAsync(token);
         }
 
         public async Task<PageEnvelope<TModel>> ReadAllWithPagingAsync(int offset, int? limit = null, CancellationToken token = default)
@@ -128,7 +128,7 @@ namespace Nexus.Link.Libraries.Azure.Storage.Blob
             var list = new List<TModel>();
             var skipped = 0;
             var found = 0;
-            var directoryItems = await Directory.ListContentAsync();
+            var directoryItems = await Directory.ListContentAsync(token);
             var directoryItemList = directoryItems as IList<IDirectoryListItem> ?? directoryItems.ToList();
             foreach (var item in directoryItemList)
             {
@@ -141,7 +141,7 @@ namespace Nexus.Link.Libraries.Azure.Storage.Blob
                 var file = item as IFile;
                 FulcrumAssert.IsNotNull(file, $"Expected {item.ToLogString()} to be a file.");
                 if (file == null) continue;
-                var content = await file.DownloadTextAsync();
+                var content = await file.DownloadTextAsync(token);
                 var o = JsonHelper.SafeDeserializeObject<TModel>(content);
                 list.Add(o);
                 found++;
@@ -184,8 +184,8 @@ namespace Nexus.Link.Libraries.Azure.Storage.Blob
 
         public async Task DeleteAllAsync(CancellationToken token = default)
         {
-            if (!await Directory.ExistsAsync()) return;
-            await Directory.DeleteAsync();
+            if (!await Directory.ExistsAsync(token)) return;
+            await Directory.DeleteAsync(token);
         }
 
         private static string CreateFileName(TId itemId) => $"{itemId}.json";
@@ -195,7 +195,7 @@ namespace Nexus.Link.Libraries.Azure.Storage.Blob
             InternalContract.RequireNotDefaultValue(id, nameof(id));
             InternalContract.RequireNotNull(item, nameof(item));
             InternalContract.RequireValidated(item, nameof(item));
-            if (!await Directory.ExistsAsync()) throw new FulcrumNotFoundException($"Could not find the item with id {id}.");
+            if (!await Directory.ExistsAsync(token)) throw new FulcrumNotFoundException($"Could not find the item with id {id}.");
             var verifyEtagTask = MaybeVerifyEtagForUpdateAsync(id, item, token);
             var fileName = CreateFileName(id);
             var file = Directory.CreateFile(fileName);
@@ -204,8 +204,8 @@ namespace Nexus.Link.Libraries.Azure.Storage.Blob
             StorageHelper.MaybeSetId(id, item);
             StorageHelper.MaybeUpdateTimeStamps(item, false);
             var content = JsonConvert.SerializeObject(item);
-            if (!await file.ExistsAsync()) throw new FulcrumNotFoundException($"Could not find the item with id {id}.");
-            await file.UploadAsync(content, "application/json");
+            if (!await file.ExistsAsync(token)) throw new FulcrumNotFoundException($"Could not find the item with id {id}.");
+            await file.UploadAsync(content, "application/json", token);
         }
 
         /// <inheritdoc />

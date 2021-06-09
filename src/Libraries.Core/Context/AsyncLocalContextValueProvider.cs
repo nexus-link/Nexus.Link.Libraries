@@ -12,7 +12,7 @@ namespace Nexus.Link.Libraries.Core.Context
     /// <remarks>Updating values in a thread will not affect the value in parent/sibling threads</remarks>
     public class AsyncLocalContextValueProvider : IContextValueProvider
     {
-        private static ConcurrentDictionary<string, AsyncLocal<object>> Dictionary = new ConcurrentDictionary<string, AsyncLocal<object>>();
+        private static readonly ConcurrentDictionary<string, AsyncLocal<object>> Dictionary = new ConcurrentDictionary<string, AsyncLocal<object>>();
 
         /// <inheritdoc />
         public T GetValue<T>(string key)

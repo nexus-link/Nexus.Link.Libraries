@@ -15,8 +15,8 @@ namespace Nexus.Link.Libraries.Core.Tests.Translate
     public class TestTranslator
     {
         private Mock<ITranslatorService> _translatorServiceMock;
-        private static string _consumerId = "in-1";
-        private static string _producerId = "out-1";
+        private static readonly string _consumerId = "in-1";
+        private static readonly string _producerId = "out-1";
         private static string _decoratedConsumerId;
         private ITranslator _consumerTranslator;
 

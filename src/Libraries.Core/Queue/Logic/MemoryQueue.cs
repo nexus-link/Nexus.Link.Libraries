@@ -295,7 +295,7 @@ namespace Nexus.Link.Libraries.Core.Queue.Logic
 
         private async Task<T> GetOneMessageWithPossibleDelayAsync(CancellationToken cancellationToken)
         {
-            var message = await GetOneMessageNoBlockAsync();
+            var message = await GetOneMessageNoBlockAsync(cancellationToken);
             if (!_queue.IsEmpty && Equals(message, default(T))) await Task.Delay(TimeSpan.FromMilliseconds(1000), cancellationToken);
 
             return message;

@@ -60,7 +60,7 @@ namespace Nexus.Link.Libraries.Core.Health.Logic
             HealthInfo response;
             try
             {
-                response = await healthDelegate(Tenant);
+                response = await healthDelegate(Tenant, cancellationToken);
                 //Check this?
                 if (string.IsNullOrWhiteSpace(response.Resource)) response.Resource = resourceName;
             }
