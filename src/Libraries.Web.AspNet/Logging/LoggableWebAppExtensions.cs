@@ -3,6 +3,7 @@ using System;
 using System.Globalization;
 using System.IO;
 using System.Text.RegularExpressions;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Extensions;
@@ -40,7 +41,7 @@ namespace Nexus.Link.Libraries.Web.AspNet.Logging
         /// <summary>
         /// Create a string based on the <paramref name="response"/> that is adequate for logging.
         /// </summary>
-        public static async Task<string> ToLogStringAsync(this HttpRequest request, HttpResponse response, TimeSpan elapsedTime = default(TimeSpan))
+        public static async Task<string> ToLogStringAsync(this HttpRequest request, HttpResponse response, TimeSpan elapsedTime = default, CancellationToken cancellationToken = default)
         {
             if (request == null) return null;
             var message = request.ToLogString(elapsedTime);
@@ -63,12 +64,12 @@ namespace Nexus.Link.Libraries.Web.AspNet.Logging
         /// <summary>
         /// Create a string based on the <paramref name="response"/> that is adequate for logging.
         /// </summary>
-        public static async Task<string> ToLogStringAsync(this HttpResponse response)
+        public static async Task<string> ToLogStringAsync(this HttpResponse response, CancellationToken cancellationToken = default)
         {
             if (response == null) return null;
             var logString = response.StatusCode.ToString();
             if (response.StatusCode < 400  || response.Body == null) return logString;
-            var body = await GetBodyAsStringAsync(response);
+            var body = await GetBodyAsStringAsync(response, cancellationToken);
             var fulcrumError = JsonHelper.SafeDeserializeObject<FulcrumError>(body);
             if (fulcrumError != null)
             {
@@ -81,10 +82,12 @@ namespace Nexus.Link.Libraries.Web.AspNet.Logging
         /// Read the body from a response without destroying the response
         /// </summary>
         /// <param name="response"></param>
+        /// <param name="cancellationToken"></param>
         /// <remarks>
         /// Based on an answer for https://stackoverflow.com/questions/43403941/how-to-read-asp-net-core-response-body
         /// </remarks>
-        private static async Task<string> GetBodyAsStringAsync(HttpResponse response)
+        private static async Task<string> GetBodyAsStringAsync(HttpResponse response,
+            CancellationToken cancellationToken)
         {
             var originalBody = response.Body;
 
@@ -94,9 +97,9 @@ namespace Nexus.Link.Libraries.Web.AspNet.Logging
                 {
                     response.Body = memStream;
                     memStream.Position = 0;
-                    var responseBody = new StreamReader(memStream).ReadToEnd();
+                    var responseBody = await new StreamReader(memStream).ReadToEndAsync();
                     memStream.Position = 0;
-                    await memStream.CopyToAsync(originalBody);
+                    await memStream.CopyToAsync(originalBody, cancellationToken);
                     return responseBody;
                 }
 

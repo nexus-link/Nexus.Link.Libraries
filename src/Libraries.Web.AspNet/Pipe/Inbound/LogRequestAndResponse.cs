@@ -48,19 +48,19 @@ namespace Nexus.Link.Libraries.Web.AspNet.Pipe.Inbound
             InternalContract.Require(!ExceptionToFulcrumResponse.HasStarted,
                 $"{nameof(ExceptionToFulcrumResponse)} must not precede {nameof(LogRequestAndResponse)}");
             DelegateState.HasStarted = true;
-            var stopWatch = new Stopwatch();
-            stopWatch.Start();
+            var stopwatch = new Stopwatch();
+            stopwatch.Start();
             try
             {
                 await CallNextDelegateAsync(context);
-                stopWatch.Stop();
-                await LogResponseAsync(context, stopWatch.Elapsed);
+                stopwatch.Stop();
+                await LogResponseAsync(context, stopwatch.Elapsed);
             }
             catch (Exception exception)
             {
                 // If ExceptionToFulcrumResponse handler is used, we should not end up here.
-                stopWatch.Stop();
-                LogException(context, exception, stopWatch.Elapsed);
+                stopwatch.Stop();
+                LogException(context, exception, stopwatch.Elapsed);
                 throw;
             }
         }

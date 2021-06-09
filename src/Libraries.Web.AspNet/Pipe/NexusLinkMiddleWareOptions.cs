@@ -1,7 +1,5 @@
-﻿using Nexus.Link.Libraries.Core.Application;
+﻿#if NETCOREAPP
 using Nexus.Link.Libraries.Core.Assert;
-using Nexus.Link.Libraries.Web.AspNet.Pipe.Options;
-using Nexus.Link.Libraries.Web.Pipe;
 
 namespace Nexus.Link.Libraries.Web.AspNet.Pipe
 {
@@ -10,15 +8,12 @@ namespace Nexus.Link.Libraries.Web.AspNet.Pipe
     {
         public MiddlewareFeatures Features = new MiddlewareFeatures();
 
-        public MiddlewareCallbacks Callbacks = new MiddlewareCallbacks();
+        public MiddlewareCallbacks Delegates = new MiddlewareCallbacks();
         /// <inheritdoc />
         public virtual void Validate(string errorLocation, string propertyPath = "")
         {
             FulcrumValidate.IsValidated(Features, propertyPath, nameof(Features), errorLocation);
         }
     }
-
-    public class MiddlewareCallbacks
-    {
-    }
 }
+#endif

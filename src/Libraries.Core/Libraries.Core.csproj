@@ -34,7 +34,7 @@
 
   <PropertyGroup>
     <PackageId>Nexus.Link.Libraries.Core</PackageId>
-    <Version>4.24.2</Version>
+    <Version>4.25.0</Version>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <PackageTags>nexus;link;fulcrum;lever</PackageTags>
     <Authors>XLENT Link</Authors>
@@ -44,6 +44,7 @@
     <Copyright>Copyright ©2021 Xlent Link AB</Copyright>
     <IncludeSymbols>true</IncludeSymbols>
     <PackageReleaseNotes>
+      4.25.0 Added DelegateHelper
       4.24.2 Removed restriction for RequireEqual.
       4.24.0 Added assertion function for RequireEqual.
       4.23.0 Added assertion function for InEnumeration.
