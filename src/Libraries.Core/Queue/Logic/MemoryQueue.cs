@@ -72,7 +72,7 @@ namespace Nexus.Link.Libraries.Core.Queue.Logic
         /// <summary>
         ///     Constructor
         /// </summary>
-        [Obsolete("Use the MemoryQueue(string) constructor and then call SetQueueItemAction(). Obsolete since 2021-01-20", false)]
+        [Obsolete("Use the MemoryQueue(string) constructor and then call SetQueueItemAction(). Obsolete warning since 2021-01-20.")]
         public MemoryQueue(string name, QueueItemActionDelegate queueItemAction) : this(name)
         {
             InternalContract.RequireNotNullOrWhiteSpace(name, nameof(name));
@@ -92,7 +92,7 @@ namespace Nexus.Link.Libraries.Core.Queue.Logic
         ///     If <paramref name="actionsCanExecuteWithoutIndividualAwait" /> is true, then you guarantee that it is possible to
         ///     run many <paramref name="queueItemAction" /> "in parallel" without interference.
         /// </remarks>
-        [Obsolete("Use the MemoryQueue(string) constructor and then call SetQueueItemAction(). Obsolete since 2021-01-20", false)]
+        [Obsolete("Use the MemoryQueue(string) constructor and then call SetQueueItemAction(). Obsolete warning since 2021-01-20.")]
         public MemoryQueue(string name, QueueItemActionDelegate queueItemAction = null,
             bool actionsCanExecuteWithoutIndividualAwait = false) : this(name)
         {
@@ -295,7 +295,7 @@ namespace Nexus.Link.Libraries.Core.Queue.Logic
 
         private async Task<T> GetOneMessageWithPossibleDelayAsync(CancellationToken cancellationToken)
         {
-            var message = await GetOneMessageNoBlockAsync();
+            var message = await GetOneMessageNoBlockAsync(cancellationToken);
             if (!_queue.IsEmpty && Equals(message, default(T))) await Task.Delay(TimeSpan.FromMilliseconds(1000), cancellationToken);
 
             return message;

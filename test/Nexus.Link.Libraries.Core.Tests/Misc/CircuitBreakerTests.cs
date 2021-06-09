@@ -238,7 +238,7 @@ namespace Nexus.Link.Libraries.Core.Tests.Misc
             }
         }
         
-        private async Task ValidateCircuitBreakerUsageAsync(ICircuitBreaker circuitBreaker, Func<CancellationToken, Task> actionAsync, ApplicationException expectedException = null, CancellationToken cancellationToken = default)
+        private async Task ValidateCircuitBreakerUsageAsync(ICircuitBreaker circuitBreaker, Func<CancellationToken, Task> actionAsync, Exception expectedException = null, CancellationToken cancellationToken = default)
         {
             var exceptionThrown = false;
             try
@@ -261,7 +261,7 @@ namespace Nexus.Link.Libraries.Core.Tests.Misc
             }
         }
         
-        private void ValidateCircuitBreakerUsage(ICircuitBreaker circuitBreaker, Action action, ApplicationException expectedException = null)
+        private void ValidateCircuitBreakerUsage(ICircuitBreaker circuitBreaker, Action action, Exception expectedException = null)
         {
             var exceptionThrown = false;
             try

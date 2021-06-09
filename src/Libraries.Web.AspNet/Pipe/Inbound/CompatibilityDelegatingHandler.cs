@@ -8,7 +8,7 @@ using System.Threading;
 #endif
 namespace Nexus.Link.Libraries.Web.AspNet.Pipe.Inbound
 {
-    [Obsolete("Use CompatibilityDelegatingHandlerWithCancellationSupport instead. Obsolete since 2021-06-09")]
+    [Obsolete("Use CompatibilityDelegatingHandlerWithCancellationSupport instead. Obsolete warning since 2021-06-09.")]
     public abstract class CompatibilityDelegatingHandler
 #if NETCOREAPP
 

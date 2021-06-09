@@ -45,6 +45,7 @@
     <IncludeSymbols>true</IncludeSymbols>
     <PackageReleaseNotes>
       5.1.0 Added DelegateHelper
+      5.0.1 Old obsolete stuff with errors has been deleted and old with warning has been updated to error.
       5.0.0 Breaking change. Added cancellation support where it was missing. A "nice" breaking change; you may get some compilation errors, but that is only due to some interfaces that now requires a CancellationToken parameter.
       4.24.2 Removed restriction for RequireEqual.
       4.24.0 Added assertion function for RequireEqual.

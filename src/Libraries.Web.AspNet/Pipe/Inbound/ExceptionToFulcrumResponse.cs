@@ -68,7 +68,7 @@ namespace Nexus.Link.Libraries.Web.AspNet.Pipe.Inbound
 #if NETCOREAPP
             context.Context.Response.StatusCode = response.StatusCode.Value;
             context.Context.Response.ContentType = response.ContentType;
-            await context.Context.Response.WriteAsync(response.Content);
+            await context.Context.Response.WriteAsync(response.Content, cancellationToken: cancellationToken);
 #else
             context.ResponseMessage = response;
             await Task.CompletedTask;

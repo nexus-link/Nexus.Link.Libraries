@@ -11,7 +11,7 @@ namespace Nexus.Link.Libraries.Web.AspNet.Pipe.Inbound
     /// Filter used to do model validation based on data annotations.
     /// For a more in depth explanation <see href="http://stackoverflow.com">Model Validation in ASP.NET Web API</see>
     /// </summary>
-    [Obsolete("Not used anymore. Test parameters by using ServiceContract.", true)]
+    [Obsolete("Not used anymore. Test parameters by using ServiceContract. Obsolete warning since 2020-06-09, error since 2021-06-09.", true)]
     public class ModelValidation : ActionFilterAttribute
     {
         private static readonly string Namespace = typeof(ModelValidation).Namespace;

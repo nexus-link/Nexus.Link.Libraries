@@ -29,7 +29,7 @@ namespace Nexus.Link.Libraries.Web.RestClientHelper
         /// <summary></summary>
         /// <param name="baseUri">The base URL that all HTTP calls methods will refer to.</param>
         // ReSharper disable once UnusedParameter.Local
-        [Obsolete("Use the RestClient(IHttpSender) constructor. Obsolete since 2019-11-15.")]
+        [Obsolete("Use the RestClient(IHttpSender) constructor. Obsolete warning since 2019-11-15, error since 2021-06-09.", true)]
         public RestClient(string baseUri) : this(new HttpSender(baseUri))
         {
         }
@@ -37,7 +37,7 @@ namespace Nexus.Link.Libraries.Web.RestClientHelper
         /// <summary></summary>
         /// <param name="baseUri">The base URL that all HTTP calls methods will refer to.</param>
         /// <param name="credentials">The credentials used when making the HTTP calls.</param>
-        [Obsolete("Use the RestClient(IHttpSender) constructor. Obsolete since 2019-11-15.")]
+        [Obsolete("Use the RestClient(IHttpSender) constructor. Obsolete warning since 2019-11-15, error since 2021-06-09.", true)]
         public RestClient(string baseUri, ServiceClientCredentials credentials) : this(new HttpSender(baseUri, credentials))
         {
         }
@@ -46,7 +46,7 @@ namespace Nexus.Link.Libraries.Web.RestClientHelper
         /// <param name="baseUri">The base URL that all HTTP calls methods will refer to.</param>
         /// <param name="httpClient">The HttpClient used when making the HTTP calls.</param>
         /// <param name="credentials">The credentials used when making the HTTP calls.</param>
-        [Obsolete("Use the RestClient(IHttpSender) constructor. Obsolete since 2019-11-15.")]
+        [Obsolete("Use the RestClient(IHttpSender) constructor. Obsolete warning since 2019-11-15, error since 2021-06-09.", true)]
         public RestClient(string baseUri, HttpClient httpClient, ServiceClientCredentials credentials)
             : this(new HttpSender(baseUri, credentials){HttpClient = new HttpClientWrapper(httpClient)})
         {
@@ -56,7 +56,7 @@ namespace Nexus.Link.Libraries.Web.RestClientHelper
         /// <summary></summary>
         /// <param name="baseUri">The base URL that all HTTP calls methods will refer to.</param>
         /// <param name="httpClient">The HttpClient used when making the HTTP calls.</param>
-        [Obsolete("Use the RestClient(IHttpSender) constructor. Obsolete since 2019-11-15.")]
+        [Obsolete("Use the RestClient(IHttpSender) constructor. Obsolete warning since 2019-11-15, error since 2021-06-09.", true)]
         public RestClient(string baseUri, HttpClient httpClient) 
             : this(new HttpSender(baseUri){HttpClient = new HttpClientWrapper(httpClient)})
         {

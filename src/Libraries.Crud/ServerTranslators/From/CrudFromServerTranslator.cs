@@ -11,7 +11,7 @@ using Nexus.Link.Libraries.Crud.PassThrough;
 namespace Nexus.Link.Libraries.Crud.ServerTranslators.From
 {
     /// <inheritdoc cref="CrudFromServerTranslator{TModelCreate, TModel}" />
-    [Obsolete("Use Libraries.Web ValueTranslatorHttpSender. Obsolete since 2019-11-21.")]
+    [Obsolete("Use Libraries.Web ValueTranslatorHttpSender. Obsolete warning since 2019-11-21, error since 2021-06-09.", true)]
     public class CrudFromServerTranslator<TModel> : CrudFromServerTranslator<TModel, TModel>, ICrud<TModel, string>
     {
         /// <inheritdoc />
@@ -23,7 +23,7 @@ namespace Nexus.Link.Libraries.Crud.ServerTranslators.From
     }
 
     /// <inheritdoc cref="ServerTranslatorBase" />
-    [Obsolete("Use Libraries.Web ValueTranslatorHttpSender. Obsolete since 2019-11-21.")]
+    [Obsolete("Use Libraries.Web ValueTranslatorHttpSender. Obsolete warning since 2019-11-21, error since 2021-06-09.", true)]
     public class CrudFromServerTranslator<TModelCreate, TModel> : ServerTranslatorBase, ICrud<TModelCreate, TModel, string>
         where TModel : TModelCreate
     {

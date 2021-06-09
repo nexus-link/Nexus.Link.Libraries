@@ -34,7 +34,7 @@ namespace Nexus.Link.Libraries.Web.Tests.RestClientHelper
                     _actualContent = null;
                     if (m.Content != null)
                     {
-                        m.Content.LoadIntoBufferAsync().Wait();
+                        m.Content.LoadIntoBufferAsync().Wait(ct);
                         _actualContent = m.Content.ReadAsStringAsync().Result;
                     }
                 })

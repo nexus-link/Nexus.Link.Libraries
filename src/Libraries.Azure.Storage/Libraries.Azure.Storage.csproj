@@ -25,7 +25,7 @@
     <Copyright>Copyright ©2019 Xlent Link AB</Copyright>
     <IncludeSymbols>true</IncludeSymbols>
     <PackageReleaseNotes>
-      3.5.0 Added CancellationToken where it was missing.
+      3.5.0 Added CancellationToken where it was missing. Old obsolete stuff with errors has been deleted and old with warning has been updated to error.
       3.4.0 Added ClaimTransactionLockAndReadAsycn()
       3.3.0 Added Crud ISearch and ISearchChildren
       3.2.0 New lock interfaces.

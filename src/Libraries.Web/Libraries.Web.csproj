@@ -30,7 +30,7 @@
     <Copyright>Copyright ©2020 Xlent Link AB</Copyright>
     <IncludeSymbols>true</IncludeSymbols>
     <PackageReleaseNotes>
-      2.12.0 Added CancellationToken where it was missing.
+      2.12.0 Added CancellationToken where it was missing. Old obsolete stuff with errors has been deleted and old with warning has been updated to error.
       2.11.4 Bump
       2.11.2 HttpSender can now be created without baseUrl
       2.11.1 Fix: "Authentication" property of "ClientConfiguration" is no longer required

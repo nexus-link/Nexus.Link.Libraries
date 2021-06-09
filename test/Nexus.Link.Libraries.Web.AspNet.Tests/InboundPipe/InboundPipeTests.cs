@@ -223,7 +223,7 @@ namespace Nexus.Link.Libraries.Web.AspNet.Tests.InboundPipe
         }
 
 #if NETCOREAPP
-        private void SetRequest(DefaultHttpContext context, string url)
+        private void SetRequest(HttpContext context, string url)
         {
             var request = new DefaultHttpRequest(context);
             var match = Regex.Match(url, "^(https?)://([^/]+)(/[^?]+)(\\?.*)?$");

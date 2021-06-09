@@ -43,16 +43,6 @@ namespace Nexus.Link.Libraries.Core.Assert
         /// Verify that <paramref name="parameterValue"/> is not null, not empty and contains other characters than white space.
         /// </summary>
         [StackTraceHidden]
-        [Obsolete("Use RequireNotNullOrWhiteSpace(), note spelling of white space.", true)]
-        public static void RequireNotNullOrWhitespace(string parameterValue, string parameterName, string customMessage = null)
-        {
-            GenericContract<FulcrumServiceContractException>.RequireNotNullOrWhiteSpace(parameterValue, parameterName, customMessage);
-        }
-
-        /// <summary>
-        /// Verify that <paramref name="parameterValue"/> is not null, not empty and contains other characters than white space.
-        /// </summary>
-        [StackTraceHidden]
         public static void RequireNotNullOrWhiteSpace(string parameterValue, string parameterName, string customMessage = null)
         {
             GenericContract<FulcrumServiceContractException>.RequireNotNullOrWhiteSpace(parameterValue, parameterName, customMessage);
@@ -68,55 +58,6 @@ namespace Nexus.Link.Libraries.Core.Assert
         }
 
         /// <summary>
-        /// If <paramref name="parameterValue"/> is not null, then call the FulcrumValidate() method of that type.
-        /// </summary>
-        [Obsolete("Use the RequireValidated() method.", true)]
-        [StackTraceHidden]
-        public static void RequireValidatedOrNull(object parameterValue, string parameterName, string customMessage = null)
-        {
-            GenericContract<FulcrumServiceContractException>.RequireValidated(parameterValue, parameterName, customMessage);
-        }
-
-        /// <summary>
-        /// If <paramref name="parameterValues"/> is not null, then call the FulcrumValidate() method of that type.
-        /// </summary>
-        [Obsolete("Use the RequireValidated() method.", true)]
-        [StackTraceHidden]
-        public static void RequireValidatedOrNull(IEnumerable<object> parameterValues, string parameterName, string customMessage = null)
-        {
-            if (parameterValues == null) return;
-            foreach (var parameterValue in parameterValues)
-            {
-                RequireValidatedOrNull(parameterValue, parameterName, customMessage);
-            }
-        }
-
-        /// <summary>
-        /// Verify that <paramref name="parameterValue"/> is not null and also call the FulcrumValidate() method of that type.
-        /// </summary>
-        [Obsolete("Use the RequireValidated() method.", true)]
-        [StackTraceHidden]
-        public static void RequireValidatedAndNotNull(object parameterValue, string parameterName, string customMessage = null)
-        {
-            RequireNotNull(parameterValue, parameterName);
-            GenericContract<FulcrumServiceContractException>.RequireValidated(parameterValue, parameterName, customMessage);
-        }
-
-        /// <summary>
-        /// Verify that <paramref name="parameterValues"/> is not null and also call the FulcrumValidate() method of that type.
-        /// </summary>
-        [Obsolete("Use the RequireValidated() method.", true)]
-        [StackTraceHidden]
-        public static void RequireValidatedAndNotNull(IEnumerable<object> parameterValues, string parameterName, string customMessage = null)
-        {
-            RequireNotNull(parameterValues, parameterName);
-            foreach (var parameterValue in parameterValues)
-            {
-                RequireValidatedOrNull(parameterValue, parameterName, customMessage);
-            }
-        }
-
-        /// <summary>
         /// If <paramref name="parameterValues"/> is not null, then call the Validate() method of that type.
         /// </summary>
         [StackTraceHidden]
@@ -127,17 +68,6 @@ namespace Nexus.Link.Libraries.Core.Assert
             {
                 GenericContract<FulcrumServiceContractException>.RequireValidated(parameterValue, parameterName, customMessage);
             }
-        }
-
-        /// <summary>
-        /// Verify that <paramref name="expression"/> returns a true value.
-        /// </summary>
-        [Obsolete("Please notify the Fulcrum team if you use this assertion method. We intend to remove it.", true)]
-        [StackTraceHidden]
-        public static void Require(Expression<Func<bool>> expression, string message)
-        {
-            InternalContract.RequireNotNullOrWhiteSpace(message, nameof(message));
-            GenericContract<FulcrumServiceContractException>.Require(expression, message);
         }
 
         /// <summary>
@@ -238,29 +168,6 @@ namespace Nexus.Link.Libraries.Core.Assert
         /// </summary>
         [StackTraceHidden]
         public static void RequireMatchesNotRegExp(string regularExpression, string value, string errorLocation, string customMessage = null)
-        {
-            RequireNotNullOrWhiteSpace(regularExpression, nameof(regularExpression));
-            GenericContract<FulcrumServiceContractException>.RequireMatchesNotRegExp(regularExpression, value, errorLocation, customMessage);
-        }
-
-        /// <summary>
-        /// Verify that <paramref name="parameterValue"/> is null or matches the regular expression <paramref name="regularExpression"/>.
-        /// </summary>
-        [StackTraceHidden]
-        [Obsolete("Use RequireMatchesRegExp. Obsolete since 2021-05-03.")]
-        public static void MatchesRegExp(string regularExpression, string parameterValue, string parameterName, string customMessage = null)
-        {
-            RequireNotNullOrWhiteSpace(regularExpression, nameof(regularExpression));
-            RequireNotNull(parameterName, nameof(parameterName));
-            GenericContract<FulcrumServiceContractException>.RequireMatchesRegExp(regularExpression, parameterValue, parameterName, customMessage);
-        }
-
-        /// <summary>
-        /// Verify that <paramref name="value"/> is null or not matches the regular expression <paramref name="regularExpression"/>.
-        /// </summary>
-        [StackTraceHidden]
-        [Obsolete("Use RequireMatchesNotRegExp. Obsolete since 2021-05-03.")]
-        public static void MatchesNotRegExp(string regularExpression, string value, string errorLocation, string customMessage = null)
         {
             RequireNotNullOrWhiteSpace(regularExpression, nameof(regularExpression));
             GenericContract<FulcrumServiceContractException>.RequireMatchesNotRegExp(regularExpression, value, errorLocation, customMessage);

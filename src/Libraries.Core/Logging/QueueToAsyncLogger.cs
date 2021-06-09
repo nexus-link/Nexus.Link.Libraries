@@ -113,7 +113,7 @@ namespace Nexus.Link.Libraries.Core.Logging
             try
             {
                 LoggingInProgress = true;
-                await _asyncLogger.LogAsync(logRecord);
+                await _asyncLogger.LogAsync(logRecord, cancellationToken);
             }
             catch (Exception e)
             {

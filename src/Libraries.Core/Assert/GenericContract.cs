@@ -55,17 +55,6 @@ namespace Nexus.Link.Libraries.Core.Assert
         }
 
         /// <summary>
-        /// Verify that <paramref name="expression"/> returns a true value.
-        /// </summary>
-        [Obsolete("Please notify the Fulcrum team if you use this assertion method. We intend to remove it.", true)]
-        [StackTraceHidden]
-        public static void Require(Expression<Func<bool>> expression, string customMessage = null)
-        {
-            var message = GetErrorMessageIfFalse(expression, customMessage);
-            MaybeThrowException(message);
-        }
-
-        /// <summary>
         /// Verify that <paramref name="mustBeTrue"/> really is true.
         /// </summary>
         [StackTraceHidden]
@@ -247,16 +236,6 @@ namespace Nexus.Link.Libraries.Core.Assert
             var value = parameterValue == null ? "null" : $"\"{parameterValue}\"";
             return customMessage ?? $"Contract violation: {parameterName} ({value}) must not be null, empty or whitespace.";
         }
-
-        [Obsolete("Please notify the Fulcrum team if you use this assertion method. We intend to remove it.", true)]
-        private static string GetErrorMessageIfFalse(Expression<Func<bool>> requirementExpression, string customMessage)
-        {
-            if (requirementExpression.Compile()()) return null;
-
-            var condition = requirementExpression.Body.ToString();
-            return customMessage ?? $"Contract violation: The call must fulfil {condition}.";
-        }
-
         private static string GetErrorMessageIfFalse(bool mustBeTrue, string message)
         {
             InternalContract.RequireNotNullOrWhiteSpace(message, nameof(message));

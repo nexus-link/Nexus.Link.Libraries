@@ -52,7 +52,7 @@ namespace Nexus.Link.Libraries.Web.AspNet.Logging
         /// <summary>
         /// Create a string based on the <paramref name="response"/> that is adequate for logging.
         /// </summary>
-        [Obsolete("Use ToLogStringAsync() instead")]
+        [Obsolete("Use ToLogStringAsync() instead. Obsolete warning since 2020-06-09, error since 2021-06-09.", true)]
         public static string ToLogString(this HttpRequest request, HttpResponse response, TimeSpan elapsedTime = default)
         {
             if (request == null) return null;
