@@ -52,7 +52,7 @@ namespace Nexus.Link.Libraries.Crud.AspNet.ControllerHelpers
 
         /// <inheritdoc />
         public async Task<PageEnvelope<TModel>> ReadChildrenWithPagingAsync(string parentId, int offset, int? limit = null,
-            CancellationToken token = default(CancellationToken))
+            CancellationToken token = default)
         {
             ServiceContract.RequireNotNullOrWhiteSpace(parentId, nameof(parentId));
             ServiceContract.RequireGreaterThanOrEqualTo(0, offset, nameof(offset));
@@ -68,14 +68,14 @@ namespace Nexus.Link.Libraries.Crud.AspNet.ControllerHelpers
         }
 
         /// <inheritdoc />
-        public async Task DeleteChildrenAsync(string parentId, CancellationToken token = default(CancellationToken))
+        public async Task DeleteChildrenAsync(string parentId, CancellationToken token = default)
         {
             ServiceContract.RequireNotNullOrWhiteSpace(parentId, nameof(parentId));
             await Logic.DeleteChildrenAsync(parentId, token);
         }
 
         /// <inheritdoc />
-        public async Task<IEnumerable<TModel>> ReadChildrenAsync(string parentId, int limit = 2147483647, CancellationToken token = default(CancellationToken))
+        public async Task<IEnumerable<TModel>> ReadChildrenAsync(string parentId, int limit = 2147483647, CancellationToken token = default)
         {
             ServiceContract.RequireNotNullOrWhiteSpace(parentId, nameof(parentId));
             ServiceContract.RequireGreaterThan(0, limit, nameof(limit));
@@ -87,7 +87,7 @@ namespace Nexus.Link.Libraries.Crud.AspNet.ControllerHelpers
 
         /// <inheritdoc />
         public async Task<PageEnvelope<TModel>> SearchChildrenAsync(string parentId, [FromBody] SearchDetails<TModel> details, int offset, int? limit = null,
-            CancellationToken cancellationToken = default(CancellationToken))
+            CancellationToken cancellationToken = default)
         {
             ServiceContract.RequireNotNullOrWhiteSpace(parentId, nameof(parentId));
             ServiceContract.RequireGreaterThanOrEqualTo(0, offset, nameof(offset));
@@ -104,7 +104,7 @@ namespace Nexus.Link.Libraries.Crud.AspNet.ControllerHelpers
 
         /// <inheritdoc />
         public Task<TModel> FindUniqueChildAsync(string parentId, [FromBody] SearchDetails<TModel> details,
-            CancellationToken cancellationToken = default(CancellationToken))
+            CancellationToken cancellationToken = default)
         {
             return _convenience.FindUniqueChildAsync(parentId, details, cancellationToken);
         }

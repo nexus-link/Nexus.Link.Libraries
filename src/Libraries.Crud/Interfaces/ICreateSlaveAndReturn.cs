@@ -32,6 +32,6 @@ namespace Nexus.Link.Libraries.Crud.Interfaces
         /// </remarks>
         /// <seealso cref="IOptimisticConcurrencyControlByETag"/>
         /// <seealso cref="IUniquelyIdentifiable{TId}"/>
-        Task<TModel> CreateAndReturnAsync(TId masterId, TModelCreate item, CancellationToken token = default(CancellationToken));
+        Task<TModel> CreateAndReturnAsync(TId masterId, TModelCreate item, CancellationToken token = default);
     }
 }

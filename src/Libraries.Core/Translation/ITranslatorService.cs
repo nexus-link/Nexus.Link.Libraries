@@ -16,6 +16,6 @@ namespace Nexus.Link.Libraries.Core.Translation
         /// <param name="targetClientName">The client that we should translate to.</param>
         /// <param name="cancellationToken"></param>
         /// <returns>A dictionary with concept values as keys and the translated values as values.</returns>
-        Task<IDictionary<string, string>> TranslateAsync(IEnumerable<string> conceptValuePaths, string targetClientName, CancellationToken cancellationToken = default(CancellationToken));
+        Task<IDictionary<string, string>> TranslateAsync(IEnumerable<string> conceptValuePaths, string targetClientName, CancellationToken cancellationToken = default);
     }
 }

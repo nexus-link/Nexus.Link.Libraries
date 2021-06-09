@@ -30,7 +30,7 @@ namespace Nexus.Link.Libraries.Web.AspNet.Logging
         {
             if (request == null) return null;
             var message = request.ToLogString();
-            if (elapsedTime != default(TimeSpan))
+            if (elapsedTime != default)
             {
                 var secondsAsString = elapsedTime.TotalSeconds.ToString("0.###", CultureInfo.InvariantCulture);
                 message += $" | {secondsAsString}s";
@@ -45,7 +45,7 @@ namespace Nexus.Link.Libraries.Web.AspNet.Logging
         {
             if (request == null) return null;
             var message = request.ToLogString(elapsedTime);
-            if (response != null) message += $" | {await response.ToLogStringAsync()}";
+            if (response != null) message += $" | {await response.ToLogStringAsync(cancellationToken)}";
             return message;
         }
 
@@ -53,7 +53,7 @@ namespace Nexus.Link.Libraries.Web.AspNet.Logging
         /// Create a string based on the <paramref name="response"/> that is adequate for logging.
         /// </summary>
         [Obsolete("Use ToLogStringAsync() instead")]
-        public static string ToLogString(this HttpRequest request, HttpResponse response, TimeSpan elapsedTime = default(TimeSpan))
+        public static string ToLogString(this HttpRequest request, HttpResponse response, TimeSpan elapsedTime = default)
         {
             if (request == null) return null;
             var message = request.ToLogString(elapsedTime);
@@ -86,8 +86,7 @@ namespace Nexus.Link.Libraries.Web.AspNet.Logging
         /// <remarks>
         /// Based on an answer for https://stackoverflow.com/questions/43403941/how-to-read-asp-net-core-response-body
         /// </remarks>
-        private static async Task<string> GetBodyAsStringAsync(HttpResponse response,
-            CancellationToken cancellationToken)
+        private static async Task<string> GetBodyAsStringAsync(HttpResponse response, CancellationToken cancellationToken = default)
         {
             var originalBody = response.Body;
 

@@ -6,7 +6,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Rest;
 using Newtonsoft.Json;
-using Nexus.Link.Libraries.Core.Application;
 using Nexus.Link.Libraries.Core.Assert;
 using Nexus.Link.Libraries.Core.Error.Logic;
 using Nexus.Link.Libraries.Core.Logging;
@@ -120,15 +119,15 @@ namespace Nexus.Link.Libraries.Web.RestClientHelper
 
         /// <inheritdoc />
         public async Task<HttpOperationResponse<TResponse>> SendRequestAsync<TResponse, TBody>(HttpMethod method, string relativeUrl,
-            TBody body = default(TBody), Dictionary<string, List<string>> customHeaders = null,
-            CancellationToken cancellationToken = default(CancellationToken))
+            TBody body = default, Dictionary<string, List<string>> customHeaders = null,
+            CancellationToken cancellationToken = default)
         {
             HttpResponseMessage response = null;
             try
             {
                 response = await SendRequestAsync(method, relativeUrl, body, customHeaders, cancellationToken).ConfigureAwait(false);
                 var request = response.RequestMessage;
-                return await HandleResponseWithBody<TResponse>(method, response, request);
+                return await HandleResponseWithBody<TResponse>(method, response, request, cancellationToken);
             }
             finally
             {
@@ -138,8 +137,8 @@ namespace Nexus.Link.Libraries.Web.RestClientHelper
 
         /// <inheritdoc />
         public async Task<HttpResponseMessage> SendRequestAsync<TBody>(HttpMethod method, string relativeUrl,
-            TBody body = default(TBody), Dictionary<string, List<string>> customHeaders = null,
-            CancellationToken cancellationToken = default(CancellationToken))
+            TBody body = default, Dictionary<string, List<string>> customHeaders = null,
+            CancellationToken cancellationToken = default)
         {
             HttpRequestMessage request = null;
             try
@@ -168,7 +167,7 @@ namespace Nexus.Link.Libraries.Web.RestClientHelper
         /// <inheritdoc />
         public async Task<HttpResponseMessage> SendRequestAsync(HttpMethod method, string relativeUrl,
             Dictionary<string, List<string>> customHeaders = null,
-            CancellationToken cancellationToken = default(CancellationToken))
+            CancellationToken cancellationToken = default)
         {
             HttpRequestMessage request = null;
             try
@@ -239,14 +238,14 @@ namespace Nexus.Link.Libraries.Web.RestClientHelper
         }
 
         private async Task<HttpOperationResponse<TResponse>> HandleResponseWithBody<TResponse>(HttpMethod method, HttpResponseMessage response,
-            HttpRequestMessage request)
+            HttpRequestMessage request, CancellationToken cancellationToken)
         {
-            await VerifySuccessAsync(response);
+            await VerifySuccessAsync(response, cancellationToken);
             var result = new HttpOperationResponse<TResponse>
             {
                 Request = request,
                 Response = response,
-                Body = default(TResponse)
+                Body = default
             };
 
             if (method == HttpMethod.Get || method == HttpMethod.Put || method == HttpMethod.Post || method == PatchMethod)
@@ -259,7 +258,7 @@ namespace Nexus.Link.Libraries.Web.RestClientHelper
                 {
                     throw new FulcrumResourceException($"The response to request {request.ToLogString()} was expected to have HttpStatusCode {HttpStatusCode.OK} or {HttpStatusCode.Created}, but had {response.StatusCode.ToLogString()}.");
                 }
-                var responseContent = await TryGetContentAsString(response.Content, false);
+                var responseContent = await TryGetContentAsString(response.Content, false, cancellationToken);
                 if (responseContent == null) return result;
                 try
                 {
@@ -273,14 +272,14 @@ namespace Nexus.Link.Libraries.Web.RestClientHelper
             return result;
         }
 
-        private async Task VerifySuccessAsync(HttpResponseMessage response)
+        private async Task VerifySuccessAsync(HttpResponseMessage response, CancellationToken cancellationToken)
         {
             InternalContract.RequireNotNull(response, nameof(response));
             InternalContract.RequireNotNull(response.RequestMessage, $"{nameof(response)}.{nameof(response.RequestMessage)}");
             if (!response.IsSuccessStatusCode)
             {
-                var requestContent = await TryGetContentAsString(response.RequestMessage?.Content, true);
-                var responseContent = await TryGetContentAsString(response.Content, true);
+                var requestContent = await TryGetContentAsString(response.RequestMessage?.Content, true, cancellationToken);
+                var responseContent = await TryGetContentAsString(response.Content, true, cancellationToken);
                 var message = $"{response.StatusCode} {responseContent}";
                 var exception = new HttpOperationException(message)
                 {
@@ -291,7 +290,7 @@ namespace Nexus.Link.Libraries.Web.RestClientHelper
             }
         }
 
-        private async Task<string> TryGetContentAsString(HttpContent content, bool silentlyIgnoreExceptions)
+        private async Task<string> TryGetContentAsString(HttpContent content, bool silentlyIgnoreExceptions, CancellationToken cancellationToken)
         {
             if (content == null) return null;
             try

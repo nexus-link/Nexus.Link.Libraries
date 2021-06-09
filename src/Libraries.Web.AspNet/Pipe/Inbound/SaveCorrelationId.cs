@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading;
 using System.Threading.Tasks;
 using Nexus.Link.Libraries.Core.Application;
 using Nexus.Link.Libraries.Core.Assert;
@@ -19,7 +20,7 @@ namespace Nexus.Link.Libraries.Web.AspNet.Pipe.Inbound
     /// <summary>
     /// Handle correlation id on inbound requests.
     /// </summary>
-    public class SaveCorrelationId : CompatibilityDelegatingHandler
+    public class SaveCorrelationId : CompatibilityDelegatingHandlerWithCancellationSupport
     {
         private static readonly DelegateState DelegateState = new DelegateState(typeof(SaveCorrelationId).FullName);
 
@@ -45,7 +46,7 @@ namespace Nexus.Link.Libraries.Web.AspNet.Pipe.Inbound
         }
 #endif
         /// <inheritdoc />
-        protected override async Task InvokeAsync(CompabilityInvocationContext context)
+        protected override async Task InvokeAsync(CompabilityInvocationContext context, CancellationToken cancellationToken)
         {
             InternalContract.Require(!DelegateState.HasStarted, $"{nameof(SaveCorrelationId)} has already been started in this http request.");
             InternalContract.Require(!BatchLogs.HasStarted,
@@ -56,7 +57,7 @@ namespace Nexus.Link.Libraries.Web.AspNet.Pipe.Inbound
                 $"{nameof(ExceptionToFulcrumResponse)} must not precede {nameof(SaveCorrelationId)}");
             HasStarted = true;
             SaveCorrelationIdToExecutionContext(context);
-            await CallNextDelegateAsync(context);
+            await CallNextDelegateAsync(context, cancellationToken);
         }
 
         /// <summary>

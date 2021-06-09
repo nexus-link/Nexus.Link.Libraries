@@ -325,9 +325,9 @@ namespace Nexus.Link.Libraries.Core.Tests.Logging
             _delay = delay;
         }
 
-        public async Task LogAsync(LogRecord logRecord)
+        public async Task LogAsync(LogRecord logRecord, CancellationToken cancellationToken = default)
         {
-            await Task.Delay(_delay);
+            await Task.Delay(_delay, cancellationToken);
             Console.Write($"{logRecord.ToLogString()} ");
         }
     }

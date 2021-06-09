@@ -49,7 +49,7 @@ namespace Nexus.Link.Libraries.Crud.ClientTranslators
 
         /// <inheritdoc />
         public async Task<PageEnvelope<TModel>> ReadChildrenWithPagingAsync(string parentId, int offset, int? limit = null,
-        CancellationToken token = default(CancellationToken))
+        CancellationToken token = default)
         {
             var translator = CreateTranslator();
             parentId = translator.Decorate(_parentIdConceptName, parentId);
@@ -59,7 +59,7 @@ namespace Nexus.Link.Libraries.Crud.ClientTranslators
         }
 
         /// <inheritdoc />
-        public async Task<IEnumerable<TModel>> ReadChildrenAsync(string parentId, int limit = int.MaxValue, CancellationToken token = default(CancellationToken))
+        public async Task<IEnumerable<TModel>> ReadChildrenAsync(string parentId, int limit = int.MaxValue, CancellationToken token = default)
         {
             var translator = CreateTranslator();
             parentId = translator.Decorate(_parentIdConceptName, parentId);
@@ -70,7 +70,7 @@ namespace Nexus.Link.Libraries.Crud.ClientTranslators
         }
 
         /// <inheritdoc />
-        public async Task DeleteChildrenAsync(string masterId, CancellationToken token = default(CancellationToken))
+        public async Task DeleteChildrenAsync(string masterId, CancellationToken token = default)
         {
             var translator = CreateTranslator();
             masterId = translator.Decorate(_parentIdConceptName, masterId);
@@ -79,14 +79,14 @@ namespace Nexus.Link.Libraries.Crud.ClientTranslators
 
         /// <inheritdoc />
         public Task<PageEnvelope<TModel>> SearchChildrenAsync(string parentId, SearchDetails<TModel> details, int offset, int? limit = null,
-            CancellationToken cancellationToken = default(CancellationToken))
+            CancellationToken cancellationToken = default)
         {
             throw new NotImplementedException();
         }
 
         /// <inheritdoc />
         public Task<TModel> FindUniqueChildAsync(string parentId, SearchDetails<TModel> details,
-            CancellationToken cancellationToken = default(CancellationToken))
+            CancellationToken cancellationToken = default)
         {
             throw new NotImplementedException();
         }

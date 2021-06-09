@@ -25,7 +25,7 @@ namespace Nexus.Link.Libraries.Crud.UnitTests.Crd
             var initialItem = new TModelCreate();
             initialItem.InitializeWithDataForTesting(type);
             var id = await CrdStorage.CreateAsync(initialItem);
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreNotEqual(default(TId), id);
+            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreNotEqual(default, id);
             return id;
         }
 

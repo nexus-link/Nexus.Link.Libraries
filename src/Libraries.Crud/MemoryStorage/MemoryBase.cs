@@ -37,7 +37,7 @@ namespace Nexus.Link.Libraries.Crud.MemoryStorage
         /// <param name="service"></param>
         /// <param name="token">Propagates notification that operations should be canceled</param>
         /// <returns></returns>
-        protected virtual async Task<TModel> MaybeVerifyEtagForUpdateAsync(TId id, TModel item, IRead<TModel, TId> service, CancellationToken token = default(CancellationToken))
+        protected virtual async Task<TModel> MaybeVerifyEtagForUpdateAsync(TId id, TModel item, IRead<TModel, TId> service, CancellationToken token = default)
         {
             var oldItem = await service.ReadAsync(id, token);
             if (!(item is IOptimisticConcurrencyControlByETag etaggable)) return oldItem;
@@ -85,7 +85,7 @@ namespace Nexus.Link.Libraries.Crud.MemoryStorage
                 if (!okIfNotExists)
                     throw new FulcrumNotFoundException(
                         $"Could not find an item of type {typeof(TModel).Name} with id \"{id}\".");
-                return default(TModel);
+                return default;
             }
             var item = MemoryItems[id];
             FulcrumAssert.IsNotNull(item);

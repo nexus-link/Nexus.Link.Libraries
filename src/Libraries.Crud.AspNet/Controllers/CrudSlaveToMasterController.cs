@@ -117,7 +117,7 @@ namespace Nexus.Link.Libraries.Crud.AspNet.Controllers
         /// <inheritdoc />
         [SwaggerBadRequestResponse]
         [SwaggerInternalServerErrorResponse]
-        public virtual async Task<PageEnvelope<TModel>> ReadChildrenWithPagingAsync(string masterId, int offset, int? limit = null, CancellationToken token = default(CancellationToken))
+        public virtual async Task<PageEnvelope<TModel>> ReadChildrenWithPagingAsync(string masterId, int offset, int? limit = null, CancellationToken token = default)
         {
             ServiceContract.RequireNotNullOrWhiteSpace(masterId, nameof(masterId));
             ServiceContract.RequireGreaterThanOrEqualTo(0, offset, nameof(offset));
@@ -135,7 +135,7 @@ namespace Nexus.Link.Libraries.Crud.AspNet.Controllers
         /// <inheritdoc />
         [SwaggerBadRequestResponse]
         [SwaggerInternalServerErrorResponse]
-        public virtual async Task<IEnumerable<TModel>> ReadChildrenAsync(string parentId, int limit = int.MaxValue, CancellationToken token = default(CancellationToken))
+        public virtual async Task<IEnumerable<TModel>> ReadChildrenAsync(string parentId, int limit = int.MaxValue, CancellationToken token = default)
         {
             ServiceContract.RequireNotNullOrWhiteSpace(parentId, nameof(parentId));
             ServiceContract.RequireGreaterThan(0, limit, nameof(limit));
@@ -221,41 +221,41 @@ namespace Nexus.Link.Libraries.Crud.AspNet.Controllers
         }
 
         /// <inheritdoc />
-        public Task<SlaveLock<string>> ClaimDistributedLockAsync(string masterId, string slaveId, CancellationToken token = default(CancellationToken))
+        public Task<SlaveLock<string>> ClaimDistributedLockAsync(string masterId, string slaveId, CancellationToken token = default)
         {
             throw new NotImplementedException();
         }
 
         /// <inheritdoc />
         public Task ReleaseDistributedLockAsync(string masterId, string slaveId, string lockId,
-            CancellationToken token = default(CancellationToken))
+            CancellationToken token = default)
         {
             throw new NotImplementedException();
         }
 
         /// <inheritdoc />
-        public Task ClaimTransactionLockAsync(string masterId, string slaveId, CancellationToken token = default(CancellationToken))
+        public Task ClaimTransactionLockAsync(string masterId, string slaveId, CancellationToken token = default)
         {
             throw new NotImplementedException();
         }
 
         /// <inheritdoc />
         public Task<TModel> ClaimTransactionLockAndReadAsync(string masterId, string slaveId,
-            CancellationToken token = default(CancellationToken))
+            CancellationToken token = default)
         {
             throw new NotImplementedException();
         }
 
         /// <inheritdoc />
         public Task<PageEnvelope<TModel>> SearchChildrenAsync(string parentId, SearchDetails<TModel> details, int offset, int? limit = null,
-            CancellationToken cancellationToken = default(CancellationToken))
+            CancellationToken cancellationToken = default)
         {
             throw new NotImplementedException();
         }
 
         /// <inheritdoc />
         public Task<TModel> FindUniqueChildAsync(string parentId, SearchDetails<TModel> details,
-            CancellationToken cancellationToken = default(CancellationToken))
+            CancellationToken cancellationToken = default)
         {
             throw new NotImplementedException();
         }

@@ -21,17 +21,17 @@ namespace Nexus.Link.Libraries.Azure.Storage.File
         /// Return true if the directory exists already.
         /// </summary>
         /// <returns></returns>
-        Task<bool> ExistsAsync();
+        Task<bool> ExistsAsync(CancellationToken cancellationToken = default);
 
         /// <summary>
         /// If this directory does not exist, create it.
         /// </summary>
-        Task CreateIfNotExistsAsync();
+        Task CreateIfNotExistsAsync(CancellationToken cancellationToken = default);
 
         /// <summary>
         /// List the files of a directory
         /// </summary>
         /// <returns></returns>
-        Task<IEnumerable<IDirectoryListItem>> ListContentAsync(CancellationToken ct = default(CancellationToken));
+        Task<IEnumerable<IDirectoryListItem>> ListContentAsync(CancellationToken cancellationToken = default);
     }
 }

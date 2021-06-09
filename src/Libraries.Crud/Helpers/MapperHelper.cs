@@ -20,8 +20,8 @@ namespace Nexus.Link.Libraries.Crud.Helpers
         /// <exception cref="FulcrumNotImplementedException">Thrown if the type was not recognized. Please add that type to the class <see cref="MapperHelper"/>.</exception>
         public static TTarget MapToType<TTarget, TSource>(TSource source)
         {
-            if (source == null) return default(TTarget);
-            if (Equals(source, default(TSource))) return default(TTarget);
+            if (source == null) return default;
+            if (Equals(source, default(TSource))) return default;
             var sourceType = typeof(TSource);
             var targetType = typeof(TTarget);
             if (targetType == typeof(string))

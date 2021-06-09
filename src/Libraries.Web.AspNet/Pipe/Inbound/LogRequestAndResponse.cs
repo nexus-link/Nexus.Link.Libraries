@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
+using System.Threading;
 using System.Threading.Tasks;
 using Nexus.Link.Libraries.Core.Assert;
 using Nexus.Link.Libraries.Core.Logging;
@@ -17,7 +18,7 @@ namespace Nexus.Link.Libraries.Web.AspNet.Pipe.Inbound
     /// <summary>
     /// Logs requests and responses in the pipe
     /// </summary>
-    public class LogRequestAndResponse : CompatibilityDelegatingHandler
+    public class LogRequestAndResponse : CompatibilityDelegatingHandlerWithCancellationSupport
     {
         private static readonly DelegateState DelegateState = new DelegateState(typeof(LogRequestAndResponse).FullName);
 
@@ -42,7 +43,7 @@ namespace Nexus.Link.Libraries.Web.AspNet.Pipe.Inbound
         {
         }
 #endif
-        protected override async Task InvokeAsync(CompabilityInvocationContext context)
+        protected override async Task InvokeAsync(CompabilityInvocationContext context, CancellationToken cancellationToken)
         {
             InternalContract.Require(!DelegateState.HasStarted, $"{nameof(LogResponseAsync)} has already been started in this http request.");
             InternalContract.Require(!ExceptionToFulcrumResponse.HasStarted,
@@ -52,9 +53,9 @@ namespace Nexus.Link.Libraries.Web.AspNet.Pipe.Inbound
             stopwatch.Start();
             try
             {
-                await CallNextDelegateAsync(context);
+                await CallNextDelegateAsync(context, cancellationToken);
                 stopwatch.Stop();
-                await LogResponseAsync(context, stopwatch.Elapsed);
+                await LogResponseAsync(context, stopwatch.Elapsed, cancellationToken);
             }
             catch (Exception exception)
             {
@@ -65,7 +66,7 @@ namespace Nexus.Link.Libraries.Web.AspNet.Pipe.Inbound
             }
         }
 
-        private static async Task LogResponseAsync(CompabilityInvocationContext context, TimeSpan elapsedTime)
+        private static async Task LogResponseAsync(CompabilityInvocationContext context, TimeSpan elapsedTime, CancellationToken cancellationToken)
         {
             var logLevel = LogSeverityLevel.Information;
 #if NETCOREAPP

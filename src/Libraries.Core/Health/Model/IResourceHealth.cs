@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System.Threading;
+using System.Threading.Tasks;
 using Nexus.Link.Libraries.Core.MultiTenant.Model;
 
 namespace Nexus.Link.Libraries.Core.Health.Model
@@ -11,6 +12,6 @@ namespace Nexus.Link.Libraries.Core.Health.Model
         /// <summary>
         /// Get the health status for a specific <paramref name="tenant"/>.
         /// </summary>
-        Task<HealthResponse> GetResourceHealthAsync(Tenant tenant);
+        Task<HealthResponse> GetResourceHealthAsync(Tenant tenant, CancellationToken cancellationToken = default);
     }
 }

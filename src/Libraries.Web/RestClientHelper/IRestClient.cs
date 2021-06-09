@@ -26,7 +26,7 @@ namespace Nexus.Link.Libraries.Web.RestClientHelper
             string relativeUrl,
             TBody body,
             Dictionary<string, List<string>> customHeaders = null,
-            CancellationToken cancellationToken = default(CancellationToken));
+            CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Send POST to <paramref name="relativeUrl"/> with no body, but with a returned object.
@@ -39,7 +39,7 @@ namespace Nexus.Link.Libraries.Web.RestClientHelper
         Task<TResponse> PostAsync<TResponse>(
             string relativeUrl,
             Dictionary<string, List<string>> customHeaders = null,
-            CancellationToken cancellationToken = default(CancellationToken));
+            CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Send POST to <paramref name="relativeUrl"/> with <paramref name="body"/> with the created object as the returned value.
@@ -54,7 +54,7 @@ namespace Nexus.Link.Libraries.Web.RestClientHelper
             string relativeUrl,
             TBodyAndResponse body,
             Dictionary<string, List<string>> customHeaders = null,
-            CancellationToken cancellationToken = default(CancellationToken));
+            CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Send POST to <paramref name="relativeUrl"/> with <paramref name="body"/> with no returned value.
@@ -68,7 +68,7 @@ namespace Nexus.Link.Libraries.Web.RestClientHelper
             string relativeUrl,
             TBody body,
             Dictionary<string, List<string>> customHeaders = null,
-            CancellationToken cancellationToken = default(CancellationToken));
+            CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Post to <paramref name="relativeUrl"/> with no body and no returned value.
@@ -78,7 +78,7 @@ namespace Nexus.Link.Libraries.Web.RestClientHelper
         /// <param name="cancellationToken">Optional cancellation token.</param>
         Task PostNoResponseContentAsync(string relativeUrl,
             Dictionary<string, List<string>> customHeaders = null,
-            CancellationToken cancellationToken = default(CancellationToken));
+            CancellationToken cancellationToken = default);
         #endregion
 
         #region GET
@@ -94,7 +94,7 @@ namespace Nexus.Link.Libraries.Web.RestClientHelper
         Task<TResponse> GetAsync<TResponse>(
             string relativeUrl,
             Dictionary<string, List<string>> customHeaders = null,
-            CancellationToken cancellationToken = default(CancellationToken));
+            CancellationToken cancellationToken = default);
         #endregion
 
         #region PUT
@@ -112,7 +112,7 @@ namespace Nexus.Link.Libraries.Web.RestClientHelper
         Task<TResponse> PutAsync<TResponse, TBody>(
             string relativeUrl, TBody body,
             Dictionary<string, List<string>> customHeaders = null,
-            CancellationToken cancellationToken = default(CancellationToken));
+            CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Send PUT to <paramref name="relativeUrl"/> with <paramref name="body"/> with the updated object as the returned value.
@@ -127,7 +127,7 @@ namespace Nexus.Link.Libraries.Web.RestClientHelper
             string relativeUrl,
             TBodyAndResponse body,
             Dictionary<string, List<string>> customHeaders = null,
-            CancellationToken cancellationToken = default(CancellationToken));
+            CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Send PUT to <paramref name="relativeUrl"/> with <paramref name="body"/> with no returned value.
@@ -141,7 +141,7 @@ namespace Nexus.Link.Libraries.Web.RestClientHelper
             string relativeUrl,
             TBody body,
             Dictionary<string, List<string>> customHeaders = null,
-            CancellationToken cancellationToken = default(CancellationToken));
+            CancellationToken cancellationToken = default);
         #endregion
 
         #region PATCH
@@ -159,7 +159,7 @@ namespace Nexus.Link.Libraries.Web.RestClientHelper
         Task<TResponse> PatchAsync<TResponse, TBody>(
             string relativeUrl, TBody body,
             Dictionary<string, List<string>> customHeaders = null,
-            CancellationToken cancellationToken = default(CancellationToken));
+            CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Send PUT to <paramref name="relativeUrl"/> with <paramref name="body"/> with the updated object as the returned value.
@@ -174,7 +174,7 @@ namespace Nexus.Link.Libraries.Web.RestClientHelper
             string relativeUrl,
             TBodyAndResponse body,
             Dictionary<string, List<string>> customHeaders = null,
-            CancellationToken cancellationToken = default(CancellationToken));
+            CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Send PUT to <paramref name="relativeUrl"/> with <paramref name="body"/> with no returned value.
@@ -188,7 +188,7 @@ namespace Nexus.Link.Libraries.Web.RestClientHelper
             string relativeUrl,
             TBody body,
             Dictionary<string, List<string>> customHeaders = null,
-            CancellationToken cancellationToken = default(CancellationToken));
+            CancellationToken cancellationToken = default);
         #endregion
 
         #region DELETE
@@ -201,7 +201,7 @@ namespace Nexus.Link.Libraries.Web.RestClientHelper
         /// <param name="cancellationToken">Optional cancellation token.</param>
         Task DeleteAsync(string relativeUrl,
             Dictionary<string, List<string>> customHeaders = null,
-            CancellationToken cancellationToken = default(CancellationToken));
+            CancellationToken cancellationToken = default);
         #endregion
     }
 }

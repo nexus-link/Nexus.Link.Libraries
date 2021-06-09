@@ -48,7 +48,7 @@ namespace Nexus.Link.Libraries.Crud.ServerTranslators.To
 
         /// <inheritdoc />
         public async Task<PageEnvelope<TModel>> ReadChildrenWithPagingAsync(string parentId, int offset, int? limit = null,
-        CancellationToken token = default(CancellationToken))
+        CancellationToken token = default)
         {
             var translator = CreateTranslator();
             await translator.Add(parentId).ExecuteAsync(token);
@@ -57,7 +57,7 @@ namespace Nexus.Link.Libraries.Crud.ServerTranslators.To
         }
 
         /// <inheritdoc />
-        public async Task<IEnumerable<TModel>> ReadChildrenAsync(string parentId, int limit = int.MaxValue, CancellationToken token = default(CancellationToken))
+        public async Task<IEnumerable<TModel>> ReadChildrenAsync(string parentId, int limit = int.MaxValue, CancellationToken token = default)
         {
             var translator = CreateTranslator();
             await translator.Add(parentId).ExecuteAsync(token);
@@ -66,7 +66,7 @@ namespace Nexus.Link.Libraries.Crud.ServerTranslators.To
         }
 
         /// <inheritdoc />
-        public async Task DeleteChildrenAsync(string parentId, CancellationToken token = default(CancellationToken))
+        public async Task DeleteChildrenAsync(string parentId, CancellationToken token = default)
         {
             var translator = CreateTranslator();
             await translator.Add(parentId).ExecuteAsync(token);
@@ -76,14 +76,14 @@ namespace Nexus.Link.Libraries.Crud.ServerTranslators.To
 
         /// <inheritdoc />
         public Task<PageEnvelope<TModel>> SearchChildrenAsync(string parentId, SearchDetails<TModel> details, int offset, int? limit = null,
-            CancellationToken cancellationToken = default(CancellationToken))
+            CancellationToken cancellationToken = default)
         {
             throw new NotImplementedException();
         }
 
         /// <inheritdoc />
         public Task<TModel> FindUniqueChildAsync(string parentId, SearchDetails<TModel> details,
-            CancellationToken cancellationToken = default(CancellationToken))
+            CancellationToken cancellationToken = default)
         {
             throw new NotImplementedException();
         }

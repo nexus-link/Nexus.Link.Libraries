@@ -38,21 +38,21 @@ namespace Nexus.Link.Libraries.Crud.PassThrough
 
         /// <inheritdoc />
         public virtual Task<PageEnvelope<TModel>> ReadChildrenWithPagingAsync(TId parentId, int offset, int? limit = null,
-            CancellationToken token = default(CancellationToken))
+            CancellationToken token = default)
         {
             var implementation = CrudHelper.GetImplementationOrThrow<IReadChildrenWithPaging<TModel, TId>>(Service);
             return implementation.ReadChildrenWithPagingAsync(parentId, offset, limit, token);
         }
 
         /// <inheritdoc />
-        public virtual Task<IEnumerable<TModel>> ReadChildrenAsync(TId parentId, int limit = Int32.MaxValue, CancellationToken token = default(CancellationToken))
+        public virtual Task<IEnumerable<TModel>> ReadChildrenAsync(TId parentId, int limit = Int32.MaxValue, CancellationToken token = default)
         {
             var implementation = CrudHelper.GetImplementationOrThrow<IReadChildren<TModel, TId>>(Service);
             return implementation.ReadChildrenAsync(parentId, limit, token);
         }
 
         /// <inheritdoc />
-        public virtual Task DeleteChildrenAsync(TId parentId, CancellationToken token = default(CancellationToken))
+        public virtual Task DeleteChildrenAsync(TId parentId, CancellationToken token = default)
         {
             var implementation = CrudHelper.GetImplementationOrThrow<IDeleteChildren<TId>>(Service);
             return implementation.DeleteChildrenAsync(parentId, token);
@@ -60,7 +60,7 @@ namespace Nexus.Link.Libraries.Crud.PassThrough
 
         /// <inheritdoc />
         public Task<PageEnvelope<TModel>> SearchChildrenAsync(TId parentId, SearchDetails<TModel> details, int offset, int? limit = null,
-            CancellationToken cancellationToken = default(CancellationToken))
+            CancellationToken cancellationToken = default)
         {
             var implementation = CrudHelper.GetImplementationOrThrow<ISearchChildren<TModel, TId>>(Service);
             return implementation.SearchChildrenAsync(parentId, details, offset, limit, cancellationToken);
@@ -68,7 +68,7 @@ namespace Nexus.Link.Libraries.Crud.PassThrough
 
         /// <inheritdoc />
         public Task<TModel> FindUniqueChildAsync(TId parentId, SearchDetails<TModel> details,
-            CancellationToken cancellationToken = default(CancellationToken))
+            CancellationToken cancellationToken = default)
         {
             var implementation = CrudHelper.GetImplementationOrThrow<ISearchChildren<TModel, TId>>(Service);
             return implementation.FindUniqueChildAsync(parentId, details, cancellationToken);

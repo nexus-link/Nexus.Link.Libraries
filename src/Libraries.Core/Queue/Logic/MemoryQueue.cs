@@ -49,7 +49,7 @@ namespace Nexus.Link.Libraries.Core.Queue.Logic
         ///     The delegate must never fail.
         /// </summary>
         /// <param name="item">A queue item.</param>
-        public delegate Task QueueItemActionDelegate(T item);
+        public delegate Task QueueItemActionDelegate(T item, CancellationToken cancellationToken = default);
 
         private bool _actionsCanExecuteWithoutIndividualAwait;
         private readonly ConcurrentQueue<MessageEnvelope<T>> _queue;
@@ -146,7 +146,7 @@ namespace Nexus.Link.Libraries.Core.Queue.Logic
     public partial class MemoryQueue<T> : IWritableQueue<T>
     {
         /// <inheritdoc />
-        public async Task ClearAsync()
+        public async Task ClearAsync(CancellationToken cancellationToken = default)
         {
             if (_queue == null) return;
             while (_queue.TryDequeue(out _))
@@ -157,7 +157,7 @@ namespace Nexus.Link.Libraries.Core.Queue.Logic
         }
 
         /// <inheritdoc />
-        public Task AddMessageAsync(T message, TimeSpan? timeSpanToWait = null)
+        public Task AddMessageAsync(T message, TimeSpan? timeSpanToWait = null, CancellationToken cancellationToken = default)
         {
             AddMessage(message, timeSpanToWait);
             return Task.CompletedTask;
@@ -186,22 +186,22 @@ namespace Nexus.Link.Libraries.Core.Queue.Logic
                 _backgroundWorkerThread = null;
                 _backgroundWorkerThread =
                     ThreadHelper.FireAndForgetResetContext(async () =>
-                        await BackgroundWorker().ConfigureAwait(false));
+                        await BackgroundWorkerAsync(CancellationToken.None).ConfigureAwait(false));
             }
         }
 
-        private async Task BackgroundWorker()
+        private async Task BackgroundWorkerAsync(CancellationToken cancellationToken)
         {
             while (!_queue.IsEmpty)
             {
                 if (_actionsCanExecuteWithoutIndividualAwait)
-                    await CallCallbackUntilQueueIsEmptyWithCollectionAwaitAsync();
+                    await CallCallbackUntilQueueIsEmptyWithCollectionAwaitAsync(cancellationToken);
                 else
-                    await CallCallbackWithIndividualAwaitUntilQueueIsEmptyAsync();
+                    await CallCallbackWithIndividualAwaitUntilQueueIsEmptyAsync(cancellationToken);
 
                 // As it is somewhat expensive to start a new background worker, we will hang around 
                 // for a short while to see if new items appear on the queue.
-                await WaitForAdditionalItemsAsync(KeepQueueAliveTimeSpan);
+                await WaitForAdditionalItemsAsync(KeepQueueAliveTimeSpan, cancellationToken);
             }
             LatestItemFetchedAfterActiveTimeSpan = TimeSpan.Zero;
         }
@@ -209,17 +209,17 @@ namespace Nexus.Link.Libraries.Core.Queue.Logic
         /// <summary>
         ///     Await every call to the callback method.
         /// </summary>
-        private async Task CallCallbackWithIndividualAwaitUntilQueueIsEmptyAsync()
+        private async Task CallCallbackWithIndividualAwaitUntilQueueIsEmptyAsync(CancellationToken cancellationToken)
         {
             FulcrumAssert.IsTrue(!_actionsCanExecuteWithoutIndividualAwait);
             while (!_queue.IsEmpty)
             {
-                var message = await GetOneMessageWithPossibleDelayAsync();
+                var message = await GetOneMessageWithPossibleDelayAsync(cancellationToken);
                 if (Equals(message, default(T))) continue;
                 try
                 {
                     var messageIfException = $"QueueItemAction failed fore queue {Name} and item {message}.";
-                    await ThreadHelper.ExecuteActionFailSafeAsync(async () => await _queueItemAction(message),
+                    await ThreadHelper.ExecuteActionFailSafeAsync(async () => await _queueItemAction(message, cancellationToken),
                         messageIfException);
                 }
                 catch (Exception e)
@@ -235,7 +235,7 @@ namespace Nexus.Link.Libraries.Core.Queue.Logic
         /// <summary>
         ///     Call all items in the queue asynchronously before awaiting them all.
         /// </summary>
-        private async Task CallCallbackUntilQueueIsEmptyWithCollectionAwaitAsync()
+        private async Task CallCallbackUntilQueueIsEmptyWithCollectionAwaitAsync(CancellationToken cancellationToken)
         {
             FulcrumAssert.IsTrue(_actionsCanExecuteWithoutIndividualAwait);
             var previousTaskList = new List<Task>();
@@ -243,18 +243,18 @@ namespace Nexus.Link.Libraries.Core.Queue.Logic
             var currentTasksCount = 0;
             while (!_queue.IsEmpty)
             {
-                var message = await GetOneMessageNoBlockAsync();
+                var message = await GetOneMessageNoBlockAsync(cancellationToken);
                 if (Equals(message, default(T)))
                 {
                     if (_queue.IsEmpty) break;
                     // We have items in the queue that are waiting for the correct time, so wait a second
-                    currentTaskList.Add(Task.Delay(TimeSpan.FromMilliseconds(1000)));
-                    await AwaitAllFailSafeAsync(previousTaskList);
-                    await AwaitAllFailSafeAsync(currentTaskList);
+                    currentTaskList.Add(Task.Delay(TimeSpan.FromMilliseconds(1000), cancellationToken));
+                    await AwaitAllFailSafeAsync(previousTaskList, cancellationToken);
+                    await AwaitAllFailSafeAsync(currentTaskList, cancellationToken);
                     continue;
                 }
                 var messageIfException = $"QueueItemAction failed fore queue {Name} and item {message}.";
-                var task = ThreadHelper.ExecuteActionFailSafeAsync(async () => await _queueItemAction(message),
+                var task = ThreadHelper.ExecuteActionFailSafeAsync(async () => await _queueItemAction(message, cancellationToken),
                     messageIfException);
                 currentTaskList.Add(task);
                 currentTasksCount++;
@@ -264,17 +264,17 @@ namespace Nexus.Link.Libraries.Core.Queue.Logic
                 // The next time that the task list has reached its max, we will await the archived tasks. The plan
                 // here is that the archived tasks should now have completed (when we have been filling the current task list),
                 // so awaiting them will not make the execution pause.
-                await AwaitAllFailSafeAsync(previousTaskList);
+                await AwaitAllFailSafeAsync(previousTaskList, cancellationToken);
                 previousTaskList = currentTaskList;
                 currentTaskList = new List<Task>();
                 currentTasksCount = 0;
             }
 
-            await AwaitAllFailSafeAsync(previousTaskList);
-            await AwaitAllFailSafeAsync(currentTaskList);
+            await AwaitAllFailSafeAsync(previousTaskList, cancellationToken);
+            await AwaitAllFailSafeAsync(currentTaskList, cancellationToken);
         }
 
-        private static async Task AwaitAllFailSafeAsync(ICollection<Task> taskList)
+        private static async Task AwaitAllFailSafeAsync(ICollection<Task> taskList, CancellationToken cancellationToken)
         {
             try
             {
@@ -293,21 +293,21 @@ namespace Nexus.Link.Libraries.Core.Queue.Logic
             }
         }
 
-        private async Task<T> GetOneMessageWithPossibleDelayAsync()
+        private async Task<T> GetOneMessageWithPossibleDelayAsync(CancellationToken cancellationToken)
         {
             var message = await GetOneMessageNoBlockAsync();
-            if (!_queue.IsEmpty && Equals(message, default(T))) await Task.Delay(TimeSpan.FromMilliseconds(1000));
+            if (!_queue.IsEmpty && Equals(message, default(T))) await Task.Delay(TimeSpan.FromMilliseconds(1000), cancellationToken);
 
             return message;
         }
 
-        private async Task WaitForAdditionalItemsAsync(TimeSpan timeSpan)
+        private async Task WaitForAdditionalItemsAsync(TimeSpan timeSpan, CancellationToken cancellationToken)
         {
             var deadline = DateTimeOffset.Now.Add(timeSpan);
             while (DateTimeOffset.Now < deadline)
             {
                 if (!_queue.IsEmpty) return;
-                await Task.Delay(TimeSpan.FromMilliseconds(10));
+                await Task.Delay(TimeSpan.FromMilliseconds(10), cancellationToken);
             }
         }
     }
@@ -323,7 +323,7 @@ namespace Nexus.Link.Libraries.Core.Queue.Logic
 
     public partial class MemoryQueue<T> : ICountableQueue
     {
-        public async Task<int?> GetApproximateMessageCountAsync()
+        public async Task<int?> GetApproximateMessageCountAsync(CancellationToken cancellationToken = default)
         {
             return await Task.FromResult(_queue.Count);
         }
@@ -332,7 +332,7 @@ namespace Nexus.Link.Libraries.Core.Queue.Logic
     public partial class MemoryQueue<T> : IReadableQueue<T>
     {
         /// <inheritdoc />
-        public async Task<T> GetOneMessageNoBlockAsync()
+        public async Task<T> GetOneMessageNoBlockAsync(CancellationToken cancellationToken = default)
         {
             var triedItems = new Dictionary<Guid, MessageEnvelope<T>>();
             while (true)
@@ -341,7 +341,7 @@ namespace Nexus.Link.Libraries.Core.Queue.Logic
                 {
                     // Empty queue means no waiting time.
                     LatestItemFetchedAfterActiveTimeSpan = TimeSpan.Zero;
-                    return default(T);
+                    return default;
                 }
 
                 if (envelope.IsActivationTime)
@@ -358,7 +358,7 @@ namespace Nexus.Link.Libraries.Core.Queue.Logic
                 {
                     // We have looped through all waiting items in the queue
                     LatestItemFetchedAfterActiveTimeSpan = TimeSpan.Zero;
-                    return default(T);
+                    return default;
                 }
                 triedItems.Add(envelope.Id, envelope);
             }
@@ -368,7 +368,7 @@ namespace Nexus.Link.Libraries.Core.Queue.Logic
     public partial class MemoryQueue<T> : IPeekableQueue<T>
     {
         /// <inheritdoc />
-        public Task<T> PeekNoBlockAsync()
+        public Task<T> PeekNoBlockAsync(CancellationToken cancellationToken = default)
         {
             if (!_queue.TryPeek(out var item)) return Task.FromResult(default(T));
             return item.IsActivationTime ? Task.FromResult(item.Message) : Task.FromResult(default(T));
@@ -379,7 +379,7 @@ namespace Nexus.Link.Libraries.Core.Queue.Logic
     public partial class MemoryQueue<T> : IResourceHealth
     {
         /// <inheritdoc />
-        public async Task<HealthResponse> GetResourceHealthAsync(Tenant tenant)
+        public async Task<HealthResponse> GetResourceHealthAsync(Tenant tenant, CancellationToken cancellationToken = default)
         {
             return await Task.FromResult(new HealthResponse("MemoryQueue"));
         }

@@ -63,7 +63,7 @@ namespace Nexus.Link.Libraries.Core.Threads
         /// </summary>
         /// <param name="asyncMethod">The action to run in the background.</param>
         /// <param name="token">Propagates notification that operations should be canceled</param>
-        public async Task ExecuteActionFailSafeAsync(Func<CancellationToken, Task> asyncMethod, CancellationToken token = default(CancellationToken))
+        public async Task ExecuteActionFailSafeAsync(Func<CancellationToken, Task> asyncMethod, CancellationToken token = default)
         {
             try
             {

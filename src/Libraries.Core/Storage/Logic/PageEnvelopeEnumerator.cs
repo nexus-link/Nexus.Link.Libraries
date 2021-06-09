@@ -30,7 +30,7 @@ namespace Nexus.Link.Libraries.Core.Storage.Logic
         /// </summary>
         /// <param name="readMethodDelegate">A method that returns a new page of answers for a specific offset.</param>
         /// <param name="token">Propagates notification that operations should be canceled</param>
-        public PageEnvelopeEnumerator(ReadMethodDelegate readMethodDelegate, CancellationToken token = default(CancellationToken))
+        public PageEnvelopeEnumerator(ReadMethodDelegate readMethodDelegate, CancellationToken token = default)
         {
             _readMethodDelegate = readMethodDelegate;
             _token = token;
@@ -84,7 +84,7 @@ namespace Nexus.Link.Libraries.Core.Storage.Logic
         }
 
         /// <inheritdoc />
-        public T Current => _dataEnumerator == null ? default(T) : _dataEnumerator.Current;
+        public T Current => _dataEnumerator == null ? default : _dataEnumerator.Current;
 
         object IEnumerator.Current => Current;
     }

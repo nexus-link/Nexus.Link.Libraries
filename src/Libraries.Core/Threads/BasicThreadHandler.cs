@@ -9,7 +9,7 @@ namespace Nexus.Link.Libraries.Core.Threads
     public class BasicThreadHandler : IThreadHandler
     {
         /// <inheritdoc />
-        public Thread FireAndForget(Action<CancellationToken> action, CancellationToken token = default(CancellationToken))
+        public Thread FireAndForget(Action<CancellationToken> action, CancellationToken token = default)
         {
             var thread = new Thread(() => action(token));
             thread.Start();

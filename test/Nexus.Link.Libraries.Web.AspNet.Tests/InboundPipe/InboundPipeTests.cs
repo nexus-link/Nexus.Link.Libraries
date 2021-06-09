@@ -624,7 +624,7 @@ namespace Nexus.Link.Libraries.Web.AspNet.Tests.InboundPipe
             var innerAction = new RequestDelegate(async ctx => await Task.Yield());
             var constructorArgs1 = new List<object> { innerAction };
             if (useConstructorArgs) constructorArgs1.Add(constructorArg);
-            var innerHandler = (CompatibilityDelegatingHandler)Activator.CreateInstance(handlerType, constructorArgs1.ToArray());
+            var innerHandler = (CompatibilityDelegatingHandlerWithCancellationSupport)Activator.CreateInstance(handlerType, constructorArgs1.ToArray());
 
             var context = new DefaultHttpContext();
             SetRequest(context, url);
@@ -632,7 +632,7 @@ namespace Nexus.Link.Libraries.Web.AspNet.Tests.InboundPipe
             var outerAction = new RequestDelegate(async ctx => await innerHandler.InvokeAsync(context));
             var constructorArgs2 = new List<object>() { outerAction };
             if (useConstructorArgs) constructorArgs2.Add(constructorArg);
-            var outerHandler = (CompatibilityDelegatingHandler)Activator.CreateInstance(handlerType, constructorArgs2.ToArray());
+            var outerHandler = (CompatibilityDelegatingHandlerWithCancellationSupport)Activator.CreateInstance(handlerType, constructorArgs2.ToArray());
 #else
             var constructorArgs = useConstructorArgs ? new[] { constructorArg } : null;
             var outerHandler = (DelegatingHandler)Activator.CreateInstance(handlerType, constructorArgs);

@@ -1,9 +1,10 @@
-﻿using System.Threading.Tasks;
+﻿using System.Threading;
+using System.Threading.Tasks;
 
 namespace Nexus.Link.Libraries.Core.Queue.Model
 {
     public interface ICountableQueue : IBaseQueue
     {
-        Task<int?> GetApproximateMessageCountAsync();
+        Task<int?> GetApproximateMessageCountAsync(CancellationToken cancellationToken = default);
     }
 }
