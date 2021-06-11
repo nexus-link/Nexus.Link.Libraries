@@ -19,7 +19,7 @@
     <Copyright>Copyright ©2019 Xlent Link AB</Copyright>
     <IncludeSymbols>true</IncludeSymbols>
     <PackageReleaseNotes>
-      3.0.2 Found cancellation support missing
+      3.0.3 Added missing cancellation support
       3.0.1 Old obsolete stuff with errors has been deleted and old with warning has been updated to error.
       3.0.0 Breaking change. Added cancellation support where it was missing. A "nice" breaking change; you may get some compilation errors, but that is only due to some interfaces that now requires a CancellationToken parameter.
       2.6.0 Added ClaimTransactionLockAndReadAsycn()

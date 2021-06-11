@@ -26,7 +26,7 @@ namespace Nexus.Link.Libraries.Crud.Interfaces
         Task ClaimTransactionLockAsync(TId masterId, TId slaveId, CancellationToken token = default);
 
         /// <summary>
-        /// Returns the item uniquely identified by <paramref name="masterId"/> and <paramref name="id"/> from storage and locks it with a transactional lock.
+        /// Returns the item uniquely identified by <paramref name="masterId"/> and <paramref name="slaveId"/> from storage and locks it with a transactional lock.
         /// </summary>
         /// <param name="masterId">The id for the master object.</param>
         /// <param name="slaveId">The id for the slave object.</param>

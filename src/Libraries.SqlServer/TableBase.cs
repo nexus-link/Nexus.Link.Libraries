@@ -64,7 +64,7 @@ namespace Nexus.Link.Libraries.SqlServer
             InternalContract.RequireGreaterThanOrEqualTo(0, offset, nameof(offset));
             InternalContract.RequireGreaterThanOrEqualTo(0, limit.Value, nameof(limit));
             var total = await CountItemsWhereAsync(where, param, token);
-            var data = await InternalSearchWhereAsync(param, where, orderBy, offset, limit.Value);
+            var data = await InternalSearchWhereAsync(param, where, orderBy, offset, limit.Value, token);
             var dataAsArray = data as TDatabaseItem[] ?? data.ToArray();
             return new PageEnvelope<TDatabaseItem>
             {
@@ -118,7 +118,7 @@ namespace Nexus.Link.Libraries.SqlServer
         /// <inheritdoc />
         public async Task<TDatabaseItem> SearchFirstWhereAsync(string where = null, string orderBy = null, object param = null, CancellationToken token = default)
         {
-            var result = await InternalSearchWhereAsync(param, where, orderBy, 0, 1);
+            var result = await InternalSearchWhereAsync(param, where, orderBy, 0, 1, token);
             return result.SingleOrDefault();
         }
 
@@ -126,7 +126,7 @@ namespace Nexus.Link.Libraries.SqlServer
         public async Task<TDatabaseItem> SearchFirstAdvancedAsync(string selectStatement, string orderBy = null, object param = null, CancellationToken token = default)
         {
             InternalContract.RequireNotNullOrWhiteSpace(selectStatement, nameof(selectStatement));
-            var result = await InternalSearchAsync(param, selectStatement, orderBy, 0, 1);
+            var result = await InternalSearchAsync(param, selectStatement, orderBy, 0, 1, token);
             return result.SingleOrDefault();
         }
 
@@ -138,7 +138,7 @@ namespace Nexus.Link.Libraries.SqlServer
             InternalContract.RequireGreaterThanOrEqualTo(0, limit.Value, nameof(limit));
             var total = await CountItemsAdvancedAsync(countFirst, selectRest, param, token);
             var selectStatement = selectRest == null ? null : $"{selectFirst} {selectRest}";
-            var data = await InternalSearchAsync(param, selectStatement, orderBy, offset, limit.Value);
+            var data = await InternalSearchAsync(param, selectStatement, orderBy, offset, limit.Value, token);
             var dataAsArray = data as TDatabaseItem[] ?? data.ToArray();
             return new PageEnvelope<TDatabaseItem>
             {
@@ -164,12 +164,12 @@ namespace Nexus.Link.Libraries.SqlServer
         /// <param name="limit">The maximum number of items to return.</param>
         /// <returns>The found items.</returns>
         protected async Task<IEnumerable<TDatabaseItem>> InternalSearchWhereAsync(object param, string where, string orderBy,
-            int offset, int limit)
+            int offset, int limit, CancellationToken cancellationToken = default)
         {
             InternalContract.RequireGreaterThanOrEqualTo(0, offset, nameof(offset));
             InternalContract.RequireGreaterThanOrEqualTo(0, limit, nameof(limit));
             where = where ?? "1=1";
-            return await InternalSearchAsync(param, $"SELECT * FROM [{TableMetadata.TableName}] WHERE ({where})", orderBy, offset, limit);
+            return await InternalSearchAsync(param, $"SELECT * FROM [{TableMetadata.TableName}] WHERE ({where})", orderBy, offset, limit, cancellationToken);
         }
 
         /// <summary>
@@ -183,7 +183,7 @@ namespace Nexus.Link.Libraries.SqlServer
         /// <returns>The found items.</returns>
         /// 
         protected async Task<IEnumerable<TDatabaseItem>> InternalSearchAsync(object param, string selectStatement, string orderBy,
-            int offset, int limit)
+            int offset, int limit, CancellationToken cancellationToken = default)
         {
             InternalContract.RequireGreaterThanOrEqualTo(0, offset, nameof(offset));
             InternalContract.RequireGreaterThanOrEqualTo(0, limit, nameof(limit));
@@ -192,7 +192,7 @@ namespace Nexus.Link.Libraries.SqlServer
             var sqlQuery = $"{selectStatement} " +
                            $" ORDER BY {orderBy}" +
                            $" OFFSET {offset} ROWS FETCH NEXT {limit} ROWS ONLY";
-            return await QueryAsync(sqlQuery, param);
+            return await QueryAsync(sqlQuery, param, cancellationToken);
         }
 
 

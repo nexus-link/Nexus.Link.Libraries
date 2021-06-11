@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Caching.Distributed;
 using Nexus.Link.Libraries.Crud.Cache;
@@ -23,80 +24,80 @@ namespace Nexus.Link.Libraries.Crud.Test.Cache
             BaseGuidString = Guid.NewGuid().ToString();
         }
 
-        protected async Task PrepareStorageAndCacheAsync(Guid id, TModel storageValue, TModel cacheValue)
+        protected async Task PrepareStorageAndCacheAsync(Guid id, TModel storageValue, TModel cacheValue, CancellationToken cancellationToken = default)
         {
-            await PrepareStorageAsync(id, storageValue);
-            await PrepareCacheAsync(id, cacheValue);
+            await PrepareStorageAsync(id, storageValue, cancellationToken);
+            await PrepareCacheAsync(id, cacheValue, cancellationToken);
         }
 
-        protected async Task PrepareCacheAsync(Guid id, TModel cacheValue)
+        protected async Task PrepareCacheAsync(Guid id, TModel cacheValue, CancellationToken cancellationToken = default)
         {
             if (cacheValue == null)
             {
-                await Cache.RemoveAsync(id.ToString());
+                await Cache.RemoveAsync(id.ToString(), cancellationToken);
             }
             else
             {
-                await Cache.SetAsync(id.ToString(), CrudAutoCache.ToSerializedCacheEnvelope(cacheValue), DistributedCacheOptions);
+                await Cache.SetAsync(id.ToString(), CrudAutoCache.ToSerializedCacheEnvelope(cacheValue), DistributedCacheOptions, cancellationToken);
             }
         }
 
-        protected async Task PrepareStorageAsync(Guid id, TModel storageValue)
+        protected async Task PrepareStorageAsync(Guid id, TModel storageValue, CancellationToken cancellationToken = default)
         {
             if (storageValue == null)
             {
-                await CrudStorage.DeleteAsync(id);
+                await CrudStorage.DeleteAsync(id, cancellationToken);
             }
             else
             {
-                var value = await CrudStorage.ReadAsync(id);
-                if (value == null) await CrudStorage.CreateWithSpecifiedIdAsync(id, storageValue);
-                else if (!Equals(value, storageValue)) await CrudStorage.UpdateAsync(id, storageValue);
+                var value = await CrudStorage.ReadAsync(id, cancellationToken);
+                if (value == null) await CrudStorage.CreateWithSpecifiedIdAsync(id, storageValue, cancellationToken);
+                else if (!Equals(value, storageValue)) await CrudStorage.UpdateAsync(id, storageValue, cancellationToken);
             }
         }
 
-        protected async Task VerifyAsync(Guid id, TModel expectedStorageValue, TModel expectedCacheValueBefore, TModel expectedReadValue, TModel expectedCacheValueAfter)
+        protected async Task VerifyAsync(Guid id, TModel expectedStorageValue, TModel expectedCacheValueBefore, TModel expectedReadValue, TModel expectedCacheValueAfter, CancellationToken cancellationToken = default)
         {
-            await VerifyStorage(id, expectedStorageValue);
-            await VerifyCache(id, expectedCacheValueBefore, true);
-            await VerifyRead(id, expectedReadValue);
-            await VerifyCache(id, expectedCacheValueAfter, false);
+            await VerifyStorage(id, expectedStorageValue, cancellationToken);
+            await VerifyCache(id, expectedCacheValueBefore, true, cancellationToken);
+            await VerifyRead(id, expectedReadValue, cancellationToken);
+            await VerifyCache(id, expectedCacheValueAfter, false, cancellationToken);
         }
 
-        protected async Task VerifyAsync(Guid id, TModel expectedStorageValue, TModel expectedCacheValueBefore, TModel expectedReadValue)
+        protected async Task VerifyAsync(Guid id, TModel expectedStorageValue, TModel expectedCacheValueBefore, TModel expectedReadValue, CancellationToken cancellationToken = default)
         {
-            await VerifyStorage(id, expectedStorageValue);
-            await VerifyCache(id, expectedCacheValueBefore, true);
-            await VerifyRead(id, expectedReadValue);
-            await VerifyCache(id, expectedReadValue, false);
+            await VerifyStorage(id, expectedStorageValue, cancellationToken);
+            await VerifyCache(id, expectedCacheValueBefore, true, cancellationToken);
+            await VerifyRead(id, expectedReadValue, cancellationToken);
+            await VerifyCache(id, expectedReadValue, false, cancellationToken);
         }
 
-        protected async Task VerifyAsync(Guid id, TModel expectedStorageValue, TModel expectedCacheValueBefore)
+        protected async Task VerifyAsync(Guid id, TModel expectedStorageValue, TModel expectedCacheValueBefore, CancellationToken cancellationToken = default)
         {
-            await VerifyStorage(id, expectedStorageValue);
-            await VerifyCache(id, expectedCacheValueBefore, true);
-            await VerifyRead(id, expectedCacheValueBefore);
-            await VerifyCache(id, expectedCacheValueBefore, false);
+            await VerifyStorage(id, expectedStorageValue, cancellationToken);
+            await VerifyCache(id, expectedCacheValueBefore, true, cancellationToken);
+            await VerifyRead(id, expectedCacheValueBefore, cancellationToken);
+            await VerifyCache(id, expectedCacheValueBefore, false, cancellationToken);
         }
 
-        protected async Task VerifyAsync(Guid id, TModel expectedStorageValue)
+        protected async Task VerifyAsync(Guid id, TModel expectedStorageValue, CancellationToken cancellationToken = default)
         {
-            await VerifyStorage(id, expectedStorageValue);
-            await VerifyCache(id, expectedStorageValue, true);
-            await VerifyRead(id, expectedStorageValue);
-            await VerifyCache(id, expectedStorageValue, false);
+            await VerifyStorage(id, expectedStorageValue, cancellationToken);
+            await VerifyCache(id, expectedStorageValue, true, cancellationToken);
+            await VerifyRead(id, expectedStorageValue, cancellationToken);
+            await VerifyCache(id, expectedStorageValue, false, cancellationToken);
         }
 
-        protected async Task VerifyStorage(Guid id, TModel expectedStorageValue)
+        protected async Task VerifyStorage(Guid id, TModel expectedStorageValue, CancellationToken cancellationToken = default)
         {
-            var actualStorageValue = await CrudStorage.ReadAsync(id);
+            var actualStorageValue = await CrudStorage.ReadAsync(id, cancellationToken);
             Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual(expectedStorageValue, actualStorageValue, "Storage verification failed.");
         }
 
-        protected async Task VerifyCache(Guid id, TModel expectedCacheValue, bool isBeforeRead)
+        protected async Task VerifyCache(Guid id, TModel expectedCacheValue, bool isBeforeRead, CancellationToken cancellationToken = default)
         {
             var beforeOrAfter = isBeforeRead ? "before" : "after";
-            var actualCacheSerializedValue = await Cache.GetAsync(id.ToString());
+            var actualCacheSerializedValue = await Cache.GetAsync(id.ToString(), cancellationToken);
             if (actualCacheSerializedValue == null)
             {
                 Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsNull(expectedCacheValue, $"Cache value was null, but expected \"{expectedCacheValue}\" {beforeOrAfter} read.");
@@ -108,9 +109,9 @@ namespace Nexus.Link.Libraries.Crud.Test.Cache
             }
         }
 
-        protected async Task VerifyRead(Guid id, TModel expectedReadValue)
+        protected async Task VerifyRead(Guid id, TModel expectedReadValue, CancellationToken cancellationToken = default)
         {
-            var actualReadValue = await CrudAutoCache.ReadAsync(id);
+            var actualReadValue = await CrudAutoCache.ReadAsync(id, cancellationToken);
             Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual(expectedReadValue, actualReadValue, "CrudAutoCache Read verification failed.");
         }
 
