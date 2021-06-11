@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System.Threading;
+using System.Threading.Tasks;
 using Nexus.Link.Libraries.Core.Application;
 using Nexus.Link.Libraries.Core.Assert;
 using Nexus.Link.Libraries.Core.Error.Logic;
@@ -14,7 +15,7 @@ namespace Nexus.Link.Libraries.Web.AspNet.Pipe.Inbound
     /// Extracts organization and environment values from request uri and adds these values to an execution context. 
     /// These values are later used to get organization and environment specific configurations for logging and request handling. 
     /// </summary>
-    public class SaveClientTenantConfiguration : CompatibilityDelegatingHandler
+    public class SaveClientTenantConfiguration : CompatibilityDelegatingHandlerWithCancellationSupport
     {
         private readonly ILeverServiceConfiguration _serviceConfiguration;
         private static readonly DelegateState DelegateState = new DelegateState(typeof(SaveClientTenantConfiguration).FullName);
@@ -42,7 +43,7 @@ namespace Nexus.Link.Libraries.Web.AspNet.Pipe.Inbound
         }
 #endif
 
-        protected override async Task InvokeAsync(CompabilityInvocationContext context)
+        protected override async Task InvokeAsync(CompabilityInvocationContext context, CancellationToken cancellationToken)
         {
             InternalContract.Require(!DelegateState.HasStarted, $"{nameof(SaveClientTenantConfiguration)} has already been started in this http request.");
             InternalContract.Require(SaveClientTenant.HasStarted,
@@ -64,8 +65,7 @@ namespace Nexus.Link.Libraries.Web.AspNet.Pipe.Inbound
                     }
 
                     FulcrumApplication.Context.LeverConfiguration =
-                        await _serviceConfiguration.GetConfigurationForAsync(
-                            tenant);
+                        await _serviceConfiguration.GetConfigurationForAsync(tenant);
                 }
                 catch (FulcrumUnauthorizedException e)
                 {
@@ -77,7 +77,7 @@ namespace Nexus.Link.Libraries.Web.AspNet.Pipe.Inbound
                 }
             }
 
-            await CallNextDelegateAsync(context);
+            await CallNextDelegateAsync(context, cancellationToken);
         }
     }
 #if NETCOREAPP

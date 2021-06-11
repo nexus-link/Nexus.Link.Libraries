@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System.Threading;
+using System.Threading.Tasks;
 using Nexus.Link.Libraries.Core.Application;
 using Nexus.Link.Libraries.Core.Assert;
 using Nexus.Link.Libraries.Core.Logging;
@@ -13,7 +14,7 @@ namespace Nexus.Link.Libraries.Web.AspNet.Pipe.Inbound
     /// Adds a <see cref="BatchLogger.StartBatch"/> before the call and a <see cref="BatchLogger.EndBatch"/>  after the call.
     /// To use this, you have to add the <see cref="BatchLogger"/> as your FulcrumApplication.Setup.SynchronousFastLogger.
     /// </summary>
-    public class BatchLogs : CompatibilityDelegatingHandler
+    public class BatchLogs : CompatibilityDelegatingHandlerWithCancellationSupport
     {
         private readonly LogSeverityLevel _logAllThreshold;
         private readonly bool _releaseRecordsAsLateAsPossible;
@@ -62,7 +63,7 @@ namespace Nexus.Link.Libraries.Web.AspNet.Pipe.Inbound
         }
 #endif
         /// <inheritdoc />
-        protected override async Task InvokeAsync(CompabilityInvocationContext context)
+        protected override async Task InvokeAsync(CompabilityInvocationContext context, CancellationToken cancellationToken)
         {
             InternalContract.Require(!LogRequestAndResponse.HasStarted,
                 $"{nameof(LogRequestAndResponse)} must not precede {nameof(SaveCorrelationId)}");
@@ -72,7 +73,7 @@ namespace Nexus.Link.Libraries.Web.AspNet.Pipe.Inbound
             BatchLogger.StartBatch(_logAllThreshold, _releaseRecordsAsLateAsPossible);
             try
             {
-                await CallNextDelegateAsync(context);
+                await CallNextDelegateAsync(context, cancellationToken);
             }
             finally
             {

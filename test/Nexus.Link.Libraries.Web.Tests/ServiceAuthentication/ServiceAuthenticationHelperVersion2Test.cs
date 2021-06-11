@@ -413,7 +413,12 @@ namespace Nexus.Link.Libraries.Web.Tests.ServiceAuthentication
         public async Task ConfigurationFromJsonFile()
         {
             // https://docs.nexus.link/docs/client-authentication-methods
-            LeverConfiguration = new MockLeverConfiguration(JObject.Parse(File.ReadAllText($"{AppDomain.CurrentDomain.BaseDirectory}\\ServiceAuthentication\\auth-config.json")));
+#if NETCOREAPP
+            var configAsJson = await File.ReadAllTextAsync($"{AppDomain.CurrentDomain.BaseDirectory}\\ServiceAuthentication\\auth-config.json");
+#else
+            var configAsJson = File.ReadAllText($"{AppDomain.CurrentDomain.BaseDirectory}\\ServiceAuthentication\\auth-config.json");
+#endif
+            LeverConfiguration = new MockLeverConfiguration(JObject.Parse(configAsJson));
 
             var result = await _authenticationHelper.GetAuthorizationForClientAsync(Tenant, LeverConfiguration, "client-a");
             Assert.AreEqual("basic", result.Type.ToLowerInvariant());

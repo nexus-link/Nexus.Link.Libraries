@@ -50,9 +50,9 @@ namespace Nexus.Link.Libraries.Web.Pipe.Outbound
                     response = await UnitTest_SendAsyncDependencyInjection(request, cancellationToken);
                 }
 
-                requestDescription = $"OUT request-response {await request.ToLogStringAsync(response)}";
+                requestDescription = $"OUT request-response {await request.ToLogStringAsync(response, cancellationToken: cancellationToken)}";
 
-                fulcrumException = await ExceptionConverter.ToFulcrumExceptionAsync(response);
+                fulcrumException = await ExceptionConverter.ToFulcrumExceptionAsync(response, cancellationToken);
                 if (fulcrumException == null) return response;
             }
             catch (FulcrumException e)

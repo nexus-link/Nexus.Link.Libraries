@@ -28,6 +28,6 @@ namespace Nexus.Link.Libraries.Crud.Interfaces
         /// <param name="item">The item to store.</param>
         /// <param name="token">Propagates notification that operations should be canceled</param>
         /// <returns>The new id for the created object.</returns>
-        Task<TId> CreateAsync(TModelCreate item, CancellationToken token = default(CancellationToken));
+        Task<TId> CreateAsync(TModelCreate item, CancellationToken token = default);
     }
 }

@@ -74,7 +74,7 @@ namespace Nexus.Link.Libraries.SqlServer
         }
 
         /// <inheritdoc />
-        public async Task CreateWithSpecifiedIdAsync(Guid id, TDatabaseItemCreate item, CancellationToken token = default(CancellationToken))
+        public async Task CreateWithSpecifiedIdAsync(Guid id, TDatabaseItemCreate item, CancellationToken token = default)
         {
             InternalContract.RequireNotDefaultValue(id, nameof(id));
             InternalContract.RequireNotNull(item, nameof(item));
@@ -108,19 +108,19 @@ namespace Nexus.Link.Libraries.SqlServer
         }
 
         /// <inheritdoc />
-        public async Task DeleteAsync(Guid id, CancellationToken token = default(CancellationToken))
+        public async Task DeleteAsync(Guid id, CancellationToken token = default)
         {
             InternalContract.RequireNotDefaultValue(id, nameof(id));
             await DeleteWhereAsync("Id=@Id", new { Id = id }, token);
         }
 
         /// <inheritdoc />
-        public async Task DeleteAllAsync(CancellationToken token = default(CancellationToken))
+        public async Task DeleteAllAsync(CancellationToken token = default)
         {
             await DeleteWhereAsync("1=1", null, token);
         }
 
-        public Task<PageEnvelope<TDatabaseItem>> ReadAllWithPagingAsync(int offset, int? limit = null, CancellationToken token = default(CancellationToken))
+        public Task<PageEnvelope<TDatabaseItem>> ReadAllWithPagingAsync(int offset, int? limit = null, CancellationToken token = default)
         {
             InternalContract.RequireGreaterThanOrEqualTo(0, offset, nameof(offset));
             if (limit != null) InternalContract.RequireGreaterThan(0, limit.Value, nameof(limit));
@@ -129,7 +129,7 @@ namespace Nexus.Link.Libraries.SqlServer
 
         /// <inheritdoc />
         public async Task<PageEnvelope<TDatabaseItem>> SearchAsync(SearchDetails<TDatabaseItem> details, int offset, int? limit = null,
-            CancellationToken cancellationToken = default(CancellationToken))
+            CancellationToken cancellationToken = default)
         {
             InternalContract.RequireNotNull(details, nameof(details));
             InternalContract.RequireValidated(details, nameof(details));
@@ -145,7 +145,7 @@ namespace Nexus.Link.Libraries.SqlServer
         }
 
         /// <inheritdoc />
-        public  Task<TDatabaseItem> FindUniqueAsync(SearchDetails<TDatabaseItem> details, CancellationToken cancellationToken = default(CancellationToken))
+        public  Task<TDatabaseItem> FindUniqueAsync(SearchDetails<TDatabaseItem> details, CancellationToken cancellationToken = default)
         {
             return _convenience.FindUniqueAsync(details, cancellationToken);
         }
@@ -160,14 +160,14 @@ namespace Nexus.Link.Libraries.SqlServer
         }
 
         /// <inheritdoc />
-        public Task<TDatabaseItem> ReadAsync(Guid id, CancellationToken token = default(CancellationToken))
+        public Task<TDatabaseItem> ReadAsync(Guid id, CancellationToken token = default)
         {
             InternalContract.RequireNotDefaultValue(id, nameof(id));
             return SearchWhereSingle("Id = @Id", new { Id = id }, token);
         }
 
         /// <inheritdoc />
-        public async Task UpdateAsync(Guid id, TDatabaseItem item, CancellationToken token = default(CancellationToken))
+        public async Task UpdateAsync(Guid id, TDatabaseItem item, CancellationToken token = default)
         {
             InternalContract.RequireNotNull(item, nameof(item));
             InternalContract.RequireValidated(item, nameof(item));
@@ -231,19 +231,19 @@ namespace Nexus.Link.Libraries.SqlServer
         }
 
         /// <inheritdoc />
-        public Task<Lock<Guid>> ClaimDistributedLockAsync(Guid id, CancellationToken token = default(CancellationToken))
+        public Task<Lock<Guid>> ClaimDistributedLockAsync(Guid id, CancellationToken token = default)
         {
             throw new NotImplementedException();
         }
 
         /// <inheritdoc />
-        public Task ReleaseDistributedLockAsync(Guid id, Guid lockId, CancellationToken token = default(CancellationToken))
+        public Task ReleaseDistributedLockAsync(Guid id, Guid lockId, CancellationToken token = default)
         {
             throw new NotImplementedException();
         }
 
         /// <inheritdoc />
-        public async Task ClaimTransactionLockAsync(Guid id, CancellationToken token = default(CancellationToken))
+        public async Task ClaimTransactionLockAsync(Guid id, CancellationToken token = default)
         {
             var selectStatement =
                 $"SELECT {SqlHelper.ReadColumnList(TableMetadata)} FROM [{TableMetadata.TableName}] WITH (ROWLOCK, UPDLOCK, READPAST) WHERE Id=@Id";
@@ -259,7 +259,7 @@ namespace Nexus.Link.Libraries.SqlServer
         }
 
         /// <inheritdoc />
-        public Task<TDatabaseItem> ClaimTransactionLockAndReadAsync(Guid id, CancellationToken token = default(CancellationToken))
+        public Task<TDatabaseItem> ClaimTransactionLockAndReadAsync(Guid id, CancellationToken token = default)
         {
             return _convenience.ClaimTransactionLockAndReadAsync(id, token);
         }

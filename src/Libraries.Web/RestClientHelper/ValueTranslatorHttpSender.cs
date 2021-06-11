@@ -45,8 +45,8 @@ namespace Nexus.Link.Libraries.Web.RestClientHelper
 
         /// <inheritdoc />
         public async Task<HttpOperationResponse<TResponse>> SendRequestAsync<TResponse, TBody>(HttpMethod method, string relativeUrl,
-            TBody body = default(TBody), Dictionary<string, List<string>> customHeaders = null,
-            CancellationToken cancellationToken = default(CancellationToken))
+            TBody body = default, Dictionary<string, List<string>> customHeaders = null,
+            CancellationToken cancellationToken = default)
         {
             var translator = CreateTranslator();
             await translator.AddSubStrings(relativeUrl).Add(body).ExecuteAsync(cancellationToken);
@@ -62,8 +62,8 @@ namespace Nexus.Link.Libraries.Web.RestClientHelper
 
         /// <inheritdoc />
         public async Task<HttpResponseMessage> SendRequestAsync<TBody>(HttpMethod method, string relativeUrl,
-            TBody body = default(TBody), Dictionary<string, List<string>> customHeaders = null,
-            CancellationToken cancellationToken = default(CancellationToken))
+            TBody body = default, Dictionary<string, List<string>> customHeaders = null,
+            CancellationToken cancellationToken = default)
         {
             var translator = CreateTranslator();
             await translator.Add(relativeUrl).Add(body).ExecuteAsync(cancellationToken);
@@ -78,7 +78,7 @@ namespace Nexus.Link.Libraries.Web.RestClientHelper
 
         /// <inheritdoc />
         public async Task<HttpResponseMessage> SendRequestAsync(HttpMethod method, string relativeUrl,
-            Dictionary<string, List<string>> customHeaders = null, CancellationToken cancellationToken = default(CancellationToken))
+            Dictionary<string, List<string>> customHeaders = null, CancellationToken cancellationToken = default)
         {
             var translator = CreateTranslator();
             await translator.AddSubStrings(relativeUrl).ExecuteAsync(cancellationToken);

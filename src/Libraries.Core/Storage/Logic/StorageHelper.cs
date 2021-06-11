@@ -126,7 +126,7 @@ namespace Nexus.Link.Libraries.Core.Storage.Logic
         /// <param name="token">Propagates notification that operations should be canceled</param>
         /// <typeparam name="TModel">The type of the items.</typeparam>
         public static async Task<IEnumerable<TModel>> ReadPagesAsync<TModel>(
-            PageEnvelopeEnumeratorAsync<TModel>.ReadMethodDelegate readMethodDelegateAsync, int limit = int.MaxValue, CancellationToken token = default(CancellationToken))
+            PageEnvelopeEnumeratorAsync<TModel>.ReadMethodDelegate readMethodDelegateAsync, int limit = int.MaxValue, CancellationToken token = default)
         {
             var result = new List<TModel>();
             var enumerator = new PageEnvelopeEnumeratorAsync<TModel>(readMethodDelegateAsync, token);

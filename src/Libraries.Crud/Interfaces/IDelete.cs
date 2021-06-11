@@ -13,6 +13,6 @@ namespace Nexus.Link.Libraries.Crud.Interfaces
         /// </summary>
         /// <param name="id">The id of the item that should be deleted.</param>
         /// <param name="token">Propagates notification that operations should be canceled</param>
-        Task DeleteAsync(TId id, CancellationToken token = default(CancellationToken));
+        Task DeleteAsync(TId id, CancellationToken token = default);
     }
 }

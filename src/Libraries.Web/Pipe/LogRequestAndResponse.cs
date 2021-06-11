@@ -59,7 +59,7 @@ namespace Nexus.Link.Libraries.Web.Pipe
                     response = await UnitTest_SendAsyncDependencyInjection(request, cancellationToken);
                 }
                 timer.Stop();
-                await LogResponseAsync(request, response, timer.Elapsed);
+                await LogResponseAsync(request, response, timer.Elapsed, cancellationToken);
                 return response;
             }
             catch (Exception e)
@@ -70,11 +70,11 @@ namespace Nexus.Link.Libraries.Web.Pipe
             }
         }
 
-        private async Task LogResponseAsync(HttpRequestMessage request, HttpResponseMessage response, TimeSpan elapsedTime)
+        private async Task LogResponseAsync(HttpRequestMessage request, HttpResponseMessage response, TimeSpan elapsedTime, CancellationToken cancellationToken)
         {
             if (request == null) return;
             var level = response.IsSuccessStatusCode ? LogSeverityLevel.Information : LogSeverityLevel.Warning;
-            Log.LogOnLevel(level, $"{_direction} request-response {await request.ToLogStringAsync(response, elapsedTime)}");
+            Log.LogOnLevel(level, $"{_direction} request-response {await request.ToLogStringAsync(response, elapsedTime, cancellationToken: cancellationToken)}");
         }
 
         private void LogException(HttpRequestMessage request, Exception exception, TimeSpan elapsedTime)

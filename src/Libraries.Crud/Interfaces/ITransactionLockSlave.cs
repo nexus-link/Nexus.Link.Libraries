@@ -23,7 +23,7 @@ namespace Nexus.Link.Libraries.Crud.Interfaces
         /// <remarks>
         /// The lock will be automatically released when the transaction has completed or been aborted.
         /// </remarks>
-        Task ClaimTransactionLockAsync(TId masterId, TId slaveId, CancellationToken token = default(CancellationToken));
+        Task ClaimTransactionLockAsync(TId masterId, TId slaveId, CancellationToken token = default);
 
         /// <summary>
         /// Returns the item uniquely identified by <paramref name="masterId"/> and <paramref name="id"/> from storage and locks it with a transactional lock.
@@ -37,7 +37,7 @@ namespace Nexus.Link.Libraries.Crud.Interfaces
         /// <remarks>
         /// The lock will be automatically released when the transaction has completed or been aborted.
         /// </remarks>
-        Task<TModel> ClaimTransactionLockAndReadAsync(TId masterId, TId slaveId, CancellationToken token = default(CancellationToken));
+        Task<TModel> ClaimTransactionLockAndReadAsync(TId masterId, TId slaveId, CancellationToken token = default);
 
     }
 }

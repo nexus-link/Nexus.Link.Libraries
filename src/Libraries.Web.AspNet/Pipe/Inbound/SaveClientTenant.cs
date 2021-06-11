@@ -1,5 +1,6 @@
 ﻿
 using System.Text.RegularExpressions;
+using System.Threading;
 using System.Threading.Tasks;
 using Nexus.Link.Libraries.Core.Application;
 using Nexus.Link.Libraries.Core.Assert;
@@ -14,7 +15,7 @@ namespace Nexus.Link.Libraries.Web.AspNet.Pipe.Inbound
     /// Extracts organization and environment values from request uri and adds these values to an execution context. 
     /// These values are later used to get organization and environment specific configurations for logging and request handling. 
     /// </summary>
-    public class SaveClientTenant : CompatibilityDelegatingHandler
+    public class SaveClientTenant : CompatibilityDelegatingHandlerWithCancellationSupport
     {
         private static readonly DelegateState DelegateState = new DelegateState(typeof(SaveClientTenant).FullName);
         private readonly Regex _regex;
@@ -62,7 +63,7 @@ namespace Nexus.Link.Libraries.Web.AspNet.Pipe.Inbound
         }
 #endif
 
-        protected override async Task InvokeAsync(CompabilityInvocationContext context)
+        protected override async Task InvokeAsync(CompabilityInvocationContext context, CancellationToken cancellationToken)
         {
             InternalContract.Require(!DelegateState.HasStarted, $"{nameof(SaveClientTenant)} has already been started in this http request.");
             HasStarted = true;
@@ -80,7 +81,7 @@ namespace Nexus.Link.Libraries.Web.AspNet.Pipe.Inbound
                 FulcrumApplication.Context.ClientTenant = tenant;
             }
 
-            await CallNextDelegateAsync(context);
+            await CallNextDelegateAsync(context, cancellationToken);
         }
     }
 #if NETCOREAPP

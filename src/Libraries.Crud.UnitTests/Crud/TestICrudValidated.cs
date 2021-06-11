@@ -23,7 +23,7 @@ namespace Nexus.Link.Libraries.Crud.UnitTests.Crud
         public async Task Update_ValidationFailed_Async()
         {
             var id = await CreateItemAsync(TypeOfTestDataEnum.Default);
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreNotEqual(default(TId), id);
+            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreNotEqual(default, id);
             var updatedItem = new TestItemValidated<TId>();
             updatedItem.InitializeWithDataForTesting(TypeOfTestDataEnum.ValidationFail);
             await CrudStorage.UpdateAsync(id, updatedItem);

@@ -28,7 +28,7 @@ namespace Nexus.Link.Libraries.Crud.Interfaces
         /// In that case, the method should throw a <see cref="FulcrumNotImplementedException"/>.
         /// </remarks>
         Task<PageEnvelope<TModel>> SearchChildrenAsync(TId parentId, SearchDetails<TModel> details, int offset, int? limit = null,
-            CancellationToken cancellationToken = default(CancellationToken));
+            CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Search for a unique matching item.
@@ -42,6 +42,6 @@ namespace Nexus.Link.Libraries.Crud.Interfaces
         /// In that case, the method should throw a <see cref="FulcrumNotImplementedException"/>.
         /// </remarks>
         Task<TModel> FindUniqueChildAsync(TId parentId, SearchDetails<TModel> details,
-            CancellationToken cancellationToken = default(CancellationToken));
+            CancellationToken cancellationToken = default);
     }
 }

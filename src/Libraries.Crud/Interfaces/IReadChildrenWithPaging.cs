@@ -16,6 +16,6 @@ namespace Nexus.Link.Libraries.Crud.Interfaces
         /// <param name="offset">The number of items that will be skipped in result.</param>
         /// <param name="limit">The maximum number of items to return.</param>
         /// <param name="token">Propagates notification that operations should be canceled</param>
-        Task<PageEnvelope<TModel>> ReadChildrenWithPagingAsync(TId parentId, int offset, int? limit = null, CancellationToken token = default(CancellationToken));
+        Task<PageEnvelope<TModel>> ReadChildrenWithPagingAsync(TId parentId, int offset, int? limit = null, CancellationToken token = default);
     }
 }

@@ -54,7 +54,7 @@ namespace Nexus.Link.Libraries.Crud.Cache
         ICrudManyToOne<TManyModelCreate, TManyModel, TId> where TManyModel : TManyModelCreate
     {
         private readonly ICrudManyToOne<TManyModelCreate, TManyModel, TId> _service;
-        private ManyToOneConvenience<TManyModelCreate, TManyModel, TId> _convenience;
+        private readonly ManyToOneConvenience<TManyModelCreate, TManyModel, TId> _convenience;
 
         /// <summary>
         /// Constructor for TOneModel that implements <see cref="IUniquelyIdentifiable{TId}"/>.
@@ -103,29 +103,29 @@ namespace Nexus.Link.Libraries.Crud.Cache
         /// <summary>
         /// Wait until any background thread is active saving results from a ReadAll() operation.
         /// </summary>
-        public async Task DelayUntilNoOperationActiveAsync(TId parentId)
+        public async Task DelayUntilNoOperationActiveAsync(TId parentId, CancellationToken cancellationToken = default)
         {
             var count = 0;
-            while (count++ < 5 && !IsCollectionOperationActive(parentId)) await Task.Delay(TimeSpan.FromMilliseconds(1));
-            while (IsCollectionOperationActive(parentId)) await Task.Delay(TimeSpan.FromMilliseconds(10));
+            while (count++ < 5 && !IsCollectionOperationActive(parentId)) await Task.Delay(TimeSpan.FromMilliseconds(1), cancellationToken);
+            while (IsCollectionOperationActive(parentId)) await Task.Delay(TimeSpan.FromMilliseconds(10), cancellationToken);
         }
 
         /// <inheritdoc />
-        public async Task DeleteChildrenAsync(TId masterId, CancellationToken token = default(CancellationToken))
+        public async Task DeleteChildrenAsync(TId masterId, CancellationToken token = default)
         {
             await _service.DeleteChildrenAsync(masterId, token);
             await RemoveCachedChildrenInBackgroundAsync(masterId, token);
         }
 
-        private async Task RemoveCachedChildrenInBackgroundAsync(TId parentId, CancellationToken token = default(CancellationToken))
+        private async Task RemoveCachedChildrenInBackgroundAsync(TId parentId, CancellationToken token = default)
         {
-            await DelayUntilNoOperationActiveAsync(parentId);
+            await DelayUntilNoOperationActiveAsync(parentId, token);
             var key = CacheKeyForChildrenCollection(parentId);
-            await RemoveCacheItemsInBackgroundAsync(key, async () => await CacheGetAsync(int.MaxValue, key, token));
+            await RemoveCacheItemsInBackgroundAsync(key, async () => await CacheGetAsync(int.MaxValue, key, token), token);
         }
 
         /// <inheritdoc />
-        public async Task<PageEnvelope<TManyModel>> ReadChildrenWithPagingAsync(TId parentId, int offset, int? limit = null, CancellationToken token = default(CancellationToken))
+        public async Task<PageEnvelope<TManyModel>> ReadChildrenWithPagingAsync(TId parentId, int offset, int? limit = null, CancellationToken token = default)
         {
             InternalContract.RequireNotDefaultValue(parentId, nameof(parentId));
             InternalContract.RequireGreaterThanOrEqualTo(0, offset, nameof(limit));
@@ -141,7 +141,7 @@ namespace Nexus.Link.Libraries.Crud.Cache
         }
 
         /// <inheritdoc />
-        public async Task<IEnumerable<TManyModel>> ReadChildrenAsync(TId parentId, int limit = int.MaxValue, CancellationToken token = default(CancellationToken))
+        public async Task<IEnumerable<TManyModel>> ReadChildrenAsync(TId parentId, int limit = int.MaxValue, CancellationToken token = default)
         {
             InternalContract.RequireNotDefaultValue(parentId, nameof(parentId));
             InternalContract.RequireGreaterThan(0, limit, nameof(limit));
@@ -161,14 +161,14 @@ namespace Nexus.Link.Libraries.Crud.Cache
 
         /// <inheritdoc />
         public Task<PageEnvelope<TManyModel>> SearchChildrenAsync(TId parentId, SearchDetails<TManyModel> details, int offset, int? limit = null,
-            CancellationToken cancellationToken = default(CancellationToken))
+            CancellationToken cancellationToken = default)
         {
             return _convenience.SearchChildrenAsync(parentId, details, offset, limit, cancellationToken);
         }
 
         /// <inheritdoc />
         public Task<TManyModel> FindUniqueChildAsync(TId parentId, SearchDetails<TManyModel> details,
-            CancellationToken cancellationToken = default(CancellationToken))
+            CancellationToken cancellationToken = default)
         {
             return _convenience.FindUniqueChildAsync(parentId, details, cancellationToken);
         }

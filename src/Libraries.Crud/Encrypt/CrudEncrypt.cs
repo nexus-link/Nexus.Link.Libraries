@@ -36,14 +36,14 @@ namespace Nexus.Link.Libraries.Crud.Encrypt
         }
 
         /// <inheritdoc />
-        public async Task<TId> CreateAsync(TModel item, CancellationToken token = default(CancellationToken))
+        public async Task<TId> CreateAsync(TModel item, CancellationToken token = default)
         {
             var storedItem = Encrypt(item);
             return await _service.CreateAsync(storedItem, token);
         }
 
         /// <inheritdoc />
-        public async Task<TModel> CreateAndReturnAsync(TModel item, CancellationToken token = default(CancellationToken))
+        public async Task<TModel> CreateAndReturnAsync(TModel item, CancellationToken token = default)
         {
             var storedItem = Encrypt(item);
             storedItem = await _service.CreateAndReturnAsync(storedItem, token);
@@ -51,14 +51,14 @@ namespace Nexus.Link.Libraries.Crud.Encrypt
         }
 
         /// <inheritdoc />
-        public async Task CreateWithSpecifiedIdAsync(TId id, TModel item, CancellationToken token = default(CancellationToken))
+        public async Task CreateWithSpecifiedIdAsync(TId id, TModel item, CancellationToken token = default)
         {
             var storedItem = Encrypt(item);
             await _service.CreateWithSpecifiedIdAsync(id, storedItem, token);
         }
 
         /// <inheritdoc />
-        public async Task<TModel> CreateWithSpecifiedIdAndReturnAsync(TId id, TModel item, CancellationToken token = default(CancellationToken))
+        public async Task<TModel> CreateWithSpecifiedIdAndReturnAsync(TId id, TModel item, CancellationToken token = default)
         {
             var storedItem = Encrypt(item);
             storedItem = await _service.CreateWithSpecifiedIdAndReturnAsync(id, storedItem, token);
@@ -66,14 +66,14 @@ namespace Nexus.Link.Libraries.Crud.Encrypt
         }
 
         /// <inheritdoc />
-        public async Task<TModel> ReadAsync(TId id, CancellationToken token = default(CancellationToken))
+        public async Task<TModel> ReadAsync(TId id, CancellationToken token = default)
         {
             var storedItem = await _service.ReadAsync(id, token);
             return Decrypt(storedItem);
         }
 
         /// <inheritdoc />
-        public async Task<PageEnvelope<TModel>> ReadAllWithPagingAsync(int offset, int? limit = null, CancellationToken token = default(CancellationToken))
+        public async Task<PageEnvelope<TModel>> ReadAllWithPagingAsync(int offset, int? limit = null, CancellationToken token = default)
         {
             var page = await _service.ReadAllWithPagingAsync(offset, limit, token);
             return new PageEnvelope<TModel>(page.PageInfo, page.Data.Select(Decrypt));
@@ -82,7 +82,7 @@ namespace Nexus.Link.Libraries.Crud.Encrypt
 
         /// <inheritdoc />
         public Task<PageEnvelope<TModel>> SearchAsync(SearchDetails<TModel> details, int offset, int? limit = null,
-            CancellationToken cancellationToken = default(CancellationToken))
+            CancellationToken cancellationToken = default)
         {
             throw new FulcrumNotImplementedException();
             //if (!(_service is ISearch<TModel, TId> searcher))
@@ -96,27 +96,27 @@ namespace Nexus.Link.Libraries.Crud.Encrypt
         }
 
         /// <inheritdoc />
-        public Task<TModel> FindUniqueAsync(SearchDetails<TModel> details, CancellationToken cancellationToken = default(CancellationToken))
+        public Task<TModel> FindUniqueAsync(SearchDetails<TModel> details, CancellationToken cancellationToken = default)
         {
             throw new System.NotImplementedException();
         }
 
         /// <inheritdoc />
-        public async Task<IEnumerable<TModel>> ReadAllAsync(int limit = int.MaxValue, CancellationToken token = default(CancellationToken))
+        public async Task<IEnumerable<TModel>> ReadAllAsync(int limit = int.MaxValue, CancellationToken token = default)
         {
             var storedItems = await _service.ReadAllAsync(limit, token);
             return storedItems.Select(Decrypt);
         }
 
         /// <inheritdoc />
-        public async Task UpdateAsync(TId id, TModel item, CancellationToken token = default(CancellationToken))
+        public async Task UpdateAsync(TId id, TModel item, CancellationToken token = default)
         {
             var storedItem = Encrypt(item);
             await _service.UpdateAsync(id, storedItem, token);
         }
 
         /// <inheritdoc />
-        public async Task<TModel> UpdateAndReturnAsync(TId id, TModel item, CancellationToken token = default(CancellationToken))
+        public async Task<TModel> UpdateAndReturnAsync(TId id, TModel item, CancellationToken token = default)
         {
             var storedItem = Encrypt(item);
             storedItem = await _service.UpdateAndReturnAsync(id, storedItem, token);
@@ -124,49 +124,49 @@ namespace Nexus.Link.Libraries.Crud.Encrypt
         }
 
         /// <inheritdoc />
-        public Task DeleteAsync(TId id, CancellationToken token = default(CancellationToken))
+        public Task DeleteAsync(TId id, CancellationToken token = default)
         {
             return _service.DeleteAsync(id, token);
         }
 
         /// <inheritdoc />
-        public Task DeleteAllAsync(CancellationToken token = default(CancellationToken))
+        public Task DeleteAllAsync(CancellationToken token = default)
         {
             return _service.DeleteAllAsync(token);
         }
 
         /// <inheritdoc />
-        public Task<Lock<TId>> ClaimLockAsync(TId id, CancellationToken token = default(CancellationToken))
+        public Task<Lock<TId>> ClaimLockAsync(TId id, CancellationToken token = default)
         {
             return _service.ClaimLockAsync(id, token);
         }
 
         /// <inheritdoc />
-        public Task ReleaseLockAsync(TId id, TId lockId, CancellationToken token = default(CancellationToken))
+        public Task ReleaseLockAsync(TId id, TId lockId, CancellationToken token = default)
         {
             return _service.ReleaseLockAsync(id, lockId, token);
         }
 
         /// <inheritdoc />
-        public Task<Lock<TId>> ClaimDistributedLockAsync(TId id, CancellationToken token = default(CancellationToken))
+        public Task<Lock<TId>> ClaimDistributedLockAsync(TId id, CancellationToken token = default)
         {
             return _service.ClaimDistributedLockAsync(id, token);
         }
 
         /// <inheritdoc />
-        public Task ReleaseDistributedLockAsync(TId id, TId lockId, CancellationToken token = default(CancellationToken))
+        public Task ReleaseDistributedLockAsync(TId id, TId lockId, CancellationToken token = default)
         {
             return _service.ReleaseDistributedLockAsync(id, lockId, token);
         }
 
         /// <inheritdoc />
-        public Task ClaimTransactionLockAsync(TId id, CancellationToken token = default(CancellationToken))
+        public Task ClaimTransactionLockAsync(TId id, CancellationToken token = default)
         {
             return _service.ClaimTransactionLockAsync(id, token);
         }
 
         /// <inheritdoc />
-        public Task<TModel> ClaimTransactionLockAndReadAsync(TId id, CancellationToken token = default(CancellationToken))
+        public Task<TModel> ClaimTransactionLockAndReadAsync(TId id, CancellationToken token = default)
         {
             return _convenience.ClaimTransactionLockAndReadAsync(id, token);
         }

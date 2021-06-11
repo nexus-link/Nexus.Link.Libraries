@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System.Threading;
+using System.Threading.Tasks;
 
 namespace Nexus.Link.Libraries.Core.Queue.Model
 {
@@ -10,11 +11,11 @@ namespace Nexus.Link.Libraries.Core.Queue.Model
         /// <summary>
         /// Remove all items from the queue
         /// </summary>
-        Task ClearAsync();
+        Task ClearAsync(CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Returns one item from the queue, or null if no items are on the queue.
         /// </summary>
-        Task<T> GetOneMessageNoBlockAsync();
+        Task<T> GetOneMessageNoBlockAsync(CancellationToken cancellationToken = default);
     }
 }

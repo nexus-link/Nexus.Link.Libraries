@@ -42,7 +42,7 @@ namespace Nexus.Link.Libraries.SqlServer
         /// </summary>
         public string TableName => TableMetadata.TableName;
 
-        protected async Task DeleteWhereAsync(string where = null, object param = null, CancellationToken token = default(CancellationToken))
+        protected async Task DeleteWhereAsync(string where = null, object param = null, CancellationToken token = default)
         {
             where = string.IsNullOrWhiteSpace(where) ? "1=1" : where;
             await ExecuteAsync(SqlHelper.Delete(TableMetadata, where), param, token);
@@ -50,7 +50,7 @@ namespace Nexus.Link.Libraries.SqlServer
 
         /// <inheritdoc />
         public async Task<PageEnvelope<TDatabaseItem>> SearchAllAsync(string orderBy, int offset, int? limit = null,
-            CancellationToken token = default(CancellationToken))
+            CancellationToken token = default)
         {
             InternalContract.RequireGreaterThanOrEqualTo(0, offset, nameof(offset));
             if (limit != null) InternalContract.RequireGreaterThanOrEqualTo(0, limit.Value, nameof(limit));
@@ -58,7 +58,7 @@ namespace Nexus.Link.Libraries.SqlServer
         }
 
         /// <inheritdoc />
-        public async Task<PageEnvelope<TDatabaseItem>> SearchWhereAsync(string where = null, string orderBy = null, object param = null, int offset = 0, int? limit = null, CancellationToken token = default(CancellationToken))
+        public async Task<PageEnvelope<TDatabaseItem>> SearchWhereAsync(string where = null, string orderBy = null, object param = null, int offset = 0, int? limit = null, CancellationToken token = default)
         {
             limit = limit ?? PageInfo.DefaultLimit;
             InternalContract.RequireGreaterThanOrEqualTo(0, offset, nameof(offset));
@@ -81,14 +81,14 @@ namespace Nexus.Link.Libraries.SqlServer
         }
 
         /// <inheritdoc />
-        public async Task<int> CountItemsWhereAsync(string where = null, object param = null, CancellationToken token = default(CancellationToken))
+        public async Task<int> CountItemsWhereAsync(string where = null, object param = null, CancellationToken token = default)
         {
             where = where ?? "1=1";
             return await CountItemsAdvancedAsync("SELECT COUNT(*)", $"FROM [{TableMetadata.TableName}] WHERE ({@where})", param, token);
         }
 
         /// <inheritdoc />
-        public async Task<int> CountItemsAdvancedAsync(string selectFirst, string selectRest, object param = null, CancellationToken token = default(CancellationToken))
+        public async Task<int> CountItemsAdvancedAsync(string selectFirst, string selectRest, object param = null, CancellationToken token = default)
         {
             InternalContract.RequireNotNullOrWhiteSpace(selectFirst, nameof(selectFirst));
             InternalContract.RequireNotNullOrWhiteSpace(selectRest, nameof(selectRest));
@@ -102,28 +102,28 @@ namespace Nexus.Link.Libraries.SqlServer
         }
 
         /// <inheritdoc />
-        public async Task<TDatabaseItem> SearchWhereSingle(string where, object param = null, CancellationToken token = default(CancellationToken))
+        public async Task<TDatabaseItem> SearchWhereSingle(string where, object param = null, CancellationToken token = default)
         {
             if (where == null) where = "1=1";
             return await SearchAdvancedSingleAsync($"SELECT * FROM [{TableMetadata.TableName}] WHERE ({where})", param, token);
         }
 
         /// <inheritdoc />
-        public async Task<TDatabaseItem> SearchAdvancedSingleAsync(string selectStatement, object param = null, CancellationToken token = default(CancellationToken))
+        public async Task<TDatabaseItem> SearchAdvancedSingleAsync(string selectStatement, object param = null, CancellationToken token = default)
         {
             InternalContract.RequireNotNullOrWhiteSpace(selectStatement, nameof(selectStatement));
             return await SearchFirstAdvancedAsync(selectStatement, null, param, token);
         }
 
         /// <inheritdoc />
-        public async Task<TDatabaseItem> SearchFirstWhereAsync(string where = null, string orderBy = null, object param = null, CancellationToken token = default(CancellationToken))
+        public async Task<TDatabaseItem> SearchFirstWhereAsync(string where = null, string orderBy = null, object param = null, CancellationToken token = default)
         {
             var result = await InternalSearchWhereAsync(param, where, orderBy, 0, 1);
             return result.SingleOrDefault();
         }
 
         /// <inheritdoc />
-        public async Task<TDatabaseItem> SearchFirstAdvancedAsync(string selectStatement, string orderBy = null, object param = null, CancellationToken token = default(CancellationToken))
+        public async Task<TDatabaseItem> SearchFirstAdvancedAsync(string selectStatement, string orderBy = null, object param = null, CancellationToken token = default)
         {
             InternalContract.RequireNotNullOrWhiteSpace(selectStatement, nameof(selectStatement));
             var result = await InternalSearchAsync(param, selectStatement, orderBy, 0, 1);
@@ -131,7 +131,7 @@ namespace Nexus.Link.Libraries.SqlServer
         }
 
         /// <inheritdoc />
-        public async Task<PageEnvelope<TDatabaseItem>> SearchAdvancedAsync(string countFirst, string selectFirst, string selectRest, string orderBy = null, object param = null, int offset = 0, int? limit = null, CancellationToken token = default(CancellationToken))
+        public async Task<PageEnvelope<TDatabaseItem>> SearchAdvancedAsync(string countFirst, string selectFirst, string selectRest, string orderBy = null, object param = null, int offset = 0, int? limit = null, CancellationToken token = default)
         {
             limit = limit ?? PageInfo.DefaultLimit;
             InternalContract.RequireGreaterThanOrEqualTo(0, offset, nameof(offset));
@@ -196,7 +196,7 @@ namespace Nexus.Link.Libraries.SqlServer
         }
 
 
-        protected internal async Task<int> ExecuteAsync(string statement, object param = null, CancellationToken token = default(CancellationToken))
+        protected internal async Task<int> ExecuteAsync(string statement, object param = null, CancellationToken token = default)
         {
             InternalContract.RequireNotNullOrWhiteSpace(statement, nameof(statement));
             MaybeTransformEtagToRecordVersion(param);
@@ -219,7 +219,7 @@ namespace Nexus.Link.Libraries.SqlServer
 
         }
 
-        protected internal async Task<IEnumerable<TDatabaseItem>> QueryAsync(string statement, object param = null, CancellationToken token = default(CancellationToken))
+        protected internal async Task<IEnumerable<TDatabaseItem>> QueryAsync(string statement, object param = null, CancellationToken token = default)
         {
             InternalContract.RequireNotNullOrWhiteSpace(statement, nameof(statement));
             using (var db = Database.NewSqlConnection())

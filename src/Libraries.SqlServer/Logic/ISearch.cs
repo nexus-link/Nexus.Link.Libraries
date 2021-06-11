@@ -18,7 +18,7 @@ namespace Nexus.Link.Libraries.SqlServer.Logic
         /// <param name="limit">The maximum number of items to return.</param>
         /// <param name="token">Propagates notification that operations should be canceled</param>
         /// <returns>The found items.</returns>
-        Task<PageEnvelope<TDatabaseItem>> SearchAllAsync(string orderBy, int offset, int? limit = null, CancellationToken token = default(CancellationToken));
+        Task<PageEnvelope<TDatabaseItem>> SearchAllAsync(string orderBy, int offset, int? limit = null, CancellationToken token = default);
 
         /// <summary>
         /// Find the items specified by the <paramref name="where"/> clause.
@@ -30,7 +30,7 @@ namespace Nexus.Link.Libraries.SqlServer.Logic
         /// <param name="limit">The maximum number of items to return.</param>
         /// <param name="token">Propagates notification that operations should be canceled</param>
         /// <returns>The found items.</returns>
-        Task<PageEnvelope<TDatabaseItem>> SearchWhereAsync(string where = null, string orderBy = null, object param = null, int offset = 0, int? limit = null, CancellationToken token = default(CancellationToken));
+        Task<PageEnvelope<TDatabaseItem>> SearchWhereAsync(string where = null, string orderBy = null, object param = null, int offset = 0, int? limit = null, CancellationToken token = default);
 
         /// <summary>
         /// Both selectes objects and counts them, returning a <see cref="PageEnvelope{TData}"/>
@@ -44,7 +44,7 @@ namespace Nexus.Link.Libraries.SqlServer.Logic
         /// <param name="limit">The maximum number of items to return.</param>
         /// <param name="token">Propagates notification that operations should be canceled</param>
         /// <returns>The found items.</returns>
-        Task<PageEnvelope<TDatabaseItem>> SearchAdvancedAsync(string countFirst, string selectFirst, string selectRest, string orderBy = null, object param = null, int offset = 0, int? limit = null, CancellationToken token = default(CancellationToken));
+        Task<PageEnvelope<TDatabaseItem>> SearchAdvancedAsync(string countFirst, string selectFirst, string selectRest, string orderBy = null, object param = null, int offset = 0, int? limit = null, CancellationToken token = default);
 
         /// <summary>
         /// Find the items specified by the <paramref name="where"/> clause and using fields from the <paramref name="param"/>.
@@ -54,7 +54,7 @@ namespace Nexus.Link.Libraries.SqlServer.Logic
         /// <param name="param">The fields for the <paramref name="where"/> condition.</param>
         /// <param name="token">Propagates notification that operations should be canceled</param>
         /// <returns>The found items.</returns>
-        Task<TDatabaseItem> SearchFirstWhereAsync(string where = null, string orderBy = null, object param = null, CancellationToken token = default(CancellationToken));
+        Task<TDatabaseItem> SearchFirstWhereAsync(string where = null, string orderBy = null, object param = null, CancellationToken token = default);
 
         /// <summary>
         /// Find the items specified by the <paramref name="selectStatement"/> clause and using fields from the <paramref name="param"/>.
@@ -64,7 +64,7 @@ namespace Nexus.Link.Libraries.SqlServer.Logic
         /// <param name="param">The fields for the <paramref name="selectStatement"/> condition.</param>
         /// <param name="token">Propagates notification that operations should be canceled</param>
         /// <returns>The found items.</returns>
-        Task<TDatabaseItem> SearchFirstAdvancedAsync(string selectStatement, string orderBy = null, object param = null, CancellationToken token = default(CancellationToken));
+        Task<TDatabaseItem> SearchFirstAdvancedAsync(string selectStatement, string orderBy = null, object param = null, CancellationToken token = default);
 
         /// <summary>
         /// Find the item specified by the <paramref name="where"/> condition.
@@ -76,7 +76,7 @@ namespace Nexus.Link.Libraries.SqlServer.Logic
         /// <remarks>If more than one item is found, an excepton is thrown.</remarks>
         /// <remarks>If you just want the first item of possibly many that matches the where condition, 
         /// please use <see cref="SearchFirstWhereAsync"/></remarks>
-        Task<TDatabaseItem> SearchWhereSingle(string where, object param = null, CancellationToken token = default(CancellationToken));
+        Task<TDatabaseItem> SearchWhereSingle(string where, object param = null, CancellationToken token = default);
 
         /// <summary>
         /// Find the item specified by the <paramref name="selectStatement"/> condition.
@@ -88,7 +88,7 @@ namespace Nexus.Link.Libraries.SqlServer.Logic
         /// <remarks>If more than one item is found, an excepton is thrown.</remarks>
         /// <remarks>If you just want the first item of possibly many that matches the where condition, 
         /// please use <see cref="SearchFirstWhereAsync"/></remarks>
-        Task<TDatabaseItem> SearchAdvancedSingleAsync(string selectStatement, object param = null, CancellationToken token = default(CancellationToken));
+        Task<TDatabaseItem> SearchAdvancedSingleAsync(string selectStatement, object param = null, CancellationToken token = default);
 
         /// <summary>
         /// Find the number of rows that fulfill the <paramref nae="where"/> condition..
@@ -97,7 +97,7 @@ namespace Nexus.Link.Libraries.SqlServer.Logic
         /// <param name="param">The fields for the <paramref name="where"/> expression.</param>
         /// <param name="token">Propagates notification that operations should be canceled</param>
         /// <returns>The number of rows that fulfill the where statement.</returns>
-        Task<int> CountItemsWhereAsync(string where = null, object param = null, CancellationToken token = default(CancellationToken));
+        Task<int> CountItemsWhereAsync(string where = null, object param = null, CancellationToken token = default);
 
         /// <summary>
         /// Find the number of rows that fulfill the <paramref name="selectRest"/> condition..
@@ -107,6 +107,6 @@ namespace Nexus.Link.Libraries.SqlServer.Logic
         /// <param name="param">The fields for the <paramref name="selectRest"/> expression.</param>
         /// <param name="token">Propagates notification that operations should be canceled</param>
         /// <returns>The number of rows that fulfill the where statement.</returns>
-        Task<int> CountItemsAdvancedAsync(string selectFirst, string selectRest, object param = null, CancellationToken token = default(CancellationToken));
+        Task<int> CountItemsAdvancedAsync(string selectFirst, string selectRest, object param = null, CancellationToken token = default);
     }
 }

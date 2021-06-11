@@ -13,7 +13,7 @@ namespace Nexus.Link.Libraries.Crud.ServerTranslators.From
     {
         /// <inheritdoc />
         public Task<IDictionary<string, string>> TranslateAsync(IEnumerable<string> conceptValuePaths, string targetClientName,
-            CancellationToken cancellationToken = default(CancellationToken))
+            CancellationToken cancellationToken = default)
         {
             FulcrumAssert.Fail($"The method(s) of class {nameof(FakeTranslatorService)} is not expected to be called.");
             return Task.FromResult((IDictionary<string, string>)null);
