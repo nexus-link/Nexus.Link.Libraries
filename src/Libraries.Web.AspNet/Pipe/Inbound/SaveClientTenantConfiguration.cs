@@ -67,7 +67,7 @@ namespace Nexus.Link.Libraries.Web.AspNet.Pipe.Inbound
                     }
 
                     FulcrumApplication.Context.LeverConfiguration =
-                        await _serviceConfiguration.GetConfigurationForAsync(tenant);
+                        await _serviceConfiguration.GetConfigurationForAsync(tenant, cancellationToken);
                 }
                 catch (FulcrumUnauthorizedException e)
                 {

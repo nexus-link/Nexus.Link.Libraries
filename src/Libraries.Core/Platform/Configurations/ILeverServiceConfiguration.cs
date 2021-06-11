@@ -27,6 +27,7 @@ namespace Nexus.Link.Libraries.Core.Platform.Configurations
         /// <summary>
         /// Get the configuration for another tenant.
         /// </summary>
+        Task<ILeverConfiguration> GetConfigurationForAsync(Tenant tenant);
         Task<ILeverConfiguration> GetConfigurationForAsync(Tenant tenant, CancellationToken cancellationToken = default);
     }
 }

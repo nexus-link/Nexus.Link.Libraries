@@ -302,7 +302,7 @@ namespace Nexus.Link.Libraries.Crud.Cache
         protected internal async Task<PageEnvelope<TModel>> CacheGetAsync(int offset, int limit, string keyPrefix, CancellationToken token)
         {
             if (UseCacheAtAllMethodAsync != null &&
-                !await UseCacheAtAllMethodAsync(typeof(PageEnvelope<TModel>))) return null;
+                !await UseCacheAtAllMethodAsync(typeof(PageEnvelope<TModel>), token)) return null;
             var key = GetCacheKeyForPage(keyPrefix, offset, limit);
             return await GetAndMaybeReturnAsync(key, cacheEnvelope => SerializingSupport.Deserialize<PageEnvelope<TModel>>(cacheEnvelope.Data), token: token);
         }
@@ -315,7 +315,7 @@ namespace Nexus.Link.Libraries.Crud.Cache
             InternalContract.RequireGreaterThan(0, limit, nameof(limit));
             if (limit > _limitOfItemsInReadAllCache) return null;
             if (UseCacheAtAllMethodAsync != null &&
-                !await UseCacheAtAllMethodAsync(typeof(TModel[]))) return null;
+                !await UseCacheAtAllMethodAsync(typeof(TModel[]), token)) return null;
 
             return await GetAndMaybeReturnAsync(key, cacheEnvelope =>
                 {
@@ -331,7 +331,7 @@ namespace Nexus.Link.Libraries.Crud.Cache
         /// </summary>
         private async Task<TModel> CacheGetAsync(TId id, string key, CancellationToken token = default)
         {
-            if (UseCacheAtAllMethodAsync != null && !await UseCacheAtAllMethodAsync(typeof(TModel))) return default;
+            if (UseCacheAtAllMethodAsync != null && !await UseCacheAtAllMethodAsync(typeof(TModel), token)) return default;
             key = key ?? GetCacheKeyFromId(id);
 
             return await GetAndMaybeReturnAsync(key, cacheEnvelope => SerializingSupport.Deserialize<TModel>(cacheEnvelope.Data), id, token);
