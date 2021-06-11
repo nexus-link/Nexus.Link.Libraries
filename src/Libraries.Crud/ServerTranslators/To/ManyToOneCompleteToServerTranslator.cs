@@ -12,7 +12,7 @@ using Nexus.Link.Libraries.Crud.PassThrough;
 namespace Nexus.Link.Libraries.Crud.ServerTranslators.To
 {
     /// <inheritdoc cref="ManyToOneToServerTranslator{TModelCreate, TModel}" />
-    [Obsolete("Use Libraries.Web ValueTranslatorHttpSender. Obsolete since 2019-11-21.")]
+    [Obsolete("Use Libraries.Web ValueTranslatorHttpSender. Obsolete warning since 2019-11-21, error since 2021-06-09.", true)]
     public class ManyToOneToServerTranslator<TModel> : 
         ManyToOneToServerTranslator<TModel, TModel>, 
         ICrudManyToOne<TModel, string>
@@ -27,7 +27,7 @@ namespace Nexus.Link.Libraries.Crud.ServerTranslators.To
     }
 
     /// <inheritdoc cref="CrudToServerTranslator{TModelCreate, TModel}" />
-    [Obsolete("Use Libraries.Web ValueTranslatorHttpSender. Obsolete since 2019-11-21.")]
+    [Obsolete("Use Libraries.Web ValueTranslatorHttpSender. Obsolete warning since 2019-11-21, error since 2021-06-09.", true)]
     public class ManyToOneToServerTranslator<TModelCreate, TModel> :
         CrudToServerTranslator<TModelCreate, TModel>,
         ICrudManyToOne<TModelCreate, TModel, string>

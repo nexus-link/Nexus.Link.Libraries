@@ -55,10 +55,6 @@ namespace Nexus.Link.Libraries.Core.Error.Logic
         public string InstanceId { get; private set; }
 
         /// <inheritdoc />
-        [Obsolete("Renamed to InnerInstanceId", true)]
-        public string ParentInstanceId { get; private set; }
-
-        /// <inheritdoc />
         public string InnerInstanceId { get; private set; }
 
         /// <inheritdoc />

@@ -13,7 +13,7 @@ using Nexus.Link.Libraries.Crud.PassThrough;
 namespace Nexus.Link.Libraries.Crud.Mappers
 {
     /// <inheritdoc cref="ManyToOneMapper{TClientModelCreate,TClientModel,TClientId,TServerModel,TServerId}" />
-    [Obsolete("We no longer recommend to use this mapping technique. Obsolete since 2020-09-23.")]
+    [Obsolete("We no longer recommend to use this mapping technique. Obsolete warning since 2020-09-23, error since 2021-06-09.", true)]
     public class ManyToOneMapper<TClientModel, TClientId, TServerModel, TServerId> :
         ManyToOneMapper<TClientModel, TClientModel, TClientId, TServerModel, TServerId>,
         ICrudManyToOne<TClientModel, TClientId>
@@ -28,7 +28,7 @@ namespace Nexus.Link.Libraries.Crud.Mappers
     }
 
     /// <inheritdoc cref="ICrudManyToOne{TManyModelCreate,TManyModel,TClientId}" />
-    [Obsolete("We no longer recommend to use this mapping technique. Obsolete since 2020-09-23.")]
+    [Obsolete("We no longer recommend to use this mapping technique. Obsolete warning since 2020-09-23, error since 2021-06-09.", true)]
     public class ManyToOneMapper<TClientModelCreate, TClientModel, TClientId, TServerModel, TServerId> : CrudMapper<TClientModelCreate, TClientModel, TClientId, TServerModel, TServerId>, ICrudManyToOne<TClientModelCreate, TClientModel, TClientId> where TClientModel : TClientModelCreate
     {
         private readonly ICrudManyToOne<TServerModel, TServerId> _service;

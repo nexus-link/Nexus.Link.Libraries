@@ -13,7 +13,7 @@ using System.Web.Http;
 namespace Nexus.Link.Libraries.Crud.AspNet.DefaultControllers
 {
     /// <inheritdoc cref="CrudDefaultController{TModelCreate, TModel}" />
-    [Obsolete("Use Nexus.Link.Libraries.Crud.AspNet.Controllers classes. Obsolete since 2020-09-23.")]
+    [Obsolete("Use Nexus.Link.Libraries.Crud.AspNet.Controllers classes. Obsolete warning since 2020-09-23, error since 2021-06-09.", true)]
     public class CrudDefaultController<TModel> : CrudDefaultController<TModel, TModel>, ICrud<TModel, string>
     {
         /// <inheritdoc />
@@ -24,7 +24,7 @@ namespace Nexus.Link.Libraries.Crud.AspNet.DefaultControllers
     }
 
     /// <inheritdoc cref="CrudController{TModel}" />
-    [Obsolete("Use Nexus.Link.Libraries.Crud.AspNet.Controllers classes. Obsolete since 2020-09-23.")]
+    [Obsolete("Use Nexus.Link.Libraries.Crud.AspNet.Controllers classes. Obsolete warning since 2020-09-23, error since 2021-06-09.", true)]
     public class CrudDefaultController<TModelCreate, TModel> :
         CrudController<TModelCreate, TModel>,
         ICrud<TModelCreate, TModel, string>

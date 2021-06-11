@@ -45,18 +45,6 @@ namespace Nexus.Link.Libraries.Core.Assert
         }
 
         /// <summary>
-        /// Verify that the result of <paramref name="expression"/> is true.
-        /// </summary>
-        [Obsolete("Please notify the Fulcrum team if you use this assertion method. We intend to remove it.", true)]
-        [StackTraceHidden]
-        public static void IsTrue(Expression<Func<bool>> expression, string errorLocation = null, string customMessage = null)
-        {
-            var value = expression.Compile()();
-            if (value) return;
-            GenericBase<TException>.ThrowException(customMessage ?? $"Expected '{expression.Body} to be true.", errorLocation);
-        }
-
-        /// <summary>
         /// Verify that <paramref name="value"/> is null.
         /// </summary>
         [StackTraceHidden]
@@ -67,18 +55,6 @@ namespace Nexus.Link.Libraries.Core.Assert
         }
 
         /// <summary>
-        /// Verify that the result of <paramref name="expression"/> is null.
-        /// </summary>
-        [Obsolete("Please notify the Fulcrum team if you use this assertion method. We intend to remove it.", true)]
-        [StackTraceHidden]
-        public static void IsNull(Expression<Func<object>> expression, string errorLocation = null, string customMessage = null)
-        {
-            var value = expression.Compile()();
-            if (value == null) return;
-            GenericBase<TException>.ThrowException(customMessage ?? $"Expected '{expression.Body}' ({value}) to be null.", errorLocation);
-        }
-
-        /// <summary>
         /// Verify that <paramref name="value"/> is not null.
         /// </summary>
         [StackTraceHidden]
@@ -86,18 +62,6 @@ namespace Nexus.Link.Libraries.Core.Assert
         {
             if (value != null) return;
             GenericBase<TException>.ThrowException(customMessage ?? "Did not expect value to be null.", errorLocation);
-        }
-
-        /// <summary>
-        /// Verify that the result of <paramref name="expression"/> is null.
-        /// </summary>
-        [Obsolete("Please notify the Fulcrum team if you use this assertion method. We intend to remove it.", true)]
-        [StackTraceHidden]
-        public static void IsNotNull(Expression<Func<object>> expression, string errorLocation = null, string customMessage = null)
-        {
-            var value = expression.Compile()();
-            if (value != null) return;
-            GenericBase<TException>.ThrowException(customMessage ?? $"Did not expect '{expression.Body}' to be null.", errorLocation);
         }
 
         /// <summary>
@@ -121,18 +85,6 @@ namespace Nexus.Link.Libraries.Core.Assert
         }
 
         /// <summary>
-        /// Verify that the result of <paramref name="expression"/> is not null, not empty and contains other characters than white space.
-        /// </summary>
-        [Obsolete("Please notify the Fulcrum team if you use this assertion method. We intend to remove it.", true)]
-        [StackTraceHidden]
-        public static void IsNotNullOrWhiteSpace(Expression<Func<string>> expression, string errorLocation = null, string customMessage = null)
-        {
-            var value = expression.Compile()();
-            if (!string.IsNullOrWhiteSpace(value)) return;
-            GenericBase<TException>.ThrowException(customMessage ?? $"Did not expect '{expression.Body}' ({value}) to be null, empty or only contain whitespace.", errorLocation);
-        }
-
-        /// <summary>
         /// Verify that <paramref name="actualValue"/> is equal to <paramref name="expectedValue"/>.
         /// </summary>
         [StackTraceHidden]
@@ -150,18 +102,6 @@ namespace Nexus.Link.Libraries.Core.Assert
         {
             if (!Equals(expectedValue, actualValue)) return;
             GenericBase<TException>.ThrowException(customMessage ?? $"Expected ({actualValue}) to not be equal to ({expectedValue}).", errorLocation);
-        }
-
-        /// <summary>
-        /// Verify that the result of <paramref name="expression"/> is equal to <paramref name="expectedValue"/>.
-        /// </summary>
-        [Obsolete("Please notify the Fulcrum team if you use this assertion method. We intend to remove it.", true)]
-        [StackTraceHidden]
-        public static void AreEqual(object expectedValue, Expression<Func<string>> expression, string errorLocation = null, string customMessage = null)
-        {
-            var actualValue = expression.Compile()();
-            if (Equals(expectedValue, actualValue)) return;
-            GenericBase<TException>.ThrowException(customMessage ?? $"Expected '{expression.Body}' ({actualValue}) to be equal to ({expectedValue}).", errorLocation);
         }
 
         /// <summary>

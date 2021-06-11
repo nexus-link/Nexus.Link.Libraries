@@ -13,7 +13,7 @@ using Nexus.Link.Libraries.Crud.PassThrough;
 namespace Nexus.Link.Libraries.Crud.Mappers
 {
     /// <inheritdoc cref="CrudMapper{TClientModelCreate,TClientModel,TClientId,TServerModel,TServerId}" />
-    [Obsolete("We no longer recommend to use this mapping technique. Obsolete since 2020-09-23.")]
+    [Obsolete("We no longer recommend to use this mapping technique. Obsolete warning since 2020-09-23, error since 2021-06-09.", true)]
     public class
         CrudMapper<TClientModel, TClientId, TServerModel, TServerId> : CrudMapper<TClientModel, TClientModel, TClientId, TServerModel, TServerId>, ICrud<TClientModel, TClientId>
     {
@@ -27,7 +27,7 @@ namespace Nexus.Link.Libraries.Crud.Mappers
     }
 
     /// <inheritdoc cref="ICrud{TModel,TId}" />
-    [Obsolete("We no longer recommend to use this mapping technique. Obsolete since 2020-09-23.")]
+    [Obsolete("We no longer recommend to use this mapping technique. Obsolete warning since 2020-09-23, error since 2021-06-09.", true)]
     public class CrudMapper<TClientModelCreate, TClientModel, TClientId, TServerModel, TServerId> : ICrud<TClientModelCreate, TClientModel, TClientId>
         where TClientModel : TClientModelCreate
     {

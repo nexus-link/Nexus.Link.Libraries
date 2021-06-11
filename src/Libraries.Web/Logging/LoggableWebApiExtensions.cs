@@ -37,21 +37,9 @@ namespace Nexus.Link.Libraries.Web.Logging
         }
 
         /// <summary>
-        /// Create a string based on the <paramref name="response"/> that is adequate for logging.
-        /// </summary>
-        [Obsolete("Use ToLogString(HttpRequestMessage, HttpResponseMessage, TimeSpan).", true)]
-        public static string ToLogString(this HttpResponseMessage response, TimeSpan elapsedTime = default)
-        {
-            if (response == null) return null;
-            var message = response.RequestMessage?.ToLogString(elapsedTime);
-            message += $" | {response.StatusCode.ToLogString()}";
-            return message;
-        }
-
-        /// <summary>
         /// Create a string based on <paramref name="request"/> and <paramref name="response"/> that is adequate for logging.
         /// </summary>
-        [Obsolete("Use ToLogStringAsync() instead")]
+        [Obsolete("Use ToLogStringAsync() instead. Obsolete warning since 2020-06-09, error since 2021-06-09.", true)]
         public static string ToLogString(this HttpRequestMessage request, HttpResponseMessage response, TimeSpan elapsedTime = default)
         {
             if (request == null) return null;
@@ -74,7 +62,7 @@ namespace Nexus.Link.Libraries.Web.Logging
         /// <summary>
         /// Create a string based on the <paramref name="response"/> that is adequate for logging.
         /// </summary>
-        [Obsolete("Use ToLogStringAsync() instead")]
+        [Obsolete("Use ToLogStringAsync() instead. Obsolete warning since 2020-06-09, error since 2021-06-09.", true)]
         public static string ToLogString(this HttpResponseMessage response)
         {
             return response?.StatusCode.ToLogString();

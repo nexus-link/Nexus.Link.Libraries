@@ -35,12 +35,6 @@ namespace Nexus.Link.Libraries.Core.Application
         public IThreadHandler ThreadHandler { get; set; }
 
         /// <summary>
-        /// The logger to use for logging for the entire application.
-        /// </summary>
-        [Obsolete("Use SyncLogger or AsyncLogger.", true)]
-        public IFulcrumFullLogger FullLogger { get; set; }
-
-        /// <summary>
         /// Set this to a fast synchronous logger.
         /// </summary>
         /// <remarks>If you have an asynchronous logger (fast or slow), then you can use <see cref="QueueToAsyncLogger"/> as a fast queue that will feed your logger.</remarks>
@@ -57,20 +51,7 @@ namespace Nexus.Link.Libraries.Core.Application
         public ITelemetryHandler TelemetryHandler { get; set; }
 
         /// <summary>
-        /// The context value provider that will be used all over the application.
-        /// </summary>
-        [Obsolete("Use FulcrumApplication.Context.ValueProvider.", true)]
-        public IContextValueProvider ContextValueProvider { get; set; }
-
-        /// <summary>
-        /// If any log in a batch of logs has a severity level that is equal to or higher than this level,
-        /// then <see cref="LogSeverityLevelThreshold"/> is overriden and all logs will be used.
-        /// </summary>
-        [Obsolete("Use BatchLogger and pick a value in the constructor.", true)]
-        public LogSeverityLevel BatchLogAllSeverityLevelThreshold { get; set; }
-
-        /// <summary>
-        /// A log must have at least this level to be sent for logging. Can be overridden in batches by <see cref="BatchLogAllSeverityLevelThreshold"/>.
+        /// A log must have at least this level to be sent for logging.
         /// </summary>
         public LogSeverityLevel LogSeverityLevelThreshold{ get; set; }
 
