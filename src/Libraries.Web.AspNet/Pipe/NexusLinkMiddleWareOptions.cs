@@ -8,8 +8,6 @@ namespace Nexus.Link.Libraries.Web.AspNet.Pipe
     public class NexusLinkMiddlewareOptions : IValidatable
     {
         public MiddlewareFeatures Features = new MiddlewareFeatures();
-
-        public MiddlewareCallbacks Delegates = new MiddlewareCallbacks();
         /// <inheritdoc />
         public virtual void Validate(string errorLocation, string propertyPath = "")
         {
