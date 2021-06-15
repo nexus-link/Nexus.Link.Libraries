@@ -1,4 +1,5 @@
-﻿using System.Threading;
+﻿using System;
+using System.Threading;
 using System.Threading.Tasks;
 using Nexus.Link.Libraries.Core.Application;
 using Nexus.Link.Libraries.Core.Assert;
@@ -30,9 +31,10 @@ namespace Nexus.Link.Libraries.Web.AspNet.Pipe.Inbound
         }
 
 #if NETCOREAPP
-/// <inheritdoc />
+        /// <inheritdoc />
+        [Obsolete("Please use the class NexusLinkMiddleware. Obsolete since 2021-06-04")]
         public SaveClientTenantConfiguration(RequestDelegate next, ILeverServiceConfiguration serviceConfiguration)
-        :base(next)
+                : base(next)
         {
             _serviceConfiguration = serviceConfiguration;
         }
@@ -83,6 +85,7 @@ namespace Nexus.Link.Libraries.Web.AspNet.Pipe.Inbound
 #if NETCOREAPP
     public static class SaveClientTenantConfigurationExtension
     {
+        [Obsolete("Please use the class NexusLinkMiddleware. Obsolete since 2021-06-04")]
         public static IApplicationBuilder UseNexusSaveClientTenantConfiguration(
             this IApplicationBuilder builder, ILeverServiceConfiguration serviceConfiguration)
         {

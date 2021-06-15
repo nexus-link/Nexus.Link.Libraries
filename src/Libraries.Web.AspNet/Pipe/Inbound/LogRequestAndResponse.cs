@@ -33,6 +33,7 @@ namespace Nexus.Link.Libraries.Web.AspNet.Pipe.Inbound
 
 #if NETCOREAPP
         /// <inheritdoc />
+        [Obsolete("Please use the class NexusLinkMiddleware. Obsolete since 2021-06-04")]
         public LogRequestAndResponse(RequestDelegate next) 
         :base(next)
         {
@@ -48,19 +49,19 @@ namespace Nexus.Link.Libraries.Web.AspNet.Pipe.Inbound
             InternalContract.Require(!ExceptionToFulcrumResponse.HasStarted,
                 $"{nameof(ExceptionToFulcrumResponse)} must not precede {nameof(LogRequestAndResponse)}");
             DelegateState.HasStarted = true;
-            var stopWatch = new Stopwatch();
-            stopWatch.Start();
+            var stopwatch = new Stopwatch();
+            stopwatch.Start();
             try
             {
                 await CallNextDelegateAsync(context, cancellationToken);
-                stopWatch.Stop();
-                await LogResponseAsync(context, stopWatch.Elapsed, cancellationToken);
+                stopwatch.Stop();
+                await LogResponseAsync(context, stopwatch.Elapsed, cancellationToken);
             }
             catch (Exception exception)
             {
                 // If ExceptionToFulcrumResponse handler is used, we should not end up here.
-                stopWatch.Stop();
-                LogException(context, exception, stopWatch.Elapsed);
+                stopwatch.Stop();
+                LogException(context, exception, stopwatch.Elapsed);
                 throw;
             }
         }
@@ -95,6 +96,7 @@ namespace Nexus.Link.Libraries.Web.AspNet.Pipe.Inbound
 #if NETCOREAPP
     public static class LogRequestAndResponseExtension
     {
+        [Obsolete("Please use the class NexusLinkMiddleware. Obsolete since 2021-06-04")]
         public static IApplicationBuilder UseNexusLogRequestAndResponse(
             this IApplicationBuilder builder)
         {

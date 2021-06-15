@@ -32,6 +32,7 @@ namespace Nexus.Link.Libraries.Web.AspNet.Pipe.Inbound
 
 #if NETCOREAPP
         /// <inheritdoc />
+        [Obsolete("Please use the class NexusLinkMiddleware. Obsolete since 2021-06-04")]
         public ExceptionToFulcrumResponse(RequestDelegate next)
             : base(next)
         {
@@ -77,6 +78,7 @@ namespace Nexus.Link.Libraries.Web.AspNet.Pipe.Inbound
 #if NETCOREAPP
     public static class ExceptionToFulcrumResponseExtension
     {
+        [Obsolete("Please use the class NexusLinkMiddleware. Obsolete since 2021-06-04")]
         public static IApplicationBuilder UseNexusExceptionToFulcrumResponse(
             this IApplicationBuilder builder)
         {
