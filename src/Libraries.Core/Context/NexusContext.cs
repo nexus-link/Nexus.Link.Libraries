@@ -17,10 +17,12 @@ namespace Nexus.Link.Libraries.Core.Context
         private readonly OneValueProvider<IPrincipal> _userPrincipal;
         private readonly OneValueProvider<bool> _isInBatchLogger;
         private readonly OneValueProvider<string> _nexusTestContext;
+        private readonly OneValueProvider<bool> _executionIsAsynchronous;
 
         public NexusContext(IContextValueProvider valueProvider)
         {
             ValueProvider = valueProvider;
+            _executionIsAsynchronous = new OneValueProvider<bool>(ValueProvider, "ExecutionIsAsynchronous");
             _correlationId = new OneValueProvider<string>(ValueProvider, "NexusCorrelationId");
             _callingClientName = new OneValueProvider<string>(ValueProvider, "CallingClientName");
             _clientTenant = new OneValueProvider<Tenant>(ValueProvider, "TenantId");
@@ -37,7 +39,18 @@ namespace Nexus.Link.Libraries.Core.Context
         public Guid ContextId => ValueProvider.ContextId;
 
         /// <summary>
-        /// Access the context data
+        /// If this is true, then the current execution is in an truly asynchronous context,
+        /// i.e. the client is not waiting for the response, so we are for instance
+        /// free to make asynchronous calls to other servers.
+        /// </summary>
+        public bool ExecutionIsAsynchronous
+        {
+            get => _executionIsAsynchronous.GetValue();
+            set => _executionIsAsynchronous.SetValue(value);
+        }
+
+        /// <summary>
+        /// The correlation id.
         /// </summary>
         public string CorrelationId
         {
@@ -46,7 +59,7 @@ namespace Nexus.Link.Libraries.Core.Context
         }
 
         /// <summary>
-        /// Access the context data
+        /// The name of the calling client, as set in the authentication token
         /// </summary>
         public string CallingClientName
         {
@@ -55,7 +68,7 @@ namespace Nexus.Link.Libraries.Core.Context
         }
 
         /// <summary>
-        /// Access the context data
+        /// The client tenant, as specified in the URL.
         /// </summary>
         public Tenant ClientTenant
         {
@@ -64,7 +77,7 @@ namespace Nexus.Link.Libraries.Core.Context
         }
 
         /// <summary>
-        /// Access the context data
+        /// The client-tenant-specific configuration 
         /// </summary>
         public ILeverConfiguration LeverConfiguration
         {
@@ -73,7 +86,7 @@ namespace Nexus.Link.Libraries.Core.Context
         }
 
         /// <summary>
-        /// Access the context data
+        /// The client principal from the authentication token
         /// </summary>
         public IPrincipal ClientPrincipal
         {
@@ -82,7 +95,7 @@ namespace Nexus.Link.Libraries.Core.Context
         }
 
         /// <summary>
-        /// Access the context data
+        /// The user principal from the authentication token
         /// </summary>
         public IPrincipal UserPrincipal
         {
@@ -91,7 +104,7 @@ namespace Nexus.Link.Libraries.Core.Context
         }
 
         /// <summary>
-        /// Access the context data
+        /// True if we are in the batch logger code
         /// </summary>
         public bool IsInBatchLogger
         {

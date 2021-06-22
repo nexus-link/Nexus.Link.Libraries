@@ -9,7 +9,7 @@ using Nexus.Link.Libraries.Core.Application;
 using Nexus.Link.Libraries.Core.Logging;
 using Nexus.Link.Libraries.Web.Tests.Support;
 
-namespace Nexus.Link.Libraries.Web.Tests
+namespace Nexus.Link.Libraries.Web.Tests.Pipe
 {
     [TestClass]
     public class LogRequestAndResponseTest : ISyncLogger

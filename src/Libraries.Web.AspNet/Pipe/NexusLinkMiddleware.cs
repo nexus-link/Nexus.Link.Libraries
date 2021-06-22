@@ -16,6 +16,7 @@ using Nexus.Link.Libraries.Core.MultiTenant.Model;
 using Nexus.Link.Libraries.Core.Platform.Configurations;
 using Nexus.Link.Libraries.Web.AspNet.Error.Logic;
 using Nexus.Link.Libraries.Web.AspNet.Logging;
+using Nexus.Link.Libraries.Web.AspNet.Queue;
 using Nexus.Link.Libraries.Web.Pipe;
 
 namespace Nexus.Link.Libraries.Web.AspNet.Pipe

@@ -1,7 +1,6 @@
 ﻿#if NETCOREAPP
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
-using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -10,10 +9,7 @@ using Newtonsoft.Json;
 using Nexus.Link.Libraries.Core.Application;
 using Nexus.Link.Libraries.Core.Error.Logic;
 using Nexus.Link.Libraries.Core.Logging;
-using Nexus.Link.Libraries.Core.MultiTenant.Model;
-using Nexus.Link.Libraries.Core.Platform.Configurations;
 using Nexus.Link.Libraries.Web.AspNet.Pipe;
-using Nexus.Link.Libraries.Web.AspNet.Pipe.Inbound;
 using Nexus.Link.Libraries.Web.Error.Logic;
 
 namespace Nexus.Link.Libraries.Web.AspNet.Tests.InboundPipe.NexusLinkMiddleware
@@ -52,7 +48,7 @@ namespace Nexus.Link.Libraries.Web.AspNet.Tests.InboundPipe.NexusLinkMiddleware
             options.Features.LogRequestAndResponse.Enabled = true;
             var outerHandler = new Pipe.NexusLinkMiddleware(innerHandler.InvokeAsync, options);
             var context = new DefaultHttpContext();
-            Support.SetRequest(context, url);
+            context.SetRequest(url);
 
             await outerHandler.InvokeAsync(context);
 
@@ -82,7 +78,7 @@ namespace Nexus.Link.Libraries.Web.AspNet.Tests.InboundPipe.NexusLinkMiddleware
             options.Features.LogRequestAndResponse.Enabled = true;
             var outerHandler = new Pipe.NexusLinkMiddleware(innerHandler.InvokeAsync, options);
             var context = new DefaultHttpContext();
-            Support.SetRequest(context, url);
+            context.SetRequest(url);
 
             await outerHandler.InvokeAsync(context);
 
@@ -109,7 +105,7 @@ namespace Nexus.Link.Libraries.Web.AspNet.Tests.InboundPipe.NexusLinkMiddleware
             options.Features.LogRequestAndResponse.Enabled = true;
             var outerHandler = new Pipe.NexusLinkMiddleware(innerHandler.InvokeAsync, options);
             var context = new DefaultHttpContext();
-            Support.SetRequest(context, url);
+            context.SetRequest(url);
 
             await outerHandler.InvokeAsync(context);
 

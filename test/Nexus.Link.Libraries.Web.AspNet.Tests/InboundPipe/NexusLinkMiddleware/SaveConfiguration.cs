@@ -1,22 +1,14 @@
 ﻿#if NETCOREAPP
 using System.Diagnostics.CodeAnalysis;
-using System.IO;
-using System.Text.RegularExpressions;
-using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
-using Newtonsoft.Json;
 using Nexus.Link.Libraries.Core.Application;
-using Nexus.Link.Libraries.Core.Error.Logic;
 using Nexus.Link.Libraries.Core.Logging;
-using Nexus.Link.Libraries.Core.MultiTenant.Model;
 using Nexus.Link.Libraries.Core.Platform.Configurations;
 using Nexus.Link.Libraries.Web.AspNet.Pipe;
-using Nexus.Link.Libraries.Web.AspNet.Pipe.Inbound;
 using Nexus.Link.Libraries.Web.AspNet.Pipe.Support.Options;
-using Nexus.Link.Libraries.Web.Error.Logic;
 
 namespace Nexus.Link.Libraries.Web.AspNet.Tests.InboundPipe.NexusLinkMiddleware
 {
@@ -66,7 +58,7 @@ namespace Nexus.Link.Libraries.Web.AspNet.Tests.InboundPipe.NexusLinkMiddleware
 
             // Simulate an incoming request
             var context = new DefaultHttpContext();
-            Support.SetRequest(context, url);
+            context.SetRequest(url);
             context.Request.Headers.Add("X-Correlation-ID", corrId);
             await handler.InvokeAsync(context);
 

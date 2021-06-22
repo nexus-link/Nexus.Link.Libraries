@@ -2,10 +2,11 @@
 using System.Threading;
 using System.Threading.Tasks;
 using Moq;
+using Nexus.Link.Libraries.Web.Pipe.Outbound;
 
 namespace Nexus.Link.Libraries.Web.Tests.Support
 {
-    internal class PropagateNexusTestHeaderForTest : Pipe.Outbound.PropagateNexusTestHeader
+    internal class PropagateNexusTestHeaderForTest : PropagateNexusTestHeader
     {
         public PropagateNexusTestHeaderForTest()
         {

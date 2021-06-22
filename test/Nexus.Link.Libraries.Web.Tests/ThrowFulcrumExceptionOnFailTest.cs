@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Nexus.Link.Libraries.Core.Application;
 using Nexus.Link.Libraries.Core.Error.Logic;
+using Nexus.Link.Libraries.Web.Tests.Pipe;
 using Nexus.Link.Libraries.Web.Tests.Support;
 
 namespace Nexus.Link.Libraries.Web.Tests
@@ -24,7 +25,7 @@ namespace Nexus.Link.Libraries.Web.Tests
         public async Task TaskCanceledException()
         {
             var handler =
-                new ThrowFulcrumExceptionOnFail { UnitTest_SendAsyncDependencyInjection = SendAsyncTaskCanceledException };
+                new ThrowFulcrumExceptionOnFailForTest { UnitTest_SendAsyncDependencyInjection = SendAsyncTaskCanceledException };
             var request = new HttpRequestMessage(HttpMethod.Post, "http://example.com/exception");
             try
             {
@@ -41,7 +42,7 @@ namespace Nexus.Link.Libraries.Web.Tests
         public async Task Success()
         {
             var handler =
-                new ThrowFulcrumExceptionOnFail { UnitTest_SendAsyncDependencyInjection = SendAsyncSuccess };
+                new ThrowFulcrumExceptionOnFailForTest { UnitTest_SendAsyncDependencyInjection = SendAsyncSuccess };
             var request = new HttpRequestMessage(HttpMethod.Post, "http://example.com/exception");
             await handler.SendAsync(request);
         }

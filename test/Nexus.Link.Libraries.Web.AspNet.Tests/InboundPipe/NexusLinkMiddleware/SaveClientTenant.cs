@@ -1,7 +1,6 @@
 ﻿#if NETCOREAPP
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
-using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -58,7 +57,7 @@ namespace Nexus.Link.Libraries.Web.AspNet.Tests.InboundPipe.NexusLinkMiddleware
                 _foundClientTenant = null;
                 var expectedTenant = entry.Key;
                 var context = new DefaultHttpContext();
-                Support.SetRequest(context, entry.Value);
+                context.SetRequest(entry.Value);
                 await handler.InvokeAsync(context);
                 Assert.AreEqual(expectedTenant, _foundClientTenant,
                     $"Could not find tenant '{expectedTenant}' from url '{entry.Value}'. Found {_foundClientTenant}");
@@ -80,7 +79,7 @@ namespace Nexus.Link.Libraries.Web.AspNet.Tests.InboundPipe.NexusLinkMiddleware
             _foundClientTenant = null;
             var url = "https://ver-fulcrum-fundamentals.azurewebsites.net/api/v1/false/positive/ServiceMetas/ServiceHealth";
             var context = new DefaultHttpContext();
-            Support.SetRequest(context, url);
+            context.SetRequest(url);
             await handler.InvokeAsync(context);
             Assert.IsNotNull(_foundClientTenant);
         }
@@ -117,7 +116,7 @@ namespace Nexus.Link.Libraries.Web.AspNet.Tests.InboundPipe.NexusLinkMiddleware
                 _foundClientTenant = null;
                 var expectedTenant = entry.Key;
                 var context = new DefaultHttpContext();
-                Support.SetRequest(context, entry.Value);
+                context.SetRequest(entry.Value);
                 await handler.InvokeAsync(context);
                 Assert.AreEqual(expectedTenant, _foundClientTenant,
                     $"Could not find tenant '{expectedTenant}' from url '{entry.Value}'. Found {_foundClientTenant}");
@@ -140,7 +139,7 @@ namespace Nexus.Link.Libraries.Web.AspNet.Tests.InboundPipe.NexusLinkMiddleware
             _foundClientTenant = null;
             const string url = "https://ver-fulcrum-fundamentals.azurewebsites.net/api/v1/false/positive/ServiceMetas/ServiceHealth";
             var context = new DefaultHttpContext();
-            Support.SetRequest(context, url);
+            context.SetRequest(url);
             await handler.InvokeAsync(context);
             Assert.IsNull(_foundClientTenant);
         }
@@ -160,7 +159,7 @@ namespace Nexus.Link.Libraries.Web.AspNet.Tests.InboundPipe.NexusLinkMiddleware
             })
             {
                 var context = new DefaultHttpContext();
-                Support.SetRequest(context, url);
+                context.SetRequest(url);
                 await handler.InvokeAsync(context);
                 Assert.IsNull(FulcrumApplication.Context.ClientTenant);
             }
