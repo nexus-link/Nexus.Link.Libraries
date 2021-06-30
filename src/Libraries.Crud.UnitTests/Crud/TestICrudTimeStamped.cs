@@ -27,7 +27,7 @@ namespace Nexus.Link.Libraries.Crud.UnitTests.Crud
             {
                 updateItem.RecordUpdatedAt = readItem.RecordUpdatedAt;
             }
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual(updateItem, readItem);
+            Assert.AreEqual(updateItem, readItem);
         }
     }
 }

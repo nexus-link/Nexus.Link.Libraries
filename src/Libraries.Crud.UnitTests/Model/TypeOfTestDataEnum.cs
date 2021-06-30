@@ -28,6 +28,14 @@ namespace Nexus.Link.Libraries.Crud.UnitTests.Model
         /// <summary>
         /// A new Guid as string.
         /// </summary>
-        Guid
+        Guid,
+        /// <summary>
+        /// A null value
+        /// </summary>
+        NullValue,
+        /// <summary>
+        /// An empty value
+        /// </summary>
+        EmptyValue
     };
 }

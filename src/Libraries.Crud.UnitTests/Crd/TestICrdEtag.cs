@@ -21,10 +21,10 @@ namespace Nexus.Link.Libraries.Crud.UnitTests.Crd
             initialItem.InitializeWithDataForTesting(TypeOfTestDataEnum.Default);
             var id = await CrdStorage.CreateAsync(initialItem);
             var createdItem = await CrdStorage.ReadAsync(id);
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsNotNull(createdItem);
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreNotEqual(createdItem.Id, default);
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsNotNull(createdItem.Etag);
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual(initialItem, createdItem);
+            Assert.IsNotNull(createdItem);
+            Assert.AreNotEqual(createdItem.Id, default);
+            Assert.IsNotNull(createdItem.Etag);
+            Assert.AreEqual(initialItem, createdItem);
         }
 
         /// <summary>
@@ -36,10 +36,10 @@ namespace Nexus.Link.Libraries.Crud.UnitTests.Crd
             var initialItem = new TestItemBare();
             initialItem.InitializeWithDataForTesting(TypeOfTestDataEnum.Default);
             var createdItem = await CrdStorage.CreateAndReturnAsync(initialItem);
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsNotNull(createdItem);
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreNotEqual(createdItem.Id, default);
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsNotNull(createdItem.Etag);
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual(initialItem, createdItem);
+            Assert.IsNotNull(createdItem);
+            Assert.AreNotEqual(createdItem.Id, default);
+            Assert.IsNotNull(createdItem.Etag);
+            Assert.AreEqual(initialItem, createdItem);
         }
     }
 }

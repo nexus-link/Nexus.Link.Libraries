@@ -21,14 +21,14 @@ namespace Nexus.Link.Libraries.Crud.UnitTests.Crd
         {
             var initialItem = new TestItemId<TId>();
             initialItem.InitializeWithDataForTesting(TypeOfTestDataEnum.Default);
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual(default, initialItem.Id);
+            Assert.AreEqual(default, initialItem.Id);
             var id = await CrdStorage.CreateAsync(initialItem);
             var createdItem = await CrdStorage.ReadAsync(id);
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsNotNull(createdItem);
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreNotEqual(default, createdItem.Id);
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual(id, createdItem.Id);
+            Assert.IsNotNull(createdItem);
+            Assert.AreNotEqual(default, createdItem.Id);
+            Assert.AreEqual(id, createdItem.Id);
             initialItem.Id = createdItem.Id;
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual(initialItem, createdItem);
+            Assert.AreEqual(initialItem, createdItem);
         }
 
         /// <summary>
@@ -39,12 +39,12 @@ namespace Nexus.Link.Libraries.Crud.UnitTests.Crd
         {
             var initialItem = new TestItemId<TId>();
             initialItem.InitializeWithDataForTesting(TypeOfTestDataEnum.Default);
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual(default, initialItem.Id);
+            Assert.AreEqual(default, initialItem.Id);
             var createdItem = await CrdStorage.CreateAndReturnAsync(initialItem);
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsNotNull(createdItem);
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreNotEqual(default, createdItem.Id);
+            Assert.IsNotNull(createdItem);
+            Assert.AreNotEqual(default, createdItem.Id);
             initialItem.Id = createdItem.Id;
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual(initialItem, createdItem);
+            Assert.AreEqual(initialItem, createdItem);
         }
 
         /// <summary>

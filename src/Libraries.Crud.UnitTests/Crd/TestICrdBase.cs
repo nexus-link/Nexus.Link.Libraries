@@ -26,14 +26,14 @@ namespace Nexus.Link.Libraries.Crud.UnitTests.Crd
             var initialItem = new TModelCreate();
             initialItem.InitializeWithDataForTesting(type);
             var id = await CrdStorage.CreateAsync(initialItem, cancellationToken);
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreNotEqual(default, id);
+            Assert.AreNotEqual(default, id);
             return id;
         }
 
         protected async Task<TModel> ReadItemAsync(TId id, CancellationToken cancellationToken = default)
         {
             var readItem = await CrdStorage.ReadAsync(id, cancellationToken);
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsNotNull(readItem);
+            Assert.IsNotNull(readItem);
             return readItem;
         }
 

@@ -23,8 +23,8 @@ namespace Nexus.Link.Libraries.Crud.UnitTests.Crd
             initialItem.InitializeWithDataForTesting(TypeOfTestDataEnum.Default);
             var id = await CrdStorage.CreateAsync(initialItem);
             var createdItem = await CrdStorage.ReadAsync(id);
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsNotNull(createdItem);
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual(initialItem, createdItem);
+            Assert.IsNotNull(createdItem);
+            Assert.AreEqual(initialItem, createdItem);
         }
 
         /// <summary>
@@ -36,8 +36,8 @@ namespace Nexus.Link.Libraries.Crud.UnitTests.Crd
             var initialItem = new TestItemBare();
             initialItem.InitializeWithDataForTesting(TypeOfTestDataEnum.Default);
             var createdItem = await CrdStorage.CreateAndReturnAsync(initialItem);
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsNotNull(createdItem);
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual(initialItem, createdItem);
+            Assert.IsNotNull(createdItem);
+            Assert.AreEqual(initialItem, createdItem);
         }
 
         /// <summary>
@@ -47,7 +47,7 @@ namespace Nexus.Link.Libraries.Crud.UnitTests.Crd
         public async Task Read_NotFound_Async()
         {
             var item = await CrdStorage.ReadAsync(CrudHelper.CreateNewId<TId>());
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsNull(item);
+            Assert.IsNull(item);
         }
 
         /// <summary>
@@ -62,7 +62,7 @@ namespace Nexus.Link.Libraries.Crud.UnitTests.Crd
             await CrdStorage.ReadAsync(id);
             await CrdStorage.DeleteAsync(id);
             var item = await CrdStorage.ReadAsync(id);
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsNull(item);
+            Assert.IsNull(item);
         }
 
         /// <summary>

@@ -23,7 +23,7 @@ namespace Nexus.Link.Libraries.Crud.UnitTests.Crud
             var id = await CreateItemAsync(TypeOfTestDataEnum.Variant1);
             var updatedItem = await UpdateItemAsync(id, TypeOfTestDataEnum.Variant2);
             var readItem = await ReadItemAsync(id);
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual(updatedItem, readItem);
+            Assert.AreEqual(updatedItem, readItem);
         }
     }
 }

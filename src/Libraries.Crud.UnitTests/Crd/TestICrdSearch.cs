@@ -276,6 +276,29 @@ namespace Nexus.Link.Libraries.Crud.UnitTests.Crd
 
         }
 
+
+        [TestMethod]
+        public async Task FindUniqueAmongNullValues_Async()
+        {
+            // Arrange
+            await CreateItemAsync(TypeOfTestDataEnum.NullValue);
+            await CreateItemAsync(TypeOfTestDataEnum.Variant1);
+            await CreateItemAsync(TypeOfTestDataEnum.EmptyValue);
+
+            // Act 
+            var search = CrudStorage as ISearch<TestItemSort<TId>, TId>;
+            Assert.IsNotNull(search, $"{CrudStorage.GetType().Name} was expected to implement {nameof(ISearch<TestItemSort<TId>, TId>)}");
+            const string variant = "Variant1";
+            var searchDetails = new SearchDetails<TestItemSort<TId>>(new { Value = variant });
+
+            var item = await search.FindUniqueAsync(searchDetails);
+
+            // Assert
+            Assert.IsNotNull(item);
+            Assert.AreEqual(variant, item.Value);
+
+        }
+
         [TestMethod]
         [ExpectedException(typeof(FulcrumBusinessRuleException))]
         public async Task FindUnique_WithTooManyFound_Async()

@@ -16,6 +16,8 @@ namespace Nexus.Link.Libraries.Crud.UnitTests.Model
 
     public partial class TestItemBare : IItemForTesting
     {
+        public const string ValueToMakeValidationFail = "THIS WILL FAIL";
+
         public static int Modulo { get; set; } = 3;
 
         public static int Count { get; set; } = 1;
@@ -27,6 +29,12 @@ namespace Nexus.Link.Libraries.Crud.UnitTests.Model
                     Value = "Default";
                     break;
                 case TypeOfTestDataEnum.ValidationFail:
+                    Value = ValueToMakeValidationFail;
+                    break;
+                case TypeOfTestDataEnum.NullValue:
+                    Value = null;
+                    break;
+                case TypeOfTestDataEnum.EmptyValue:
                     Value = "";
                     break;
                 case TypeOfTestDataEnum.Variant1:
