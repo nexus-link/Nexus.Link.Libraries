@@ -154,6 +154,34 @@ namespace Nexus.Link.Libraries.Web.Tests.RestClientHelper
             Assert.AreEqual(contentAsObject.A, actualContentAsObject.A);
             Assert.AreEqual(contentAsObject.B, actualContentAsObject.B);
         }
+
+        [TestMethod]
+        public async Task PostResponseWithNoContent()
+        {
+            // Arrange
+            _httpClientMock = new Mock<IHttpClient>();
+            _httpClientMock.Setup(s => s.SendAsync(It.IsAny<HttpRequestMessage>(), It.IsAny<CancellationToken>()))
+                .Callback((HttpRequestMessage m, CancellationToken ct) =>
+                {
+                    _actualRequestMessage = m;
+                    _actualContent = null;
+                    if (m.Content != null)
+                    {
+                        m.Content.LoadIntoBufferAsync().Wait(ct);
+                        _actualContent = m.Content.ReadAsStringAsync().Result;
+                    }
+                })
+                .ReturnsAsync(new HttpResponseMessage(HttpStatusCode.NoContent));
+            const string baseUri = "http://example.se/";
+            var content = "content";
+            var sender = new HttpSender(baseUri) { HttpClient = _httpClientMock.Object };
+
+            // Act
+            var response = await sender.SendRequestAsync<string, string>(HttpMethod.Post, "", content);
+
+            // Assert
+            Assert.IsNull(response.Body);
+        }
     }
 
     public class TestType

@@ -240,7 +240,6 @@ namespace Nexus.Link.Libraries.Web.RestClientHelper
         private async Task<HttpOperationResponse<TResponse>> HandleResponseWithBody<TResponse>(HttpMethod method, HttpResponseMessage response,
             HttpRequestMessage request, CancellationToken cancellationToken)
         {
-            await VerifySuccessAsync(response, cancellationToken);
             var result = new HttpOperationResponse<TResponse>
             {
                 Request = request,
@@ -248,12 +247,17 @@ namespace Nexus.Link.Libraries.Web.RestClientHelper
                 Body = default
             };
 
+            // Simple case
+            if (response.StatusCode == HttpStatusCode.NoContent) return result;
+
+            await VerifySuccessAsync(response, cancellationToken);
             if (method == HttpMethod.Get || method == HttpMethod.Put || method == HttpMethod.Post || method == PatchMethod)
             {
                 if ((method == HttpMethod.Get || method == HttpMethod.Put || method == PatchMethod) && response.StatusCode != HttpStatusCode.OK)
                 {
                     throw new FulcrumResourceException($"The response to request {request.ToLogString()} was expected to have HttpStatusCode {HttpStatusCode.OK}, but had {response.StatusCode.ToLogString()}.");
                 }
+
                 if (method == HttpMethod.Post && response.StatusCode != HttpStatusCode.OK && response.StatusCode != HttpStatusCode.Created)
                 {
                     throw new FulcrumResourceException($"The response to request {request.ToLogString()} was expected to have HttpStatusCode {HttpStatusCode.OK} or {HttpStatusCode.Created}, but had {response.StatusCode.ToLogString()}.");
