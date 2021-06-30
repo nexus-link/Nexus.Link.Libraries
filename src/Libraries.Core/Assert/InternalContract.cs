@@ -88,7 +88,7 @@ namespace Nexus.Link.Libraries.Core.Assert
         [StackTraceHidden]
         public static void RequireAreEqual<T>(T expectedValue, T parameterValue, string parameterName, string customMessage = null)
         {
-            RequireNotNull(parameterName, nameof(parameterName));
+            if (customMessage == null) RequireNotNull(parameterName, nameof(parameterName));
             GenericContract<FulcrumContractException>.RequireAreEqual(expectedValue, parameterValue, parameterName, customMessage);
         }
 
@@ -98,7 +98,7 @@ namespace Nexus.Link.Libraries.Core.Assert
         [StackTraceHidden]
         public static void RequireAreNotEqual<T>(T expectedValue, T parameterValue, string parameterName, string customMessage = null)
         {
-            RequireNotNull(parameterName, nameof(parameterName));
+            if (customMessage == null) RequireNotNull(parameterName, nameof(parameterName));
             GenericContract<FulcrumContractException>.RequireAreNotEqual(expectedValue, parameterValue, parameterName, customMessage);
         }
 
@@ -111,7 +111,7 @@ namespace Nexus.Link.Libraries.Core.Assert
         {
             RequireNotNull(greaterValue, nameof(greaterValue));
             RequireNotNull(parameterValue, nameof(parameterValue));
-            RequireNotNull(parameterName, nameof(parameterName));
+            if (customMessage == null) RequireNotNull(parameterName, nameof(parameterName));
             GenericContract<FulcrumContractException>.RequireLessThan(greaterValue, parameterValue, parameterName, customMessage);
         }
 
@@ -124,7 +124,7 @@ namespace Nexus.Link.Libraries.Core.Assert
         {
             RequireNotNull(greaterOrEqualValue, nameof(greaterOrEqualValue));
             RequireNotNull(parameterValue, nameof(parameterValue));
-            RequireNotNull(parameterName, nameof(parameterName));
+            if (customMessage == null) RequireNotNull(parameterName, nameof(parameterName));
             GenericContract<FulcrumContractException>.RequireLessThanOrEqualTo(greaterOrEqualValue, parameterValue, parameterName, customMessage);
         }
 
@@ -137,7 +137,7 @@ namespace Nexus.Link.Libraries.Core.Assert
         {
             RequireNotNull(lesserValue, nameof(lesserValue));
             RequireNotNull(parameterValue, nameof(parameterValue));
-            RequireNotNull(parameterName, nameof(parameterName));
+            if (customMessage == null) RequireNotNull(parameterName, nameof(parameterName));
             GenericContract<FulcrumContractException>.RequireGreaterThan(lesserValue, parameterValue, parameterName, customMessage);
         }
 
@@ -150,7 +150,7 @@ namespace Nexus.Link.Libraries.Core.Assert
         {
             RequireNotNull(lesserOrEqualValue, nameof(lesserOrEqualValue));
             RequireNotNull(parameterValue, nameof(parameterValue));
-            RequireNotNull(parameterName, nameof(parameterName));
+            if (customMessage == null) RequireNotNull(parameterName, nameof(parameterName));
             GenericContract<FulcrumContractException>.RequireGreaterThanOrEqualTo(lesserOrEqualValue, parameterValue, parameterName, customMessage);
         }
 
@@ -161,7 +161,7 @@ namespace Nexus.Link.Libraries.Core.Assert
         public static void RequireMatchesRegExp(string regularExpression, string parameterValue, string parameterName, string customMessage = null)
         {
             RequireNotNullOrWhiteSpace(regularExpression, nameof(regularExpression));
-            RequireNotNull(parameterName, nameof(parameterName));
+            if (customMessage == null) RequireNotNull(parameterName, nameof(parameterName));
             GenericContract<FulcrumContractException>.RequireMatchesRegExp(regularExpression, parameterValue, parameterName, customMessage);
         }
 
@@ -183,7 +183,7 @@ namespace Nexus.Link.Libraries.Core.Assert
         public static void MatchesRegExp(string regularExpression, string parameterValue, string parameterName, string customMessage = null)
         {
             RequireNotNullOrWhiteSpace(regularExpression, nameof(regularExpression));
-            RequireNotNull(parameterName, nameof(parameterName));
+            if (customMessage == null) RequireNotNull(parameterName, nameof(parameterName));
             GenericContract<FulcrumContractException>.RequireMatchesRegExp(regularExpression, parameterValue, parameterName, customMessage);
         }
 

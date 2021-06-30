@@ -27,11 +27,11 @@ namespace Nexus.Link.Libraries.Core.Tests.TestAssert
                 object nullObject = null;
                 // ReSharper disable once ExpressionIsAlwaysNull
                 InternalContract.RequireNotNull(nullObject, parameterName);
-              UT.Assert.Fail("An exception should have been thrown");
+                UT.Assert.Fail("An exception should have been thrown");
             }
             catch (FulcrumContractException fulcrumException)
             {
-               UT.Assert.IsTrue(fulcrumException.TechnicalMessage.Contains(parameterName));
+                UT.Assert.IsTrue(fulcrumException.TechnicalMessage.Contains(parameterName));
             }
             catch (Exception e)
             {
@@ -58,6 +58,14 @@ namespace Nexus.Link.Libraries.Core.Tests.TestAssert
             {
                 UT.Assert.Fail($"Expected a specific FulcrumException but got {e.GetType().FullName}.");
             }
+        }
+
+        [TestMethod]
+        public void NullParameterNameIsOkWhenThereIsACustomMessage()
+        {
+            var value = "A";
+            // ReSharper disable once ExpressionIsAlwaysNull
+            InternalContract.RequireAreEqual(value, value, null, "This assertion has a custom message, so null parameter name is OK");
         }
 
         [TestMethod]
@@ -132,7 +140,7 @@ namespace Nexus.Link.Libraries.Core.Tests.TestAssert
         public void AreNotEqualOk()
         {
             const string parameterName = "parameterName";
-            InternalContract.RequireAreNotEqual("Knoll","Tott", parameterName);
+            InternalContract.RequireAreNotEqual("Knoll", "Tott", parameterName);
         }
 
         [TestMethod]
@@ -141,7 +149,7 @@ namespace Nexus.Link.Libraries.Core.Tests.TestAssert
             const string parameterName = "parameterName";
             try
             {
-                InternalContract.RequireAreNotEqual(10, 2*5, parameterName);
+                InternalContract.RequireAreNotEqual(10, 2 * 5, parameterName);
                 UT.Assert.Fail("An exception should have been thrown");
             }
             catch (FulcrumContractException fulcrumException)

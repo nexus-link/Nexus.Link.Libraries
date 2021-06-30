@@ -39,6 +39,14 @@ namespace Nexus.Link.Libraries.Core.Tests.TestAssert
         }
 
         [TestMethod]
+        public void NullParameterNameIsOkWhenThereIsACustomMessage()
+        {
+            var value = "A";
+            // ReSharper disable once ExpressionIsAlwaysNull
+            ServiceContract.RequireAreEqual(value, value, null, "This assertion has a custom message, so null parameter name is OK");
+        }
+
+        [TestMethod]
         public void NullString()
         {
             const string parameterName = "parameterName";

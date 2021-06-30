@@ -81,7 +81,7 @@ namespace Nexus.Link.Libraries.Core.Assert
         [StackTraceHidden]
         public static void RequireAreEqual<T>(T expectedValue, T parameterValue, string parameterName, string customMessage = null)
         {
-            InternalContract.RequireNotNull(parameterName, nameof(parameterName));
+             if (customMessage == null) InternalContract.RequireNotNull(parameterName, nameof(parameterName));
             var message = customMessage ?? $"ContractViolation: {parameterName} ({parameterValue}) must be equal to ({expectedValue}).";
             Require(Equals(expectedValue, parameterValue), message);
         }
@@ -92,7 +92,7 @@ namespace Nexus.Link.Libraries.Core.Assert
         [StackTraceHidden]
         public static void RequireAreNotEqual<T>(T expectedValue, T parameterValue, string parameterName, string customMessage = null)
         {
-            InternalContract.RequireNotNull(parameterName, nameof(parameterName));
+             if (customMessage == null) InternalContract.RequireNotNull(parameterName, nameof(parameterName));
             var message = customMessage ?? $"ContractViolation: {parameterName} ({parameterValue}) must not be equal to ({expectedValue}).";
             Require(!Equals(expectedValue, parameterValue), message);
         }
@@ -106,7 +106,7 @@ namespace Nexus.Link.Libraries.Core.Assert
         {
             InternalContract.RequireNotNull(greaterValue, nameof(greaterValue));
             InternalContract.RequireNotNull(parameterValue, nameof(parameterValue));
-            InternalContract.RequireNotNull(parameterName, nameof(parameterName));
+             if (customMessage == null) InternalContract.RequireNotNull(parameterName, nameof(parameterName));
             var message = customMessage ?? $"ContractViolation: {parameterName} ({parameterValue}) must be less than ({greaterValue}).";
             Require(parameterValue.CompareTo(greaterValue) < 0, message);
         }
@@ -120,7 +120,7 @@ namespace Nexus.Link.Libraries.Core.Assert
         {
             InternalContract.RequireNotNull(greaterOrEqualValue, nameof(greaterOrEqualValue));
             InternalContract.RequireNotNull(parameterValue, nameof(parameterValue));
-            InternalContract.RequireNotNull(parameterName, nameof(parameterName));
+             if (customMessage == null) InternalContract.RequireNotNull(parameterName, nameof(parameterName));
             var message = customMessage ?? $"ContractViolation: {parameterName} ({parameterValue}) must be less than or equal to ({greaterOrEqualValue}).";
             Require(parameterValue.CompareTo(greaterOrEqualValue) <= 0, message);
         }
@@ -134,7 +134,7 @@ namespace Nexus.Link.Libraries.Core.Assert
         {
             InternalContract.RequireNotNull(lesserValue, nameof(lesserValue));
             InternalContract.RequireNotNull(parameterValue, nameof(parameterValue));
-            InternalContract.RequireNotNull(parameterName, nameof(parameterName));
+             if (customMessage == null) InternalContract.RequireNotNull(parameterName, nameof(parameterName));
             var message = customMessage ?? $"ContractViolation: {parameterName} ({parameterValue}) must be greater than ({lesserValue}).";
             Require(parameterValue.CompareTo(lesserValue) > 0, message);
         }
@@ -148,7 +148,7 @@ namespace Nexus.Link.Libraries.Core.Assert
         {
             InternalContract.RequireNotNull(lesserOrEqualValue, nameof(lesserOrEqualValue));
             InternalContract.RequireNotNull(parameterValue, nameof(parameterValue));
-            InternalContract.RequireNotNull(parameterName, nameof(parameterName));
+             if (customMessage == null) InternalContract.RequireNotNull(parameterName, nameof(parameterName));
             var message = customMessage ?? $"ContractViolation: {parameterName} ({parameterValue}) must be greater than or equal to ({lesserOrEqualValue}).";
             Require(parameterValue.CompareTo(lesserOrEqualValue) >= 0, message);
         }
@@ -161,7 +161,7 @@ namespace Nexus.Link.Libraries.Core.Assert
         {
             InternalContract.RequireNotNull(regularExpression, nameof(regularExpression));
             InternalContract.RequireNotNull(parameterValue, nameof(parameterValue));
-            InternalContract.RequireNotNull(parameterName, nameof(parameterName));
+             if (customMessage == null) InternalContract.RequireNotNull(parameterName, nameof(parameterName));
             var message = customMessage ?? $"ContractViolation: {parameterName} ({parameterValue}) must match regular expression ({regularExpression}).";
             Require(Regex.IsMatch(parameterValue, regularExpression), message);
         }
@@ -174,7 +174,7 @@ namespace Nexus.Link.Libraries.Core.Assert
         {
             InternalContract.RequireNotNull(regularExpression, nameof(regularExpression));
             InternalContract.RequireNotNull(parameterValue, nameof(parameterValue));
-            InternalContract.RequireNotNull(parameterName, nameof(parameterName));
+             if (customMessage == null) InternalContract.RequireNotNull(parameterName, nameof(parameterName));
             var message = customMessage ?? $"ContractViolation: {parameterName} ({parameterValue}) must not match regular expression ({regularExpression}).";
             Require(!Regex.IsMatch(parameterValue, regularExpression), message);
         }
