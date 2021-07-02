@@ -283,6 +283,17 @@ namespace Nexus.Link.Libraries.Web.AspNet.Pipe
         {
             return builder.UseMiddleware<NexusLinkMiddleware>(options);
         }
+
+        /// <summary>
+        /// This middleware is a collection of all the middleware features that are provided by Nexus Link. Use <paramref name="options"/>
+        /// to specify exactly how they should behave.
+        /// </summary>
+        /// <param name="builder">"this"</param>
+        /// <param name="options">Options that controls which features to use and how they should behave.</param>
+        public static IApplicationBuilder UseNexusLinkMiddleware(this IApplicationBuilder builder, NexusLinkMiddlewareOptions options)
+        {
+            return builder.UseMiddleware<NexusLinkMiddleware>(options);
+        }
     }
 }
 #endif

@@ -22,7 +22,7 @@ namespace Nexus.Link.Libraries.Web.AspNet.Tests.InboundPipe.RespondAsyncFilter
         public void TestCaseInitialize()
         {
             FulcrumApplicationHelper.UnitTestSetup(typeof(RequestExecutorTests).FullName);
-            _executor = new RequestExecutor();
+            _executor = new DefaultRequestExecutor();
         }
         
         // TODO: Complete this test.

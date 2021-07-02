@@ -17,7 +17,7 @@ namespace Nexus.Link.Libraries.Web.AspNet.Pipe.RespondAsync
         /// <param name="httpRequest"></param>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        Task<Guid> EnqueueAsync(HttpRequest httpRequest, CancellationToken cancellationToken);
+        Task<Guid> EnqueueAsync(HttpRequest httpRequest, CancellationToken cancellationToken = default);
     }
 }
 #endif

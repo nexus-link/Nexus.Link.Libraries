@@ -11,7 +11,10 @@ using Nexus.Link.Libraries.Web.AspNet.Queue;
 
 namespace Nexus.Link.Libraries.Web.AspNet.Pipe.RespondAsync.Logic
 {
-    public class RespondAsyncHandler : BackgroundService, IRespondAsyncHandler
+    /// <summary>
+    /// Normally you should be able to use this class without overriding it.
+    /// </summary>
+    public class DefaultRespondAsyncHandler : BackgroundService, IRespondAsyncHandler
     {
         /// <summary>
         /// Handles execution and deciding if a request should be responded to asynchronously or not.
@@ -23,20 +26,29 @@ namespace Nexus.Link.Libraries.Web.AspNet.Pipe.RespondAsync.Logic
         /// </summary>
         protected IResponseHandler ResponseHandler { get; }
 
-        private readonly IStoppableQueue<RequestData> _requestQueue;
+        /// <summary>
+        /// The queue for the request
+        /// </summary>
+        protected readonly IStoppableQueue<RequestData> RequestQueue;
 
-        public RespondAsyncHandler(IStoppableQueue<RequestData> requestQueue, IRequestExecutor requestExecutor, IResponseHandler responseHandler)
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        /// <param name="requestQueue">The queue where incoming requests are waiting for execution.</param>
+        /// <param name="requestExecutor">The code that handles the execution of a waiting request.</param>
+        /// <param name="responseHandler">The code that makes the response available to the client.</param>
+        public DefaultRespondAsyncHandler(IStoppableQueue<RequestData> requestQueue, IRequestExecutor requestExecutor, IResponseHandler responseHandler)
         {
             RequestExecutor = requestExecutor;
             ResponseHandler = responseHandler;
-            _requestQueue = requestQueue;
+            RequestQueue = requestQueue;
         }
 
         /// <inheritdoc />
         public virtual async Task<Guid> EnqueueAsync(HttpRequest httpRequest, CancellationToken cancellationToken)
         {
             var requestData = await new RequestData().FromAsync(httpRequest, cancellationToken);
-            await _requestQueue.EnqueueAsync(requestData, cancellationToken);
+            await RequestQueue.EnqueueAsync(requestData, cancellationToken);
             return requestData.Id;
         }
 
@@ -45,7 +57,7 @@ namespace Nexus.Link.Libraries.Web.AspNet.Pipe.RespondAsync.Logic
         {
             while (!cancellationToken.IsCancellationRequested)
             {
-                var requestData = await _requestQueue.DequeueAsync(cancellationToken);
+                var requestData = await RequestQueue.DequeueAsync(cancellationToken);
 
                 try
                 {
@@ -62,7 +74,7 @@ namespace Nexus.Link.Libraries.Web.AspNet.Pipe.RespondAsync.Logic
 
         public override async Task StopAsync(CancellationToken stoppingToken)
         {
-            var task = _requestQueue.StopAsync(stoppingToken);
+            var task = RequestQueue.StopAsync(stoppingToken);
             await base.StopAsync(stoppingToken);
             await task;
         }
@@ -73,7 +85,7 @@ namespace Nexus.Link.Libraries.Web.AspNet.Pipe.RespondAsync.Logic
         }
 
         /// <inheritdoc />
-        public bool IsRunningAsynchronously(HttpRequest request)
+        public virtual bool IsRunningAsynchronously(HttpRequest request)
         {
             return RequestExecutor.IsRunningAsynchronously(request);
         }

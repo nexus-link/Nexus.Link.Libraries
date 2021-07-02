@@ -1,9 +1,9 @@
 ﻿#if NETCOREAPP
 namespace Nexus.Link.Libraries.Web.AspNet.Pipe.RespondAsync.Logic
 {
-    public class RequestExecutor : RequestExecutorBase
+    public class DefaultRequestExecutor : RequestExecutorBase
     {
-        public RequestExecutor()
+        public DefaultRequestExecutor()
         {
 #if false
             // I would like to do something like this

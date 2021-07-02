@@ -7,16 +7,15 @@ using Nexus.Link.Libraries.Core.Application;
 namespace Nexus.Link.Libraries.Web.Pipe.Outbound
 {
     /// <summary>
-    /// Adds a Fulcrum CorrelationId header to all outgoing requests.
+    /// If the current execution is asynchronous, add a "Prefer: respond-async" header.
     /// </summary>
     public class PreferRespondAsync : DelegatingHandler
     {
         /// <summary>
-        /// Adds a Fulcrum CorrelationId to the requests before sending it.
+        /// If the current execution is asynchronous, add a "Prefer: respond-async" header.
         /// </summary>
         /// <param name="request"></param>
         /// <param name="cancellationToken"></param>
-        /// <returns></returns>
         protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
         {
             if (FulcrumApplication.Context.ExecutionIsAsynchronous)
