@@ -25,7 +25,8 @@ namespace Nexus.Link.Libraries.Web.AspNet.Pipe.RespondAsync.Logic
         }
 
         /// <inheritdoc />
-        public virtual async Task<ResponseData> ExecuteRequestAsync(RequestData requestData, CancellationToken cancellationToken = default)
+        public virtual async Task<ResponseData> 
+            ExecuteRequestAsync(RequestData requestData, CancellationToken cancellationToken = default)
         {
             ResponseData responseData;
             requestData.Headers.Add(IsRunningAsynchronouslyHeader, "TRUE");

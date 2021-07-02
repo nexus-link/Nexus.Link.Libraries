@@ -104,8 +104,8 @@ namespace Nexus.Link.Libraries.Web.AspNet.Pipe.RespondAsync.Model
                 requestMessage.Headers.Add(key, value.ToArray());
             }
 
-            requestMessage.Content = new StringContent(BodyAsString, System.Text.Encoding.UTF8);
-            if (ContentType != null)
+            requestMessage.Content = BodyAsString == null ? null : new StringContent(BodyAsString, System.Text.Encoding.UTF8);
+            if (requestMessage.Content != null && ContentType != null)
             {
                 requestMessage.Content.Headers.ContentType =
                     System.Net.Http.Headers.MediaTypeHeaderValue.Parse(ContentType);
