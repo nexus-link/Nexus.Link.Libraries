@@ -22,7 +22,7 @@ namespace Nexus.Link.Libraries.Web.AspNet.Tests.InboundPipe.RespondAsyncFilter
     [TestClass]
     public class RespondAsyncFilterTests
     {
-        private Mock<IRespondAsyncHandler> _respondAsyncHandler;
+        private Mock<IRespondAsyncFilterSupport> _respondAsyncHandler;
         private ActionExecutingContext _actionExecutingContext;
         private DefaultHttpContext _httpContext;
         private Mock<Controller> _controller;
@@ -48,7 +48,7 @@ namespace Nexus.Link.Libraries.Web.AspNet.Tests.InboundPipe.RespondAsyncFilter
 
             _actionExecutingContextMock = new Mock<ActionExecutingContext>();
 
-            _respondAsyncHandler = new Mock<IRespondAsyncHandler>();
+            _respondAsyncHandler = new Mock<IRespondAsyncFilterSupport>();
             _respondAsyncHandler.Setup(rq =>
                     rq.EnqueueAsync(It.IsAny<HttpRequest>(),
                         It.IsAny<CancellationToken>()))

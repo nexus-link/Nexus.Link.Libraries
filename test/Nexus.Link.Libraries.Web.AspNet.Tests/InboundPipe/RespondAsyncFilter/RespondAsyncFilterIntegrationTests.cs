@@ -28,7 +28,7 @@ namespace Nexus.Link.Libraries.Web.AspNet.Tests.InboundPipe.RespondAsyncFilter
             FulcrumApplicationHelper.UnitTestSetup(typeof(RespondAsyncFilterIntegrationTests).FullName);
             _queueMock = new Mock<IStoppableQueue<RequestData>>();
 
-            RespondAsyncFilterStartup.RespondAsyncHandler = new DefaultRespondAsyncHandler(_queueMock.Object, new DefaultRequestExecutor(), new ResponseHandlerInMemory("a/{0}/b"));
+            RespondAsyncFilterStartup.RespondAsyncFilterSupport = new DefaultRespondAsyncFilterSupport(_queueMock.Object, new DefaultRequestExecutor(), new ResponseHandlerInMemory("a/{0}/b"));
             var factory = new CustomWebApplicationFactory();
             _httpClient = factory.CreateClient();
         }

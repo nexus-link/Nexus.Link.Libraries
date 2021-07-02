@@ -9,8 +9,9 @@ namespace Nexus.Link.Libraries.Web.AspNet.Pipe.RespondAsync
     /// <summary>
     /// The main driver for respond async.
     /// </summary>
-    public interface IRespondAsyncHandler: IGetActionResult, IAlreadyRunningAsynchronously
+    public interface IRespondAsyncFilterSupport: IGetActionResult, IAlreadyRunningAsynchronously, IExecuteAsync
     {
+
         /// <summary>
         /// Enqueue one request for eventual execution.
         /// </summary>

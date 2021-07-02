@@ -9,11 +9,11 @@ namespace Nexus.Link.Libraries.Web.AspNet.Tests.InboundPipe.RespondAsyncFilter
 {
     public class RespondAsyncFilterStartup
     {
-        public static IRespondAsyncHandler RespondAsyncHandler { get; set; }
+        public static IRespondAsyncFilterSupport RespondAsyncFilterSupport { get; set; }
 
         public virtual void ConfigureServices(IServiceCollection services)
         {
-            var respondAsyncFilter = new Pipe.Inbound.RespondAsyncFilter(RespondAsyncHandler);
+            var respondAsyncFilter = new Pipe.Inbound.RespondAsyncFilter(RespondAsyncFilterSupport);
             var mvc = services.AddMvc(opts => { opts.Filters.Add(respondAsyncFilter); });
             mvc.SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
         }

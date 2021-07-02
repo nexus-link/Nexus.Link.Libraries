@@ -27,17 +27,17 @@ namespace Nexus.Link.Libraries.Web.AspNet.Pipe.Inbound
 {
     public class RespondAsyncFilter : IAsyncActionFilter
     {
-        private readonly IRespondAsyncHandler _respondAsyncHandler;
+        private readonly IRespondAsyncFilterSupport _respondAsyncFilterSupport;
 
-        public RespondAsyncFilter(IRespondAsyncHandler respondAsyncHandler)
+        public RespondAsyncFilter(IRespondAsyncFilterSupport respondAsyncFilterSupport)
         {
-            _respondAsyncHandler = respondAsyncHandler;
+            _respondAsyncFilterSupport = respondAsyncFilterSupport;
         }
 
         public async Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)
         {
             var request = context.HttpContext.Request;
-            if (_respondAsyncHandler.IsRunningAsynchronously(request))
+            if (_respondAsyncFilterSupport.IsRunningAsynchronously(request))
             {
                 FulcrumApplication.Context.ExecutionIsAsynchronous = true;
             }
@@ -72,8 +72,8 @@ namespace Nexus.Link.Libraries.Web.AspNet.Pipe.Inbound
                     try
                     {
                         var requestId =
-                            await _respondAsyncHandler.EnqueueAsync(context.HttpContext.Request, cancellationToken);
-                        context.Result = await _respondAsyncHandler.GetActionResultAsync(requestId, cancellationToken);
+                            await _respondAsyncFilterSupport.EnqueueAsync(context.HttpContext.Request, cancellationToken);
+                        context.Result = await _respondAsyncFilterSupport.GetActionResultAsync(requestId, cancellationToken);
                         return;
                     }
                     catch (QueueFullException e)
@@ -107,16 +107,16 @@ namespace Nexus.Link.Libraries.Web.AspNet.Pipe.Inbound
     /// </summary>
     public class RespondAsyncFilterConfigureOptions : IConfigureOptions<MvcOptions>
     {
-        private readonly IRespondAsyncHandler _responseHandler;
+        private readonly IRespondAsyncFilterSupport _responseFilterSupport;
 
-        public RespondAsyncFilterConfigureOptions(IRespondAsyncHandler responseHandler)
+        public RespondAsyncFilterConfigureOptions(IRespondAsyncFilterSupport responseFilterSupport)
         {
-            _responseHandler = responseHandler;
+            _responseFilterSupport = responseFilterSupport;
         }
         /// <inheritdoc />
         public void Configure(MvcOptions options)
         {
-            var filter = new RespondAsyncFilter(_responseHandler);
+            var filter = new RespondAsyncFilter(_responseFilterSupport);
             options.Filters.Add(filter);
         }
     }
