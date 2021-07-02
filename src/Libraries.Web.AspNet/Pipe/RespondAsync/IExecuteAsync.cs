@@ -1,4 +1,5 @@
-﻿using Nexus.Link.Libraries.Web.AspNet.Pipe.RespondAsync.Model;
+﻿#if NETCOREAPP
+using Nexus.Link.Libraries.Web.AspNet.Pipe.RespondAsync.Model;
 using Nexus.Link.Libraries.Web.AspNet.Queue;
 
 namespace Nexus.Link.Libraries.Web.AspNet.Pipe.RespondAsync
@@ -21,3 +22,4 @@ namespace Nexus.Link.Libraries.Web.AspNet.Pipe.RespondAsync
         public IStoppableQueue<RequestData> RequestQueue { get; }
     }
 }
+#endif
