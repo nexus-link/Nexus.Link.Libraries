@@ -3,6 +3,7 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
+using Nexus.Link.Libraries.Web.AspNet.Pipe.RespondAsync.Model;
 
 namespace Nexus.Link.Libraries.Web.AspNet.Pipe.RespondAsync
 {
@@ -15,10 +16,10 @@ namespace Nexus.Link.Libraries.Web.AspNet.Pipe.RespondAsync
         /// <summary>
         /// Enqueue one request for eventual execution.
         /// </summary>
-        /// <param name="httpRequest"></param>
+        /// <param name="request"></param>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        Task<Guid> EnqueueAsync(HttpRequest httpRequest, CancellationToken cancellationToken = default);
+        Task<Guid> EnqueueAsync(HttpRequest request, CancellationToken cancellationToken = default);
     }
 }
 #endif

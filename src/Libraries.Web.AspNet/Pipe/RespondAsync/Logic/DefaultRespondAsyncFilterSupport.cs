@@ -45,9 +45,9 @@ namespace Nexus.Link.Libraries.Web.AspNet.Pipe.RespondAsync.Logic
         }
 
         /// <inheritdoc />
-        public virtual async Task<Guid> EnqueueAsync(HttpRequest httpRequest, CancellationToken cancellationToken)
+        public virtual async Task<Guid> EnqueueAsync(HttpRequest request, CancellationToken cancellationToken)
         {
-            var requestData = await new RequestData().FromAsync(httpRequest, cancellationToken);
+            var requestData = await new RequestData().FromAsync(request, cancellationToken);
             await RequestQueue.EnqueueAsync(requestData, cancellationToken);
             return requestData.Id;
         }
