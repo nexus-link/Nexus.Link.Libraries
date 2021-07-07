@@ -44,7 +44,7 @@ namespace Nexus.Link.Libraries.Web.AspNet.Pipe.RespondAsync.Model
         /// <summary>
         /// The request body, serialized to a string.
         /// </summary>
-        public string? BodyAsString { get; set; }
+        public string BodyAsString { get; set; }
 
         /// <summary>
         /// The content type of the request body.
@@ -113,6 +113,12 @@ namespace Nexus.Link.Libraries.Web.AspNet.Pipe.RespondAsync.Model
             return body;
         }
 
+        public async Task<string> GetRequestBodyAsync(HttpRequestMessage request)
+        {
+            await request.Content.LoadIntoBufferAsync();
+            return await request.Content.ReadAsStringAsync();
+        }
+
         /// <summary>
         /// Serialize the <paramref name="request"/>.
         /// </summary>
@@ -123,13 +129,12 @@ namespace Nexus.Link.Libraries.Web.AspNet.Pipe.RespondAsync.Model
             Headers = new HeaderDictionary();
             ContentType = request.Content.Headers.ContentType.ToString();
             ContentLength = request.Content.Headers.ContentLength;
-            foreach (var requestHeader in request.Headers)
+            foreach (var (key, value) in request.Headers)
             {
-                Headers.Add(requestHeader.Key, requestHeader.Value.ToArray());
+                Headers.Add(key, value.ToArray());
             }
 
-            await request.Content.LoadIntoBufferAsync();
-            BodyAsString = await request.Content.ReadAsStringAsync();
+            BodyAsString = await GetRequestBodyAsync(request);
 
             return this;
         }
