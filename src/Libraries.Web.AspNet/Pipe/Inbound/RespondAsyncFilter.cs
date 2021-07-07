@@ -19,6 +19,7 @@ using Microsoft.AspNetCore.Mvc.Controllers;
 using Microsoft.Extensions.Options;
 using Nexus.Link.Libraries.Core.Error.Logic;
 using Nexus.Link.Libraries.Core.Misc;
+using Nexus.Link.Libraries.Core.Platform.AsyncProcesses;
 using Nexus.Link.Libraries.Web.AspNet.Pipe.RespondAsync;
 using Nexus.Link.Libraries.Web.AspNet.Queue;
 using Nexus.Link.Libraries.Web.Pipe;
@@ -84,7 +85,15 @@ namespace Nexus.Link.Libraries.Web.AspNet.Pipe.Inbound
                 }
             }
 
-            await next();
+            try
+            {
+                await next();
+            }
+            catch (PostponeException)
+            {
+                if (FulcrumApplication.Context.ExecutionIsAsynchronous) return;
+                throw;
+            }
         }
 
         private static bool CheckIfClientPrefersAsynchronousExecution(HttpRequest request)
