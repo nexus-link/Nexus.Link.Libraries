@@ -1,4 +1,7 @@
 ﻿#if NETCOREAPP
+using System.Net.Http;
+using System.Net.Http.Formatting;
+using System.Text;
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Newtonsoft.Json.Linq;
@@ -29,7 +32,44 @@ namespace Nexus.Link.Libraries.Web.AspNet.Tests.InboundPipe.RespondAsyncFilter
         [DataRow("POST", "http://example.com/api/Persons/", false)]
         [DataRow("POST", "http://example.com/api/Persons/123?test=1", false)]
         [DataRow("POST", "http://example.com/api/Persons/123/?test=1", false)]
-        public async Task SerializeRequest(string expectedMethod, string expectedUrl, bool slashAdded)
+        public async Task SerializeHttpRequestMessage(string expectedMethod, string expectedUrl, bool slashAdded)
+        {
+            // Arrange
+            var expectedObject = expectedMethod == "GET" ? (Person) null : new Person { Name = "ExpectedName" };
+            var method = new HttpMethod(expectedMethod);
+            var request = new HttpRequestMessage(method, expectedUrl)
+            {
+                Content = expectedObject == null ? 
+                    (HttpContent) new StringContent("", Encoding.UTF8)
+                    : (HttpContent) new ObjectContent<Person>(expectedObject, new JsonMediaTypeFormatter(), "application/json")
+            };
+
+            // Act
+            var requestData = await new RequestData().FromAsync(request);
+            Assert.IsNotNull(requestData.BodyAsString);
+            var actualObject = string.IsNullOrWhiteSpace(requestData.BodyAsString) ? null : JObject.Parse(requestData.BodyAsString).ToObject<Person>();
+
+            // Assert
+            if (slashAdded) expectedUrl += "/";
+            Assert.AreEqual(expectedMethod, requestData.Method);
+            Assert.AreEqual(expectedUrl, requestData.EncodedUrl);
+            Assert.AreEqual(expectedObject?.Name, actualObject?.Name);
+        }
+
+        [DataTestMethod]
+        [DataRow("GET", "http://example.com", true)]
+        [DataRow("GET", "http://example.com/", false)]
+        [DataRow("GET", "http://example.com/api/Persons", false)]
+        [DataRow("GET", "http://example.com/api/Persons/", false)]
+        [DataRow("GET", "http://example.com/api/Persons/123?test=1", false)]
+        [DataRow("GET", "http://example.com/api/Persons/123/?test=1", false)]
+        [DataRow("POST", "http://example.com", true)]
+        [DataRow("POST", "http://example.com/", false)]
+        [DataRow("POST", "http://example.com/api/Persons", false)]
+        [DataRow("POST", "http://example.com/api/Persons/", false)]
+        [DataRow("POST", "http://example.com/api/Persons/123?test=1", false)]
+        [DataRow("POST", "http://example.com/api/Persons/123/?test=1", false)]
+        public async Task SerializeHttpRequest(string expectedMethod, string expectedUrl, bool slashAdded)
         {
             // Arrange
             var expectedObject = expectedMethod == "GET" ? null : new Person { Name = "ExpectedName" };
