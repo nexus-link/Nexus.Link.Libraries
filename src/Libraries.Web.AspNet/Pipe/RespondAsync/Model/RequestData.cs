@@ -92,18 +92,25 @@ namespace Nexus.Link.Libraries.Web.AspNet.Pipe.RespondAsync.Model
             }
         }
 
+        // https://devblogs.microsoft.com/aspnet/re-reading-asp-net-core-request-bodies-with-enablebuffering/
         public async Task<string> GetRequestBodyAsync(HttpRequest request)
         {
             FulcrumAssert.IsNotNull(request.Body, CodeLocation.AsString());
             request.EnableBuffering();
-            var stream = request.Body;
 
-            using var reader = new StreamReader(stream);
-            var requestBodyAsString = await reader.ReadToEndAsync();
+            // Leave the body open so the next middleware can read it.
+            using var reader = new StreamReader(
+                request.Body,
+                encoding: Encoding.UTF8,
+                detectEncodingFromByteOrderMarks: false,
+                bufferSize: 1024,
+                leaveOpen: true);
+            var body = await reader.ReadToEndAsync();
 
-            if (stream.CanSeek) stream.Seek(0, SeekOrigin.Begin);
+            // Reset the request body stream position so the next middleware can read it
+            request.Body.Position = 0;
 
-            return requestBodyAsString;
+            return body;
         }
 
         /// <summary>
