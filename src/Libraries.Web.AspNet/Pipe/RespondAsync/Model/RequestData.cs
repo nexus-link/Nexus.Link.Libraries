@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Http.Internal;
 using Microsoft.Rest;
+using Newtonsoft.Json.Linq;
 using Nexus.Link.Libraries.Core.Assert;
 using Nexus.Link.Libraries.Core.Misc;
 
@@ -73,17 +74,8 @@ namespace Nexus.Link.Libraries.Web.AspNet.Pipe.RespondAsync.Model
                 Headers.Add(requestHeader);
             }
 
-            if (request.Body != null && request.ContentLength > 0)
-            {
-                request.EnableBuffering();
-                request.EnableRewind();
-                BodyAsString = await new StreamReader(request.Body, Encoding.UTF8).ReadToEndAsync();
-                if (request.Body.CanSeek) request.Body.Seek(0, SeekOrigin.Begin);
-            }
-            else
-            {
-                BodyAsString = "";
-            }
+
+            BodyAsString = await GetRequestBodyAsync(request);
 
             return this;
 
@@ -98,6 +90,20 @@ namespace Nexus.Link.Libraries.Web.AspNet.Pipe.RespondAsync.Model
                     InternalContract.Fail($"The following HTTP method is not recognized: {Method}: {e.Message}");
                 }
             }
+        }
+
+        public async Task<string> GetRequestBodyAsync(HttpRequest request)
+        {
+            FulcrumAssert.IsNotNull(request.Body, CodeLocation.AsString());
+            request.EnableBuffering();
+            var stream = request.Body;
+
+            using var reader = new StreamReader(stream);
+            var requestBodyAsString = await reader.ReadToEndAsync();
+
+            if (stream.CanSeek) stream.Seek(0, SeekOrigin.Begin);
+
+            return requestBodyAsString;
         }
 
         /// <summary>
