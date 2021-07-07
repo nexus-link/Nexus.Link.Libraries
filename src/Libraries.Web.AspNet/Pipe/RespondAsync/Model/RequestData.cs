@@ -8,6 +8,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Extensions;
+using Microsoft.AspNetCore.Http.Internal;
 using Microsoft.Rest;
 using Nexus.Link.Libraries.Core.Assert;
 using Nexus.Link.Libraries.Core.Misc;
@@ -75,6 +76,7 @@ namespace Nexus.Link.Libraries.Web.AspNet.Pipe.RespondAsync.Model
             if (request.Body != null && request.ContentLength > 0)
             {
                 request.EnableBuffering();
+                request.EnableRewind();
                 BodyAsString = await new StreamReader(request.Body, Encoding.UTF8).ReadToEndAsync();
                 if (request.Body.CanSeek) request.Body.Seek(0, SeekOrigin.Begin);
             }
