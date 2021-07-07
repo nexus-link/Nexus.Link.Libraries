@@ -109,6 +109,7 @@ namespace Nexus.Link.Libraries.Web.AspNet.Pipe.RespondAsync.Model
 
             // Reset the request body stream position so the next middleware can read it
             request.Body.Position = 0;
+            if (body == "") FulcrumAssert.AreEqual(0, request.ContentLength);
 
             return body;
         }

@@ -5,18 +5,21 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Nexus.Link.Libraries.Web.AspNet.Pipe.RespondAsync.Model;
+using Nexus.Link.Libraries.Web.Error.Logic;
 
-namespace Nexus.Link.Libraries.Web.AspNet.Pipe.RespondAsync.Logic
+    namespace Nexus.Link.Libraries.Web.AspNet.Pipe.RespondAsync.Logic
 {
+    
+
     public abstract class RequestExecutorBase : IRequestExecutor
     {
         public static string IsRunningAsynchronouslyHeader { get; protected set; } = "X-Is-Running-Asynchronously";
 
         public HttpClient HttpClient { get; protected set; }
 
-        protected RequestExecutorBase()
+        protected RequestExecutorBase(HttpClient httpClient)
         {
-            HttpClient = HttpClientFactory.Create();
+            HttpClient = httpClient;
         }
 
         public virtual bool IsRunningAsynchronously(HttpRequest request)
@@ -35,6 +38,11 @@ namespace Nexus.Link.Libraries.Web.AspNet.Pipe.RespondAsync.Logic
             {
                 var response = await HttpClient.SendAsync(requestMessage, cancellationToken);
                 responseData = await new ResponseData().FromAsync(response);
+            }
+            catch (FulcrumAcceptedException)
+            {
+                // Ignore
+                responseData = null;
             }
             catch (Exception e)
             {
