@@ -12,7 +12,6 @@ namespace Nexus.Link.Libraries.Web.AspNet.Pipe.RespondAsync
     /// </summary>
     public interface IRespondAsyncFilterSupport: IGetActionResult, IAlreadyRunningAsynchronously, IExecuteAsync
     {
-
         /// <summary>
         /// Enqueue one request for eventual execution.
         /// </summary>
