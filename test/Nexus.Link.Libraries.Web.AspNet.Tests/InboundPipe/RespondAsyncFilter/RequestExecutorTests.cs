@@ -1,5 +1,6 @@
 ﻿#if NETCOREAPP
 using System.Diagnostics.CodeAnalysis;
+using System.Net.Http;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -22,7 +23,7 @@ namespace Nexus.Link.Libraries.Web.AspNet.Tests.InboundPipe.RespondAsyncFilter
         public void TestCaseInitialize()
         {
             FulcrumApplicationHelper.UnitTestSetup(typeof(RequestExecutorTests).FullName);
-            _executor = new DefaultRequestExecutor();
+            _executor = new DefaultRequestExecutor(new HttpClient());
         }
         
         // TODO: Complete this test.
