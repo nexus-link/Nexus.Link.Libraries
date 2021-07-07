@@ -61,9 +61,9 @@ namespace Nexus.Link.Libraries.Web.AspNet.Pipe.RespondAsync.Model
         /// </summary>
         public async Task<RequestData> FromAsync(HttpRequest request, CancellationToken cancellationToken = default)
         {
-            Method = request.Method;
             // Verify that we can convert the string to an HttpMethod
-            VerifyMethodName();
+            VerifyMethodName(request.Method);
+            Method = request.Method;
 
             EncodedUrl = request.GetEncodedUrl();
             Headers = new HeaderDictionary();
@@ -79,15 +79,15 @@ namespace Nexus.Link.Libraries.Web.AspNet.Pipe.RespondAsync.Model
 
             return this;
 
-            void VerifyMethodName()
+            void VerifyMethodName(string methodName)
             {
                 try
                 {
-                    _ = new HttpMethod(Method);
+                    _ = new HttpMethod(methodName);
                 }
                 catch (Exception e)
                 {
-                    InternalContract.Fail($"The following HTTP method is not recognized: {Method}: {e.Message}");
+                    InternalContract.Fail($"The following HTTP method is not recognized: {methodName}: {e.Message}");
                 }
             }
         }

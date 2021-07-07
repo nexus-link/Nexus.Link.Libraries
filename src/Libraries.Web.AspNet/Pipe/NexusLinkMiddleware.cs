@@ -73,6 +73,8 @@ namespace Nexus.Link.Libraries.Web.AspNet.Pipe
             var stopwatch = new Stopwatch();
             stopwatch.Start();
             var cancellationToken = context.RequestAborted;
+            // Enable multiple reads of the content
+            context.Request.EnableBuffering();
 
             try
             {
