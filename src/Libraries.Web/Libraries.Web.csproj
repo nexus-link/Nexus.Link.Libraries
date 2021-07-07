@@ -20,7 +20,7 @@
 
   <PropertyGroup>
     <PackageId>Nexus.Link.Libraries.Web</PackageId>
-    <Version>2.13.2</Version>
+    <Version>2.14.0</Version>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <PackageTags>nexus;link;fulcrum;lever</PackageTags>
     <Authors>XLENT Link</Authors>
@@ -30,6 +30,7 @@
     <Copyright>Copyright ©2020 Xlent Link AB</Copyright>
     <IncludeSymbols>true</IncludeSymbols>
     <PackageReleaseNotes>
+      2.14.0 Added FulcrumAcceptedException
       2.13.2 Corrected code documentation
       2.13.1 HttpSender can now handle HttpStatus.NoContent
       2.13.0 Added PreferRespondAsync as an outbound pipe

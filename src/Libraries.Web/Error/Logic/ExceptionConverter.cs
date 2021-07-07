@@ -77,6 +77,7 @@ namespace Nexus.Link.Libraries.Web.Error.Logic
             AddFulcrumException(typeof(FulcrumServiceContractException), HttpStatusCode.BadRequest, FulcrumContractException.ExceptionType);
             AddFulcrumException(typeof(FulcrumUnauthorizedException), HttpStatusCode.BadRequest, FulcrumUnauthorizedException.ExceptionType);
             AddFulcrumException(typeof(FulcrumForbiddenAccessException), HttpStatusCode.BadRequest, FulcrumForbiddenAccessException.ExceptionType);
+            AddFulcrumException(typeof(FulcrumAcceptedException), HttpStatusCode.Accepted, FulcrumAcceptedException.ExceptionType);
         }
 
         /// <summary>
@@ -113,7 +114,10 @@ namespace Nexus.Link.Libraries.Web.Error.Logic
         public static async Task<FulcrumError> ToFulcrumErrorAsync(HttpResponseMessage response, CancellationToken cancellationToken = default)
         {
             InternalContract.RequireNotNull(response, nameof(response));
-            if (response.IsSuccessStatusCode) return null;
+            if (response.IsSuccessStatusCode)
+            {
+                if (response.StatusCode != HttpStatusCode.Accepted) return null;
+            }
 
             var contentAsString = "";
             if (response.Content != null)
@@ -254,6 +258,10 @@ namespace Nexus.Link.Libraries.Web.Error.Logic
             else if (statusCodeAsInt >= 300)
             {
                 fulcrumError.Type = FulcrumServiceContractException.ExceptionType;
+            }
+            else if (statusCodeAsInt == 202)
+            {
+                fulcrumError.Type = FulcrumAcceptedException.ExceptionType;
             }
             else
             {
