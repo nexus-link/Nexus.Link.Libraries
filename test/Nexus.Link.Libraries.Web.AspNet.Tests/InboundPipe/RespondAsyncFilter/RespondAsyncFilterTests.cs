@@ -15,6 +15,7 @@ using Moq;
 using Nexus.Link.Libraries.Core.Application;
 using Nexus.Link.Libraries.Web.AspNet.Pipe.RespondAsync;
 using Nexus.Link.Libraries.Web.AspNet.Tests.InboundPipe.NexusLinkMiddleware;
+using Nexus.Link.Libraries.Web.Error.Logic;
 using Nexus.Link.Libraries.Web.Pipe;
 
 namespace Nexus.Link.Libraries.Web.AspNet.Tests.InboundPipe.RespondAsyncFilter
@@ -22,6 +23,7 @@ namespace Nexus.Link.Libraries.Web.AspNet.Tests.InboundPipe.RespondAsyncFilter
     [TestClass]
     public class RespondAsyncFilterTests
     {
+        private const string PollForResponseUrl = "http://example.com/Responses";
         private Mock<IRespondAsyncFilterSupport> _respondAsyncHandler;
         private ActionExecutingContext _actionExecutingContext;
         private DefaultHttpContext _httpContext;
@@ -56,6 +58,9 @@ namespace Nexus.Link.Libraries.Web.AspNet.Tests.InboundPipe.RespondAsyncFilter
             _respondAsyncHandler.Setup(rq =>
                     rq.GetActionResultAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
                 .Returns(Task.FromResult((IActionResult)new NoContentResult()));
+            _respondAsyncHandler.Setup(rq =>
+                    rq.GetResponseUrl(It.IsAny<Guid>()))
+                .Returns(PollForResponseUrl);
         }
 
         [DataTestMethod]
@@ -85,22 +90,22 @@ namespace Nexus.Link.Libraries.Web.AspNet.Tests.InboundPipe.RespondAsyncFilter
             var cad = _actionExecutingContext.ActionDescriptor as ControllerActionDescriptor;
             Assert.IsNotNull(cad);
 
-            // Act
-            await filter.OnActionExecutionAsync(_actionExecutingContext, () =>
+            // Act & Assert
+            try
             {
-                nextWasCalled = true;
-                return Task.FromResult((ActionExecutedContext)null);
-            });
-
-            // Assert
-            if (expectAccept)
-            {
-                Assert.IsNotNull(_actionExecutingContext.Result);
-            }
-            else
-            {
+                await filter.OnActionExecutionAsync(_actionExecutingContext, () =>
+                {
+                    nextWasCalled = true;
+                    return Task.FromResult((ActionExecutedContext) null);
+                });
+                Assert.IsFalse(expectAccept);
                 Assert.IsNull(_actionExecutingContext.Result);
                 Assert.IsTrue(nextWasCalled);
+            }
+            catch (FulcrumAcceptedException e)
+            {
+                Assert.IsTrue(expectAccept);
+                Assert.AreEqual(PollForResponseUrl, e.Message);
             }
 
         }

@@ -18,6 +18,8 @@ namespace Nexus.Link.Libraries.Web.AspNet.Pipe.RespondAsync
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
         Task<IActionResult> GetActionResultAsync(Guid requestId, CancellationToken cancellationToken = default);
+
+        string GetResponseUrl(Guid requestId);
     }
 }
 #endif

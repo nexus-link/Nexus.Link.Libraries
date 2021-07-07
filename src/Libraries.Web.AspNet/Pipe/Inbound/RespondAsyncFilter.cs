@@ -22,6 +22,7 @@ using Nexus.Link.Libraries.Core.Misc;
 using Nexus.Link.Libraries.Core.Platform.AsyncProcesses;
 using Nexus.Link.Libraries.Web.AspNet.Pipe.RespondAsync;
 using Nexus.Link.Libraries.Web.AspNet.Queue;
+using Nexus.Link.Libraries.Web.Error.Logic;
 using Nexus.Link.Libraries.Web.Pipe;
 
 namespace Nexus.Link.Libraries.Web.AspNet.Pipe.Inbound
@@ -74,8 +75,10 @@ namespace Nexus.Link.Libraries.Web.AspNet.Pipe.Inbound
                     {
                         var requestId =
                             await _respondAsyncFilterSupport.EnqueueAsync(context.HttpContext.Request, cancellationToken);
-                        context.Result = await _respondAsyncFilterSupport.GetActionResultAsync(requestId, cancellationToken);
-                        return;
+                        throw new FulcrumAcceptedException(_respondAsyncFilterSupport.GetResponseUrl(requestId));
+                        // TODO: If the exception above works, then refactor the things below and remove the method definition of GetActionResultAsync.
+                        //context.Result = await _respondAsyncFilterSupport.GetActionResultAsync(requestId, cancellationToken);
+                        //return;
                     }
                     catch (QueueFullException e)
                     {

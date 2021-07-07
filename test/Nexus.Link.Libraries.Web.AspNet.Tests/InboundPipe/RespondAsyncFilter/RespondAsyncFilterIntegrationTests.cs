@@ -11,6 +11,7 @@ using Nexus.Link.Libraries.Web.AspNet.Pipe.RespondAsync.Logic;
 using Nexus.Link.Libraries.Web.AspNet.Pipe.RespondAsync.Model;
 using Nexus.Link.Libraries.Web.AspNet.Queue;
 using Nexus.Link.Libraries.Web.AspNet.Tests.InboundPipe.Support;
+using Nexus.Link.Libraries.Web.Error.Logic;
 using Nexus.Link.Libraries.Web.Pipe;
 
 namespace Nexus.Link.Libraries.Web.AspNet.Tests.InboundPipe.RespondAsyncFilter
@@ -51,10 +52,15 @@ namespace Nexus.Link.Libraries.Web.AspNet.Tests.InboundPipe.RespondAsyncFilter
             request.Headers.Add(Constants.PreferHeaderName, Constants.PreferRespondAsyncHeaderValue);
 
             //Act
-            var response = await _httpClient.SendAsync(request);
+            try
+            {
+                var response = await _httpClient.SendAsync(request);
+                Assert.Fail($"Expected an exception of type {nameof(FulcrumAcceptedException)}.");
+            }
+            catch (FulcrumAcceptedException)
+            {
 
-            // Assert
-            Assert.AreEqual(HttpStatusCode.Accepted, response.StatusCode);
+            }
         }
     }
 }

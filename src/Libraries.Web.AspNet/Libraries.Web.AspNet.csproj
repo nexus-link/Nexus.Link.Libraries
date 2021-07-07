@@ -29,7 +29,7 @@
 
   <PropertyGroup>
     <PackageId>Nexus.Link.Libraries.Web.AspNet</PackageId>
-    <Version>2.25.4</Version>
+    <Version>2.25.5</Version>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <PackageTags>nexus;link;fulcrum;lever</PackageTags>
     <Authors>XLENT Link</Authors>
@@ -39,7 +39,7 @@
     <Copyright>Copyright ©2019 Xlent Link AB</Copyright>
     <IncludeSymbols>true</IncludeSymbols>
     <PackageReleaseNotes>
-      2.25.4 Now buffers body in transform from HttpRequest to RequestData
+      2.25.5 Now buffers body in transform from HttpRequest to RequestData
       2.25.1 RespondAsyncFilter now swallows PostponeException if running asynchronously.
       2.25.0 Added ReqeustData.FromAsync(HttpReqeustMessage) overload
       2.24.4 Some adjustments to RespondAsyncFilter. Breaking change, but no customer is using it yet so...

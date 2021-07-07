@@ -57,6 +57,11 @@ namespace Nexus.Link.Libraries.Web.AspNet.Pipe.RespondAsync.Logic
             return ResponseHandler.GetActionResultAsync(requestId, cancellationToken);
         }
 
+        public virtual string GetResponseUrl(Guid requestId)
+        {
+            return ResponseHandler.GetResponseUrl(requestId);
+        }
+
         /// <inheritdoc />
         public virtual bool IsRunningAsynchronously(HttpRequest request)
         {
