@@ -131,7 +131,7 @@ namespace Nexus.Link.Libraries.Web.AspNet.Pipe.Inbound
         /// </summary>
         public static IServiceCollection AddRespondAsyncFilter(this IServiceCollection services)
         {
-            services.ConfigureOptions<ValueTranslatorFilterConfigureOptions>();
+            services.ConfigureOptions<RespondAsyncFilterConfigureOptions>();
             return services;
         }
     }

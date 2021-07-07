@@ -21,6 +21,7 @@
 
   <ItemGroup>
     <Folder Include="Platform\Configurations\" />
+    <Folder Include="Platform\AsyncProcesses\" />
   </ItemGroup>
 
   <PropertyGroup>
@@ -34,7 +35,7 @@
 
   <PropertyGroup>
     <PackageId>Nexus.Link.Libraries.Core</PackageId>
-    <Version>5.2.1</Version>
+    <Version>5.3.0</Version>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <PackageTags>nexus;link;fulcrum;lever</PackageTags>
     <Authors>XLENT Link</Authors>
@@ -44,6 +45,7 @@
     <Copyright>Copyright ©2021 Xlent Link AB</Copyright>
     <IncludeSymbols>true</IncludeSymbols>
     <PackageReleaseNotes>
+      5.3.0 Added FulcrumApplication.Context.AsyncExecutionContext
       5.2.1 The InternalContract and ServiceContract now accepts null for parameterName if there is a custom message.
       5.2.0 Added Context.ExecutionIsAsynchronous
       5.1.0 Added DelegateHelper
