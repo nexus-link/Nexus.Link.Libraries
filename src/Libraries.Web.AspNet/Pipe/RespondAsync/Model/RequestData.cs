@@ -70,10 +70,11 @@ namespace Nexus.Link.Libraries.Web.AspNet.Pipe.RespondAsync.Model
             {
                 Headers.Add(requestHeader);
             }
-            request.EnableBuffering();
 
-            if (request.Body != null)
+            if (request.Body != null && request.ContentLength > 0)
             {
+                request.EnableBuffering();
+
                 if (request.Body.CanSeek && request.Body.CanRead)
                 {
                     request.Body.Seek(0, SeekOrigin.Begin);
