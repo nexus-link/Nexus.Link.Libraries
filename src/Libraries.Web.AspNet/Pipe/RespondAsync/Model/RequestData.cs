@@ -3,6 +3,7 @@ using System;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
@@ -74,17 +75,8 @@ namespace Nexus.Link.Libraries.Web.AspNet.Pipe.RespondAsync.Model
             if (request.Body != null && request.ContentLength > 0)
             {
                 request.EnableBuffering();
-
-                if (request.Body.CanSeek && request.Body.CanRead)
-                {
-                    request.Body.Seek(0, SeekOrigin.Begin);
-                    using var reader = new StreamReader(request.Body, System.Text.Encoding.UTF8);
-                    BodyAsString = await reader.ReadToEndAsync();
-                }
-                else
-                {
-                    FulcrumAssert.Fail(CodeLocation.AsString());
-                }
+                BodyAsString = await new StreamReader(request.Body, Encoding.UTF8).ReadToEndAsync();
+                if (request.Body.CanSeek) request.Body.Seek(0, SeekOrigin.Begin);
             }
             else
             {
