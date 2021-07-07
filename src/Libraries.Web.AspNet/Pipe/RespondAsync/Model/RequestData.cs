@@ -86,6 +86,10 @@ namespace Nexus.Link.Libraries.Web.AspNet.Pipe.RespondAsync.Model
                     FulcrumAssert.Fail(CodeLocation.AsString());
                 }
             }
+            else
+            {
+                BodyAsString = "";
+            }
 
             return this;
 
