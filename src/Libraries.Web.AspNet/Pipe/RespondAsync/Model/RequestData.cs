@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.Rest;
 using Nexus.Link.Libraries.Core.Assert;
+using Nexus.Link.Libraries.Core.Misc;
 
 namespace Nexus.Link.Libraries.Web.AspNet.Pipe.RespondAsync.Model
 {
@@ -69,13 +70,20 @@ namespace Nexus.Link.Libraries.Web.AspNet.Pipe.RespondAsync.Model
             {
                 Headers.Add(requestHeader);
             }
-            
+            request.EnableBuffering();
 
-            if (request.Body != null && request.Body.CanSeek && request.Body.CanRead)
+            if (request.Body != null)
             {
-                request.Body.Seek(0, SeekOrigin.Begin);
-                using var reader = new StreamReader(request.Body, System.Text.Encoding.UTF8);
-                BodyAsString = await reader.ReadToEndAsync();
+                if (request.Body.CanSeek && request.Body.CanRead)
+                {
+                    request.Body.Seek(0, SeekOrigin.Begin);
+                    using var reader = new StreamReader(request.Body, System.Text.Encoding.UTF8);
+                    BodyAsString = await reader.ReadToEndAsync();
+                }
+                else
+                {
+                    FulcrumAssert.Fail(CodeLocation.AsString());
+                }
             }
 
             return this;
