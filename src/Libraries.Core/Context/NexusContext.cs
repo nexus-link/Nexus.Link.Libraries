@@ -19,13 +19,13 @@ namespace Nexus.Link.Libraries.Core.Context
         private readonly OneValueProvider<bool> _isInBatchLogger;
         private readonly OneValueProvider<string> _nexusTestContext;
         private readonly OneValueProvider<bool> _executionIsAsynchronous;
-        private readonly OneValueProvider<ExecutionContext> _asyncExecutionContext;
+        private readonly OneValueProvider<AsyncExecutionContext> _asyncExecutionContext;
 
         public NexusContext(IContextValueProvider valueProvider)
         {
             ValueProvider = valueProvider;
             _executionIsAsynchronous = new OneValueProvider<bool>(ValueProvider, "ExecutionIsAsynchronous");
-            _asyncExecutionContext = new OneValueProvider<ExecutionContext>(ValueProvider, "AsyncExecutionContext");
+            _asyncExecutionContext = new OneValueProvider<AsyncExecutionContext>(ValueProvider, "AsyncExecutionContext");
             _correlationId = new OneValueProvider<string>(ValueProvider, "NexusCorrelationId");
             _callingClientName = new OneValueProvider<string>(ValueProvider, "CallingClientName");
             _clientTenant = new OneValueProvider<Tenant>(ValueProvider, "TenantId");
@@ -55,7 +55,7 @@ namespace Nexus.Link.Libraries.Core.Context
         /// <summary>
         /// If non-null, contains the information about all requests and their responses.
         /// </summary>
-        public ExecutionContext AsyncExecutionContext
+        public AsyncExecutionContext AsyncExecutionContext
         {
             get => _asyncExecutionContext.GetValue();
             set => _asyncExecutionContext.SetValue(value);

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace Nexus.Link.Libraries.Core.Platform.AsyncProcesses
 {
-    public class ExecutionContext : ILockable
+    public class AsyncExecutionContext : ILockable
     {
         public Guid ExecutionId { get; set; }
 
@@ -14,6 +14,9 @@ namespace Nexus.Link.Libraries.Core.Platform.AsyncProcesses
 
         public string NextDescription { get; set; }
         public int NextSubRequestNumber { get; set; }
+
+        // TODO: Hack to store a RequestData from Libraries.Web.AspNet
+        public object CurrentRequest { get; set; }
 
         /// <inheritdoc />
         public LockWithTimeout LockWithTimeout { get; } = new LockWithTimeout();
