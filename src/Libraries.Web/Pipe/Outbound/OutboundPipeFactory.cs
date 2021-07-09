@@ -41,8 +41,7 @@ namespace Nexus.Link.Libraries.Web.Pipe.Outbound
             {
                 new ThrowFulcrumExceptionOnFail(),
                 new AddCorrelationId(),
-                new PropagateNexusTestHeader(),
-                new PreferRespondAsync()
+                new PropagateNexusTestHeader()
             };
             if (withLogging)
             {
