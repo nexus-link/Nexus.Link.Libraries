@@ -46,13 +46,20 @@ namespace Nexus.Link.Libraries.Web.ServiceAuthentication
         /// <inheritdoc />
         public async Task<AuthorizationToken> GetAuthorizationForClientAsync(Tenant tenant, ILeverConfiguration configuration, string client, CancellationToken cancellationToken = default)
         {
+            var authSettings = GetAuthorizationSettings(configuration, client);
+
+            return await GetAuthorizationForClientAsync(tenant, authSettings, client, cancellationToken);
+        }
+
+
+        /// <inheritdoc />
+        public async Task<AuthorizationToken> GetAuthorizationForClientAsync(Tenant tenant, ClientAuthorizationSettings authSettings, string client, CancellationToken cancellationToken = default)
+        {
             var cacheKey = $"{tenant}/{client}";
             if (_authCache[cacheKey] is AuthorizationToken authorization) return authorization;
 
             try
             {
-                var authSettings = GetAuthorizationSettings(configuration, client);
-
                 string token, tokenType;
                 switch (authSettings.AuthorizationType)
                 {

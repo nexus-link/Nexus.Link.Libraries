@@ -42,5 +42,10 @@ namespace Nexus.Link.Libraries.Web.ServiceAuthentication
         /// or null if <see cref="ClientAuthorizationSettings.AuthorizationType"/> is None.
         /// </returns>
         Task<AuthorizationToken> GetAuthorizationForClientAsync(Tenant tenant, ILeverConfiguration configuration, string client, CancellationToken cancellationToken = default);
+
+        /// <summary>
+        /// Provide your own <see cref="ClientAuthorizationSettings"/> and get the <see cref="AuthorizationToken"/> from that.
+        /// </summary>
+        Task<AuthorizationToken> GetAuthorizationForClientAsync(Tenant tenant, ClientAuthorizationSettings authSettings, string client, CancellationToken cancellationToken = default);
     }
 }
