@@ -11,6 +11,7 @@ using Newtonsoft.Json.Linq;
 using Nexus.Link.Libraries.Core.Application;
 using Nexus.Link.Libraries.Core.Error.Logic;
 using Nexus.Link.Libraries.Core.MultiTenant.Model;
+using Nexus.Link.Libraries.Core.Platform.Authentication;
 using Nexus.Link.Libraries.Web.RestClientHelper;
 using Nexus.Link.Libraries.Web.ServiceAuthentication;
 // ReSharper disable CommentTypo
@@ -300,6 +301,39 @@ namespace Nexus.Link.Libraries.Web.Tests.ServiceAuthentication
             {
                 AuthorizationType = ClientAuthorizationSettings.AuthorizationTypeEnum.Basic,
                 Username = "-"
+            };
+            await _authenticationHelper.GetAuthorizationForClientAsync(Tenant, auth, ClientName);
+        }
+
+        [TestMethod]
+        public async Task PlatformServiceSuccess()
+        {
+            var tokenRefresherMock = new Mock<ITokenRefresher>();
+            const string platformJwt = "platform-dancing";
+            tokenRefresherMock
+                .Setup(x => x.GetJwtTokenAsync(It.IsAny<CancellationToken>()))
+                .ReturnsAsync(new AuthenticationToken { Type = "Bearer", AccessToken = platformJwt, ExpiresOn = DateTimeOffset.UtcNow.AddHours(1) });
+
+            var helper = new ServiceAuthenticationHelper(tokenRefresherMock.Object);
+
+            var auth = new ClientAuthorizationSettings
+            {
+                AuthorizationType = ClientAuthorizationSettings.AuthorizationTypeEnum.NexusPlatformService
+            };
+            var result = await helper.GetAuthorizationForClientAsync(Tenant, auth, ClientName);
+
+            Assert.IsNotNull(result, JsonConvert.SerializeObject(auth, Formatting.Indented));
+            Assert.AreEqual("bearer", result.Type.ToLowerInvariant());
+            Assert.AreEqual(platformJwt, result.Token, result.Token);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(FulcrumException), AllowDerivedTypes = true)]
+        public async Task PlatformServiceFailsIfNoTokenRefresher()
+        {
+            var auth = new ClientAuthorizationSettings
+            {
+                AuthorizationType = ClientAuthorizationSettings.AuthorizationTypeEnum.NexusPlatformService
             };
             await _authenticationHelper.GetAuthorizationForClientAsync(Tenant, auth, ClientName);
         }

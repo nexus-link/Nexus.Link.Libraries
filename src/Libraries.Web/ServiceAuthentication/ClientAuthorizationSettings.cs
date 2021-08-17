@@ -31,7 +31,12 @@ namespace Nexus.Link.Libraries.Web.ServiceAuthentication
             /// <summary>
             /// Authorization: Bearer [token fetched from  <see cref="ClientAuthorizationSettings.PostUrl"/>]
             /// </summary>
-            JwtFromUrl
+            JwtFromUrl,
+            
+            /// <summary>
+            /// A Nexus service will use its own Nexus platform token (for requests to other Nexus services)
+            /// </summary>
+            NexusPlatformService
         }
 
         /// <summary>
