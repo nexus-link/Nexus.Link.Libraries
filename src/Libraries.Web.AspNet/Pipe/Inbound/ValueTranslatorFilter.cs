@@ -63,6 +63,7 @@ namespace Nexus.Link.Libraries.Web.AspNet.Pipe.Inbound
                 {
                     try
                     {
+                        DecorateUserId(translator);
                         DecorateArguments(methodInfo.GetParameters(), context.ActionArguments, translator);
                     }
                     catch (Exception exception)
@@ -107,6 +108,7 @@ namespace Nexus.Link.Libraries.Web.AspNet.Pipe.Inbound
                 {
                     try
                     {
+                        DecorateUserId(translator);
                         DecorateArguments(methodInfo.GetParameters(), actionContext.ActionArguments, translator);
                     }
                     catch (Exception exception)
@@ -222,6 +224,16 @@ namespace Nexus.Link.Libraries.Web.AspNet.Pipe.Inbound
             arguments[parameterName] = translator.Decorate(currentValue);
         }
 
+        private static void DecorateUserId(ITranslator translator)
+        {
+            var userId = FulcrumApplication.Context.ValueProvider.GetValue<string>("UserId");
+            if (!string.IsNullOrWhiteSpace(userId))
+            {
+                var decoratedUserId = translator.Decorate("nexus-userid", userId);
+                FulcrumApplication.Context.ValueProvider.SetValue("DecoratedUserId", decoratedUserId);
+            }
+        }
+
 #if NETCOREAPP
 
         private static void LogDecorationFailure(ActionExecutingContext context, Exception exception)
@@ -262,7 +274,7 @@ namespace Nexus.Link.Libraries.Web.AspNet.Pipe.Inbound
             var itemBeforeTranslation = objectResult.Value;
 
             await translator.Add(itemBeforeTranslation).ExecuteAsync(cancellationToken);
-            var itemAfterTranslation = translator.Translate(itemBeforeTranslation,itemBeforeTranslation.GetType());
+            var itemAfterTranslation = translator.Translate(itemBeforeTranslation, itemBeforeTranslation.GetType());
             context.Result = new ObjectResult(itemAfterTranslation);
         }
 
@@ -338,7 +350,7 @@ namespace Nexus.Link.Libraries.Web.AspNet.Pipe.Inbound
         }
 #endif
     }
-    #if NETCOREAPP
+#if NETCOREAPP
     /// <summary>
     /// https://stackoverflow.com/questions/55990151/is-adding-addmvc-service-twice-in-configureservices-a-good-practice-in-asp-n
     /// </summary>
@@ -376,5 +388,5 @@ namespace Nexus.Link.Libraries.Web.AspNet.Pipe.Inbound
             return services;
         }
     }
-    #endif
+#endif
 }

@@ -85,6 +85,18 @@ namespace Nexus.Link.Libraries.Web.Tests.RestClientHelper
         }
 
         [TestMethod]
+        public async Task TranslateUserId()
+        {
+            FulcrumApplication.Context.ValueProvider.SetValue("DecoratedUserId", _decoratedConsumerId);
+
+            var httpSenderMock = new HttpSenderMock();
+            var sender = new ValueTranslatorHttpSender(httpSenderMock, "producer");
+            await sender.SendRequestAsync(HttpMethod.Get, $"Foos/{_decoratedConsumerId}");
+
+            Assert.AreEqual(ProducerId, sender.TranslatedUserId_OnlyForUnitTests);
+        }
+
+        [TestMethod]
         public async Task TranslateListBody()
         {
             var httpSenderMock = new HttpSenderMock();
