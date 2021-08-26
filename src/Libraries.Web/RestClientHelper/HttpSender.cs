@@ -310,7 +310,7 @@ namespace Nexus.Link.Libraries.Web.RestClientHelper
 
         private string ConcatenateBaseUrlAndRelativeUrl(string relativeUrl)
         {
-            string baseUri = BaseUri?.OriginalString ?? "";
+            string baseUri = BaseUri?.OriginalString ?? HttpClient.ActualHttpClient?.BaseAddress?.OriginalString ?? "";
 
             if (baseUri != "" && !string.IsNullOrWhiteSpace(relativeUrl))
             {

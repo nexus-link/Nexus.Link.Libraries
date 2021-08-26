@@ -20,7 +20,7 @@
 
   <PropertyGroup>
     <PackageId>Nexus.Link.Libraries.Web</PackageId>
-    <Version>2.17.0</Version>
+    <Version>2.17.1</Version>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <PackageTags>nexus;link;fulcrum;lever</PackageTags>
     <Authors>XLENT Link</Authors>
@@ -30,6 +30,7 @@
     <Copyright>Copyright ©2021 Xlent Link AB</Copyright>
     <IncludeSymbols>true</IncludeSymbols>
     <PackageReleaseNotes>
+      2.17.1 A RestClient with null BaseUri will now use the BaseUri of the HttpClient
       2.17.0 Added AuthorizationTypeEnum.NexusPlatformService to enable intra-Nexus authentication
       2.16.0 Added IServiceAuthenticationHelper.GetAuthorizationForClientAsync which takes a ClientAuthorizationSettings
       2.15.0 Removed code related to asynchronous processes
