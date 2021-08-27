@@ -28,13 +28,13 @@
     {
     }
 
-    /// <inheritdoc />
-    public interface ICrudableDependent<in TModel, in TId, in TDependentId> : ICrudableDependent<TId, TDependentId>
+    /// <inheritdoc cref="ICrudableDependent{TId,TDependentId}" />
+    public interface ICrudableDependent<in TModel, in TId, in TDependentId> : ICrudable<TModel, TId>, ICrudableDependent<TId, TDependentId>
     {
     }
 
-    /// <inheritdoc />
-    public interface ICrudableDependent<in TModelCreate, in TModel, in TId, in TDependentId> : ICrudableDependent<TModel, TId, TDependentId>
+    /// <inheritdoc cref="ICrudableDependent{TModel, TId,TDependentId}" />
+    public interface ICrudableDependent<in TModelCreate, in TModel, in TId, in TDependentId> : ICrudable<TModelCreate, TModel, TId>, ICrudableDependent<TModel, TId, TDependentId>
         where TModel : TModelCreate
     {
     }
