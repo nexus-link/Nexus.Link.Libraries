@@ -1,4 +1,5 @@
-﻿using System.Threading;
+﻿using System;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Nexus.Link.Libraries.Crud.Interfaces
@@ -8,6 +9,7 @@ namespace Nexus.Link.Libraries.Crud.Interfaces
     /// </summary>
     /// <typeparam name="TModel">The type of objects to read from persistent storage.</typeparam>
     /// <typeparam name="TId">The type for the id of the object.</typeparam>
+    [Obsolete("Use IReadDependent. Obsolete since 2021-08-27.")]
     public interface IReadSlave<TModel, in TId> : ICrudable<TModel, TId>
     {
         /// <summary>

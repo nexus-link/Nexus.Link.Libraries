@@ -1,4 +1,5 @@
-﻿using System.Threading;
+﻿using System;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Nexus.Link.Libraries.Crud.Interfaces
@@ -6,6 +7,7 @@ namespace Nexus.Link.Libraries.Crud.Interfaces
     /// <summary>
     /// Delete items./>.
     /// </summary>
+    [Obsolete("Use IDeleteDependent. Obsolete since 2021-08-27.")]
     public interface IDeleteSlave<in TId> : ICrudable<TId>
     {
         /// <summary>
