@@ -19,7 +19,23 @@
 
     /// <inheritdoc />
     public interface ICrudable<in TModelCreate, in TModel, in TId> : ICrudable<TModel, TId>
-    where TModel : TModelCreate
+        where TModel : TModelCreate
+    {
+    }
+
+    /// <inheritdoc />
+    public interface ICrudableDependent<in TId, in TMasterId, TDependentId> : ICrudable<TId>
+    {
+    }
+
+    /// <inheritdoc />
+    public interface ICrudableDependent<in TModel, in TId, in TMasterId, TDependentId> : ICrudableDependent<TId, TMasterId, TDependentId>
+    {
+    }
+
+    /// <inheritdoc />
+    public interface ICrudableDependent<in TModelCreate, in TModel, in TId, in TMasterId, TDependentId> : ICrudableDependent<TModel, TId, TMasterId, TDependentId>
+        where TModel : TModelCreate
     {
     }
 }
