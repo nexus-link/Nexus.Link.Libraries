@@ -8,7 +8,7 @@ namespace Nexus.Link.Libraries.Crud.Interfaces
     /// <summary>
     /// Update an item.
     /// </summary>
-    /// <typeparam name="TModel">The type of objects to update in persistant storage.</typeparam>
+    /// <typeparam name="TModel">The type of objects to update in persistent storage.</typeparam>
     /// <typeparam name="TId">The type for the id parameter.</typeparam>
     public interface IUpdateSlaveAndReturn<TModel, in TId> : ICrudable<TModel, TId>
     {

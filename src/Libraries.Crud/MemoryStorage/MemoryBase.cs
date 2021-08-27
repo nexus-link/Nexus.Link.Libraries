@@ -13,7 +13,7 @@ namespace Nexus.Link.Libraries.Crud.MemoryStorage
     /// <summary>
     /// General class for storing any <see cref="IUniquelyIdentifiable{TId}"/> in memory.
     /// </summary>
-    /// <typeparam name="TModel">The type of objects that are returned from persistant storage.</typeparam>
+    /// <typeparam name="TModel">The type of objects that are returned from persistent storage.</typeparam>
     /// <typeparam name="TId"></typeparam>
     public class MemoryBase<TModel, TId>
     {
