@@ -24,17 +24,17 @@
     }
 
     /// <inheritdoc />
-    public interface ICrudableDependent<in TId, in TMasterId, TDependentId> : ICrudable<TId>
+    public interface ICrudableDependent<in TId, in TDependentId> : ICrudable<TId>
     {
     }
 
     /// <inheritdoc />
-    public interface ICrudableDependent<in TModel, in TId, in TMasterId, TDependentId> : ICrudableDependent<TId, TMasterId, TDependentId>
+    public interface ICrudableDependent<in TModel, in TId, in TDependentId> : ICrudableDependent<TId, TDependentId>
     {
     }
 
     /// <inheritdoc />
-    public interface ICrudableDependent<in TModelCreate, in TModel, in TId, in TMasterId, TDependentId> : ICrudableDependent<TModel, TId, TMasterId, TDependentId>
+    public interface ICrudableDependent<in TModelCreate, in TModel, in TId, in TDependentId> : ICrudableDependent<TModel, TId, TDependentId>
         where TModel : TModelCreate
     {
     }

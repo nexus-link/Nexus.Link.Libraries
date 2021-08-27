@@ -1,7 +1,7 @@
 ﻿namespace Nexus.Link.Libraries.Core.Storage.Model
 {
     /// <summary>
-    /// Properties required to be a storable class
+    /// Properties required for an item to be stored in a "table".
     /// </summary>
     /// <typeparam name="TId">The type for the property <see cref="Id"/>.</typeparam>
     public interface IUniquelyIdentifiable<TId>
@@ -13,14 +13,14 @@
     }
 
     /// <summary>
-    /// Properties required for a dependent to be stored in a "table".
+    /// Properties required for a dependent item to be stored in a "table".
     /// </summary>
-    public interface IUniquelyIdentifiable<TId, TMasterId, TDependentId> : IUniquelyIdentifiable<TId>
+    public interface IUniquelyIdentifiable<TId, TDependentId> : IUniquelyIdentifiable<TId>
     {
         /// <summary>
         /// The master id for the type.
         /// </summary>
-        TMasterId MasterId { get; set; }
+        TId MasterId { get; set; }
 
         /// <summary>
         /// The master id for the type.
