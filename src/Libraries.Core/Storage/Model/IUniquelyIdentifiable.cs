@@ -11,4 +11,20 @@
         /// </summary>
         TId Id { get; set; }
     }
+
+    /// <summary>
+    /// Properties required for a dependent to be stored in a "table".
+    /// </summary>
+    public interface IUniquelyIdentifiable<TId, TMasterId, TDependentId> : IUniquelyIdentifiable<TId>
+    {
+        /// <summary>
+        /// The master id for the type.
+        /// </summary>
+        TMasterId MasterId { get; set; }
+
+        /// <summary>
+        /// The master id for the type.
+        /// </summary>
+        TDependentId DependentId { get; set; }
+    }
 }
