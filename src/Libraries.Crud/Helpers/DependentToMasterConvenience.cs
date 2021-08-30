@@ -14,15 +14,14 @@ using Nexus.Link.Libraries.Crud.PassThrough;
 
 namespace Nexus.Link.Libraries.Crud.Helpers
 {
-    [Obsolete("Use DependentToMasterConvenience. Obsolete since 2021-08-27.")]
-    public class SlaveToMasterConvenience<TModelCreate, TModel, TId> : ISearchChildren<TModel, TId>, ITransactionLockSlave<TModel, TId>
+    public class DependentToMasterConvenience<TModelCreate, TModel, TId, TDependentId> : ISearchChildren<TModel, TId>, ITransactionLockDependent<TModel, TId, TDependentId>
         where TModel : TModelCreate
     {
-        private readonly ICrudSlaveToMaster<TModelCreate, TModel, TId> _service;
+        private readonly ICrudDependentToMaster<TModelCreate, TModel, TId, TDependentId> _service;
 
-        public SlaveToMasterConvenience(ICrudable<TModel, TId> service)
+        public DependentToMasterConvenience(ICrudableDependent<TModel, TId, TDependentId> service)
         {
-            _service = new SlaveToMasterPassThrough<TModelCreate, TModel, TId>(service);
+            _service = new DependentToMasterPassThrough<TModelCreate, TModel, TId, TDependentId>(service);
         }
 
         /// <summary>
@@ -69,16 +68,16 @@ namespace Nexus.Link.Libraries.Crud.Helpers
         }
 
         /// <inheritdoc />
-        public Task ClaimTransactionLockAsync(TId masterId, TId slaveId, CancellationToken token = default)
+        public Task ClaimTransactionLockAsync(TId masterId, TDependentId dependentId, CancellationToken token = default)
         {
             throw new NotImplementedException();
         }
 
         /// <inheritdoc />
-        public async Task<TModel> ClaimTransactionLockAndReadAsync(TId masterId, TId slaveId, CancellationToken token = default)
+        public async Task<TModel> ClaimTransactionLockAndReadAsync(TId masterId, TDependentId dependentId, CancellationToken token = default)
         {
-            await _service.ClaimDistributedLockAsync(masterId, slaveId, token);
-            return await _service.ReadAsync(masterId, slaveId, token);
+            await _service.ClaimDistributedLockAsync(masterId, dependentId, token);
+            return await _service.ReadAsync(masterId, dependentId, token);
         }
     }
 }

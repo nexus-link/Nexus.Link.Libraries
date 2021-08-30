@@ -32,7 +32,7 @@ namespace Nexus.Link.Libraries.Crud.Interfaces
         /// If it implements <see cref="IOptimisticConcurrencyControlByETag"/>, then the <see cref="IOptimisticConcurrencyControlByETag.Etag"/> is updated..
         /// </remarks>
         /// <seealso cref="IOptimisticConcurrencyControlByETag"/>
-        /// <seealso cref="IUniquelyIdentifiable{TId, TDependentId}"/>
+        /// <seealso cref="IUniquelyIdentifiableDependent{TId,TDependentId}"/>
         Task<TModel> CreateWithSpecifiedIdAndReturnAsync(TId masterId, TDependentId dependentId, TModelCreate item, CancellationToken token = default);
     }
 }

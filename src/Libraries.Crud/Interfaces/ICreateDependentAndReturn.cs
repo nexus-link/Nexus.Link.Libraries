@@ -27,11 +27,11 @@ namespace Nexus.Link.Libraries.Crud.Interfaces
         /// <param name="token">Propagates notification that operations should be canceled</param>
         /// <returns>The new item as it was saved, see remarks below.</returns>
         /// <remarks>
-        /// If the returned type implements <see cref="IUniquelyIdentifiable{TId, TDependentId}"/>, then the <see cref="IUniquelyIdentifiable{TId, TDependentId}.Id"/> is updated with the new id. 
+        /// If the returned type implements <see cref="IUniquelyIdentifiableDependent{TId,TDependentId}"/>, then the <see cref="IUniquelyIdentifiableDependent{TId,TDependentId}.Id"/> is updated with the new id. 
         /// If it implements <see cref="IOptimisticConcurrencyControlByETag"/>, then the <see cref="IOptimisticConcurrencyControlByETag.Etag"/> is updated..
         /// </remarks>
         /// <seealso cref="IOptimisticConcurrencyControlByETag"/>
-        /// <seealso cref="IUniquelyIdentifiable{TId, TDependentId}"/>
-        Task<TModel> CreateAndReturnAsync(TId masterId, TModelCreate item, CancellationToken token = default);
+        /// <seealso cref="IUniquelyIdentifiableDependent{TId,TDependentId}"/>
+        Task<TModel> CreateDependentAndReturnAsync(TId masterId, TModelCreate item, CancellationToken token = default);
     }
 }
