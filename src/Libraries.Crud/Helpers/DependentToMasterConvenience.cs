@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
 using Nexus.Link.Libraries.Core.Assert;
 using Nexus.Link.Libraries.Core.Error.Logic;
+using Nexus.Link.Libraries.Core.Misc;
 using Nexus.Link.Libraries.Core.Storage.Logic;
 using Nexus.Link.Libraries.Core.Storage.Model;
 using Nexus.Link.Libraries.Crud.Interfaces;
@@ -14,7 +15,9 @@ using Nexus.Link.Libraries.Crud.PassThrough;
 
 namespace Nexus.Link.Libraries.Crud.Helpers
 {
-    public class DependentToMasterConvenience<TModelCreate, TModel, TId, TDependentId> : ISearchChildren<TModel, TId>, ITransactionLockDependent<TModel, TId, TDependentId>
+    public class DependentToMasterConvenience<TModelCreate, TModel, TId, TDependentId> :
+        ISearchChildren<TModel, TId>,
+        ITransactionLockDependent<TModel, TId, TDependentId>
         where TModel : TModelCreate
     {
         private readonly ICrudDependentToMaster<TModelCreate, TModel, TId, TDependentId> _service;

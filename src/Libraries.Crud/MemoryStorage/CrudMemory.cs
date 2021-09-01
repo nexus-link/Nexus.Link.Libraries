@@ -39,6 +39,8 @@ namespace Nexus.Link.Libraries.Crud.MemoryStorage
         ICrud<TModelCreate, TModel, TId>, ISearch<TModel, TId> where TModel : TModelCreate
     {
         private readonly CrudConvenience<TModelCreate, TModel, TId> _convenience;
+        private readonly object _lock = new object();
+        private int _nextIntegerId = 1;
 
         public CrudMemory()
         {
@@ -50,8 +52,26 @@ namespace Nexus.Link.Libraries.Crud.MemoryStorage
         {
             InternalContract.RequireNotNull(item, nameof(item));
             InternalContract.RequireValidated(item, nameof(item));
-            var id = StorageHelper.CreateNewId<TId>();
+            var id = CreateNewId<TId>();
             await CreateWithSpecifiedIdAsync(id, item, token);
+            return id;
+        }
+
+        protected internal T CreateNewId<T>()
+        {
+            T id;
+            if (typeof(TId) == typeof(int))
+            {
+                lock (_lock)
+                {
+                    // ReSharper disable once SuspiciousTypeConversion.Global
+                    id = (dynamic) _nextIntegerId++;
+                }
+            }
+            else
+            {
+                id = StorageHelper.CreateNewId<T>();
+            }
             return id;
         }
 
@@ -175,12 +195,13 @@ namespace Nexus.Link.Libraries.Crud.MemoryStorage
             InternalContract.RequireValidated(item, nameof(item));
             if (!Exists(id)) throw new FulcrumNotFoundException($"Update failed. Could not find an item with id {id}.");
 
-            var oldValue = await MaybeVerifyEtagForUpdateAsync(id, item, this, token);
+            var oldValue = MaybeVerifyEtagForUpdate(id, item, token);
             var itemCopy = CopyItem(item);
             StorageHelper.MaybeUpdateTimeStamps(itemCopy, false);
             StorageHelper.MaybeCreateNewEtag(itemCopy);
-
-            MemoryItems[id] = itemCopy;
+            lock (MemoryItems) {
+                MemoryItems[id] = itemCopy;
+            }
         }
 
         /// <inheritdoc />
@@ -201,7 +222,10 @@ namespace Nexus.Link.Libraries.Crud.MemoryStorage
         {
             InternalContract.RequireNotDefaultValue(id, nameof(id));
 
-            MemoryItems.TryRemove(id, out var _);
+            lock (MemoryItems)
+            {
+                MemoryItems.TryRemove(id, out var _);
+            }
 
             return Task.CompletedTask;
         }
@@ -225,15 +249,15 @@ namespace Nexus.Link.Libraries.Crud.MemoryStorage
             var key = MapperHelper.MapToType<string, TId>(id);
             var newLock = new Lock<TId>
             {
-                Id = MapperHelper.MapToType<TId, Guid>(Guid.NewGuid()),
+                Id = CreateNewId<TId>(),
                 ItemId = id,
                 ValidUntil = DateTimeOffset.Now.AddSeconds(30)
             };
             while (true)
             {
                 token.ThrowIfCancellationRequested();
-                if (_locks.TryAdd(id, newLock)) return Task.FromResult(newLock);
-                if (!_locks.TryGetValue(id, out var oldLock)) continue;
+                if (Locks.TryAdd(id, newLock)) return Task.FromResult(newLock);
+                if (!Locks.TryGetValue(id, out var oldLock)) continue;
                 var remainingTime = oldLock.ValidUntil.Subtract(DateTimeOffset.Now);
                 if (remainingTime > TimeSpan.Zero)
                 {
@@ -244,7 +268,7 @@ namespace Nexus.Link.Libraries.Crud.MemoryStorage
                     };
                     throw exception;
                 }
-                if (_locks.TryUpdate(id, newLock, oldLock)) return Task.FromResult(newLock);
+                if (Locks.TryUpdate(id, newLock, oldLock)) return Task.FromResult(newLock);
             }
         }
 
@@ -253,7 +277,7 @@ namespace Nexus.Link.Libraries.Crud.MemoryStorage
         {
             InternalContract.RequireNotDefaultValue(id, nameof(id));
             InternalContract.RequireNotDefaultValue(lockId, nameof(lockId));
-            if (!_locks.TryGetValue(id, out Lock<TId> @lock)) return Task.CompletedTask;
+            if (!Locks.TryGetValue(id, out var @lock)) return Task.CompletedTask;
             if (!Equals(lockId, @lock.Id)) return Task.CompletedTask;
             // Try to temporarily add additional time to make sure that nobody steals the lock while we are releasing it.
             // The TryUpdate will return false if there is no lock or if the current lock differs from the lock we want to release.
@@ -263,9 +287,9 @@ namespace Nexus.Link.Libraries.Crud.MemoryStorage
                 ItemId = id,
                 ValidUntil = DateTimeOffset.Now.AddSeconds(30)
             };
-            if (!_locks.TryUpdate(id, @lock, newLock)) return Task.CompletedTask;
+            if (!Locks.TryUpdate(id, @lock, newLock)) return Task.CompletedTask;
             // Finally remove the lock
-            _locks.TryRemove(id, out var _);
+            Locks.TryRemove(id, out var _);
             return Task.CompletedTask;
         }
 
@@ -303,8 +327,8 @@ namespace Nexus.Link.Libraries.Crud.MemoryStorage
             while (true)
             {
                 token.ThrowIfCancellationRequested();
-                if (_locks.TryAdd(id, newLock)) return Task.FromResult(newLock);
-                if (!_locks.TryGetValue(id, out var oldLock)) continue;
+                if (Locks.TryAdd(id, newLock)) return Task.FromResult(newLock);
+                if (!Locks.TryGetValue(id, out var oldLock)) continue;
                 var remainingTime = oldLock.ValidUntil.Subtract(DateTimeOffset.Now);
                 if (remainingTime > TimeSpan.Zero)
                 {
@@ -315,7 +339,7 @@ namespace Nexus.Link.Libraries.Crud.MemoryStorage
                     };
                     throw exception;
                 }
-                if (_locks.TryUpdate(id, newLock, oldLock)) return Task.FromResult(newLock);
+                if (Locks.TryUpdate(id, newLock, oldLock)) return Task.FromResult(newLock);
             }
         }
 
@@ -324,7 +348,7 @@ namespace Nexus.Link.Libraries.Crud.MemoryStorage
         {
             InternalContract.RequireNotDefaultValue(id, nameof(id));
             InternalContract.RequireNotDefaultValue(lockId, nameof(lockId));
-            if (!_locks.TryGetValue(id, out Lock<TId> @lock)) return Task.CompletedTask;
+            if (!Locks.TryGetValue(id, out Lock<TId> @lock)) return Task.CompletedTask;
             if (!Equals(lockId, @lock.Id)) return Task.CompletedTask;
             // Try to temporarily add additional time to make sure that nobody steals the lock while we are releasing it.
             // The TryUpdate will return false if there is no lock or if the current lock differs from the lock we want to release.
@@ -334,9 +358,9 @@ namespace Nexus.Link.Libraries.Crud.MemoryStorage
                 ItemId = id,
                 ValidUntil = DateTimeOffset.Now.AddSeconds(30)
             };
-            if (!_locks.TryUpdate(id, @lock, newLock)) return Task.CompletedTask;
+            if (!Locks.TryUpdate(id, @lock, newLock)) return Task.CompletedTask;
             // Finally remove the lock
-            _locks.TryRemove(id, out var _);
+            Locks.TryRemove(id, out var _);
             return Task.CompletedTask;
         }
 

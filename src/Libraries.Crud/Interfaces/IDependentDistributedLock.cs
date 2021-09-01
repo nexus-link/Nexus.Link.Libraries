@@ -1,5 +1,4 @@
-﻿using System;
-using System.Threading;
+﻿using System.Threading;
 using System.Threading.Tasks;
 using Nexus.Link.Libraries.Core.Error.Logic;
 using Nexus.Link.Libraries.Crud.Model;
@@ -9,9 +8,9 @@ namespace Nexus.Link.Libraries.Crud.Interfaces
     /// <summary>
     /// Lock/unlock an item.
     /// </summary>
-    /// <typeparam name="TId">The type for the master id.</typeparam>
+    /// <typeparam name="TId">The type for the master id and the lock id.</typeparam>
     /// <typeparam name="TDependentId">The type for the dependent id.</typeparam>
-    public interface IDistributedLockDependent<TId, TDependentId> : ICrudableDependent<TId, TDependentId>
+    public interface IDependentDistributedLock<TId, TDependentId> : ICrudableDependent<TId, TDependentId>
     {
         /// <summary>
         /// Claim a lock for the item uniquely identified by <paramref name="masterId"/> and <paramref name="dependentId"/>

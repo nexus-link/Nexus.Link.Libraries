@@ -10,6 +10,7 @@ namespace Nexus.Link.Libraries.Crud.Interfaces
         ICreateDependent<TModel, TId, TDependentId>,
         ICreateDependentAndReturn<TModel, TId, TDependentId>,
         ICreateDependentWithSpecifiedId<TModel, TId, TDependentId>,
+        ICreateDependentWithSpecifiedIdAndReturn<TModel, TId, TDependentId>,
         ICrudDependentToMasterBasic<TModel, TId, TDependentId>
     {
     }
@@ -23,6 +24,7 @@ namespace Nexus.Link.Libraries.Crud.Interfaces
         ICreateDependent<TModelCreate, TModel, TId, TDependentId>,
         ICreateDependentAndReturn<TModelCreate, TModel, TId, TDependentId>,
         ICreateDependentWithSpecifiedId<TModelCreate, TModel, TId, TDependentId>,
+        ICreateDependentWithSpecifiedIdAndReturn<TModelCreate, TModel, TId, TDependentId>,
         IReadDependent<TModel, TId, TDependentId>,
         IReadChildrenWithPaging<TModel, TId>,
         IReadChildren<TModel, TId>,
@@ -31,7 +33,7 @@ namespace Nexus.Link.Libraries.Crud.Interfaces
         IUpdateDependentAndReturn<TModel, TId, TDependentId>,
         IDeleteDependent<TId, TDependentId>,
         IDeleteChildren<TId>,
-        IDistributedLockDependent<TId, TDependentId>,
+        IDependentDistributedLock<TId, TDependentId>,
         ITransactionLockDependent<TModel, TId, TDependentId>,
         ICrudDependentToMasterBasic<TModelCreate, TModel, TId, TDependentId>
         where TModel : TModelCreate

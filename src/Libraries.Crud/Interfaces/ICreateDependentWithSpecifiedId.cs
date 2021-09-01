@@ -8,7 +8,7 @@ namespace Nexus.Link.Libraries.Crud.Interfaces
     /// Functionality for persisting objects that has no life of their own, but are only relevant with their master.
     /// Examples: A list of rows on an invoice, a list of attributes of an object, the contact details of a person.
     /// </summary>
-    public interface ICreateDependentWithSpecifiedId<TModel, in TId, in TDependentId> : ICreateDependentWithSpecifiedId<TModel, TModel, TId, TDependentId>
+    public interface ICreateDependentWithSpecifiedId<in TModel, in TId, in TDependentId> : ICreateDependentWithSpecifiedId<TModel, TModel, TId, TDependentId>
     {
     }
 
@@ -20,7 +20,7 @@ namespace Nexus.Link.Libraries.Crud.Interfaces
         where TModel : TModelCreate
     {
         /// <summary>
-        /// Same as <see cref="ICreateDependent{TModelCreate,TModel,TDependentId}.CreateDependentAsync"/>, but you can specify the new id.
+        /// Same as <see cref="ICreateDependent{TModelCreate,TModel,TId,TDependentId}.CreateAsync"/>, but you can specify the new id.
         /// </summary>
         /// <param name="masterId">The id of the master for this dependent.</param>
         /// <param name="dependentId">The proposed id for this dependent.</param>

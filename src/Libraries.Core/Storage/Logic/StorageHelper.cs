@@ -75,7 +75,23 @@ namespace Nexus.Link.Libraries.Core.Storage.Logic
         /// </summary>
         public static void MaybeSetId<TId, TModel>(TId id, TModel item)
         {
-            if (item is IUniquelyIdentifiable<TId> identifiable) identifiable.Id = id;
+            if (item is IUniquelyIdentifiable<TId> identifiable)
+            {
+                identifiable.Id = id;
+            }
+        }
+
+        /// <summary>
+        /// If <paramref name="item"/> implements <see cref="IUniquelyIdentifiable{TId}"/>
+        /// then the Id of the item is set.
+        /// </summary>
+        public static void MaybeSetMasterAndDependentId<TModel, TId, TDependentId>(TId masterId, TDependentId dependentId, TModel item)
+        {
+            if (item is IUniquelyIdentifiableDependent<TId, TDependentId> combinedId)
+            {
+                combinedId.MasterId = masterId;
+                combinedId.DependentId = dependentId;
+            }
         }
 
         /// <summary>

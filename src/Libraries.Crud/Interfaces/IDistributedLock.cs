@@ -5,11 +5,21 @@ using Nexus.Link.Libraries.Crud.Model;
 
 namespace Nexus.Link.Libraries.Crud.Interfaces
 {
+
     /// <summary>
     /// Lock/unlock an item.
     /// </summary>
-    /// <typeparam name="TId">The type for the id parameter.</typeparam>
-    public interface IDistributedLock<TId> : ICrudable<TId>
+    /// <typeparam name="TId">The type for the object id and the lock id.</typeparam>
+    public interface IDistributedLock<TId> : IDistributedLock<TId, TId>
+    {
+    }
+
+    /// <summary>
+    /// Lock/unlock an item.
+    /// </summary>
+    /// <typeparam name="TObjectId">The type for the object id .</typeparam>
+    /// <typeparam name="TLockId">The type for the lock id.</typeparam>
+    public interface IDistributedLock<TLockId, in TObjectId> : ICrudable<TObjectId>
     {
         /// <summary>
         /// Claim a lock for the item with id <paramref name="id"/>
@@ -21,16 +31,16 @@ namespace Nexus.Link.Libraries.Crud.Interfaces
         /// Thrown if there already is a claimed lock. Will contain information about when the lock is automatically released.
         /// </exception>
         /// <remarks>
-        /// The lock will be automatically released after 30 seconds, but please use <see cref="ReleaseLockAsync"/> to release the lock as soon as you don't need the lock anymore.
+        /// The lock will be automatically released after 30 seconds, but please use <see cref="ReleaseDistributedLockAsync"/> to release the lock as soon as you don't need the lock anymore.
         /// </remarks>
-        Task<Lock<TId>> ClaimDistributedLockAsync(TId id, CancellationToken token = default);
+        Task<Lock<TLockId>> ClaimDistributedLockAsync(TObjectId id, CancellationToken token = default);
 
         /// <summary>
         /// Releases the lock for an object.
         /// </summary>
-        /// <param name="id">The id of the item that should be release.</param>
+        /// <param name="objectId">The id of the item that should be release.</param>
         /// <param name="lockId">The id of the lock for this item, to prove that you are eligable of unlocking it.</param>
         /// <param name="token">Propagates notification that operations should be canceled</param>
-        Task ReleaseDistributedLockAsync(TId id, TId lockId, CancellationToken token = default);
+        Task ReleaseDistributedLockAsync(TObjectId objectId, TLockId lockId, CancellationToken token = default);
     }
 }

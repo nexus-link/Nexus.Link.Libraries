@@ -12,6 +12,7 @@
     /// </summary>
     public interface ICrudBasic<in TModelCreate, TModel, TId> :
         ICreate<TModelCreate, TModel, TId>,
+        IRead<TModel, TId>,
         IReadAllWithPaging<TModel, TId>,
         IUpdate<TModel, TId>,
         IDelete<TId>,

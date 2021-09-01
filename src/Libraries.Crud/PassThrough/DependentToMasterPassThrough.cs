@@ -2,7 +2,6 @@
 using System.Threading;
 using System.Threading.Tasks;
 using Nexus.Link.Libraries.Core.Assert;
-using Nexus.Link.Libraries.Core.Crud.Model;
 using Nexus.Link.Libraries.Crud.Interfaces;
 using Nexus.Link.Libraries.Core.Storage.Model;
 using Nexus.Link.Libraries.Crud.Helpers;
@@ -46,10 +45,10 @@ namespace Nexus.Link.Libraries.Crud.PassThrough
         }
 
         /// <inheritdoc />
-        public virtual Task<TId> CreateAsync(TId id, TModelCreate item, CancellationToken token = default)
+        public virtual Task<TDependentId> CreateAsync(TId masterId, TModelCreate item, CancellationToken token = default)
         {
             var implementation = CrudHelper.GetImplementationOrThrow<ICreateDependent<TModelCreate, TModel, TId, TDependentId>>(Service);
-            return implementation.CreateAsync(id, item, token);
+            return implementation.CreateAsync(masterId, item, token);
         }
 
         /// <inheritdoc />
@@ -128,7 +127,7 @@ namespace Nexus.Link.Libraries.Crud.PassThrough
         /// <inheritdoc />
         public virtual Task<DependentLock<TId, TDependentId>> ClaimDistributedLockAsync(TId masterId, TDependentId dependentId, CancellationToken token = default)
         {
-            var implementation = CrudHelper.GetImplementationOrThrow<IDistributedLockDependent<TId, TDependentId>>(Service);
+            var implementation = CrudHelper.GetImplementationOrThrow<IDependentDistributedLock<TId, TDependentId>>(Service);
             return implementation.ClaimDistributedLockAsync(masterId, dependentId, token);
         }
 
@@ -136,7 +135,7 @@ namespace Nexus.Link.Libraries.Crud.PassThrough
         public virtual Task ReleaseDistributedLockAsync(TId masterId, TDependentId dependentId, TId lockId,
             CancellationToken token = default)
         {
-            var implementation = CrudHelper.GetImplementationOrThrow<IDistributedLockDependent<TId, TDependentId>>(Service);
+            var implementation = CrudHelper.GetImplementationOrThrow<IDependentDistributedLock<TId, TDependentId>>(Service);
             return implementation.ReleaseDistributedLockAsync(masterId, dependentId, lockId, token);
         }
 
@@ -168,6 +167,13 @@ namespace Nexus.Link.Libraries.Crud.PassThrough
         {
             var implementation = CrudHelper.GetImplementationOrThrow<ISearchChildren<TModel,TId>>(Service);
             return implementation.FindUniqueChildAsync(parentId, details, cancellationToken);
+        }
+
+        /// <inheritdoc />
+        public Task<TId> GetDependentUniqueIdAsync(TId masterId, TDependentId dependentId, CancellationToken token = default)
+        {
+            var implementation = CrudHelper.GetImplementationOrThrow<IGetDependentUniqueId<TId, TDependentId>>(Service);
+            return implementation.GetDependentUniqueIdAsync(masterId, dependentId, token);
         }
     }
 }
