@@ -19,6 +19,7 @@ using Nexus.Link.Libraries.SqlServer.Model;
 namespace Nexus.Link.Libraries.SqlServer
 {
     /// <inheritdoc cref="SlaveToMasterSql{TSlaveModelCreate, TSlaveModel,TMasterModel}" />
+    [Obsolete("Use DependentToMasterSql. Obsolete since 2021-08-27.")]
     public class SlaveToMasterSql<TSlaveModel, TMasterModel> :
         SlaveToMasterSql<TSlaveModel, TSlaveModel, TMasterModel>,
         ICrudSlaveToMaster<TSlaveModel, Guid>
@@ -40,6 +41,7 @@ namespace Nexus.Link.Libraries.SqlServer
     }
 
     /// <inheritdoc cref="ICrudSlaveToMaster{TModelCreate, TModel,TId}" />
+    [Obsolete("Use DependentToMasterSql. Obsolete since 2021-08-27.")]
     public class SlaveToMasterSql<TSlaveModelCreate, TSlaveModel, TMasterModel> :
         CrudSql<TSlaveModelCreate, TSlaveModel>,
         ICrudSlaveToMaster<TSlaveModelCreate, TSlaveModel, Guid>

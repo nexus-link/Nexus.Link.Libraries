@@ -45,20 +45,6 @@ namespace Nexus.Link.Libraries.Crud.PassThrough
         }
 
         /// <inheritdoc />
-        public virtual Task<TDependentId> CreateAsync(TId masterId, TModelCreate item, CancellationToken token = default)
-        {
-            var implementation = CrudHelper.GetImplementationOrThrow<ICreateDependent<TModelCreate, TModel, TId, TDependentId>>(Service);
-            return implementation.CreateAsync(masterId, item, token);
-        }
-
-        /// <inheritdoc />
-        public virtual Task<TModel> CreateAndReturnAsync(TId masterId, TModelCreate item, CancellationToken token = default)
-        {
-            var implementation = CrudHelper.GetImplementationOrThrow<ICreateDependentAndReturn<TModelCreate, TModel, TId, TDependentId>>(Service);
-            return implementation.CreateAndReturnAsync(masterId, item, token);
-        }
-
-        /// <inheritdoc />
         public virtual Task CreateWithSpecifiedIdAsync(TId masterId, TDependentId dependentId, TModelCreate item,
             CancellationToken token = default)
         {

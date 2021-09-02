@@ -19,7 +19,6 @@ namespace Nexus.Link.Libraries.Crud.MemoryStorage
     /// <summary>
     /// Functionality for persisting objects in groups.
     /// </summary>
-    [Obsolete("Use DependentToMasterMemory. Obsolete since 2021-08-27.")]
     public class DependentToMasterMemory<TModel, TId, TDependentId> :
         DependentToMasterMemory<TModel, TModel, TId, TDependentId>,
         ICrudDependentToMaster<TModel, TId, TDependentId>
@@ -29,7 +28,6 @@ namespace Nexus.Link.Libraries.Crud.MemoryStorage
     /// <summary>
     /// Functionality for persisting objects in groups.
     /// </summary>
-    [Obsolete("Use DependentToMasterMemory. Obsolete since 2021-08-27.")]
     public class DependentToMasterMemory<TModelCreate, TModel, TId, TDependentId> :
         MemoryBase<TModel, TDependentId>,
         ICrudDependentToMaster<TModelCreate, TModel, TId, TDependentId>
@@ -278,15 +276,9 @@ namespace Nexus.Link.Libraries.Crud.MemoryStorage
         }
 
         /// <inheritdoc />
-        public async Task<TId> GetDependentUniqueIdAsync(TId masterId, TDependentId dependentId, CancellationToken token = default)
+        public Task<TId> GetDependentUniqueIdAsync(TId masterId, TDependentId dependentId, CancellationToken token = default)
         {
-            var item = await ReadAsync(masterId, dependentId, token);
-            if (!(item is IUniquelyIdentifiable<TId> uniquelyIdentifiable))
-            {
-                throw new FulcrumNotFoundException($"Could not find a dependent object of type {typeof(TModel).Name} with master id {masterId} and dependent id {dependentId}.");
-            }
-
-            return uniquelyIdentifiable.Id;
+            return _convenience.GetDependentUniqueIdAsync(masterId, dependentId, token);
         }
     }
 }
