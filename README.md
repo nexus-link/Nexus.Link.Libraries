@@ -47,13 +47,19 @@ cloud.
  :heavy_check_mark: Enable Source Link support\
  :heavy_check_mark: Required source files to exactly match the original version
 
+    ![Check the boxes](https://fulcrumresources.blob.core.windows.net/files/click-these.PNG)
+
 3. Now navigate to Symbols (Debug &rarr; Options &rarr; Debugging &rarr; Symbols)
 
 4. Click "New Azure Devops Symbol Server Location..".
 
+    ![New Azure Devops Symbol Server Location](https://fulcrumresources.blob.core.windows.net/files/add-azure-devops-symbol-server.PNG)
+
 5. Log into your account if you're not already logged in. Visual Studio will fetch connected DevOps organizations.
 
 6. Select nexuslink.visualstudio.com in the list and press 'Connect'.
+
+    ![Select nexuslink](https://fulcrumresources.blob.core.windows.net/files/select-nexuslink.PNG)
 
 Visual Studio will now load symbols when you debugg.
 
@@ -66,14 +72,20 @@ Resharper can't access a privat symbol server by default, we'll have to authenti
 2. ReSharper will now have tried to fetch symbols for this package and failed. So what you're seeing in your solution is probably decompiled sources.
 
 3. Find the ReSharper notifications.
+    
+    ![Select nexuslink](https://fulcrumresources.blob.core.windows.net/files/resharper-notifications.PNG)
 
 4. Identify and click the notification asking you to authenticate towards the symbol server. *Due to a ReSharper bug this notifcation does not always appear. Retry these steps until it does*.
+    
+    ![Select nexuslink](https://fulcrumresources.blob.core.windows.net/files/resharper-notification.PNG)
 
-5. Authenticate yourself using your email adress (name.lastname@xlent.se) and retrieve a personal access token from Azure Devops. See link.\
-   The PAT you're generating should have the following permissions: **Code *Read***.\
-https://docs.microsoft.com/en-us/azure/devops/organizations/accounts/use-personal-access-tokens-to-authenticate?view=azure-devops&tabs=preview-page
+5. Authenticate yourself using your email adress (name.lastname@xlent.se) and retrieve a personal access token from Azure Devops. See link.
+    
+    [Generate Personal Access Token](https://docs.microsoft.com/en-us/azure/devops/organizations/accounts/use-personal-access-tokens-to-authenticate?view=azure-devops&tabs=preview-page)
 
     The PAT you're generating should have the following permissions: **Code *Read***.
+
+ 
 
 All done!
 
