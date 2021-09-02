@@ -18,7 +18,7 @@
 
   <PropertyGroup>
     <PackageId>Nexus.Link.Libraries.SqlServer</PackageId>
-    <Version>2.6.3</Version>
+    <Version>2.7.0</Version>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <PackageTags>nexus;link;fulcrum;lever</PackageTags>
     <Authors>XLENT Link</Authors>
@@ -28,6 +28,7 @@
     <Copyright>Copyright ©2019 Xlent Link AB</Copyright>
     <IncludeSymbols>true</IncludeSymbols>
     <PackageReleaseNotes>
+      2.7.0 Added DependentToMaster
       2.6.3 Added missing cancellation support
       2.6.2 Old obsolete stuff with errors has been deleted and old with warning has been updated to error.
       2.6.1 Removed assertion that CreateWithSpecifiedIdAsync should have affected 1 row. (E.g. with triggers, more rows can be affected.)

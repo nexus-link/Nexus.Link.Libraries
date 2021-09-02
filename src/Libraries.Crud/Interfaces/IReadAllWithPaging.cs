@@ -8,7 +8,7 @@ namespace Nexus.Link.Libraries.Crud.Interfaces
     /// <summary>
     /// Read items"/>.
     /// </summary>
-    /// <typeparam name="TModel">The type of objects to read from persistant storage.</typeparam>
+    /// <typeparam name="TModel">The type of objects to read from persistent storage.</typeparam>
     /// <typeparam name="TId">The type for the id of the object.</typeparam>
     public interface IReadAllWithPaging<TModel, in TId> : ICrudable<TModel, TId>
     {

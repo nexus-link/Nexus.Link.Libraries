@@ -1,4 +1,5 @@
-﻿using System.Collections.Concurrent;
+﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
@@ -14,6 +15,7 @@ namespace Nexus.Link.Libraries.Crud.MemoryStorage
     /// <summary>
     /// Functionality for persisting objects in groups.
     /// </summary>
+    [Obsolete("Use DependentToMasterMemory. Obsolete since 2021-08-27.")]
     public class SlaveToMasterMemory<TModel, TId> : 
         SlaveToMasterMemory<TModel, TModel, TId>, 
         ICrudSlaveToMaster<TModel, TId>
@@ -23,6 +25,7 @@ namespace Nexus.Link.Libraries.Crud.MemoryStorage
     /// <summary>
     /// Functionality for persisting objects in groups.
     /// </summary>
+    [Obsolete("Use DependentToMasterMemory. Obsolete since 2021-08-27.")]
     public class SlaveToMasterMemory<TModelCreate, TModel, TId> : 
         MemoryBase<TModel, TId>,
         ICrudSlaveToMaster<TModelCreate, TModel, TId>

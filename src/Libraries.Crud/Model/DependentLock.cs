@@ -4,8 +4,7 @@ using Nexus.Link.Libraries.Core.Assert;
 namespace Nexus.Link.Libraries.Crud.Model
 {
     /// <inheritdoc />
-    [Obsolete("Use DependentLock. Obsolete since 2021-08-27.")]
-    public class SlaveLock<TId> : BaseLock<TId>
+    public class DependentLock<TId, TDependentId> : BaseLock<TId>
     {
 
         /// <summary>
@@ -14,22 +13,22 @@ namespace Nexus.Link.Libraries.Crud.Model
         public TId MasterId { get; set; }
 
         /// <summary>
-        /// The slave id of the object that the lock is for.
+        /// The dependent id of the object that the lock is for.
         /// </summary>
-        public TId SlaveId { get; set; }
+        public TDependentId DependentId { get; set; }
 
         /// <inheritdoc />
         public override void Validate(string errorLocation, string propertyPath = "")
         {
             base.Validate(errorLocation, propertyPath);
             FulcrumValidate.IsNotDefaultValue(MasterId, nameof(MasterId), errorLocation);
-            FulcrumValidate.IsNotDefaultValue(SlaveId, nameof(SlaveId), errorLocation);
+            FulcrumValidate.IsNotDefaultValue(DependentId, nameof(DependentId), errorLocation);
         }
 
         /// <inheritdoc />
         public override string ToString()
         {
-            return $"{MasterId}/{SlaveId} ({ValidUntil})";
+            return $"{MasterId}/{DependentId} ({ValidUntil})";
         }
 
         /// <inheritdoc />
@@ -43,8 +42,8 @@ namespace Nexus.Link.Libraries.Crud.Model
         public override bool Equals(object obj)
         {
             if (obj == null) return false;
-            if (!(obj is SlaveLock<TId> @lock)) return false;
-            return Equals(Id, @lock.Id) && Equals(MasterId, @lock.MasterId) && Equals(SlaveId, @lock.SlaveId);
+            if (!(obj is DependentLock<TId, TDependentId> @lock)) return false;
+            return Equals(Id, @lock.Id) && Equals(MasterId, @lock.MasterId) && Equals(DependentId, @lock.DependentId);
         }
     }
 }
