@@ -65,7 +65,7 @@ namespace Nexus.Link.Libraries.Crud.Web.RestClient
         {
             InternalContract.RequireNotDefaultValue(masterId, nameof(masterId));
             InternalContract.RequireNotDefaultValue(dependentId, nameof(dependentId));
-            return PostNoResponseContentAsync($"{masterId}/{ChildrenName}/{dependentId}", item, cancellationToken: token);
+            return PostNoResponseContentAsync($"{ParentName}/{masterId}/{ChildrenName}/{dependentId}", item, cancellationToken: token);
         }
 
         /// <inheritdoc />
@@ -74,7 +74,7 @@ namespace Nexus.Link.Libraries.Crud.Web.RestClient
         {
             InternalContract.RequireNotDefaultValue(masterId, nameof(masterId));
             InternalContract.RequireNotDefaultValue(dependentId, nameof(dependentId));
-            return PostAsync<TManyModel, TManyModelCreate>($"{masterId}/{ChildrenName}/{dependentId}/ReturnCreated", item, cancellationToken: token);
+            return PostAsync<TManyModel, TManyModelCreate>($"{ParentName}/{masterId}/{ChildrenName}/{dependentId}/ReturnCreated", item, cancellationToken: token);
         }
 
         /// <inheritdoc />
@@ -82,7 +82,7 @@ namespace Nexus.Link.Libraries.Crud.Web.RestClient
         {
             InternalContract.RequireNotDefaultValue(masterId, nameof(masterId));
             InternalContract.RequireNotDefaultValue(dependentId, nameof(dependentId));
-            return GetAsync<TManyModel>($"{masterId}/{ChildrenName}/{dependentId}", cancellationToken: token);
+            return GetAsync<TManyModel>($"{ParentName}/{masterId}/{ChildrenName}/{dependentId}", cancellationToken: token);
         }
 
         /// <inheritdoc />
@@ -90,7 +90,7 @@ namespace Nexus.Link.Libraries.Crud.Web.RestClient
         {
             InternalContract.RequireNotDefaultValue(parentId, nameof(parentId));
             InternalContract.RequireGreaterThan(0, limit, nameof(limit));
-            return GetAsync<IEnumerable<TManyModel>>($"{parentId}/{ChildrenName}?limit={limit}", cancellationToken: token);
+            return GetAsync<IEnumerable<TManyModel>>($"{ParentName}/{parentId}/{ChildrenName}?limit={limit}", cancellationToken: token);
         }
 
         /// <inheritdoc />
@@ -104,7 +104,7 @@ namespace Nexus.Link.Libraries.Crud.Web.RestClient
                 InternalContract.RequireGreaterThan(0, limit.Value, nameof(limit));
                 limitParameter = $"&limit={limit}";
             }
-            return GetAsync<PageEnvelope<TManyModel>>($"{parentId}/{ChildrenName}?offset={offset}{limitParameter}", cancellationToken: token);
+            return GetAsync<PageEnvelope<TManyModel>>($"{ParentName}/{parentId}/{ChildrenName}?offset={offset}{limitParameter}", cancellationToken: token);
         }
 
         /// <inheritdoc />
@@ -119,7 +119,7 @@ namespace Nexus.Link.Libraries.Crud.Web.RestClient
                 InternalContract.RequireGreaterThan(0, limit.Value, nameof(limit));
                 limitParameter = $"&limit={limit}";
             }
-            return PostAsync<PageEnvelope<TManyModel>, SearchDetails<TManyModel>>($"{parentId}/{ChildrenName}/Searches?offset={offset}{limitParameter}", details, null,cancellationToken );
+            return PostAsync<PageEnvelope<TManyModel>, SearchDetails<TManyModel>>($"{ParentName}/{parentId}/{ChildrenName}/Searches?offset={offset}{limitParameter}", details, null,cancellationToken );
         }
 
         /// <inheritdoc />
@@ -134,7 +134,9 @@ namespace Nexus.Link.Libraries.Crud.Web.RestClient
         {
             InternalContract.RequireNotDefaultValue(masterId, nameof(masterId));
             InternalContract.RequireNotDefaultValue(dependentId, nameof(dependentId));
-            return PutNoResponseContentAsync($"{masterId}/{ChildrenName}/{dependentId}", item, cancellationToken: token);
+            InternalContract.RequireNotNull(item, nameof(item));
+            InternalContract.RequireValidated(item, nameof(item));
+            return PutNoResponseContentAsync($"{ParentName}/{masterId}/{ChildrenName}/{dependentId}", item, cancellationToken: token);
         }
 
         /// <inheritdoc />
@@ -143,7 +145,9 @@ namespace Nexus.Link.Libraries.Crud.Web.RestClient
         {
             InternalContract.RequireNotDefaultValue(masterId, nameof(masterId));
             InternalContract.RequireNotDefaultValue(dependentId, nameof(dependentId));
-            return PostAsync<TManyModel, TManyModelCreate>($"{masterId}/{ChildrenName}/{dependentId}/ReturnCreated", item, cancellationToken: token);
+            InternalContract.RequireNotNull(item, nameof(item));
+            InternalContract.RequireValidated(item, nameof(item));
+            return PostAsync<TManyModel, TManyModelCreate>($"{ParentName}/{masterId}/{ChildrenName}/{dependentId}/ReturnCreated", item, cancellationToken: token);
         }
 
         /// <inheritdoc />
@@ -151,14 +155,14 @@ namespace Nexus.Link.Libraries.Crud.Web.RestClient
         {
             InternalContract.RequireNotDefaultValue(masterId, nameof(masterId));
             InternalContract.RequireNotDefaultValue(dependentId, nameof(dependentId));
-            return DeleteAsync($"{masterId}/{ChildrenName}/{dependentId}", cancellationToken: token);
+            return DeleteAsync($"{ParentName}/{masterId}/{ChildrenName}/{dependentId}", cancellationToken: token);
         }
 
         /// <inheritdoc />
         public Task DeleteChildrenAsync(TId parentId, CancellationToken token = default)
         {
             InternalContract.RequireNotDefaultValue(parentId, nameof(parentId));
-            return DeleteAsync($"{parentId}/{ChildrenName}", cancellationToken: token);
+            return DeleteAsync($"{ParentName}/{parentId}/{ChildrenName}", cancellationToken: token);
         }
 
         /// <inheritdoc />
@@ -166,7 +170,7 @@ namespace Nexus.Link.Libraries.Crud.Web.RestClient
         {
             InternalContract.RequireNotDefaultValue(masterId, nameof(masterId));
             InternalContract.RequireNotDefaultValue(dependentId, nameof(dependentId));
-            return PostAsync<DependentLock<TId, TDependentId>>($"{masterId}/{ChildrenName}/{dependentId}/Locks", cancellationToken: token);
+            return PostAsync<DependentLock<TId, TDependentId>>($"{ParentName}/{masterId}/{ChildrenName}/{dependentId}/Locks", cancellationToken: token);
         }
 
         /// <inheritdoc />
@@ -176,7 +180,7 @@ namespace Nexus.Link.Libraries.Crud.Web.RestClient
             InternalContract.RequireNotDefaultValue(masterId, nameof(masterId));
             InternalContract.RequireNotDefaultValue(dependentId, nameof(dependentId));
             InternalContract.RequireNotDefaultValue(lockId, nameof(lockId));
-            return DeleteAsync($"{masterId}/{ChildrenName}/{dependentId}/Locks", cancellationToken: token);
+            return DeleteAsync($"{ParentName}/{masterId}/{ChildrenName}/{dependentId}/Locks", cancellationToken: token);
         }
 
         /// <inheritdoc />
