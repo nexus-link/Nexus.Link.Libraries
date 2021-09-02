@@ -20,7 +20,7 @@
 
   <PropertyGroup>
     <PackageId>Nexus.Link.Libraries.Crud</PackageId>
-    <Version>3.1.1</Version>
+    <Version>3.2.0</Version>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <PackageTags>nexus;link;fulcrum;lever</PackageTags>
     <Authors>XLENT Link</Authors>
@@ -30,6 +30,7 @@
     <Copyright>Copyright ©2019 Xlent Link AB</Copyright>
     <IncludeSymbols>true</IncludeSymbols>
     <PackageReleaseNotes>
+      3.2.0 Added DependentToMasterWithUniqueId
       3.1.1 Symbols
       3.1.0 Added DependentToMaster
       3.0.3 Added missing cancellation support
