@@ -2,9 +2,20 @@
 
   <PropertyGroup>
     <TargetFrameworks>netstandard2.0;net461</TargetFrameworks>
+
+    <!-- Publish the repository URL in the built .nupkg (in the NuSpec <Repository> element) -->
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
+
+    <!-- Embed source files that are not tracked by the source control manager in the PDB -->
+    <EmbedUntrackedSources>true</EmbedUntrackedSources>
+
+    <!-- Recommended: Embed symbols containing Source Link in the main file (exe/dll) -->
+    <DebugType>embedded</DebugType>
+    <IncludeSymbols>true</IncludeSymbols>
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0" PrivateAssets="All" />
     <PackageReference Include="WindowsAzure.Storage" Version="9.1.1" />
   </ItemGroup>
 
@@ -15,7 +26,7 @@
 
   <PropertyGroup>
     <PackageId>Nexus.Link.Libraries.Azure</PackageId>
-    <Version>3.5.0</Version>
+    <Version>3.5.1</Version>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <PackageTags>nexus;link;fulcrum;lever</PackageTags>
     <Authors>XLENT Link</Authors>
@@ -25,13 +36,14 @@
     <Copyright>Copyright ©2019 Xlent Link AB</Copyright>
     <IncludeSymbols>true</IncludeSymbols>
     <PackageReleaseNotes>
+      3.5.1 Symbols
       3.5.0 Added CancellationToken where it was missing. Old obsolete stuff with errors has been deleted and old with warning has been updated to error.
       3.4.0 Added ClaimTransactionLockAndReadAsycn()
       3.3.0 Added Crud ISearch and ISearchChildren
       3.2.0 New lock interfaces.
       3.1.3 Now sets RecordUpdatedAt to DateTimeOffset.UtcNow and bump Libraries.Core.
       3.1.2 Bump
-      3.1.1 Better validation when creating items. 
+      3.1.1 Better validation when creating items.
       3.1.0 AzureStorageQueue now implements ICountableQueue
       3.0.7 Bump
       3.0.6 Bump
