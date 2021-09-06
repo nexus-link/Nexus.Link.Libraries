@@ -7,8 +7,6 @@ namespace Nexus.Link.Libraries.Crud.Interfaces
     /// <inheritdoc cref="ICrudDependentToMaster{TModelCreate,TModel,TId}" />
     public interface ICrudDependentToMaster<TModel, TId, TDependentId> :
         ICrudDependentToMaster<TModel, TModel, TId, TDependentId>,
-        ICreateDependent<TModel, TId, TDependentId>,
-        ICreateDependentAndReturn<TModel, TId, TDependentId>,
         ICreateDependentWithSpecifiedId<TModel, TId, TDependentId>,
         ICreateDependentWithSpecifiedIdAndReturn<TModel, TId, TDependentId>,
         ICrudDependentToMasterBasic<TModel, TId, TDependentId>
@@ -21,8 +19,6 @@ namespace Nexus.Link.Libraries.Crud.Interfaces
     /// Example: Am order item is dependent to an order header.
     /// </summary>
     public interface ICrudDependentToMaster<in TModelCreate, TModel, TId, TDependentId> :
-        ICreateDependent<TModelCreate, TModel, TId, TDependentId>,
-        ICreateDependentAndReturn<TModelCreate, TModel, TId, TDependentId>,
         ICreateDependentWithSpecifiedId<TModelCreate, TModel, TId, TDependentId>,
         ICreateDependentWithSpecifiedIdAndReturn<TModelCreate, TModel, TId, TDependentId>,
         IReadDependent<TModel, TId, TDependentId>,
