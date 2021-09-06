@@ -136,6 +136,11 @@ namespace Nexus.Link.Libraries.Crud.Web.RestClient
             InternalContract.RequireNotDefaultValue(dependentId, nameof(dependentId));
             InternalContract.RequireNotNull(item, nameof(item));
             InternalContract.RequireValidated(item, nameof(item));
+            if (item is IUniquelyIdentifiableDependent<TId, TDependentId> combinedId)
+            {
+                InternalContract.RequireAreEqual(masterId, combinedId.MasterId, $"{nameof(item)}.{nameof(combinedId.MasterId)}");
+                InternalContract.RequireAreEqual(dependentId, combinedId.DependentId, $"{nameof(item)}.{nameof(combinedId.DependentId)}");
+            }
             return PutNoResponseContentAsync($"{ParentName}/{masterId}/{ChildrenName}/{dependentId}", item, cancellationToken: token);
         }
 

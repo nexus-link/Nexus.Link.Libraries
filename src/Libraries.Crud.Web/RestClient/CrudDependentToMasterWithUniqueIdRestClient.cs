@@ -54,6 +54,10 @@ namespace Nexus.Link.Libraries.Crud.Web.RestClient
             InternalContract.RequireNotDefaultValue(id, nameof(id));
             InternalContract.RequireNotNull(item, nameof(item));
             InternalContract.RequireValidated(item, nameof(item));
+            if (item is IUniquelyIdentifiable<TId> uniquelyIdentifiable)
+            {
+                InternalContract.RequireAreEqual(id, uniquelyIdentifiable.Id, $"{nameof(item)}.{nameof(uniquelyIdentifiable.Id)}");
+            }
             return PutNoResponseContentAsync($"{ChildrenName}/{id}", item, null, token);
         }
 
@@ -63,6 +67,10 @@ namespace Nexus.Link.Libraries.Crud.Web.RestClient
             InternalContract.RequireNotDefaultValue(id, nameof(id));
             InternalContract.RequireNotNull(item, nameof(item));
             InternalContract.RequireValidated(item, nameof(item));
+            if (item is IUniquelyIdentifiable<TId> uniquelyIdentifiable)
+            {
+                InternalContract.RequireAreEqual(id, uniquelyIdentifiable.Id, $"{nameof(item)}.{nameof(uniquelyIdentifiable.Id)}");
+            }
             return PutAndReturnUpdatedObjectAsync($"{ChildrenName}/{id}", item, null, token);
         }
 
