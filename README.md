@@ -65,7 +65,7 @@ Visual Studio will now load symbols when you debugg.
 
 ### **If you're using ReSharper**
 ***Before configuring ReSharper, perform the steps above***\
-Resharper can't access a privat symbol server by default, we'll have to authenticate ourselves. 
+Resharper can't access a private symbol server by default, we'll have to authenticate ourselves. 
 
 1. Try to F12 (*Go To Definition*) of an object you're using in your solution that is implemented in a nuget. *This needs to be a nexus nuget since we only have nexus nuget symbols in our symbol server*.
 
@@ -79,7 +79,7 @@ Resharper can't access a privat symbol server by default, we'll have to authenti
     
     ![Select nexuslink](https://fulcrumresources.blob.core.windows.net/files/resharper-notification.PNG)
 
-5. Authenticate yourself using your email adress (name.lastname@xlent.se) and retrieve a personal access token from Azure Devops. See link.
+5. Authenticate yourself using your email address (name.lastname@xlent.se) and retrieve a personal access token from Azure Devops. See link.
     
     [Generate Personal Access Token](https://docs.microsoft.com/en-us/azure/devops/organizations/accounts/use-personal-access-tokens-to-authenticate?view=azure-devops&tabs=preview-page)
 

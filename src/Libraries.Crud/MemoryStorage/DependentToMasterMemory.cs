@@ -124,25 +124,55 @@ namespace Nexus.Link.Libraries.Crud.MemoryStorage
         }
 
         /// <inheritdoc />
-        public virtual Task UpdateAsync(TId masterId, TDependentId dependentId, TModel item, CancellationToken token = default)
+        public virtual async Task UpdateAsync(TId masterId, TDependentId dependentId, TModel item, CancellationToken token = default)
         {
             InternalContract.RequireNotDefaultValue(masterId, nameof(masterId));
             InternalContract.RequireNotDefaultValue(dependentId, nameof(dependentId));
             InternalContract.RequireNotNull(item, nameof(item));
             InternalContract.RequireValidated(item, nameof(item));
+            if (item is IUniquelyIdentifiableDependent<TId, TDependentId> combinedId)
+            {
+                InternalContract.RequireAreEqual(masterId, combinedId.MasterId, $"{nameof(item)}.{nameof(combinedId.MasterId)}");
+                InternalContract.RequireAreEqual(dependentId, combinedId.DependentId, $"{nameof(item)}.{nameof(combinedId.DependentId)}");
+            }
             var groupPersistence = GetStorage(masterId);
-            return groupPersistence.UpdateAsync(dependentId, item, token);
+            if (item is IUniquelyIdentifiable<TId> uniquelyIdentifiable)
+            {
+                var oldItem = await groupPersistence.ReadAsync(dependentId, token);
+                if (oldItem is IUniquelyIdentifiable<TId> oldUniquelyIdentifiable)
+                {
+
+                    InternalContract.RequireAreEqual(oldUniquelyIdentifiable.Id, uniquelyIdentifiable.Id,
+                        $"{nameof(item)}.{nameof(uniquelyIdentifiable.Id)}");
+                }
+            }
+            await groupPersistence.UpdateAsync(dependentId, item, token);
         }
 
         /// <inheritdoc />
-        public virtual Task<TModel> UpdateAndReturnAsync(TId masterId, TDependentId dependentId, TModel item, CancellationToken token = default)
+        public virtual async Task<TModel> UpdateAndReturnAsync(TId masterId, TDependentId dependentId, TModel item, CancellationToken token = default)
         {
             InternalContract.RequireNotDefaultValue(masterId, nameof(masterId));
             InternalContract.RequireNotDefaultValue(dependentId, nameof(dependentId));
             InternalContract.RequireNotNull(item, nameof(item));
             InternalContract.RequireValidated(item, nameof(item));
+            if (item is IUniquelyIdentifiableDependent<TId, TDependentId> combinedId)
+            {
+                InternalContract.RequireAreEqual(masterId, combinedId.MasterId, $"{nameof(item)}.{nameof(combinedId.MasterId)}");
+                InternalContract.RequireAreEqual(dependentId, combinedId.DependentId, $"{nameof(item)}.{nameof(combinedId.DependentId)}");
+            }
             var groupPersistence = GetStorage(masterId);
-            return groupPersistence.UpdateAndReturnAsync(dependentId, item, token);
+            if (item is IUniquelyIdentifiable<TId> uniquelyIdentifiable)
+            {
+                var oldItem = await groupPersistence.ReadAsync(dependentId, token);
+                if (oldItem is IUniquelyIdentifiable<TId> oldUniquelyIdentifiable)
+                {
+
+                    InternalContract.RequireAreEqual(oldUniquelyIdentifiable.Id, uniquelyIdentifiable.Id,
+                        $"{nameof(item)}.{nameof(uniquelyIdentifiable.Id)}");
+                }
+            }
+            return await groupPersistence.UpdateAndReturnAsync(dependentId, item, token);
         }
 
         /// <inheritdoc />
