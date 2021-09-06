@@ -2,7 +2,7 @@
 {
 
     /// <inheritdoc cref="ICrudDependentToMasterBasic{TModelCreate,TModel,TId, TDependentId}" />
-    public interface ICrudDependentToMasterBasic<TModel, TId, TDependentId> :
+    public interface ICrudDependentToMasterBasic<TModel, TId, in TDependentId> :
         ICrudDependentToMasterBasic<TModel, TModel, TId, TDependentId>,
         ICreateDependentWithSpecifiedId<TModel, TId, TDependentId>
     {
