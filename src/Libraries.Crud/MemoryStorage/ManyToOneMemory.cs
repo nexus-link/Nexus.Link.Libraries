@@ -131,5 +131,17 @@ namespace Nexus.Link.Libraries.Crud.MemoryStorage
         {
             return _convenience.FindUniqueChildAsync(parentId, details, cancellationToken);
         }
+
+        /// <inheritdoc />
+        public Task<TId> CreateChildAsync(TId parentId, TModelCreate item, CancellationToken token = default)
+        {
+            return _convenience.CreateChildAsync(parentId, item, token);
+        }
+
+        /// <inheritdoc />
+        public Task<TModel> CreateChildAndReturnAsync(TId parentId, TModelCreate item, CancellationToken token = default)
+        {
+            return _convenience.CreateChildAndReturnAsync(parentId, item, token);
+        }
     }
 }

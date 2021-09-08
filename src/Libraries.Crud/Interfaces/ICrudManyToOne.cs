@@ -5,7 +5,9 @@ namespace Nexus.Link.Libraries.Crud.Interfaces
     public interface ICrudManyToOne<TModel, TId> : 
         ICrudManyToOne<TModel, TModel, TId>,
         ICrud<TModel, TId>,
-        ICrudManyToOneBasic<TModel, TId>
+        ICrudManyToOneBasic<TModel, TId>,
+        ICreateChild<TModel, TId>,
+        ICreateChildAndReturn<TModel, TId>
     {
     }
 
@@ -18,7 +20,11 @@ namespace Nexus.Link.Libraries.Crud.Interfaces
     /// <typeparam name="TId"></typeparam>
     public interface ICrudManyToOne<in TModelCreate, TModel, TId> :
         ICrud<TModelCreate, TModel, TId>,
+#pragma warning disable 618
         ISlaveToMaster<TModel, TId>,
+#pragma warning restore 618
+        ICreateChild<TModelCreate, TModel, TId>,
+        ICreateChildAndReturn<TModelCreate, TModel, TId>,
         IReadChildren<TModel, TId>,
         IReadChildrenWithPaging<TModel, TId>,
         ISearchChildren<TModel, TId>,

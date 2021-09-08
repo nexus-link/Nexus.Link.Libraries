@@ -16,7 +16,9 @@
     /// <typeparam name="TId"></typeparam>
     public interface ICrudManyToOneBasic<in TModelCreate, TModel, TId> :
         ICrudBasic<TModelCreate, TModel, TId>,
+#pragma warning disable 618
         ISlaveToMaster<TModel, TId>
+#pragma warning restore 618
         where TModel : TModelCreate
     {
     }
