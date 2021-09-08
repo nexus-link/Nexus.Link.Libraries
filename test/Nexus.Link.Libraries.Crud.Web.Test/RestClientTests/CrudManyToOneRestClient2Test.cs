@@ -11,14 +11,13 @@ using Nexus.Link.Libraries.Crud.Interfaces;
 using Nexus.Link.Libraries.Crud.Web.RestClient;
 using Nexus.Link.Libraries.Crud.Web.Test.Support.Models;
 using Nexus.Link.Libraries.Web.RestClientHelper;
-#pragma warning disable 618
 
 namespace Nexus.Link.Libraries.Crud.Web.Test.RestClientTests
 {
     [TestClass]
-    public class CrudManyToOneRestClientTest : TestBase
+    public class CrudManyToOneRestClient2Test : TestBase
     {
-        private const string ResourcePath = "http://example.se/Persons";
+        private const string ResourcePath = "http://example.se";
         private ICrudManyToOne<Address, Guid> _client;
         private Address _address;
 
@@ -30,7 +29,7 @@ namespace Nexus.Link.Libraries.Crud.Web.Test.RestClientTests
             HttpClientMock = new Mock<IHttpClient>();
             Libraries.Web.RestClientHelper.HttpSender.DefaultHttpClient = HttpClientMock.Object;
             var httpSender = new HttpSender(ResourcePath) {HttpClient = HttpClientMock.Object};
-            _client = new CrudManyToOneRestClient<Address, Guid>(httpSender, "Person", "Addresses");
+            _client = new CrudManyToOneRestClient2<Address, Guid>(httpSender, "Persons", "Addresses");
             _address = new Address()
             {
                 Street = "Paradisäppelvägen 111",
@@ -42,7 +41,7 @@ namespace Nexus.Link.Libraries.Crud.Web.Test.RestClientTests
         public async Task ReadChildrenTest()
         {
             var parentId = Guid.NewGuid();
-            var expectedUri = $"{ResourcePath}/{parentId}/Addresses?limit={int.MaxValue}";
+            var expectedUri = $"{ResourcePath}/Persons/{parentId}/Addresses?limit={int.MaxValue}";
             HttpClientMock.Setup(client => client.SendAsync(
                     It.Is<HttpRequestMessage>(request => IsExpectedRequest(request, expectedUri, HttpMethod.Get)),
                     CancellationToken.None))
@@ -60,7 +59,7 @@ namespace Nexus.Link.Libraries.Crud.Web.Test.RestClientTests
         public async Task ReadChildrenWithPagingTest()
         {
             var parentId = Guid.NewGuid();
-            var expectedUri = $"{ResourcePath}/{parentId}/Addresses?offset=0";
+            var expectedUri = $"{ResourcePath}/Persons/{parentId}/Addresses?offset=0";
             var pageEnvelope = new PageEnvelope<Address>(0, PageInfo.DefaultLimit, null, new[] { _address });
             HttpClientMock.Setup(client => client.SendAsync(
                     It.Is<HttpRequestMessage>(request => IsExpectedRequest(request, expectedUri, HttpMethod.Get)),

@@ -11,16 +11,14 @@ using Nexus.Link.Libraries.Crud.Interfaces;
 using Nexus.Link.Libraries.Crud.Web.RestClient;
 using Nexus.Link.Libraries.Crud.Web.Test.Support.Models;
 using Nexus.Link.Libraries.Web.RestClientHelper;
-#pragma warning disable 618
 
 namespace Nexus.Link.Libraries.Crud.Web.Test.RestClientTests
 {
     [TestClass]
-    public class CrudManyToOneRecursiveRestClientTest : TestBase
+    public class CrudManyToOneRecursiveRestClient2Test : TestBase
     {
-        private const string ResourcePath = "http://example.se/Persons";
+        private const string ResourcePath = "http://example.se";
         private Person _person;
-        private ICrudManyToOne<Person, Guid> _parentChildrenClient;
         private ICrudManyToOne<Person, Guid> _oneManyClient;
 
 
@@ -31,8 +29,7 @@ namespace Nexus.Link.Libraries.Crud.Web.Test.RestClientTests
             HttpClientMock = new Mock<IHttpClient>();
             HttpSender.DefaultHttpClient = HttpClientMock.Object;
             var httpSender = new HttpSender(ResourcePath) {HttpClient = HttpClientMock.Object};
-            _parentChildrenClient = new CrudManyToOneRestClient<Person, Guid>(httpSender);
-            _oneManyClient = new CrudManyToOneRestClient<Person, Guid>(httpSender, "One", "Many");
+            _oneManyClient = new CrudManyToOneRestClient2<Person, Guid>(httpSender, "Persons", "Many");
             _person = new Person()
             {
                 GivenName = "Kalle",
@@ -41,20 +38,15 @@ namespace Nexus.Link.Libraries.Crud.Web.Test.RestClientTests
         }
 
         [TestMethod]
-        public async Task ReadChildren1Test()
-        {
-            await ReadChildrenTest(_parentChildrenClient, "Children");
-        }
-
-        [TestMethod]
-        public async Task ReadChildren2Test()
+        public async Task ReadChildrenTest()
         {
             await ReadChildrenTest(_oneManyClient, "Many");
         }
+
         public async Task ReadChildrenTest(ICrudManyToOne<Person, Guid> restClient, string resourceName)
         {
             var parentId = Guid.NewGuid();
-            var expectedUri = $"{ResourcePath}/{parentId}/{resourceName}?limit={int.MaxValue}";
+            var expectedUri = $"{ResourcePath}/Persons/{parentId}/{resourceName}?limit={int.MaxValue}";
             HttpClientMock.Setup(client => client.SendAsync(
                     It.Is<HttpRequestMessage>(request => request.RequestUri.AbsoluteUri == expectedUri && request.Method == HttpMethod.Get),
                     CancellationToken.None))
@@ -69,13 +61,7 @@ namespace Nexus.Link.Libraries.Crud.Web.Test.RestClientTests
         }
 
         [TestMethod]
-        public async Task ReadChildrenWithPaging1Test()
-        {
-            await ReadChildrenWithPagingTest(_parentChildrenClient, "Children");
-        }
-
-        [TestMethod]
-        public async Task ReadChildrenWithPaging2Test()
+        public async Task ReadChildrenWithPagingTest()
         {
             await ReadChildrenWithPagingTest(_oneManyClient, "Many");
         }
@@ -83,7 +69,7 @@ namespace Nexus.Link.Libraries.Crud.Web.Test.RestClientTests
         public async Task ReadChildrenWithPagingTest(ICrudManyToOne<Person, Guid> restClient, string resourceName)
         {
             var parentId = Guid.NewGuid();
-            var expectedUri = $"{ResourcePath}/{parentId}/{resourceName}?offset=0";
+            var expectedUri = $"{ResourcePath}/Persons/{parentId}/{resourceName}?offset=0";
             var pageEnvelope = new PageEnvelope<Person>(0, PageInfo.DefaultLimit, null, new[] { _person });
             HttpClientMock.Setup(client => client.SendAsync(
                     It.Is<HttpRequestMessage>(request => request.RequestUri.AbsoluteUri == expectedUri && request.Method == HttpMethod.Get),
