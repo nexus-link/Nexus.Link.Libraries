@@ -135,16 +135,16 @@ namespace Nexus.Link.Libraries.SqlServer
         }
 
         /// <inheritdoc />
-        public Task CreateWithSpecifiedIdAsync(Guid parentId, Guid childId, TManyModel item, CancellationToken token = default)
+        public Task CreateChildWithSpecifiedIdAsync(Guid parentId, Guid childId, TManyModel item, CancellationToken token = default)
         {
-            return _convenience.CreateWithSpecifiedIdAsync(parentId, childId, item, token);
+            return _convenience.CreateChildWithSpecifiedIdAsync(parentId, childId, item, token);
         }
 
         /// <inheritdoc />
-        public Task<TManyModel> CreateWithSpecifiedIdAndReturnAsync(Guid parentId, Guid childId, TManyModel item,
+        public Task<TManyModel> CreateChildWithSpecifiedIdAndReturnAsync(Guid parentId, Guid childId, TManyModel item,
             CancellationToken token = default)
         {
-            return _convenience.CreateWithSpecifiedIdAndReturnAsync(parentId, childId, item, token);
+            return _convenience.CreateChildWithSpecifiedIdAndReturnAsync(parentId, childId, item, token);
         }
     }
 
@@ -268,16 +268,16 @@ namespace Nexus.Link.Libraries.SqlServer
         }
 
         /// <inheritdoc />
-        public Task CreateWithSpecifiedIdAsync(Guid parentId, Guid childId, TManyModelCreate item, CancellationToken token = default)
+        public Task CreateChildWithSpecifiedIdAsync(Guid parentId, Guid childId, TManyModelCreate item, CancellationToken token = default)
         {
-            return _convenience.CreateWithSpecifiedIdAsync(parentId, childId, item, token);
+            return _convenience.CreateChildWithSpecifiedIdAsync(parentId, childId, item, token);
         }
 
         /// <inheritdoc />
-        public Task<TManyModel> CreateWithSpecifiedIdAndReturnAsync(Guid parentId, Guid childId, TManyModelCreate item,
+        public Task<TManyModel> CreateChildWithSpecifiedIdAndReturnAsync(Guid parentId, Guid childId, TManyModelCreate item,
             CancellationToken token = default)
         {
-            return _convenience.CreateWithSpecifiedIdAndReturnAsync(parentId, childId, item, token);
+            return _convenience.CreateChildWithSpecifiedIdAndReturnAsync(parentId, childId, item, token);
         }
     }
 }

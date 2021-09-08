@@ -29,7 +29,7 @@
 
   <PropertyGroup>
     <PackageId>Nexus.Link.Libraries.SqlServer</PackageId>
-    <Version>2.9.1</Version>
+    <Version>2.9.2</Version>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <PackageTags>nexus;link;fulcrum;lever</PackageTags>
     <Authors>XLENT Link</Authors>
@@ -39,7 +39,7 @@
     <Copyright>Copyright ©2019 Xlent Link AB</Copyright>
     <IncludeSymbols>true</IncludeSymbols>
     <PackageReleaseNotes>
-      2.9.1 Added ICreateChild and ICreateChildAndReturn
+      2.9.2 Added ICreateChild and ICreateChildAndReturn
       2.8.1 Bump
       2.8.0 Added DependentToMasterWithUniqueId
       2.7.2 Symbols

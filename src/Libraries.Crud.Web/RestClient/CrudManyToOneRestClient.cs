@@ -150,14 +150,14 @@ namespace Nexus.Link.Libraries.Crud.Web.RestClient
         }
 
         /// <inheritdoc />
-        public Task CreateWithSpecifiedIdAsync(TId parentId, TId childId, TManyModelCreate item, CancellationToken token = default)
+        public Task CreateChildWithSpecifiedIdAsync(TId parentId, TId childId, TManyModelCreate item, CancellationToken token = default)
         {
             InternalContract.RequireNotDefaultValue(parentId, nameof(parentId));
             return PostAsync<TId, TManyModelCreate>($"{parentId}/{ChildrenName}/{childId}", item, cancellationToken: token);
         }
 
         /// <inheritdoc />
-        public Task<TManyModel> CreateWithSpecifiedIdAndReturnAsync(TId parentId, TId childId, TManyModelCreate item,
+        public Task<TManyModel> CreateChildWithSpecifiedIdAndReturnAsync(TId parentId, TId childId, TManyModelCreate item,
             CancellationToken token = default)
         {
             InternalContract.RequireNotDefaultValue(parentId, nameof(parentId));

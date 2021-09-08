@@ -99,14 +99,14 @@ namespace Nexus.Link.Libraries.Crud.Mappers
         }
 
         /// <inheritdoc />
-        public Task CreateWithSpecifiedIdAsync(TClientId parentId, TClientId childId, TClientModelCreate item,
+        public Task CreateChildWithSpecifiedIdAsync(TClientId parentId, TClientId childId, TClientModelCreate item,
             CancellationToken token = default)
         {
             throw new NotImplementedException();
         }
 
         /// <inheritdoc />
-        public async Task<TClientModel> CreateWithSpecifiedIdAndReturnAsync(TClientId parentId, TClientId childId, TClientModelCreate item,
+        public async Task<TClientModel> CreateChildWithSpecifiedIdAndReturnAsync(TClientId parentId, TClientId childId, TClientModelCreate item,
             CancellationToken token = default)
         {
             throw new NotImplementedException();

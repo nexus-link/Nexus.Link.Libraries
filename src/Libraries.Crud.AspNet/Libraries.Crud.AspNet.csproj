@@ -28,7 +28,7 @@
 
   <PropertyGroup>
     <PackageId>Nexus.Link.Libraries.Crud.AspNet</PackageId>
-    <Version>2.7.1</Version>
+    <Version>2.7.2</Version>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <PackageTags>nexus;link;fulcrum;lever</PackageTags>
     <Authors>XLENT Link</Authors>
@@ -38,7 +38,7 @@
     <Copyright>Copyright ©2019 Xlent Link AB</Copyright>
     <IncludeSymbols>true</IncludeSymbols>
     <PackageReleaseNotes>
-      2.7.1 Added ICreateChild and ICreateChildAndReturn
+      2.7.2 Added ICreateChild and ICreateChildAndReturn
       2.6.3 Symbols
       2.6.2 Bump
       2.6.1 Old obsolete stuff with errors has been deleted and old with warning has been updated to error.

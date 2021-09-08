@@ -132,19 +132,19 @@ namespace Nexus.Link.Libraries.Crud.AspNet.ControllerHelpers
         }
 
         /// <inheritdoc />
-        public Task CreateWithSpecifiedIdAsync(string parentId, string childId, TModelCreate item, CancellationToken token = default)
+        public Task CreateChildWithSpecifiedIdAsync(string parentId, string childId, TModelCreate item, CancellationToken token = default)
         {
             ServiceContract.RequireNotNullOrWhiteSpace(parentId, nameof(parentId));
-            return Logic.CreateWithSpecifiedIdAsync(parentId, childId, item, token);
+            return Logic.CreateChildWithSpecifiedIdAsync(parentId, childId, item, token);
         }
 
         /// <inheritdoc />
-        public async Task<TModel> CreateWithSpecifiedIdAndReturnAsync(string parentId, string childId, TModelCreate item,
+        public async Task<TModel> CreateChildWithSpecifiedIdAndReturnAsync(string parentId, string childId, TModelCreate item,
             CancellationToken token = default)
         {
             ServiceContract.RequireNotNullOrWhiteSpace(parentId, nameof(parentId));
             ServiceContract.RequireNotNull(item, nameof(item));
-            var createdItem = await Logic.CreateWithSpecifiedIdAndReturnAsync(parentId, childId, item, token);
+            var createdItem = await Logic.CreateChildWithSpecifiedIdAndReturnAsync(parentId, childId, item, token);
             FulcrumAssert.IsNotNull(createdItem, CodeLocation.AsString());
             FulcrumAssert.IsValidated(createdItem, CodeLocation.AsString());
             return createdItem;

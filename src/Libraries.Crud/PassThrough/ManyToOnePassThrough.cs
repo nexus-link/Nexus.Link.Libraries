@@ -92,17 +92,17 @@ namespace Nexus.Link.Libraries.Crud.PassThrough
         }
 
         /// <inheritdoc />
-        public Task CreateWithSpecifiedIdAsync(TId parentId, TId childId, TModelCreate item, CancellationToken token = default)
+        public Task CreateChildWithSpecifiedIdAsync(TId parentId, TId childId, TModelCreate item, CancellationToken token = default)
         {
             var implementation = CrudHelper.GetImplementationOrThrow<ICreateChildWithSpecifiedId<TModelCreate, TModel, TId>>(Service);
-            return implementation.CreateWithSpecifiedIdAsync(parentId, childId, item, token);
+            return implementation.CreateChildWithSpecifiedIdAsync(parentId, childId, item, token);
         }
 
         /// <inheritdoc />
-        public Task<TModel> CreateWithSpecifiedIdAndReturnAsync(TId parentId, TId childId, TModelCreate item, CancellationToken token = default)
+        public Task<TModel> CreateChildWithSpecifiedIdAndReturnAsync(TId parentId, TId childId, TModelCreate item, CancellationToken token = default)
         {
             var implementation = CrudHelper.GetImplementationOrThrow<ICreateChildWithSpecifiedIdAndReturn<TModelCreate, TModel, TId>>(Service);
-            return implementation.CreateWithSpecifiedIdAndReturnAsync(parentId, childId, item, token);
+            return implementation.CreateChildWithSpecifiedIdAndReturnAsync(parentId, childId, item, token);
         }
     }
 }

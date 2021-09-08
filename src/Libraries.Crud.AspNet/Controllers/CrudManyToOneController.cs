@@ -114,13 +114,13 @@ namespace Nexus.Link.Libraries.Crud.AspNet.Controllers
         }
 
         /// <inheritdoc />
-        public Task CreateWithSpecifiedIdAsync(string parentId, string childId, TModelCreate item, CancellationToken token = default)
+        public Task CreateChildWithSpecifiedIdAsync(string parentId, string childId, TModelCreate item, CancellationToken token = default)
         {
             throw new NotImplementedException();
         }
 
         /// <inheritdoc />
-        public Task<TModel> CreateWithSpecifiedIdAndReturnAsync(string parentId, string childId, TModelCreate item,
+        public Task<TModel> CreateChildWithSpecifiedIdAndReturnAsync(string parentId, string childId, TModelCreate item,
             CancellationToken token = default)
         {
             throw new NotImplementedException();

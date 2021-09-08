@@ -94,7 +94,7 @@ namespace Nexus.Link.Libraries.Crud.Helpers
         }
 
         /// <inheritdoc />
-        public Task CreateWithSpecifiedIdAsync(TId parentId, TId childId, TModelCreate item, CancellationToken token = default)
+        public Task CreateChildWithSpecifiedIdAsync(TId parentId, TId childId, TModelCreate item, CancellationToken token = default)
         {
             InternalContract.RequireNotNull(item, nameof(item));
             InternalContract.RequireValidated(item, nameof(item));
@@ -102,7 +102,7 @@ namespace Nexus.Link.Libraries.Crud.Helpers
         }
 
         /// <inheritdoc />
-        public async Task<TModel> CreateWithSpecifiedIdAndReturnAsync(TId parentId, TId childId, TModelCreate item,
+        public async Task<TModel> CreateChildWithSpecifiedIdAndReturnAsync(TId parentId, TId childId, TModelCreate item,
             CancellationToken token = default)
         {
             InternalContract.RequireNotNull(item, nameof(item));
