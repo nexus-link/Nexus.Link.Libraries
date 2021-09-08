@@ -133,6 +133,19 @@ namespace Nexus.Link.Libraries.SqlServer
         {
             return _convenience.CreateChildAndReturnAsync(parentId, item, token);
         }
+
+        /// <inheritdoc />
+        public Task CreateWithSpecifiedIdAsync(Guid parentId, Guid childId, TManyModel item, CancellationToken token = default)
+        {
+            return _convenience.CreateWithSpecifiedIdAsync(parentId, childId, item, token);
+        }
+
+        /// <inheritdoc />
+        public Task<TManyModel> CreateWithSpecifiedIdAndReturnAsync(Guid parentId, Guid childId, TManyModel item,
+            CancellationToken token = default)
+        {
+            return _convenience.CreateWithSpecifiedIdAndReturnAsync(parentId, childId, item, token);
+        }
     }
 
     public class ManyToOneSql<TManyModelCreate, TManyModel, TOneModel> :
@@ -252,6 +265,19 @@ namespace Nexus.Link.Libraries.SqlServer
         public Task<TManyModel> CreateChildAndReturnAsync(Guid parentId, TManyModelCreate item, CancellationToken token = default)
         {
             return _convenience.CreateChildAndReturnAsync(parentId, item, token);
+        }
+
+        /// <inheritdoc />
+        public Task CreateWithSpecifiedIdAsync(Guid parentId, Guid childId, TManyModelCreate item, CancellationToken token = default)
+        {
+            return _convenience.CreateWithSpecifiedIdAsync(parentId, childId, item, token);
+        }
+
+        /// <inheritdoc />
+        public Task<TManyModel> CreateWithSpecifiedIdAndReturnAsync(Guid parentId, Guid childId, TManyModelCreate item,
+            CancellationToken token = default)
+        {
+            return _convenience.CreateWithSpecifiedIdAndReturnAsync(parentId, childId, item, token);
         }
     }
 }

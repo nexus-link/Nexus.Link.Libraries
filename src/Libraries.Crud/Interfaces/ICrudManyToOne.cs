@@ -7,7 +7,9 @@ namespace Nexus.Link.Libraries.Crud.Interfaces
         ICrud<TModel, TId>,
         ICrudManyToOneBasic<TModel, TId>,
         ICreateChild<TModel, TId>,
-        ICreateChildAndReturn<TModel, TId>
+        ICreateChildAndReturn<TModel, TId>,
+        ICreateChildWithSpecifiedId<TModel, TId>,
+        ICreateChildWithSpecifiedIdAndReturn<TModel, TId>
     {
     }
 
@@ -25,6 +27,8 @@ namespace Nexus.Link.Libraries.Crud.Interfaces
 #pragma warning restore 618
         ICreateChild<TModelCreate, TModel, TId>,
         ICreateChildAndReturn<TModelCreate, TModel, TId>,
+        ICreateChildWithSpecifiedId<TModelCreate, TModel, TId>,
+        ICreateChildWithSpecifiedIdAndReturn<TModelCreate, TModel, TId>,
         IReadChildren<TModel, TId>,
         IReadChildrenWithPaging<TModel, TId>,
         ISearchChildren<TModel, TId>,

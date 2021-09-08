@@ -19,6 +19,8 @@ namespace Nexus.Link.Libraries.Crud.Helpers
         CrudConvenience<TModelCreate, TModel, TId>,
         ICreateChild<TModelCreate, TModel, TId>,
         ICreateChildAndReturn<TModelCreate, TModel, TId>,
+        ICreateChildWithSpecifiedId<TModelCreate, TModel, TId>,
+        ICreateChildWithSpecifiedIdAndReturn<TModelCreate, TModel, TId>,
         ISearchChildren<TModel, TId>
         where TModel : TModelCreate
     {
@@ -76,6 +78,7 @@ namespace Nexus.Link.Libraries.Crud.Helpers
         public Task<TId> CreateChildAsync(TId parentId, TModelCreate item, CancellationToken token = default)
         {
             InternalContract.RequireNotNull(item, nameof(item));
+            InternalContract.RequireValidated(item, nameof(item));
             return _service.CreateAsync(item, token);
         }
 
@@ -83,7 +86,28 @@ namespace Nexus.Link.Libraries.Crud.Helpers
         public async Task<TModel> CreateChildAndReturnAsync(TId parentId, TModelCreate item, CancellationToken token = default)
         {
             InternalContract.RequireNotNull(item, nameof(item));
+            InternalContract.RequireValidated(item, nameof(item));
             var createdItem = await _service.CreateAndReturnAsync(item, token);
+            FulcrumAssert.IsNotNull(createdItem, CodeLocation.AsString());
+            FulcrumAssert.IsValidated(createdItem, CodeLocation.AsString());
+            return createdItem;
+        }
+
+        /// <inheritdoc />
+        public Task CreateWithSpecifiedIdAsync(TId parentId, TId childId, TModelCreate item, CancellationToken token = default)
+        {
+            InternalContract.RequireNotNull(item, nameof(item));
+            InternalContract.RequireValidated(item, nameof(item));
+            return _service.CreateWithSpecifiedIdAsync(childId, item, token);
+        }
+
+        /// <inheritdoc />
+        public async Task<TModel> CreateWithSpecifiedIdAndReturnAsync(TId parentId, TId childId, TModelCreate item,
+            CancellationToken token = default)
+        {
+            InternalContract.RequireNotNull(item, nameof(item));
+            InternalContract.RequireValidated(item, nameof(item));
+            var createdItem = await _service.CreateWithSpecifiedIdAndReturnAsync(childId, item, token);
             FulcrumAssert.IsNotNull(createdItem, CodeLocation.AsString());
             FulcrumAssert.IsValidated(createdItem, CodeLocation.AsString());
             return createdItem;

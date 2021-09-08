@@ -184,5 +184,18 @@ namespace Nexus.Link.Libraries.Crud.Cache
         {
             return _convenience.CreateChildAndReturnAsync(parentId, item, token);
         }
+
+        /// <inheritdoc />
+        public Task CreateWithSpecifiedIdAsync(TId parentId, TId childId, TManyModelCreate item, CancellationToken token = default)
+        {
+            return _convenience.CreateWithSpecifiedIdAsync(parentId, childId, item, token);
+        }
+
+        /// <inheritdoc />
+        public Task<TManyModel> CreateWithSpecifiedIdAndReturnAsync(TId parentId, TId childId, TManyModelCreate item,
+            CancellationToken token = default)
+        {
+            return _convenience.CreateWithSpecifiedIdAndReturnAsync(parentId, childId, item, token);
+        }
     }
 }
