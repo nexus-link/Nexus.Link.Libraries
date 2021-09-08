@@ -25,7 +25,10 @@ namespace Nexus.Link.Libraries.Crud.PassThrough
     }
 
     /// <inheritdoc cref="ICrudManyToOne{TModelCreate,TModel,TId}" />
-    public class ManyToOnePassThrough<TModelCreate, TModel, TId> : CrudPassThrough<TModelCreate, TModel, TId>, ICrudManyToOne<TModelCreate, TModel, TId> where TModel : TModelCreate
+    public class ManyToOnePassThrough<TModelCreate, TModel, TId> : 
+        CrudPassThrough<TModelCreate, TModel, TId>, 
+        ICrudManyToOne<TModelCreate, TModel, TId> 
+        where TModel : TModelCreate
     {
         /// <summary>
         /// Constructor
@@ -72,6 +75,20 @@ namespace Nexus.Link.Libraries.Crud.PassThrough
         {
             var implementation = CrudHelper.GetImplementationOrThrow<ISearchChildren<TModel, TId>>(Service);
             return implementation.FindUniqueChildAsync(parentId, details, cancellationToken);
+        }
+
+        /// <inheritdoc />
+        public Task<TId> CreateChildAsync(TId parentId, TModelCreate item, CancellationToken token = default)
+        {
+            var implementation = CrudHelper.GetImplementationOrThrow<ICreateChild<TModelCreate, TModel, TId>>(Service);
+            return implementation.CreateChildAsync(parentId, item, token);
+        }
+
+        /// <inheritdoc />
+        public Task<TModel> CreateChildAndReturnAsync(TId parentId, TModelCreate item, CancellationToken token = default)
+        {
+            var implementation = CrudHelper.GetImplementationOrThrow<ICreateChildAndReturn<TModelCreate, TModel, TId>>(Service);
+            return implementation.CreateChildAndReturnAsync(parentId, item, token);
         }
     }
 }

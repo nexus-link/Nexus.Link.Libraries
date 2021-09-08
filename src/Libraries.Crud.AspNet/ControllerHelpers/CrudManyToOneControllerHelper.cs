@@ -9,6 +9,7 @@ using System.Web.Http;
 #endif
 using Nexus.Link.Libraries.Core.Assert;
 using Nexus.Link.Libraries.Core.Crud.Model;
+using Nexus.Link.Libraries.Core.Misc;
 using Nexus.Link.Libraries.Core.Storage.Model;
 using Nexus.Link.Libraries.Crud.Helpers;
 using Nexus.Link.Libraries.Crud.Interfaces;
@@ -44,7 +45,7 @@ namespace Nexus.Link.Libraries.Crud.AspNet.ControllerHelpers
 
         /// <inheritdoc />
         public CrudManyToOneControllerHelper(ICrudable<TModel, string> logic)
-        :base(logic)
+        : base(logic)
         {
             Logic = new ManyToOnePassThrough<TModelCreate, TModel, string>(logic);
             _convenience = new ManyToOneConvenience<TModelCreate, TModel, string>(this);
@@ -106,7 +107,28 @@ namespace Nexus.Link.Libraries.Crud.AspNet.ControllerHelpers
         public Task<TModel> FindUniqueChildAsync(string parentId, [FromBody] SearchDetails<TModel> details,
             CancellationToken cancellationToken = default)
         {
+            ServiceContract.RequireNotNullOrWhiteSpace(parentId, nameof(parentId));
             return _convenience.FindUniqueChildAsync(parentId, details, cancellationToken);
+        }
+
+        /// <inheritdoc />
+        public async Task<string> CreateChildAsync(string parentId, TModelCreate item, CancellationToken token = default)
+        {
+            ServiceContract.RequireNotNullOrWhiteSpace(parentId, nameof(parentId));
+            var id = await Logic.CreateChildAsync(parentId, item, token);
+            FulcrumAssert.IsNotNullOrWhiteSpace(id, CodeLocation.AsString());
+            return id;
+        }
+
+        /// <inheritdoc />
+        public async Task<TModel> CreateChildAndReturnAsync(string parentId, TModelCreate item, CancellationToken token = default)
+        {
+            ServiceContract.RequireNotNullOrWhiteSpace(parentId, nameof(parentId));
+            ServiceContract.RequireNotNull(item, nameof(item));
+            var createdItem = await Logic.CreateChildAndReturnAsync(parentId, item, token);
+            FulcrumAssert.IsNotNull(createdItem, CodeLocation.AsString());
+            FulcrumAssert.IsValidated(createdItem, CodeLocation.AsString());
+            return createdItem;
         }
     }
 }

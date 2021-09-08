@@ -172,5 +172,17 @@ namespace Nexus.Link.Libraries.Crud.Cache
         {
             return _convenience.FindUniqueChildAsync(parentId, details, cancellationToken);
         }
+
+        /// <inheritdoc />
+        public Task<TId> CreateChildAsync(TId parentId, TManyModelCreate item, CancellationToken token = default)
+        {
+            return _convenience.CreateChildAsync(parentId, item, token);
+        }
+
+        /// <inheritdoc />
+        public Task<TManyModel> CreateChildAndReturnAsync(TId parentId, TManyModelCreate item, CancellationToken token = default)
+        {
+            return _convenience.CreateChildAndReturnAsync(parentId, item, token);
+        }
     }
 }

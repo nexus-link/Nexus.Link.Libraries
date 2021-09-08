@@ -28,7 +28,7 @@
 
   <PropertyGroup>
     <PackageId>Nexus.Link.Libraries.Crud.Web</PackageId>
-    <Version>2.6.2</Version>
+    <Version>2.7.0</Version>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <PackageTags>nexus;link;fulcrum;lever</PackageTags>
     <Authors>XLENT Link</Authors>
@@ -38,6 +38,7 @@
     <Copyright>Copyright ©2019 Xlent Link AB</Copyright>
     <IncludeSymbols>true</IncludeSymbols>
     <PackageReleaseNotes>
+      2.7.0 Added ICreateChild and ICreateChildAndReturn
       2.6.2 Bump
       2.6.1 Now verifies that no Id, MasterId or DependentId are changed in an update of a CrudDependentToMaster
       2.6.0 Added DependentToMasterWithUniqueId

@@ -121,6 +121,18 @@ namespace Nexus.Link.Libraries.SqlServer
         {
             return _convenience.FindUniqueChildAsync(parentId, details, cancellationToken);
         }
+
+        /// <inheritdoc />
+        public Task<Guid> CreateChildAsync(Guid parentId, TManyModel item, CancellationToken token = default)
+        {
+            return _convenience.CreateChildAsync(parentId, item, token);
+        }
+
+        /// <inheritdoc />
+        public Task<TManyModel> CreateChildAndReturnAsync(Guid parentId, TManyModel item, CancellationToken token = default)
+        {
+            return _convenience.CreateChildAndReturnAsync(parentId, item, token);
+        }
     }
 
     public class ManyToOneSql<TManyModelCreate, TManyModel, TOneModel> :
@@ -228,6 +240,18 @@ namespace Nexus.Link.Libraries.SqlServer
             CancellationToken cancellationToken = default)
         {
             return _convenience.FindUniqueChildAsync(parentId, details, cancellationToken);
+        }
+
+        /// <inheritdoc />
+        public Task<Guid> CreateChildAsync(Guid parentId, TManyModelCreate item, CancellationToken token = default)
+        {
+            return _convenience.CreateChildAsync(parentId, item, token);
+        }
+
+        /// <inheritdoc />
+        public Task<TManyModel> CreateChildAndReturnAsync(Guid parentId, TManyModelCreate item, CancellationToken token = default)
+        {
+            return _convenience.CreateChildAndReturnAsync(parentId, item, token);
         }
     }
 }
