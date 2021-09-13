@@ -7,6 +7,7 @@ using Microsoft.Rest;
 using Nexus.Link.Libraries.Core.Application;
 using Nexus.Link.Libraries.Core.Assert;
 using Nexus.Link.Libraries.Core.Translation;
+using Nexus.Link.Libraries.Web.Pipe;
 
 namespace Nexus.Link.Libraries.Web.RestClientHelper
 {
@@ -100,8 +101,8 @@ namespace Nexus.Link.Libraries.Web.RestClientHelper
 
         private void SetupTranslatedUserId(ITranslator translator, string userId)
         {
-            FulcrumApplication.Context.ValueProvider.SetValue("TranslatedUserId", translator.Translate(userId));
-            TranslatedUserId_OnlyForUnitTests = FulcrumApplication.Context.ValueProvider.GetValue<string>("TranslatedUserId");
+            FulcrumApplication.Context.ValueProvider.SetValue(Constants.TranslatedUserIdKey, translator.Translate(userId));
+            TranslatedUserId_OnlyForUnitTests = FulcrumApplication.Context.ValueProvider.GetValue<string>(Constants.TranslatedUserIdKey);
         }
 
         // ReSharper disable once InconsistentNaming
