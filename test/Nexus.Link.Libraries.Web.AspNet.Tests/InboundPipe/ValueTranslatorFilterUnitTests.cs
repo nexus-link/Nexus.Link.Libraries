@@ -99,6 +99,8 @@ namespace Nexus.Link.Libraries.Web.AspNet.Tests.InboundPipe
             // Setup the filter
             var filter = new ValueTranslatorFilter(testServiceMock.Object, () => Foo.ConsumerName);
 
+            // TODO: Test DecorateUserId
+
             // Run the filter
             Assert.IsFalse(inFoo.Id.StartsWith("(foo.id!"));
 #if NETCOREAPP
