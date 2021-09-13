@@ -7,7 +7,7 @@ namespace Nexus.Link.Libraries.Crud.Interfaces
     /// <summary>
     /// Can create items."/>.
     /// </summary>
-    /// <typeparam name="TModel">The type for creating objects in persistant storage.</typeparam>
+    /// <typeparam name="TModel">The type for creating objects in persistent storage.</typeparam>
     /// <typeparam name="TId">The type for the id of the stored objects.</typeparam>
     public interface ICreateWithSpecifiedId<TModel, TId> : ICreateWithSpecifiedId<TModel, TModel, TId>
     {
@@ -16,8 +16,8 @@ namespace Nexus.Link.Libraries.Crud.Interfaces
     /// <summary>
     /// Can create items."/>.
     /// </summary>
-    /// <typeparam name="TModelCreate">The type for creating objects in persistant storage.</typeparam>
-    /// <typeparam name="TModel">The type of objects that are returned from persistant storage.</typeparam>
+    /// <typeparam name="TModelCreate">The type for creating objects in persistent storage.</typeparam>
+    /// <typeparam name="TModel">The type of objects that are returned from persistent storage.</typeparam>
     /// <typeparam name="TId">The type for the <see cref="IUniquelyIdentifiable{TId}.Id"/> property.</typeparam>
     public interface ICreateWithSpecifiedId<in TModelCreate, TModel, in TId> : ICrudable<TModel, TId>
     where TModel : TModelCreate

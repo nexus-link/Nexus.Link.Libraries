@@ -121,6 +121,31 @@ namespace Nexus.Link.Libraries.SqlServer
         {
             return _convenience.FindUniqueChildAsync(parentId, details, cancellationToken);
         }
+
+        /// <inheritdoc />
+        public Task<Guid> CreateChildAsync(Guid parentId, TManyModel item, CancellationToken token = default)
+        {
+            return _convenience.CreateChildAsync(parentId, item, token);
+        }
+
+        /// <inheritdoc />
+        public Task<TManyModel> CreateChildAndReturnAsync(Guid parentId, TManyModel item, CancellationToken token = default)
+        {
+            return _convenience.CreateChildAndReturnAsync(parentId, item, token);
+        }
+
+        /// <inheritdoc />
+        public Task CreateChildWithSpecifiedIdAsync(Guid parentId, Guid childId, TManyModel item, CancellationToken token = default)
+        {
+            return _convenience.CreateChildWithSpecifiedIdAsync(parentId, childId, item, token);
+        }
+
+        /// <inheritdoc />
+        public Task<TManyModel> CreateChildWithSpecifiedIdAndReturnAsync(Guid parentId, Guid childId, TManyModel item,
+            CancellationToken token = default)
+        {
+            return _convenience.CreateChildWithSpecifiedIdAndReturnAsync(parentId, childId, item, token);
+        }
     }
 
     public class ManyToOneSql<TManyModelCreate, TManyModel, TOneModel> :
@@ -228,6 +253,31 @@ namespace Nexus.Link.Libraries.SqlServer
             CancellationToken cancellationToken = default)
         {
             return _convenience.FindUniqueChildAsync(parentId, details, cancellationToken);
+        }
+
+        /// <inheritdoc />
+        public Task<Guid> CreateChildAsync(Guid parentId, TManyModelCreate item, CancellationToken token = default)
+        {
+            return _convenience.CreateChildAsync(parentId, item, token);
+        }
+
+        /// <inheritdoc />
+        public Task<TManyModel> CreateChildAndReturnAsync(Guid parentId, TManyModelCreate item, CancellationToken token = default)
+        {
+            return _convenience.CreateChildAndReturnAsync(parentId, item, token);
+        }
+
+        /// <inheritdoc />
+        public Task CreateChildWithSpecifiedIdAsync(Guid parentId, Guid childId, TManyModelCreate item, CancellationToken token = default)
+        {
+            return _convenience.CreateChildWithSpecifiedIdAsync(parentId, childId, item, token);
+        }
+
+        /// <inheritdoc />
+        public Task<TManyModel> CreateChildWithSpecifiedIdAndReturnAsync(Guid parentId, Guid childId, TManyModelCreate item,
+            CancellationToken token = default)
+        {
+            return _convenience.CreateChildWithSpecifiedIdAndReturnAsync(parentId, childId, item, token);
         }
     }
 }

@@ -1,4 +1,5 @@
-﻿using System.Threading;
+﻿using System;
+using System.Threading;
 using System.Threading.Tasks;
 using Nexus.Link.Libraries.Core.Error.Logic;
 using Nexus.Link.Libraries.Core.Storage.Model;
@@ -8,8 +9,9 @@ namespace Nexus.Link.Libraries.Crud.Interfaces
     /// <summary>
     /// Update an item.
     /// </summary>
-    /// <typeparam name="TModel">The type of objects to update in persistant storage.</typeparam>
+    /// <typeparam name="TModel">The type of objects to update in persistent storage.</typeparam>
     /// <typeparam name="TId">The type for the id parameter.</typeparam>
+    [Obsolete("Use IUpdateDependentAndReturn. Obsolete since 2021-08-27.")]
     public interface IUpdateSlaveAndReturn<TModel, in TId> : ICrudable<TModel, TId>
     {
         /// <summary>

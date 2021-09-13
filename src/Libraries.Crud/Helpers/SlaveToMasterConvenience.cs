@@ -14,6 +14,7 @@ using Nexus.Link.Libraries.Crud.PassThrough;
 
 namespace Nexus.Link.Libraries.Crud.Helpers
 {
+    [Obsolete("Use DependentToMasterConvenience. Obsolete since 2021-08-27.")]
     public class SlaveToMasterConvenience<TModelCreate, TModel, TId> : ISearchChildren<TModel, TId>, ITransactionLockSlave<TModel, TId>
         where TModel : TModelCreate
     {

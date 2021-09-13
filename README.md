@@ -36,7 +36,58 @@ Functionality for accessing data on a Microsoft SQL Server. Supports ICrud, so i
 
 ### Nexus.Link.Libraries.Azure
 
-Functionality for accessing storage, queues and more in Azure. Supports ICrud, so that it is really easy to replace your storage mocks with storage in the cloud.
+Functionality for accessing storage, queues and more in Azure. Supports ICrud, so that it is really easy to replace your storage mocks with storage in the 
+cloud.
+
+## Accessing symbols and source in Visual studio
+1. In Visual Studio menu, go to Debug &rarr; Options &rarr; Debugging &rarr; General
+
+2. Check the following boxes (You do not have to check any of the nested boxes):\
+ :heavy_check_mark: Enable source server support\
+ :heavy_check_mark: Enable Source Link support\
+ :heavy_check_mark: Required source files to exactly match the original version
+
+    ![Check the boxes](https://fulcrumresources.blob.core.windows.net/files/click-these.PNG)
+
+3. Now navigate to Symbols (Debug &rarr; Options &rarr; Debugging &rarr; Symbols)
+
+4. Click "New Azure Devops Symbol Server Location..".
+
+    ![New Azure Devops Symbol Server Location](https://fulcrumresources.blob.core.windows.net/files/add-azure-devops-symbol-server.PNG)
+
+5. Log into your account if you're not already logged in. Visual Studio will fetch connected DevOps organizations.
+
+6. Select nexuslink.visualstudio.com in the list and press 'Connect'.
+
+    ![Select nexuslink](https://fulcrumresources.blob.core.windows.net/files/select-nexuslink.PNG)
+
+Visual Studio will now load symbols when you debugg.
+
+### **If you're using ReSharper**
+***Before configuring ReSharper, perform the steps above***\
+Resharper can't access a private symbol server by default, we'll have to authenticate ourselves. 
+
+1. Try to F12 (*Go To Definition*) of an object you're using in your solution that is implemented in a nuget. *This needs to be a nexus nuget since we only have nexus nuget symbols in our symbol server*.
+
+2. ReSharper will now have tried to fetch symbols for this package and failed. So what you're seeing in your solution is probably decompiled sources.
+
+3. Find the ReSharper notifications.
+    
+    ![Select nexuslink](https://fulcrumresources.blob.core.windows.net/files/resharper-notifications.PNG)
+
+4. Identify and click the notification asking you to authenticate towards the symbol server. *Due to a ReSharper bug this notifcation does not always appear. Retry these steps until it does*.
+    
+    ![Select nexuslink](https://fulcrumresources.blob.core.windows.net/files/resharper-notification.PNG)
+
+5. Authenticate yourself using your email address (name.lastname@xlent.se) and retrieve a personal access token from Azure Devops. See link.
+    
+    [Generate Personal Access Token](https://docs.microsoft.com/en-us/azure/devops/organizations/accounts/use-personal-access-tokens-to-authenticate?view=azure-devops&tabs=preview-page)
+
+    The PAT you're generating should have the following permissions: **Code *Read***.
+
+ 
+
+All done!
 
 ## License
 

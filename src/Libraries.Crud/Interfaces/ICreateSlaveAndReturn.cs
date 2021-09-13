@@ -1,4 +1,5 @@
-﻿using System.Threading;
+﻿using System;
+using System.Threading;
 using System.Threading.Tasks;
 using Nexus.Link.Libraries.Core.Storage.Model;
 
@@ -8,6 +9,7 @@ namespace Nexus.Link.Libraries.Crud.Interfaces
     /// Functionality for persisting objects that has no life of their own, but are only relevant with their master.
     /// Examples: A list of rows on an invoice, a list of attributes of an object, the contact details of a person.
     /// </summary>
+    [Obsolete("Use ICreateDependentAndReturn. Obsolete since 2021-08-27.")]
     public interface ICreateSlaveAndReturn<TModel, TId> : ICreateSlaveAndReturn<TModel, TModel, TId>
     {
     }
@@ -16,6 +18,7 @@ namespace Nexus.Link.Libraries.Crud.Interfaces
     /// Functionality for persisting objects that has no life of their own, but are only relevant with their master.
     /// Examples: A list of rows on an invoice, a list of attributes of an object, the contact details of a person.
     /// </summary>
+    [Obsolete("Use ICreateDependentAndReturn. Obsolete since 2021-08-27.")]
     public interface ICreateSlaveAndReturn<in TModelCreate, TModel, TId> : ICrudable<TModel, TId>
         where TModel : TModelCreate
     {

@@ -23,3 +23,5 @@ jobs:
     nugetProjectsPath: 'src/Libraries.Azure.Storage/*.csproj'
     nuGetFeedType: external
     publishFeedCredentials: 'prd-nexus-nuget-external'
+    publishVstsFeed: 'Nexus Libs/nexus-nugets'
+

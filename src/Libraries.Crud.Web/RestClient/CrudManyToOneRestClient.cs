@@ -14,6 +14,7 @@ using Nexus.Link.Libraries.Web.RestClientHelper;
 namespace Nexus.Link.Libraries.Crud.Web.RestClient
 {
     /// <inheritdoc cref="CrudManyToOneRestClient{TManyModelCreate, TManyModel,TId}" />
+    [Obsolete("Please use CrudManyToOneRestClient2 that has a new strategy for the HTTP URL path. Obsolete since 2021-09-08.")]
     public class CrudManyToOneRestClient<TManyModel, TId> : 
         CrudManyToOneRestClient<TManyModel, TManyModel, TId>,
         ICrudManyToOne<TManyModel, TId>
@@ -65,6 +66,7 @@ namespace Nexus.Link.Libraries.Crud.Web.RestClient
     }
 
     /// <inheritdoc cref="CrudRestClient{TManyModelCreate, TManyModel,TId}" />
+    [Obsolete("Please use CrudManyToOneRestClient2 that has a new strategy for the HTTP URL path. Obsolete since 2021-09-08.")]
     public class CrudManyToOneRestClient<TManyModelCreate, TManyModel, TId> :
         CrudRestClient<TManyModelCreate, TManyModel, TId>,
         ICrudManyToOne<TManyModelCreate, TManyModel, TId> where TManyModel : TManyModelCreate
@@ -134,6 +136,35 @@ namespace Nexus.Link.Libraries.Crud.Web.RestClient
             ChildrenName = childrenName;
         }
         #endregion
+
+        /// <inheritdoc />
+        public Task<TId> CreateChildAsync(TId parentId, TManyModelCreate item, CancellationToken token = default)
+        {
+            InternalContract.RequireNotDefaultValue(parentId, nameof(parentId));
+            return PostAsync<TId, TManyModelCreate>($"{parentId}/{ChildrenName}", item, cancellationToken: token);
+        }
+
+        /// <inheritdoc />
+        public Task<TManyModel> CreateChildAndReturnAsync(TId parentId, TManyModelCreate item, CancellationToken token = default)
+        {
+            InternalContract.RequireNotDefaultValue(parentId, nameof(parentId));
+            return PostAsync<TManyModel, TManyModelCreate>($"{parentId}/{ChildrenName}/ReturnCreated", item, cancellationToken: token);
+        }
+
+        /// <inheritdoc />
+        public Task CreateChildWithSpecifiedIdAsync(TId parentId, TId childId, TManyModelCreate item, CancellationToken token = default)
+        {
+            InternalContract.RequireNotDefaultValue(parentId, nameof(parentId));
+            return PostAsync<TId, TManyModelCreate>($"{parentId}/{ChildrenName}/{childId}", item, cancellationToken: token);
+        }
+
+        /// <inheritdoc />
+        public Task<TManyModel> CreateChildWithSpecifiedIdAndReturnAsync(TId parentId, TId childId, TManyModelCreate item,
+            CancellationToken token = default)
+        {
+            InternalContract.RequireNotDefaultValue(parentId, nameof(parentId));
+            return PostAsync<TManyModel, TManyModelCreate>($"{parentId}/{ChildrenName}/{childId}/ReturnCreated", item, cancellationToken: token);
+        }
 
         /// <inheritdoc />
         public virtual async Task DeleteChildrenAsync(TId parentId, CancellationToken token = default)

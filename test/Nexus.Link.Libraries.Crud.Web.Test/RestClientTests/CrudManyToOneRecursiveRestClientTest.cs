@@ -11,6 +11,7 @@ using Nexus.Link.Libraries.Crud.Interfaces;
 using Nexus.Link.Libraries.Crud.Web.RestClient;
 using Nexus.Link.Libraries.Crud.Web.Test.Support.Models;
 using Nexus.Link.Libraries.Web.RestClientHelper;
+#pragma warning disable 618
 
 namespace Nexus.Link.Libraries.Crud.Web.Test.RestClientTests
 {

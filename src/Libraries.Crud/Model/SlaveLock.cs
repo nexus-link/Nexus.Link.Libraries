@@ -1,8 +1,10 @@
-﻿using Nexus.Link.Libraries.Core.Assert;
+﻿using System;
+using Nexus.Link.Libraries.Core.Assert;
 
 namespace Nexus.Link.Libraries.Crud.Model
 {
     /// <inheritdoc />
+    [Obsolete("Use DependentLock. Obsolete since 2021-08-27.")]
     public class SlaveLock<TId> : BaseLock<TId>
     {
 

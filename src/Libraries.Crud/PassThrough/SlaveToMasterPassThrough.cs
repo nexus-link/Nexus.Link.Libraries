@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Nexus.Link.Libraries.Core.Assert;
@@ -11,6 +12,7 @@ using Nexus.Link.Libraries.Crud.Model;
 namespace Nexus.Link.Libraries.Crud.PassThrough
 {
     /// <inheritdoc cref="SlaveToMasterPassThrough{TModel,TId}" />
+    [Obsolete("Use DependentToMasterPassThrough. Obsolete since 2021-08-27.")]
     public class SlaveToMasterPassThrough<TModel, TId> :
         SlaveToMasterPassThrough<TModel, TModel, TId>,
         ICrudSlaveToMaster<TModel, TId>
@@ -26,6 +28,7 @@ namespace Nexus.Link.Libraries.Crud.PassThrough
     }
 
     /// <inheritdoc cref="ICrudManyToOne{TModelCreate,TModel,TId}" />
+    [Obsolete("Use DependentToMasterPassThrough. Obsolete since 2021-08-27.")]
     public class SlaveToMasterPassThrough<TModelCreate, TModel, TId> :
         ICrudSlaveToMaster<TModelCreate, TModel, TId>
          where TModel : TModelCreate

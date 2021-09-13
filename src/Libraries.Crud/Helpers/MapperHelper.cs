@@ -28,19 +28,13 @@ namespace Nexus.Link.Libraries.Crud.Helpers
             {
                 return (TTarget)(object)source.ToString();
             }
-            if (targetType == typeof(Guid))
+            if (targetType == typeof(Guid) || targetType == typeof(Guid?))
             {
                 var success = Guid.TryParse(source.ToString(), out var valueAsGuid);
                 InternalContract.Require(success, $"Could not parse parameter {nameof(source)} ({source}) of type {sourceType.Name} into type Guid.");
                 return (TTarget)(object)valueAsGuid;
             }
-            if (targetType == typeof(int))
-            {
-                var success = int.TryParse(source.ToString(), out var valueAsInt);
-                InternalContract.Require(success, $"Could not parse parameter {nameof(source)} ({source}) of type {sourceType.Name} into type int.");
-                return (TTarget)(object)valueAsInt;
-            }
-            if (targetType == typeof(int))
+            if (targetType == typeof(int) || targetType == typeof(int?))
             {
                 var success = int.TryParse(source.ToString(), out var valueAsInt);
                 InternalContract.Require(success, $"Could not parse parameter {nameof(source)} ({source}) of type {sourceType.Name} into type int.");
@@ -54,6 +48,7 @@ namespace Nexus.Link.Libraries.Crud.Helpers
         /// </summary>
         /// <param name="source">The id to map.</param>
         /// <exception cref="FulcrumNotImplementedException">Thrown if the type was not recognized. Please add that type to the class <see cref="MapperHelper"/>.</exception>
+        [Obsolete("Not needed since we introduced DependentToMaster. Obsolete since 2021-08-27.")]
         public static SlaveToMasterId<TTarget> MapToType<TTarget, TSource>(SlaveToMasterId<TSource> source)
         {
             if (source == null) return null;

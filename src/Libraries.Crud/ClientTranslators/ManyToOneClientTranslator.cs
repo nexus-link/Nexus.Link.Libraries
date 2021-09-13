@@ -90,5 +90,30 @@ namespace Nexus.Link.Libraries.Crud.ClientTranslators
         {
             throw new NotImplementedException();
         }
+
+        /// <inheritdoc />
+        public Task<string> CreateChildAsync(string parentId, TModelCreate item, CancellationToken token = default)
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <inheritdoc />
+        public Task<TModel> CreateChildAndReturnAsync(string parentId, TModelCreate item, CancellationToken token = default)
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <inheritdoc />
+        public Task CreateChildWithSpecifiedIdAsync(string parentId, string childId, TModelCreate item, CancellationToken token = default)
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <inheritdoc />
+        public Task<TModel> CreateChildWithSpecifiedIdAndReturnAsync(string parentId, string childId, TModelCreate item,
+            CancellationToken token = default)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

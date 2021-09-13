@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
 using Nexus.Link.Libraries.Core.Assert;
 using Nexus.Link.Libraries.Core.Error.Logic;
+using Nexus.Link.Libraries.Core.Misc;
 using Nexus.Link.Libraries.Core.Storage.Logic;
 using Nexus.Link.Libraries.Core.Storage.Model;
 using Nexus.Link.Libraries.Crud.Interfaces;
@@ -14,7 +15,13 @@ using Nexus.Link.Libraries.Crud.PassThrough;
 
 namespace Nexus.Link.Libraries.Crud.Helpers
 {
-    public class ManyToOneConvenience<TModelCreate, TModel, TId> : CrudConvenience<TModelCreate, TModel, TId>, ISearchChildren<TModel, TId>
+    public class ManyToOneConvenience<TModelCreate, TModel, TId> : 
+        CrudConvenience<TModelCreate, TModel, TId>,
+        ICreateChild<TModelCreate, TModel, TId>,
+        ICreateChildAndReturn<TModelCreate, TModel, TId>,
+        ICreateChildWithSpecifiedId<TModelCreate, TModel, TId>,
+        ICreateChildWithSpecifiedIdAndReturn<TModelCreate, TModel, TId>,
+        ISearchChildren<TModel, TId>
         where TModel : TModelCreate
     {
         private readonly ICrudManyToOne<TModelCreate, TModel, TId> _service;
@@ -65,6 +72,45 @@ namespace Nexus.Link.Libraries.Crud.Helpers
             }
 
             return page.Data.FirstOrDefault();
+        }
+
+        /// <inheritdoc />
+        public Task<TId> CreateChildAsync(TId parentId, TModelCreate item, CancellationToken token = default)
+        {
+            InternalContract.RequireNotNull(item, nameof(item));
+            InternalContract.RequireValidated(item, nameof(item));
+            return _service.CreateAsync(item, token);
+        }
+
+        /// <inheritdoc />
+        public async Task<TModel> CreateChildAndReturnAsync(TId parentId, TModelCreate item, CancellationToken token = default)
+        {
+            InternalContract.RequireNotNull(item, nameof(item));
+            InternalContract.RequireValidated(item, nameof(item));
+            var createdItem = await _service.CreateAndReturnAsync(item, token);
+            FulcrumAssert.IsNotNull(createdItem, CodeLocation.AsString());
+            FulcrumAssert.IsValidated(createdItem, CodeLocation.AsString());
+            return createdItem;
+        }
+
+        /// <inheritdoc />
+        public Task CreateChildWithSpecifiedIdAsync(TId parentId, TId childId, TModelCreate item, CancellationToken token = default)
+        {
+            InternalContract.RequireNotNull(item, nameof(item));
+            InternalContract.RequireValidated(item, nameof(item));
+            return _service.CreateWithSpecifiedIdAsync(childId, item, token);
+        }
+
+        /// <inheritdoc />
+        public async Task<TModel> CreateChildWithSpecifiedIdAndReturnAsync(TId parentId, TId childId, TModelCreate item,
+            CancellationToken token = default)
+        {
+            InternalContract.RequireNotNull(item, nameof(item));
+            InternalContract.RequireValidated(item, nameof(item));
+            var createdItem = await _service.CreateWithSpecifiedIdAndReturnAsync(childId, item, token);
+            FulcrumAssert.IsNotNull(createdItem, CodeLocation.AsString());
+            FulcrumAssert.IsValidated(createdItem, CodeLocation.AsString());
+            return createdItem;
         }
     }
 }

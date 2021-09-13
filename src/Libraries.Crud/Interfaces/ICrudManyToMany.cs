@@ -6,7 +6,7 @@ namespace Nexus.Link.Libraries.Crud.Interfaces
     /// <summary>
     /// Functionality for persisting many-to-many relations.
     /// </summary>
-    /// <typeparam name="TManyToManyModel">The type of objects that are returned from persistant storage.</typeparam>
+    /// <typeparam name="TManyToManyModel">The type of objects that are returned from persistent storage.</typeparam>
     /// <typeparam name="TReferenceModel1"></typeparam>
     /// <typeparam name="TReferenceModel2"></typeparam>
     /// <typeparam name="TId"></typeparam>

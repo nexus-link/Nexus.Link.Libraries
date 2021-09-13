@@ -4,12 +4,31 @@
     <TargetFrameworks>net461;netstandard2.0</TargetFrameworks>
     <RootNamespace>Nexus.Link.Libraries.Crud.Web</RootNamespace>
     <AssemblyName>Nexus.Link.Libraries.Crud.Web</AssemblyName>
-    <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
+
+    <!-- Publish the repository URL in the built .nupkg (in the NuSpec <Repository> element) -->
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
+
+    <!-- Embed source files that are not tracked by the source control manager in the PDB -->
+    <EmbedUntrackedSources>true</EmbedUntrackedSources>
+
+    <!-- Recommended: Embed symbols containing Source Link in the main file (exe/dll) -->
+    <DebugType>embedded</DebugType>
+    <IncludeSymbols>true</IncludeSymbols>
   </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0" PrivateAssets="All" />
+    <PackageReference Include="Microsoft.Rest.ClientRuntime" Version="2.3.20" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Libraries.Crud\Libraries.Crud.csproj" />
+    <ProjectReference Include="..\Libraries.Web\Libraries.Web.csproj" />
+  </ItemGroup>
 
   <PropertyGroup>
     <PackageId>Nexus.Link.Libraries.Crud.Web</PackageId>
-    <Version>2.4.1</Version>
+    <Version>2.8.0</Version>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <PackageTags>nexus;link;fulcrum;lever</PackageTags>
     <Authors>XLENT Link</Authors>
@@ -19,6 +38,13 @@
     <Copyright>Copyright ©2019 Xlent Link AB</Copyright>
     <IncludeSymbols>true</IncludeSymbols>
     <PackageReleaseNotes>
+      2.8.0 Introduced CrudManyToOneRestClient2 to replace the current one. It has a new strategy for path naming, so it is not backwards compatible.
+      2.7.2 Added ICreateChild and ICreateChildAndReturn
+      2.6.2 Bump
+      2.6.1 Now verifies that no Id, MasterId or DependentId are changed in an update of a CrudDependentToMaster
+      2.6.0 Added DependentToMasterWithUniqueId
+      2.5.1 Symbols
+      2.5.0 Added DependentToMaster
       2.4.1 Old obsolete stuff with errors has been deleted and old with warning has been updated to error.
       2.4.0 Added ClaimTransactionLockAndReadAsycn()
       2.3.0 Added Crud ISearch and ISearchChildren
@@ -42,13 +68,4 @@
       1.0.0 First release
     </PackageReleaseNotes>
   </PropertyGroup>
-
-  <ItemGroup>
-    <PackageReference Include="Microsoft.Rest.ClientRuntime" Version="2.3.20" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\Libraries.Crud\Libraries.Crud.csproj" />
-    <ProjectReference Include="..\Libraries.Web\Libraries.Web.csproj" />
-  </ItemGroup>
 </Project>
