@@ -60,8 +60,9 @@ namespace Nexus.Link.Libraries.Crud.Helpers
                 var propertyInfo = modelType.GetProperty(propertyName);
                 if (propertyInfo == null) continue;
                 var itemValue = propertyInfo.GetValue(item);
-                if (itemValue == null) return false;
                 var whereCondition = details.GetWhereCondition(propertyName, ".*", ".");
+                if (whereCondition.Object == null) return itemValue == null;
+                if (itemValue == null) return false; 
                 if (itemValue.GetType() != whereCondition.Object.GetType()) return false;
                 if (whereCondition.IsWildCard)
                 {
