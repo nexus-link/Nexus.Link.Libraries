@@ -1,11 +1,12 @@
 ﻿using System;
 using System.Diagnostics;
-using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Microsoft.WindowsAzure.Storage.Queue;
 using Nexus.Link.Libraries.Azure.Storage.Queue;
 using Nexus.Link.Libraries.Azure.Storage.Test.Model;
 using Nexus.Link.Libraries.Core.Application;
+using Nexus.Link.Libraries.Core.Error.Logic;
 
 namespace Nexus.Link.Libraries.Azure.Storage.Test
 {
@@ -22,6 +23,19 @@ namespace Nexus.Link.Libraries.Azure.Storage.Test
             Assert.IsNotNull(connectionString);
             _queue = new AzureStorageQueue<Message>(connectionString, "test-queue");
             await _queue.ClearAsync();
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(FulcrumResourceException))]
+        public async Task InitializeNonExistingAsync()
+        {
+            var connectionString = TestSettings.ConnectionStringNonExisting;
+            Assert.IsNotNull(connectionString);
+            var queue = new AzureStorageQueue<Message>(connectionString, "test-queue", new QueueRequestOptions
+            {
+                MaximumExecutionTime = TimeSpan.FromMilliseconds(500)
+            });
+            await queue.ClearAsync();
         }
 
         [TestMethod]
