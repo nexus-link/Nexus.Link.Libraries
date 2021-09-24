@@ -19,6 +19,7 @@
     <PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="2.1.1" />
     <PackageReference Include="Newtonsoft.Json" Version="11.0.2" />
     <PackageReference Include="Microsoft.CSharp" Version="4.5.0" />
+    <PackageReference Include="System.Threading.Channels" Version="4.5.0" />
   </ItemGroup>
 
   <ItemGroup Condition="'$(TargetFramework)'=='net461'">
@@ -45,7 +46,7 @@
 
   <PropertyGroup>
     <PackageId>Nexus.Link.Libraries.Core</PackageId>
-    <Version>5.5.2</Version>
+    <Version>5.6.0</Version>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <PackageTags>nexus;link;fulcrum;lever</PackageTags>
     <Authors>XLENT Link</Authors>
@@ -55,6 +56,7 @@
     <Copyright>Copyright ©2021 Xlent Link AB</Copyright>
     <IncludeSymbols>true</IncludeSymbols>
     <PackageReleaseNotes>
+      5.6.0 Added JSON StringValuesConverter and JsonExtensions. Added ChannelQueue.
       5.5.2 Symbols
       5.5.1 Added DependentToMaster
       5.4.0 Removed code related to asynchronous processes
