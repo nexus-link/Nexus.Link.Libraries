@@ -41,7 +41,7 @@
     <Copyright>Copyright ©2021 Xlent Link AB</Copyright>
     <IncludeSymbols>true</IncludeSymbols>
     <PackageReleaseNotes>
-      2.19.0 Added new constants for HTTP headers
+      2.19.0 Added new constants for HTTP headers. Added Serialization; RequestData and ResponseData.
       2.18.0 Added outbound handlers targeted at Business APIs, including propagating end user authentication and translated user id
       2.17.2 Symbols
       2.17.1 A RestClient with null BaseUri will now use the BaseUri of the HttpClient
