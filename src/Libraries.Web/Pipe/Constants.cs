@@ -5,7 +5,12 @@
         /// <summary>
         /// Standard correlation id header
         /// </summary>
-        public static string FulcrumCorrelationIdHeaderName = "X-Correlation-ID";
+        public static string FulcrumCorrelationIdHeaderName = "X-Correlation-ID";       
+        
+        /// <summary>
+        /// The header for the Async Manager execution id
+        /// </summary>
+        public static string ExecutionIdHeaderName = "X-Nexus-Async-ExecutionId";
 
         /// <summary>
         /// Standard correlation id header
