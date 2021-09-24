@@ -13,14 +13,14 @@ trigger:
     - dev
   paths:
     include:
-    - 'src/Libraries.Core/*'   
+    - 'src/Capabilities.WorkflowMgmt.Abstract/*'   
     
 jobs:
 - template: 'templates/netcore/v1/jobs/nuget.yml@azure-devops-tools'
   parameters:
     jobName: 'Core'
-    testProjectsPath: 'test/Nexus.Link.Libraries.Core.Tests/*.csproj'
-    nugetProjectsPath: 'src/Libraries.Core/*.csproj'
+    testProjectsPath: ''
+    nugetProjectsPath: 'src/Capabilities.WorkflowMgmt.Abstract/*.csproj'
     nuGetFeedType: external
     publishFeedCredentials: 'prd-nexus-nuget-external'
     publishVstsFeed: 'Nexus Libs/nexus-nugets'
