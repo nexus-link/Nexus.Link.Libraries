@@ -45,7 +45,7 @@
 
   <PropertyGroup>
     <PackageId>Nexus.Link.Libraries.Core</PackageId>
-    <Version>5.5.2</Version>
+    <Version>5.6.0</Version>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <PackageTags>nexus;link;fulcrum;lever</PackageTags>
     <Authors>XLENT Link</Authors>
@@ -55,6 +55,7 @@
     <Copyright>Copyright ©2021 Xlent Link AB</Copyright>
     <IncludeSymbols>true</IncludeSymbols>
     <PackageReleaseNotes>
+      5.6.0 Added JSON StringValuesConverter
       5.5.2 Symbols
       5.5.1 Added DependentToMaster
       5.4.0 Removed code related to asynchronous processes
