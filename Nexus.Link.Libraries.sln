@@ -25,14 +25,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution items", "Solution 
 	ProjectSection(SolutionItems) = preProject
 		GenerateReleaseNotes.ps1 = GenerateReleaseNotes.ps1
 		NuGet.config = NuGet.config
-		pipeline-azure-storage.yml = pipeline-azure-storage.yml
-		pipeline-core.yml = pipeline-core.yml
-		pipeline-crud-aspnet.yml = pipeline-crud-aspnet.yml
-		pipeline-crud-web.yml = pipeline-crud-web.yml
-		pipeline-crud.yml = pipeline-crud.yml
-		pipeline-sqlserver.yml = pipeline-sqlserver.yml
-		pipeline-web-aspnet.yml = pipeline-web-aspnet.yml
-		pipeline-web.yml = pipeline-web.yml
 		README.md = README.md
 	EndProjectSection
 EndProject
@@ -55,6 +47,8 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Libraries.Azure.Web.AspNet", "src\Libraries.Azure.Web.AspNet\Libraries.Azure.Web.AspNet.csproj", "{BBFC4379-E3B0-4D94-9007-34C1D3DE284F}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Libraries.Azure.Web.AspNet.Tests", "test\Nexus.Link.Libraries.Azure.Web.AspNet.Tests\Libraries.Azure.Web.AspNet.Tests.csproj", "{6EAC43DD-86FF-4166-ADBB-14420F28C95C}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Capabilities.WorkflowMgmt.Abstract", "src\Capabilities.WorkflowMgmt.Abstract\Capabilities.WorkflowMgmt.Abstract.csproj", "{690A88B8-8072-4DC8-ADA9-E1AC45C833F8}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -134,6 +128,10 @@ Global
 		{6EAC43DD-86FF-4166-ADBB-14420F28C95C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6EAC43DD-86FF-4166-ADBB-14420F28C95C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6EAC43DD-86FF-4166-ADBB-14420F28C95C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{690A88B8-8072-4DC8-ADA9-E1AC45C833F8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{690A88B8-8072-4DC8-ADA9-E1AC45C833F8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{690A88B8-8072-4DC8-ADA9-E1AC45C833F8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{690A88B8-8072-4DC8-ADA9-E1AC45C833F8}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
