@@ -2,7 +2,7 @@ resources:
   repositories:
   - repository: azure-devops-tools
     type: github
-    endpoint: 'GitHub Connection Magnus'
+    endpoint: 'xlent-link-admin'
     name: 'nexus-link/nexus-azure-devops-tools'
     ref: 'refs/heads/master'
 
