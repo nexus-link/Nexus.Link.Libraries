@@ -1,0 +1,267 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>Nexus.Link.Capabilities.AsyncRequestMgmt.Abstract</name>
+    </assembly>
+    <members>
+        <member name="T:Nexus.Link.Capabilities.AsyncRequestMgmt.Abstract.Entities.HttpCallbackContent">
+            <summary>
+            The object that is sent as content for a callback.
+            </summary>
+        </member>
+        <member name="P:Nexus.Link.Capabilities.AsyncRequestMgmt.Abstract.Entities.HttpCallbackContent.Response">
+            <summary>
+            The final HttpResponse
+            </summary>
+        </member>
+        <member name="P:Nexus.Link.Capabilities.AsyncRequestMgmt.Abstract.Entities.HttpCallbackContent.RequestId">
+            <summary>
+            The request id for the original request.
+            </summary>
+        </member>
+        <member name="P:Nexus.Link.Capabilities.AsyncRequestMgmt.Abstract.Entities.HttpCallbackContent.Context">
+            <summary>
+            The context that the client submitted for the original request.
+            </summary>
+        </member>
+        <member name="T:Nexus.Link.Capabilities.AsyncRequestMgmt.Abstract.Entities.HttpRequest">
+            <summary>
+            Describes a httpRequest that a client wants to be executed asynchronously at a remote server.
+            </summary>
+        </member>
+        <member name="P:Nexus.Link.Capabilities.AsyncRequestMgmt.Abstract.Entities.HttpRequest.Id">
+            <summary>
+            The RequestId for the request.
+            </summary>
+        </member>
+        <member name="M:Nexus.Link.Capabilities.AsyncRequestMgmt.Abstract.Entities.HttpRequest.Validate(System.String,System.String)">
+            <inheritdoc />
+        </member>
+        <member name="T:Nexus.Link.Capabilities.AsyncRequestMgmt.Abstract.Entities.HttpRequestCreate">
+            <summary>
+            Describes a httpRequest that a client wants to be executed asynchronously at a remote server.
+            </summary>
+        </member>
+        <member name="P:Nexus.Link.Capabilities.AsyncRequestMgmt.Abstract.Entities.HttpRequestCreate.Metadata">
+            <summary>
+            Metadata about a request.
+            </summary>
+        </member>
+        <member name="P:Nexus.Link.Capabilities.AsyncRequestMgmt.Abstract.Entities.HttpRequestCreate.Url">
+            <summary>
+            The URL to send the request to.
+            </summary>
+        </member>
+        <member name="P:Nexus.Link.Capabilities.AsyncRequestMgmt.Abstract.Entities.HttpRequestCreate.Name">
+            <summary>
+            The name of the request. Not necessarily unique.
+            </summary>
+        </member>
+        <member name="P:Nexus.Link.Capabilities.AsyncRequestMgmt.Abstract.Entities.HttpRequestCreate.Method">
+            <summary>
+            The HTTP Method
+            HTTPS, HTTP etc.
+            </summary>
+        </member>
+        <member name="P:Nexus.Link.Capabilities.AsyncRequestMgmt.Abstract.Entities.HttpRequestCreate.Content">
+            <summary>
+            The HTTP content
+            </summary>
+        </member>
+        <member name="P:Nexus.Link.Capabilities.AsyncRequestMgmt.Abstract.Entities.HttpRequestCreate.Headers">
+            <summary>
+            The HTTP headers
+            </summary>
+        </member>
+        <member name="M:Nexus.Link.Capabilities.AsyncRequestMgmt.Abstract.Entities.HttpRequestCreate.Validate(System.String,System.String)">
+            <inheritdoc />
+        </member>
+        <member name="T:Nexus.Link.Capabilities.AsyncRequestMgmt.Abstract.Entities.RequestMetadata">
+            <summary>
+            Describes the Metadata about a request.
+            </summary>
+        </member>
+        <member name="P:Nexus.Link.Capabilities.AsyncRequestMgmt.Abstract.Entities.RequestMetadata.Priority">
+            <summary>
+            The Priority for the request.
+            </summary>
+        </member>
+        <member name="P:Nexus.Link.Capabilities.AsyncRequestMgmt.Abstract.Entities.RequestMetadata.ExecuteBefore">
+            <summary>
+            Date and time specifying when to give up on the request
+            </summary>
+        </member>
+        <member name="P:Nexus.Link.Capabilities.AsyncRequestMgmt.Abstract.Entities.RequestMetadata.ExecuteAfter">
+            <summary>
+            Earliest date and time when we should execute the request
+            </summary>
+        </member>
+        <member name="P:Nexus.Link.Capabilities.AsyncRequestMgmt.Abstract.Entities.RequestMetadata.Callback">
+            <summary>
+            Information about if and where we should send a callback to the client when the final response is available.
+            </summary>
+        </member>
+        <member name="M:Nexus.Link.Capabilities.AsyncRequestMgmt.Abstract.Entities.RequestMetadata.Validate(System.String,System.String)">
+            <inheritdoc />
+        </member>
+        <member name="T:Nexus.Link.Capabilities.AsyncRequestMgmt.Abstract.Entities.RequestCallback">
+            <summary>
+            Information about where we should send a callback to the client when the final response is available.
+            </summary>
+        </member>
+        <member name="P:Nexus.Link.Capabilities.AsyncRequestMgmt.Abstract.Entities.RequestCallback.Url">
+            <summary>
+            The URL
+            </summary>
+        </member>
+        <member name="P:Nexus.Link.Capabilities.AsyncRequestMgmt.Abstract.Entities.RequestCallback.Headers">
+            <summary>
+            The HTTP headers
+            </summary>
+        </member>
+        <member name="P:Nexus.Link.Capabilities.AsyncRequestMgmt.Abstract.Entities.RequestCallback.Context">
+            <summary>
+            Serialized version of a context that will be supplied with the callback.
+            </summary>
+        </member>
+        <member name="M:Nexus.Link.Capabilities.AsyncRequestMgmt.Abstract.Entities.RequestCallback.Validate(System.String,System.String)">
+            <inheritdoc />
+        </member>
+        <member name="T:Nexus.Link.Capabilities.AsyncRequestMgmt.Abstract.Entities.ResponseException">
+            <summary>
+            Exception object when request execution throw an exception
+            </summary>
+        </member>
+        <member name="P:Nexus.Link.Capabilities.AsyncRequestMgmt.Abstract.Entities.ResponseException.Name">
+            <summary>
+            If the request execution throw an exception, this is the name of the type of the exception.
+            </summary>
+        </member>
+        <member name="P:Nexus.Link.Capabilities.AsyncRequestMgmt.Abstract.Entities.ResponseException.Message">
+            <summary>
+            If the request execution throw an exception, this is message of that exception.
+            </summary>
+        </member>
+        <member name="T:Nexus.Link.Capabilities.AsyncRequestMgmt.Abstract.Entities.HttpResponse">
+            <summary>
+            The HttpResponse.
+            </summary>
+        </member>
+        <member name="P:Nexus.Link.Capabilities.AsyncRequestMgmt.Abstract.Entities.HttpResponse.Metadata">
+            <summary>
+            The metadata for the HttpResponse.
+            </summary>
+        </member>
+        <member name="P:Nexus.Link.Capabilities.AsyncRequestMgmt.Abstract.Entities.HttpResponse.Id">
+            <summary>
+            The request id.
+            </summary>
+        </member>
+        <member name="P:Nexus.Link.Capabilities.AsyncRequestMgmt.Abstract.Entities.HttpResponse.HttpStatus">
+            <summary>
+            The HTTP status
+            </summary>
+        </member>
+        <member name="P:Nexus.Link.Capabilities.AsyncRequestMgmt.Abstract.Entities.HttpResponse.Content">
+            <summary>
+            The HTTP content
+            </summary>
+        </member>
+        <member name="P:Nexus.Link.Capabilities.AsyncRequestMgmt.Abstract.Entities.HttpResponse.Headers">
+            <summary>
+            The HTTP Headers
+            </summary>
+        </member>
+        <member name="P:Nexus.Link.Capabilities.AsyncRequestMgmt.Abstract.Entities.HttpResponse.Exception">
+            <summary>
+            The Exception
+            </summary>
+        </member>
+        <member name="M:Nexus.Link.Capabilities.AsyncRequestMgmt.Abstract.Entities.HttpResponse.Validate(System.String,System.String)">
+            <inheritdoc />
+        </member>
+        <member name="T:Nexus.Link.Capabilities.AsyncRequestMgmt.Abstract.Entities.ResponseMetadata">
+            <summary>
+            Describes a response that the client receives for an asynchronously executed httpRequest.
+            </summary>
+        </member>
+        <member name="P:Nexus.Link.Capabilities.AsyncRequestMgmt.Abstract.Entities.ResponseMetadata.Executions">
+            <summary>
+            The number of executions.
+            </summary>
+        </member>
+        <member name="P:Nexus.Link.Capabilities.AsyncRequestMgmt.Abstract.Entities.ResponseMetadata.RequestHasCompleted">
+            <summary>
+            Convenience property. True if the request has completed and we have a final response.
+            </summary>
+        </member>
+        <member name="P:Nexus.Link.Capabilities.AsyncRequestMgmt.Abstract.Entities.ResponseMetadata.CompletionReason">
+            <summary>
+            Describing the reason why a request is considered to be completed.
+            </summary>
+        </member>
+        <member name="P:Nexus.Link.Capabilities.AsyncRequestMgmt.Abstract.Entities.ResponseMetadata.RecommendedWaitingTimeInSeconds">
+            <summary>
+            The time in seconds user agent should wait before making trying to read the response again.
+            </summary>
+        </member>
+        <member name="M:Nexus.Link.Capabilities.AsyncRequestMgmt.Abstract.Entities.ResponseMetadata.Validate(System.String,System.String)">
+            <inheritdoc />
+        </member>
+        <member name="T:Nexus.Link.Capabilities.AsyncRequestMgmt.Abstract.Entities.RequestCompletionReasonEnum">
+            <summary>
+            Enum describing the reason why a request is considered to be completed.
+            </summary>
+        </member>
+        <member name="F:Nexus.Link.Capabilities.AsyncRequestMgmt.Abstract.Entities.RequestCompletionReasonEnum.Success">
+            <summary>
+            The request was executed successfully
+            </summary>
+        </member>
+        <member name="F:Nexus.Link.Capabilities.AsyncRequestMgmt.Abstract.Entities.RequestCompletionReasonEnum.Expired">
+            <summary>
+            The request did not complete before Request.ExecuteBefore
+            </summary>
+        </member>
+        <member name="F:Nexus.Link.Capabilities.AsyncRequestMgmt.Abstract.Entities.RequestCompletionReasonEnum.Failed">
+            <summary>
+            The request failed and will not be retried
+            </summary>
+        </member>
+        <member name="T:Nexus.Link.Capabilities.AsyncRequestMgmt.Abstract.IAsyncRequestMgmtCapability">
+            <summary>
+            Access to the Request.
+            </summary>
+        </member>
+        <member name="P:Nexus.Link.Capabilities.AsyncRequestMgmt.Abstract.IAsyncRequestMgmtCapability.Request">
+            <summary>
+            The <see cref="T:Nexus.Link.Capabilities.AsyncRequestMgmt.Abstract.Services.IRequestService"/>.
+            </summary>
+        </member>
+        <member name="P:Nexus.Link.Capabilities.AsyncRequestMgmt.Abstract.IAsyncRequestMgmtCapability.RequestResponse">
+            <summary>
+            The <see cref="T:Nexus.Link.Capabilities.AsyncRequestMgmt.Abstract.Services.IRequestResponseService"/>.
+            </summary>
+        </member>
+        <member name="T:Nexus.Link.Capabilities.AsyncRequestMgmt.Abstract.Services.IRequestResponseService">
+            <summary>
+            Operations for CreateRequest and ReadResponse.
+            </summary>
+        </member>
+        <member name="M:Nexus.Link.Capabilities.AsyncRequestMgmt.Abstract.Services.IRequestResponseService.ReadResponseAsync(System.String,System.Threading.CancellationToken)">
+            <summary>
+            To read the response. for the corresponding request
+            </summary>
+        </member>
+        <member name="T:Nexus.Link.Capabilities.AsyncRequestMgmt.Abstract.Services.IRequestService">
+            <summary>
+            Operations for CreateRequest and ReadResponse.
+            </summary>
+        </member>
+        <member name="M:Nexus.Link.Capabilities.AsyncRequestMgmt.Abstract.Services.IRequestService.ReadResponseAsync(System.String,System.Threading.CancellationToken)">
+            <summary>
+            To read the response. for the corresponding request
+            </summary>
+        </member>
+    </members>
+</doc>

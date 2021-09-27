@@ -1,7 +1,7 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <TargetFramework>netstandard2.0</TargetFramework>
 
     <!-- Publish the repository URL in the built .nupkg (in the NuSpec <Repository> element) -->
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
@@ -12,16 +12,24 @@
     <!-- Recommended: Embed symbols containing Source Link in the main file (exe/dll) -->
     <DebugType>embedded</DebugType>
     <IncludeSymbols>true</IncludeSymbols>
+    <Configurations>Debug;Release;ci;prdsim;prd</Configurations>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <DocumentationFile>Capabilities.AsyncRequestMgmt.Abstract.xml</DocumentationFile>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <DocumentationFile>Capabilities.AsyncRequestMgmt.Abstract.xml</DocumentationFile>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0" PrivateAssets="All" />
-    <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Libraries.Core\Libraries.Core.csproj" />
     <ProjectReference Include="..\Libraries.Crud\Libraries.Crud.csproj" />
-    <ProjectReference Include="..\Libraries.Web\Libraries.Web.csproj" />
   </ItemGroup>
 
   <PropertyGroup>
@@ -33,23 +41,22 @@
     <DebugSymbols>true</DebugSymbols>
   </PropertyGroup>
 
-  
   <PropertyGroup>
-    <PackageId>Nexus.Link.Capabilities.WorkflowMgmt.Abstract</PackageId>
+    <PackageId>Nexus.Link.Capabilities.AsyncRequestMgmt.Abstract</PackageId>
     <Version>1.0.0</Version>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <PackageTags>nexus;link;fulcrum;lever</PackageTags>
     <Authors>XLENT Link</Authors>
-    <PackageProjectUrl>https://github.com/nexus-link/Nexus.Link.Libraries</PackageProjectUrl>
+    <PackageProjectUrl></PackageProjectUrl>
     <PackageLanguage>en-US</PackageLanguage>
-    <Description>Workflow management contract</Description>
+    <Description>Abstract for an Async request-response capability.</Description>
     <Copyright>Copyright ©2021 Xlent Link AB</Copyright>
     <IncludeSymbols>true</IncludeSymbols>
     <PackageReleaseNotes>
       1.0.0 First release
     </PackageReleaseNotes>
-    <RootNamespace>Nexus.Link.Capabilities.WorkflowMgmt.Abstract</RootNamespace>
-    <AssemblyName>Nexus.Link.Capabilities.WorkflowMgmt.Abstract</AssemblyName>
+    <LangVersion>latest</LangVersion>
+    <AssemblyName>Nexus.Link.Capabilities.AsyncRequestMgmt.Abstract</AssemblyName>
+    <RootNamespace>Nexus.Link.Capabilities.AsyncRequestMgmt.Abstract</RootNamespace>
   </PropertyGroup>
-
 </Project>
