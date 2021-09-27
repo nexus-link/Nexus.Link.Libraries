@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <TargetFramework>netstandard2.0</TargetFramework>
 
     <!-- Publish the repository URL in the built .nupkg (in the NuSpec <Repository> element) -->
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
@@ -36,7 +36,7 @@
   
   <PropertyGroup>
     <PackageId>Nexus.Link.Capabilities.WorkflowMgmt.Abstract</PackageId>
-    <Version>1.0.0</Version>
+    <Version>1.0.1</Version>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <PackageTags>nexus;link;fulcrum;lever</PackageTags>
     <Authors>XLENT Link</Authors>
@@ -46,6 +46,7 @@
     <Copyright>Copyright ©2021 Xlent Link AB</Copyright>
     <IncludeSymbols>true</IncludeSymbols>
     <PackageReleaseNotes>
+      1.0.1 Change netcoreapp3.1 to netstandard2.0
       1.0.0 First release
     </PackageReleaseNotes>
     <RootNamespace>Nexus.Link.Capabilities.WorkflowMgmt.Abstract</RootNamespace>
