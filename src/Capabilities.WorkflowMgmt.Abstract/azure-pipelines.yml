@@ -18,7 +18,7 @@ trigger:
 jobs:
 - template: 'templates/netcore/v1/jobs/nuget.yml@azure-devops-tools'
   parameters:
-    jobName: 'Core'
+    jobName: 'Capabilities_WorkflowMgmt_Abstract'
     testProjectsPath: ''
     nugetProjectsPath: 'src/Capabilities.WorkflowMgmt.Abstract/*.csproj'
     nuGetFeedType: external
