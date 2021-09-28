@@ -4,9 +4,9 @@ namespace Nexus.Link.Capabilities.WorkflowMgmt.Abstract.Exceptions
 {
     public class PostponeException : Exception
     {
-        public Guid? RequestId { get; }
+        public string RequestId { get; }
 
-        public PostponeException(Guid requestId)
+        public PostponeException(string requestId)
         {
             RequestId = requestId;
         }

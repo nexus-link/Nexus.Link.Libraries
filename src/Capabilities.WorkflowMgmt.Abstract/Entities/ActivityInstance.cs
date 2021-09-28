@@ -11,7 +11,11 @@ namespace Nexus.Link.Capabilities.WorkflowMgmt.Abstract.Entities
 
         public DateTimeOffset? FinishedAt { get; set; }
 
-        public string Output { get; set; }
+        public string AsyncRequestId { get; set; }
+
+        public bool HasCompleted { get; set; }
+
+        public string ResultAsJson { get; set; }
 
         public string ExceptionType { get; set; }
 
