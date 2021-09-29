@@ -1,5 +1,4 @@
 ﻿using System;
-using Nexus.Link.Capabilities.WorkflowMgmt.Abstract.Model;
 using Nexus.Link.Libraries.Core.Context;
 
 namespace Nexus.Link.Capabilities.WorkflowMgmt.Abstract.Support
@@ -9,13 +8,13 @@ namespace Nexus.Link.Capabilities.WorkflowMgmt.Abstract.Support
         public IContextValueProvider ValueProvider { get; }
 
         private readonly OneValueProvider<bool> _executionIsAsynchronous;
-        private readonly OneValueProvider<AsyncExecutionContext> _asyncExecutionContext;
+        private readonly OneValueProvider<string> _workflowInstanceId;
 
         public AsyncWorkflowContext(IContextValueProvider valueProvider)
         {
             ValueProvider = valueProvider;
             _executionIsAsynchronous = new OneValueProvider<bool>(ValueProvider, "ExecutionIsAsynchronous");
-            _asyncExecutionContext = new OneValueProvider<AsyncExecutionContext>(ValueProvider, "AsyncExecutionContext");
+            _workflowInstanceId = new OneValueProvider<string>(ValueProvider, "WorkflowInstanceId");
         }
 
         /// <summary>
@@ -35,12 +34,12 @@ namespace Nexus.Link.Capabilities.WorkflowMgmt.Abstract.Support
         }
 
         /// <summary>
-        /// If non-null, contains the information about all requests and their responses.
+        /// If non-null, contains the information about the current execution id.
         /// </summary>
-        public AsyncExecutionContext AsyncExecutionContext
+        public string WorkflowInstanceId
         {
-            get => _asyncExecutionContext.GetValue();
-            set => _asyncExecutionContext.SetValue(value);
+            get => _workflowInstanceId.GetValue();
+            set => _workflowInstanceId.SetValue(value);
         }
     }
 }
