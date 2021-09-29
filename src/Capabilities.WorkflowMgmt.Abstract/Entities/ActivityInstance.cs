@@ -9,6 +9,8 @@ namespace Nexus.Link.Capabilities.WorkflowMgmt.Abstract.Entities
         public string Id { get; set; }
         public string Etag { get; set; }
 
+        public DateTimeOffset StartedAt{ get; set; }
+
         public DateTimeOffset? FinishedAt { get; set; }
 
         public string AsyncRequestId { get; set; }
