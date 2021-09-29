@@ -18,11 +18,6 @@ namespace Nexus.Link.Capabilities.WorkflowMgmt.Abstract.Support
         }
 
         /// <summary>
-        /// Access the context data
-        /// </summary>
-        public Guid ContextId => ValueProvider.ContextId;
-
-        /// <summary>
         /// If this is true, then the current execution is in an truly asynchronous context,
         /// i.e. the client is not waiting for the response, so we are for instance
         /// free to make asynchronous calls to other servers.
