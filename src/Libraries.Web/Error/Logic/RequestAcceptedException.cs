@@ -23,10 +23,31 @@ namespace Nexus.Link.Libraries.Web.Error.Logic
         /// <summary>
         /// Constructor
         /// </summary>
-        public RequestAcceptedException(string urlWhereResponseWillBeMadeAvailable,
-            IEnumerable<string> outstandingRequestIds = null)
+        public RequestAcceptedException(string urlWhereResponseWillBeMadeAvailable)
         {
             UrlWhereResponseWillBeMadeAvailable = urlWhereResponseWillBeMadeAvailable;
+        }
+
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        public RequestAcceptedException(string urlWhereResponseWillBeMadeAvailable,
+            IEnumerable<string> outstandingRequestIds)
+            :this(urlWhereResponseWillBeMadeAvailable)
+        {
+            if (outstandingRequestIds != null)
+            {
+                OutstandingRequestIds.AddRange(outstandingRequestIds);
+            }
+        }
+
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        public RequestAcceptedException(string urlWhereResponseWillBeMadeAvailable,
+            params string[] outstandingRequestIds)
+            :this(urlWhereResponseWillBeMadeAvailable)
+        {
             if (outstandingRequestIds != null)
             {
                 OutstandingRequestIds.AddRange(outstandingRequestIds);

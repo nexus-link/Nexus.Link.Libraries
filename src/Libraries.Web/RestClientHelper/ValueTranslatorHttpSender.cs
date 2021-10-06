@@ -65,6 +65,12 @@ namespace Nexus.Link.Libraries.Web.RestClientHelper
             result.Body = (TResponse) translator.Decorate(result.Body, typeof(TResponse));
             return result;
         }
+        
+        /// <inheritdoc />
+        public Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken = default)
+        {
+            return HttpSender.SendAsync(request, cancellationToken);
+        }
 
         /// <inheritdoc />
         public async Task<HttpResponseMessage> SendRequestAsync<TBody>(HttpMethod method, string relativeUrl,
