@@ -5,6 +5,7 @@ using Nexus.Link.Libraries.Core.Assert;
 using Nexus.Link.Libraries.Core.Error.Logic;
 using Nexus.Link.Libraries.Core.Logging;
 using Nexus.Link.Libraries.Core.Misc;
+using Nexus.Link.Libraries.Web.Error;
 using Nexus.Link.Libraries.Web.Error.Logic;
 #if NETCOREAPP
 using Microsoft.AspNetCore.Mvc;
@@ -59,7 +60,20 @@ namespace Nexus.Link.Libraries.Web.AspNet.Error.Logic
 
         private static StatusAndContent ToStatusAndContent(Exception e)
         {
-
+            if (e is RequestAcceptedException acceptedException)
+            {
+                var accepted = new AcceptedInformation
+                {
+                    UrlWhereResponseWillBeMadeAvailable = acceptedException.UrlWhereResponseWillBeMadeAvailable,
+                    OutstandingRequestIds = acceptedException.OutstandingRequestIds
+                };
+                return new StatusAndContent
+                {
+                    // ReSharper disable once PossibleInvalidOperationException
+                    StatusCode = HttpStatusCode.Accepted,
+                    Content = JsonConvert.SerializeObject(accepted)
+                };
+            }
             if (!(e is FulcrumException fulcrumException))
             {
                 var message = $"Application threw an exception that didn't inherit from {typeof(FulcrumException)}.\r{e.GetType().FullName}: {e.Message}\rFull exception:\r{e}";

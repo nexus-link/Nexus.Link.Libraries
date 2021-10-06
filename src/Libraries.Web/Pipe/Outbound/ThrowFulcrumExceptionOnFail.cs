@@ -1,11 +1,14 @@
 ﻿using System;
+using System.Net;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 using Nexus.Link.Libraries.Core.Application;
 using Nexus.Link.Libraries.Core.Error.Logic;
+using Nexus.Link.Libraries.Core.Json;
 using Nexus.Link.Libraries.Core.Logging;
+using Nexus.Link.Libraries.Web.Error;
 using Nexus.Link.Libraries.Web.Error.Logic;
 using Nexus.Link.Libraries.Web.Logging;
 
@@ -52,12 +55,27 @@ namespace Nexus.Link.Libraries.Web.Pipe.Outbound
 
                 requestDescription = $"OUT request-response {await request.ToLogStringAsync(response, cancellationToken: cancellationToken)}";
 
+                if (response.StatusCode == HttpStatusCode.Accepted && response.Content != null)
+                {
+                    await response.Content.LoadIntoBufferAsync();
+                    var content = await response.Content.ReadAsStringAsync();
+                    var acceptInfo = JsonHelper.SafeDeserializeObject<AcceptedInformation>(content);
+                    if (acceptInfo == null) return response;
+                    throw new RequestAcceptedException(
+                        acceptInfo.UrlWhereResponseWillBeMadeAvailable,
+                        acceptInfo.OutstandingRequestIds);
+                }
                 fulcrumException = await ExceptionConverter.ToFulcrumExceptionAsync(response, cancellationToken);
                 if (fulcrumException == null) return response;
             }
             catch (FulcrumException e)
             {
                 Log.LogError($"{requestDescription} threw the exception {e.GetType().Name}: {e.TechnicalMessage}", e);
+                throw;
+            }
+            catch (RequestAcceptedException)
+            {
+                Log.LogInformation($"{requestDescription} was converted to (and threw) the exception {nameof(RequestAcceptedException)}");
                 throw;
             }
             catch (TaskCanceledException e)

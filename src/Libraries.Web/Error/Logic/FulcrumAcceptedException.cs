@@ -6,14 +6,9 @@ using Nexus.Link.Libraries.Core.Misc;
 namespace Nexus.Link.Libraries.Web.Error.Logic
 {
     /// <summary>
-    /// The server has accepted the request and will execute it in the background. The 
+    /// The server has accepted the request and will execute it in the background. 
     /// </summary>
-    /// <example>
-    /// We call an external service, expecting it to either be successful, or to return a FulcrumError. If it doesn't, this kind of exception is thrown.
-    /// </example>
-    /// <remarks>
-    /// This exception is a way to blame someone else for a problem that has occurred in your code.
-    /// </remarks>
+    [Obsolete("Use RequestAcceptedException. Obsolete since 2021-10-05.")]
     public class FulcrumAcceptedException : FulcrumException
     {
         /// <summary>
