@@ -53,6 +53,7 @@
     <Copyright>Copyright ©2019 Xlent Link AB</Copyright>
     <IncludeSymbols>true</IncludeSymbols>
     <PackageReleaseNotes>
+      2.29.0 Can convert RequestAcceptedException to response with HttpStatusCode Accepted.
       2.28.0 Added Serialization for RequestData and ResponseData.
       2.27.1 Symbols
       2.27.0 Removed code related to asynchronous processes
