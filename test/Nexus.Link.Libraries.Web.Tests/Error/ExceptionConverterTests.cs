@@ -98,7 +98,9 @@ namespace Nexus.Link.Libraries.Web.Tests.Error
             };
             var result = await ExceptionConverter.ToFulcrumExceptionAsync(responseMessage);
             Assert.IsNotNull(result);
+#pragma warning disable 618
             Assert.AreEqual(FulcrumAcceptedException.ExceptionType, result.Type);
+#pragma warning restore 618
         }
 
         [TestMethod]

@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -14,6 +15,7 @@ using Nexus.Link.Libraries.Crud.PassThrough;
 namespace Nexus.Link.Libraries.Crud.Cache
 {
     /// <inheritdoc cref="SlaveToMasterAutoCache{TManyModelCreate,TManyModel,TId}" />
+    [Obsolete("Use DependentToMaster instead of SlaveToMaster. Obsolete since 2021-10-06.")]
     public class SlaveToMasterAutoCache<TManyModel, TId> :
         SlaveToMasterAutoCache<TManyModel, TManyModel, TId>, 
         ICrudSlaveToMaster<TManyModel, TId>
@@ -56,6 +58,7 @@ namespace Nexus.Link.Libraries.Crud.Cache
     /// <typeparam name="TManyModelCreate">The model to use when creating objects.</typeparam>
     /// <typeparam name="TManyModel">The model for the children that each points out a parent.</typeparam>
     /// <typeparam name="TId">The type for the id field of the models.</typeparam>
+    [Obsolete("Use DependentToMaster instead of SlaveToMaster. Obsolete since 2021-10-06.")]
     public class SlaveToMasterAutoCache<TManyModelCreate, TManyModel, TId> : 
         AutoCacheBase<TManyModel, SlaveToMasterId<TId>>, 
         ICrudSlaveToMaster<TManyModelCreate, TManyModel, TId>, 

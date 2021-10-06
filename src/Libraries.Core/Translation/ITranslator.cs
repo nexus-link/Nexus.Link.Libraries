@@ -30,6 +30,7 @@ namespace Nexus.Link.Libraries.Core.Translation
         /// <summary>
         /// Decorate the <paramref name="id"/> with concept value paths.
         /// </summary>
+        [Obsolete("Use DependentToMaster instead of SlaveToMaster. Obsolete since 2021-10-06.")]
         SlaveToMasterId<string> Decorate(string masterIdConceptName, string slaveIdConceptName, SlaveToMasterId<string> id);
 
         /// <summary>

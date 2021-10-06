@@ -188,7 +188,7 @@ namespace Nexus.Link.Libraries.Crud.MemoryStorage
         }
 
         /// <inheritdoc />
-        public virtual async Task UpdateAsync(TId id, TModel item, CancellationToken token = default)
+        public virtual Task UpdateAsync(TId id, TModel item, CancellationToken token = default)
         {
             InternalContract.RequireNotDefaultValue(id, nameof(id));
             InternalContract.RequireNotNull(item, nameof(item));
@@ -202,6 +202,8 @@ namespace Nexus.Link.Libraries.Crud.MemoryStorage
             lock (MemoryItems) {
                 MemoryItems[id] = itemCopy;
             }
+
+            return Task.CompletedTask;
         }
 
         /// <inheritdoc />

@@ -106,7 +106,7 @@ namespace Nexus.Link.Libraries.Crud.Mappers
         }
 
         /// <inheritdoc />
-        public async Task<TClientModel> CreateChildWithSpecifiedIdAndReturnAsync(TClientId parentId, TClientId childId, TClientModelCreate item,
+        public Task<TClientModel> CreateChildWithSpecifiedIdAndReturnAsync(TClientId parentId, TClientId childId, TClientModelCreate item,
             CancellationToken token = default)
         {
             throw new NotImplementedException();
