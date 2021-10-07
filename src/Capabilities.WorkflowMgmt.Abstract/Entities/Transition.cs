@@ -17,12 +17,8 @@ namespace Nexus.Link.Capabilities.WorkflowMgmt.Abstract.Entities
         }
     }
 
-    public class TransitionCreate : IValidatable
+    public class TransitionCreate : TransitionUnique, IValidatable
     {
-        public string WorkflowVersionId { get; set; }
-        public string FromActivityVersionId { get; set; }
-        public string ToActivityVersionId { get; set; }
-
         /// <inheritdoc />
         public virtual void Validate(string errorLocation, string propertyPath = "")
         {
@@ -32,5 +28,12 @@ namespace Nexus.Link.Capabilities.WorkflowMgmt.Abstract.Entities
                 FulcrumValidate.IsTrue(!string.IsNullOrWhiteSpace(ToActivityVersionId), errorLocation, $"One of {nameof(FromActivityVersionId)} and {nameof(ToActivityVersionId)} must be not null.");
             }
         }
+    }
+
+    public class TransitionUnique
+    {
+        public string WorkflowVersionId { get; set; }
+        public string FromActivityVersionId { get; set; }
+        public string ToActivityVersionId { get; set; }
     }
 }
