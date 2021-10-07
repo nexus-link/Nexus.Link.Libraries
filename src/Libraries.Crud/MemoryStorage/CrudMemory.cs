@@ -1,17 +1,14 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using Nexus.Link.Libraries.Core.Assert;
 using Nexus.Link.Libraries.Crud.Interfaces;
 using Nexus.Link.Libraries.Core.Error.Logic;
-using Nexus.Link.Libraries.Core.Misc;
 using Nexus.Link.Libraries.Core.Storage.Logic;
 using Nexus.Link.Libraries.Core.Storage.Model;
+using Nexus.Link.Libraries.Core.Threads;
 using Nexus.Link.Libraries.Crud.Helpers;
 using Nexus.Link.Libraries.Crud.Model;
 
@@ -36,11 +33,22 @@ namespace Nexus.Link.Libraries.Crud.MemoryStorage
     /// <typeparam name="TId"></typeparam>
     public class CrudMemory<TModelCreate, TModel, TId> :
         MemoryBase<TModel, TId>,
-        ICrud<TModelCreate, TModel, TId>, ISearch<TModel, TId> where TModel : TModelCreate
+        ICrud<TModelCreate, TModel, TId> where TModel : TModelCreate
     {
         private readonly CrudConvenience<TModelCreate, TModel, TId> _convenience;
         private readonly object _lock = new object();
         private int _nextIntegerId = 1;
+
+        /// <summary>
+        /// Delegate for verifying that an item is unique before creating it.
+        /// </summary>
+        /// <param name="item">The item that should be verified for uniqueness.</param>
+        /// <param name="cancellationToken">Cancellation token</param>
+        /// <exception cref="FulcrumConflictException">Thrown if <paramref name="item"/> is not unique.</exception>
+        public delegate Task UniqueConstraintAsyncDelegate(TModelCreate item,
+            CancellationToken cancellationToken = default);
+
+        public UniqueConstraintAsyncDelegate UniqueConstraintAsyncMethods { get; set; }
 
         public CrudMemory()
         {
@@ -48,12 +56,12 @@ namespace Nexus.Link.Libraries.Crud.MemoryStorage
         }
 
         /// <inheritdoc />
-        public virtual async Task<TId> CreateAsync(TModelCreate item, CancellationToken cancellationToken  = default)
+        public virtual async Task<TId> CreateAsync(TModelCreate item, CancellationToken cancellationToken = default)
         {
             InternalContract.RequireNotNull(item, nameof(item));
             InternalContract.RequireValidated(item, nameof(item));
             var id = CreateNewId<TId>();
-            await CreateWithSpecifiedIdAsync(id, item, cancellationToken );
+            await CreateWithSpecifiedIdAsync(id, item, cancellationToken);
             return id;
         }
 
@@ -65,7 +73,7 @@ namespace Nexus.Link.Libraries.Crud.MemoryStorage
                 lock (_lock)
                 {
                     // ReSharper disable once SuspiciousTypeConversion.Global
-                    id = (dynamic) _nextIntegerId++;
+                    id = (dynamic)_nextIntegerId++;
                 }
             }
             else
@@ -76,16 +84,18 @@ namespace Nexus.Link.Libraries.Crud.MemoryStorage
         }
 
         /// <inheritdoc />
-        public virtual async Task<TModel> CreateAndReturnAsync(TModelCreate item, CancellationToken cancellationToken  = default)
+        public virtual async Task<TModel> CreateAndReturnAsync(TModelCreate item, CancellationToken cancellationToken = default)
         {
             InternalContract.RequireNotNull(item, nameof(item));
             InternalContract.RequireValidated(item, nameof(item));
-            var id = await CreateAsync(item, cancellationToken );
-            return await ReadAsync(id, cancellationToken );
+            var id = await CreateAsync(item, cancellationToken);
+            return await ReadAsync(id, cancellationToken);
         }
 
+        private readonly NexusAsyncSemaphore _semaphore = new NexusAsyncSemaphore();
+
         /// <inheritdoc />
-        public virtual async Task CreateWithSpecifiedIdAsync(TId id, TModelCreate item, CancellationToken cancellationToken  = default)
+        public virtual async Task CreateWithSpecifiedIdAsync(TId id, TModelCreate item, CancellationToken cancellationToken = default)
         {
             InternalContract.RequireNotDefaultValue(id, nameof(id));
             InternalContract.RequireNotNull(item, nameof(item));
@@ -95,28 +105,35 @@ namespace Nexus.Link.Libraries.Crud.MemoryStorage
 
             StorageHelper.MaybeCreateNewEtag(itemCopy);
             StorageHelper.MaybeUpdateTimeStamps(itemCopy, true);
-            lock (MemoryItems)
+
+            await _semaphore.ExecuteAsync((ct) => InternalCreateAsync(id, itemCopy, ct), cancellationToken);
+        }
+
+        private async Task InternalCreateAsync(TId id, TModel item, CancellationToken cancellationToken)
+        {
+            ValidateNotExists(id);
+            if (UniqueConstraintAsyncMethods != null)
             {
-                ValidateNotExists(id);
-                StorageHelper.MaybeSetId(id, itemCopy);
-                var success = MemoryItems.TryAdd(id, itemCopy);
-                if (!success) throw new FulcrumConflictException($"Item with id {id} already exists.");
+                await UniqueConstraintAsyncMethods(item, cancellationToken);
             }
-            await Task.Yield();
+
+            StorageHelper.MaybeSetId(id, item);
+            var success = MemoryItems.TryAdd(id, item);
+            if (!success) throw new FulcrumConflictException($"Item with id {id} already exists.");
         }
 
         /// <inheritdoc />
         public virtual async Task<TModel> CreateWithSpecifiedIdAndReturnAsync(TId id, TModelCreate item,
-            CancellationToken cancellationToken  = default)
+            CancellationToken cancellationToken = default)
         {
             InternalContract.RequireNotNull(item, nameof(item));
             InternalContract.RequireValidated(item, nameof(item));
-            await CreateWithSpecifiedIdAsync(id, item, cancellationToken );
-            return await ReadAsync(id, cancellationToken );
+            await CreateWithSpecifiedIdAsync(id, item, cancellationToken);
+            return await ReadAsync(id, cancellationToken);
         }
 
         /// <inheritdoc />
-        public virtual Task<TModel> ReadAsync(TId id, CancellationToken cancellationToken  = default)
+        public virtual Task<TModel> ReadAsync(TId id, CancellationToken cancellationToken = default)
         {
             InternalContract.RequireNotDefaultValue(id, nameof(id));
 
@@ -125,13 +142,15 @@ namespace Nexus.Link.Libraries.Crud.MemoryStorage
         }
 
         /// <inheritdoc />
-        public virtual Task<PageEnvelope<TModel>> ReadAllWithPagingAsync(int offset, int? limit = null, CancellationToken cancellationToken  = default)
+        public virtual async Task<PageEnvelope<TModel>> ReadAllWithPagingAsync(int offset, int? limit = null, CancellationToken cancellationToken = default)
         {
             limit = limit ?? PageInfo.DefaultLimit;
             InternalContract.RequireGreaterThanOrEqualTo(0, offset, nameof(offset));
             InternalContract.RequireGreaterThan(0, limit.Value, nameof(limit));
-            lock (MemoryItems)
+
+            try
             {
+                await _semaphore.RaiseAsync(cancellationToken);
                 var list = MemoryItems.Keys
                     .Select(id => GetMemoryItem(id, true))
                     .Where(item => item != null)
@@ -139,28 +158,37 @@ namespace Nexus.Link.Libraries.Crud.MemoryStorage
                     .Take(limit.Value)
                     .ToList();
                 var page = new PageEnvelope<TModel>(offset, limit.Value, MemoryItems.Count, list);
-                return Task.FromResult(page);
+                return page;
+            }
+            finally
+            {
+                _semaphore.Lower();
             }
         }
 
         /// <inheritdoc />
-        public virtual Task<IEnumerable<TModel>> ReadAllAsync(int limit = Int32.MaxValue,
-            CancellationToken cancellationToken  = default)
+        public virtual async Task<IEnumerable<TModel>> ReadAllAsync(int limit = Int32.MaxValue,
+            CancellationToken cancellationToken = default)
         {
             InternalContract.RequireGreaterThan(0, limit, nameof(limit));
-            lock (MemoryItems)
+            try
             {
+                await _semaphore.RaiseAsync(cancellationToken);
                 var list = MemoryItems.Keys
                     .Select(id => GetMemoryItem(id, true))
                     .Where(item => item != null)
                     .Take(limit)
                     .ToList();
-                return Task.FromResult((IEnumerable<TModel>)list);
+                return list;
+            }
+            finally
+            {
+                _semaphore.Lower();
             }
         }
 
         /// <inheritdoc />
-        public Task<PageEnvelope<TModel>> SearchAsync(SearchDetails<TModel> details, int offset = 0, int? limit = null,
+        public async Task<PageEnvelope<TModel>> SearchAsync(SearchDetails<TModel> details, int offset = 0, int? limit = null,
             CancellationToken cancellationToken = default)
         {
             limit = limit ?? PageInfo.DefaultLimit;
@@ -169,15 +197,20 @@ namespace Nexus.Link.Libraries.Crud.MemoryStorage
             InternalContract.RequireGreaterThanOrEqualTo(0, offset, nameof(offset));
             InternalContract.RequireGreaterThan(0, limit.Value, nameof(limit));
 
-            lock (MemoryItems)
+            try
             {
+                await _semaphore.RaiseAsync(cancellationToken);
                 var list = SearchHelper.FilterAndSort(MemoryItems.Values, details)
                     .Skip(offset)
                     .Take(limit.Value)
                     .Select(item => CopyItem(item))
                     .ToList();
                 var page = new PageEnvelope<TModel>(offset, limit.Value, MemoryItems.Count, list);
-                return Task.FromResult(page);
+                return page;
+            }
+            finally
+            {
+                _semaphore.Lower();
             }
         }
 
@@ -188,61 +221,73 @@ namespace Nexus.Link.Libraries.Crud.MemoryStorage
         }
 
         /// <inheritdoc />
-        public virtual async Task UpdateAsync(TId id, TModel item, CancellationToken cancellationToken  = default)
+        public virtual async Task UpdateAsync(TId id, TModel item, CancellationToken cancellationToken = default)
         {
             InternalContract.RequireNotDefaultValue(id, nameof(id));
             InternalContract.RequireNotNull(item, nameof(item));
             InternalContract.RequireValidated(item, nameof(item));
             if (!Exists(id)) throw new FulcrumNotFoundException($"Update failed. Could not find an item with id {id}.");
 
-            var oldValue = MaybeVerifyEtagForUpdate(id, item, cancellationToken );
+            var oldValue = MaybeVerifyEtagForUpdate(id, item, cancellationToken);
             var itemCopy = CopyItem(item);
             StorageHelper.MaybeUpdateTimeStamps(itemCopy, false);
             StorageHelper.MaybeCreateNewEtag(itemCopy);
-            lock (MemoryItems) {
+            try
+            {
+                await _semaphore.RaiseAsync(cancellationToken);
                 MemoryItems[id] = itemCopy;
+            }
+            finally
+            {
+                _semaphore.Lower();
             }
         }
 
         /// <inheritdoc />
-        public virtual async Task<TModel> UpdateAndReturnAsync(TId id, TModel item, CancellationToken cancellationToken  = default)
+        public virtual async Task<TModel> UpdateAndReturnAsync(TId id, TModel item, CancellationToken cancellationToken = default)
         {
             InternalContract.RequireNotDefaultValue(id, nameof(id));
             InternalContract.RequireNotNull(item, nameof(item));
             InternalContract.RequireValidated(item, nameof(item));
-            await UpdateAsync(id, item, cancellationToken );
-            return await ReadAsync(id, cancellationToken );
+            await UpdateAsync(id, item, cancellationToken);
+            return await ReadAsync(id, cancellationToken);
         }
 
         /// <inheritdoc />
         /// <remarks>
         /// Idempotent, i.e. will not throw an exception if the item does not exist.
         /// </remarks>
-        public virtual Task DeleteAsync(TId id, CancellationToken cancellationToken  = default)
+        public virtual async Task DeleteAsync(TId id, CancellationToken cancellationToken = default)
         {
             InternalContract.RequireNotDefaultValue(id, nameof(id));
 
-            lock (MemoryItems)
+            try
             {
+                await _semaphore.RaiseAsync(cancellationToken);
                 MemoryItems.TryRemove(id, out var _);
             }
-
-            return Task.CompletedTask;
+            finally
+            {
+                _semaphore.Lower();
+            }
         }
 
         /// <inheritdoc />
-        public virtual Task DeleteAllAsync(CancellationToken cancellationToken  = default)
+        public virtual async Task DeleteAllAsync(CancellationToken cancellationToken = default)
         {
-            lock (MemoryItems)
+            try
             {
+                await _semaphore.RaiseAsync(cancellationToken);
                 MemoryItems.Clear();
             }
-
-            return Task.CompletedTask;
+            finally
+            {
+                _semaphore.Lower();
+            }
         }
 
         /// <inheritdoc />
-        public virtual Task<Lock<TId>> ClaimLockAsync(TId id, CancellationToken cancellationToken  = default)
+        public virtual Task<Lock<TId>> ClaimLockAsync(TId id, CancellationToken cancellationToken = default)
         {
             InternalContract.RequireNotDefaultValue(id, nameof(id));
 
@@ -255,7 +300,7 @@ namespace Nexus.Link.Libraries.Crud.MemoryStorage
             };
             while (true)
             {
-                cancellationToken .ThrowIfCancellationRequested();
+                cancellationToken.ThrowIfCancellationRequested();
                 if (Locks.TryAdd(id, newLock)) return Task.FromResult(newLock);
                 if (!Locks.TryGetValue(id, out var oldLock)) continue;
                 var remainingTime = oldLock.ValidUntil.Subtract(DateTimeOffset.Now);
@@ -273,7 +318,7 @@ namespace Nexus.Link.Libraries.Crud.MemoryStorage
         }
 
         /// <inheritdoc />
-        public virtual Task ReleaseLockAsync(TId id, TId lockId, CancellationToken cancellationToken  = default)
+        public virtual Task ReleaseLockAsync(TId id, TId lockId, CancellationToken cancellationToken = default)
         {
             InternalContract.RequireNotDefaultValue(id, nameof(id));
             InternalContract.RequireNotDefaultValue(lockId, nameof(lockId));
@@ -313,7 +358,7 @@ namespace Nexus.Link.Libraries.Crud.MemoryStorage
         #endregion
 
         /// <inheritdoc />
-        public virtual Task<Lock<TId>> ClaimDistributedLockAsync(TId id, CancellationToken cancellationToken  = default)
+        public virtual Task<Lock<TId>> ClaimDistributedLockAsync(TId id, CancellationToken cancellationToken = default)
         {
             InternalContract.RequireNotDefaultValue(id, nameof(id));
 
@@ -326,7 +371,7 @@ namespace Nexus.Link.Libraries.Crud.MemoryStorage
             };
             while (true)
             {
-                cancellationToken .ThrowIfCancellationRequested();
+                cancellationToken.ThrowIfCancellationRequested();
                 if (Locks.TryAdd(id, newLock)) return Task.FromResult(newLock);
                 if (!Locks.TryGetValue(id, out var oldLock)) continue;
                 var remainingTime = oldLock.ValidUntil.Subtract(DateTimeOffset.Now);
@@ -344,7 +389,7 @@ namespace Nexus.Link.Libraries.Crud.MemoryStorage
         }
 
         /// <inheritdoc />
-        public virtual Task ReleaseDistributedLockAsync(TId id, TId lockId, CancellationToken cancellationToken  = default)
+        public virtual Task ReleaseDistributedLockAsync(TId id, TId lockId, CancellationToken cancellationToken = default)
         {
             InternalContract.RequireNotDefaultValue(id, nameof(id));
             InternalContract.RequireNotDefaultValue(lockId, nameof(lockId));
@@ -365,15 +410,15 @@ namespace Nexus.Link.Libraries.Crud.MemoryStorage
         }
 
         /// <inheritdoc />
-        public virtual Task ClaimTransactionLockAsync(TId id, CancellationToken cancellationToken  = default)
+        public virtual Task ClaimTransactionLockAsync(TId id, CancellationToken cancellationToken = default)
         {
             return Task.CompletedTask;
         }
 
         /// <inheritdoc />
-        public Task<TModel> ClaimTransactionLockAndReadAsync(TId id, CancellationToken cancellationToken  = default)
+        public Task<TModel> ClaimTransactionLockAndReadAsync(TId id, CancellationToken cancellationToken = default)
         {
-            return ReadAsync(id, cancellationToken );
+            return ReadAsync(id, cancellationToken);
         }
     }
 }
