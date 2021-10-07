@@ -27,7 +27,7 @@ namespace Nexus.Link.Libraries.Crud.Interfaces
         /// </summary>
         /// <param name="masterId">The master that the slave belongs to.</param>
         /// <param name="item">The item to store.</param>
-        /// <param name="token">Propagates notification that operations should be canceled</param>
+        /// <param name="cancellationToken ">Propagates notification that operations should be canceled</param>
         /// <returns>The new item as it was saved, see remarks below.</returns>
         /// <remarks>
         /// If the returned type implements <see cref="IUniquelyIdentifiable{TId}"/>, then the <see cref="IUniquelyIdentifiable{TId}.Id"/> is updated with the new id. 
@@ -35,6 +35,6 @@ namespace Nexus.Link.Libraries.Crud.Interfaces
         /// </remarks>
         /// <seealso cref="IOptimisticConcurrencyControlByETag"/>
         /// <seealso cref="IUniquelyIdentifiable{TId}"/>
-        Task<TModel> CreateAndReturnAsync(TId masterId, TModelCreate item, CancellationToken token = default);
+        Task<TModel> CreateAndReturnAsync(TId masterId, TModelCreate item, CancellationToken cancellationToken  = default);
     }
 }

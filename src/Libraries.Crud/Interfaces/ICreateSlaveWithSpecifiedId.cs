@@ -28,9 +28,9 @@ namespace Nexus.Link.Libraries.Crud.Interfaces
         /// <param name="masterId">The id of the master for this slave.</param>
         /// <param name="slaveId">The proposed id for this slave.</param>
         /// <param name="item">The item to create in storage.</param>
-        /// <param name="token">Propagates notification that operations should be canceled</param>
+        /// <param name="cancellationToken ">Propagates notification that operations should be canceled</param>
         /// <returns>The newly created item.</returns>
-        Task CreateWithSpecifiedIdAsync(TId masterId, TId slaveId, TModelCreate item, CancellationToken token = default);
+        Task CreateWithSpecifiedIdAsync(TId masterId, TId slaveId, TModelCreate item, CancellationToken cancellationToken  = default);
 
         /// <summary>
         /// Same as <see cref="Nexus.Link.Libraries.Crud.Interfaces.ICreateSlaveAndReturn{TModelCreate,TModel,TId}.CreateAndReturnAsync"/>, but you can specify the new id.
@@ -38,7 +38,7 @@ namespace Nexus.Link.Libraries.Crud.Interfaces
         /// <param name="masterId">The id of the master for this slave.</param>
         /// <param name="slaveId">The proposed id for this slave.</param>
         /// <param name="item">The item to store.</param>
-        /// <param name="token">Propagates notification that operations should be canceled</param>
+        /// <param name="cancellationToken ">Propagates notification that operations should be canceled</param>
         /// <returns>The new item as it was saved, see remarks below.</returns>
         /// <remarks>
         /// If the returned type implements <see cref="IUniquelyIdentifiable{TId}"/>, then the <see cref="IUniquelyIdentifiable{TId}.Id"/> is updated with the new id. 
@@ -46,6 +46,6 @@ namespace Nexus.Link.Libraries.Crud.Interfaces
         /// </remarks>
         /// <seealso cref="IOptimisticConcurrencyControlByETag"/>
         /// <seealso cref="IUniquelyIdentifiable{TId}"/>
-        Task<TModel> CreateWithSpecifiedIdAndReturnAsync(TId masterId, TId slaveId, TModelCreate item, CancellationToken token = default);
+        Task<TModel> CreateWithSpecifiedIdAndReturnAsync(TId masterId, TId slaveId, TModelCreate item, CancellationToken cancellationToken  = default);
     }
 }

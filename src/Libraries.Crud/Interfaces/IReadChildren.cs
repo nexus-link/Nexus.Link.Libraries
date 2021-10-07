@@ -14,7 +14,7 @@ namespace Nexus.Link.Libraries.Crud.Interfaces
         /// </summary>
         /// <param name="parentId">The specific parent to read the child items for.</param>
         /// <param name="limit">The maximum number of items to return.</param>
-        /// <param name="token">Propagates notification that operations should be canceled</param>
-        Task<IEnumerable<TModel>> ReadChildrenAsync(TId parentId, int limit = int.MaxValue, CancellationToken token = default);
+        /// <param name="cancellationToken ">Propagates notification that operations should be canceled</param>
+        Task<IEnumerable<TModel>> ReadChildrenAsync(TId parentId, int limit = int.MaxValue, CancellationToken cancellationToken  = default);
     }
 }

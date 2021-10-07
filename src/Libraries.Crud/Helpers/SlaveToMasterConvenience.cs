@@ -69,16 +69,16 @@ namespace Nexus.Link.Libraries.Crud.Helpers
         }
 
         /// <inheritdoc />
-        public Task ClaimTransactionLockAsync(TId masterId, TId slaveId, CancellationToken token = default)
+        public Task ClaimTransactionLockAsync(TId masterId, TId slaveId, CancellationToken cancellationToken  = default)
         {
             throw new NotImplementedException();
         }
 
         /// <inheritdoc />
-        public async Task<TModel> ClaimTransactionLockAndReadAsync(TId masterId, TId slaveId, CancellationToken token = default)
+        public async Task<TModel> ClaimTransactionLockAndReadAsync(TId masterId, TId slaveId, CancellationToken cancellationToken  = default)
         {
-            await _service.ClaimDistributedLockAsync(masterId, slaveId, token);
-            return await _service.ReadAsync(masterId, slaveId, token);
+            await _service.ClaimDistributedLockAsync(masterId, slaveId, cancellationToken );
+            return await _service.ReadAsync(masterId, slaveId, cancellationToken );
         }
     }
 }

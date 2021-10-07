@@ -47,29 +47,29 @@ namespace Nexus.Link.Libraries.Crud.Mappers
 
         /// <inheritdoc />
         public virtual async Task<PageEnvelope<TClientModel>> ReadChildrenWithPagingAsync(TClientId parentId, int offset, int? limit = null,
-            CancellationToken token = default)
+            CancellationToken cancellationToken  = default)
         {
             var serverId = MapperHelper.MapToType<TServerId, TClientId>(parentId);
-            var storagePage = await _service.ReadChildrenWithPagingAsync(serverId, offset, limit, token);
+            var storagePage = await _service.ReadChildrenWithPagingAsync(serverId, offset, limit, cancellationToken );
             FulcrumAssert.IsNotNull(storagePage?.Data);
             var data = storagePage?.Data.Select(_mapper.MapFromServer);
             return new PageEnvelope<TClientModel>(storagePage?.PageInfo, data);
         }
 
         /// <inheritdoc />
-        public virtual async Task<IEnumerable<TClientModel>> ReadChildrenAsync(TClientId parentId, int limit = Int32.MaxValue, CancellationToken token = default)
+        public virtual async Task<IEnumerable<TClientModel>> ReadChildrenAsync(TClientId parentId, int limit = Int32.MaxValue, CancellationToken cancellationToken  = default)
         {
             var serverId = MapperHelper.MapToType<TServerId, TClientId>(parentId);
-            var items = await  _service.ReadChildrenAsync(serverId, limit, token);
+            var items = await  _service.ReadChildrenAsync(serverId, limit, cancellationToken );
             FulcrumAssert.IsNotNull(items);
             return items?.Select(_mapper.MapFromServer);
         }
 
         /// <inheritdoc />
-        public virtual Task DeleteChildrenAsync(TClientId parentId, CancellationToken token = default)
+        public virtual Task DeleteChildrenAsync(TClientId parentId, CancellationToken cancellationToken  = default)
         {
             var serverId = MapperHelper.MapToType<TServerId, TClientId>(parentId);
-            return _service.DeleteChildrenAsync(serverId, token);
+            return _service.DeleteChildrenAsync(serverId, cancellationToken );
         }
 
         /// <inheritdoc />
@@ -87,27 +87,27 @@ namespace Nexus.Link.Libraries.Crud.Mappers
         }
 
         /// <inheritdoc />
-        public Task<TClientId> CreateChildAsync(TClientId parentId, TClientModelCreate item, CancellationToken token = default)
+        public Task<TClientId> CreateChildAsync(TClientId parentId, TClientModelCreate item, CancellationToken cancellationToken  = default)
         {
             throw new NotImplementedException();
         }
 
         /// <inheritdoc />
-        public Task<TClientModel> CreateChildAndReturnAsync(TClientId parentId, TClientModelCreate item, CancellationToken token = default)
+        public Task<TClientModel> CreateChildAndReturnAsync(TClientId parentId, TClientModelCreate item, CancellationToken cancellationToken  = default)
         {
             throw new NotImplementedException();
         }
 
         /// <inheritdoc />
         public Task CreateChildWithSpecifiedIdAsync(TClientId parentId, TClientId childId, TClientModelCreate item,
-            CancellationToken token = default)
+            CancellationToken cancellationToken  = default)
         {
             throw new NotImplementedException();
         }
 
         /// <inheritdoc />
         public async Task<TClientModel> CreateChildWithSpecifiedIdAndReturnAsync(TClientId parentId, TClientId childId, TClientModelCreate item,
-            CancellationToken token = default)
+            CancellationToken cancellationToken  = default)
         {
             throw new NotImplementedException();
         }

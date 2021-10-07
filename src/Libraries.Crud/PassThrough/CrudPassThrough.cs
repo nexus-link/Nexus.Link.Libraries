@@ -41,53 +41,53 @@ namespace Nexus.Link.Libraries.Crud.PassThrough
         }
 
         /// <inheritdoc />
-        public virtual Task<TId> CreateAsync(TModelCreate item, CancellationToken token = default)
+        public virtual Task<TId> CreateAsync(TModelCreate item, CancellationToken cancellationToken  = default)
         {
             var implementation = CrudHelper.GetImplementationOrThrow<ICreate<TModelCreate, TModel, TId>>(Service);
-            return implementation.CreateAsync(item, token);
+            return implementation.CreateAsync(item, cancellationToken );
         }
 
         /// <inheritdoc />
-        public virtual Task<TModel> CreateAndReturnAsync(TModelCreate item, CancellationToken token = default)
+        public virtual Task<TModel> CreateAndReturnAsync(TModelCreate item, CancellationToken cancellationToken  = default)
         {
             var implementation = CrudHelper.GetImplementationOrThrow<ICreateAndReturn<TModelCreate, TModel, TId>>(Service);
-            return implementation.CreateAndReturnAsync(item, token);
+            return implementation.CreateAndReturnAsync(item, cancellationToken );
         }
 
         /// <inheritdoc />
-        public virtual Task CreateWithSpecifiedIdAsync(TId id, TModelCreate item, CancellationToken token = default)
+        public virtual Task CreateWithSpecifiedIdAsync(TId id, TModelCreate item, CancellationToken cancellationToken  = default)
         {
             var implementation = CrudHelper.GetImplementationOrThrow<ICreateWithSpecifiedId<TModelCreate, TModel, TId>>(Service);
-            return implementation.CreateWithSpecifiedIdAsync(id, item, token);
+            return implementation.CreateWithSpecifiedIdAsync(id, item, cancellationToken );
         }
 
         /// <inheritdoc />
         public virtual Task<TModel> CreateWithSpecifiedIdAndReturnAsync(TId id, TModelCreate item,
-            CancellationToken token = default)
+            CancellationToken cancellationToken  = default)
         {
             var implementation = CrudHelper.GetImplementationOrThrow<ICreateWithSpecifiedId<TModelCreate, TModel, TId>>(Service);
-            return implementation.CreateWithSpecifiedIdAndReturnAsync(id, item, token);
+            return implementation.CreateWithSpecifiedIdAndReturnAsync(id, item, cancellationToken );
         }
 
         /// <inheritdoc />
-        public virtual Task<TModel> ReadAsync(TId id, CancellationToken token = default)
+        public virtual Task<TModel> ReadAsync(TId id, CancellationToken cancellationToken  = default)
         {
             var implementation = CrudHelper.GetImplementationOrThrow<IRead<TModel, TId>>(Service);
-            return implementation.ReadAsync(id, token);
+            return implementation.ReadAsync(id, cancellationToken );
         }
 
         /// <inheritdoc />
-        public virtual Task<PageEnvelope<TModel>> ReadAllWithPagingAsync(int offset, int? limit = null, CancellationToken token = default)
+        public virtual Task<PageEnvelope<TModel>> ReadAllWithPagingAsync(int offset, int? limit = null, CancellationToken cancellationToken  = default)
         {
             var implementation = CrudHelper.GetImplementationOrThrow<IReadAllWithPaging<TModel, TId>>(Service);
-            return implementation.ReadAllWithPagingAsync(offset, limit, token);
+            return implementation.ReadAllWithPagingAsync(offset, limit, cancellationToken );
         }
 
         /// <inheritdoc />
-        public virtual Task<IEnumerable<TModel>> ReadAllAsync(int limit = int.MaxValue, CancellationToken token = default)
+        public virtual Task<IEnumerable<TModel>> ReadAllAsync(int limit = int.MaxValue, CancellationToken cancellationToken  = default)
         {
             var implementation = CrudHelper.GetImplementationOrThrow<IReadAll<TModel, TId>>(Service);
-            return implementation.ReadAllAsync(limit, token);
+            return implementation.ReadAllAsync(limit, cancellationToken );
         }
 
         /// <inheritdoc />
@@ -106,77 +106,77 @@ namespace Nexus.Link.Libraries.Crud.PassThrough
         }
 
         /// <inheritdoc />
-        public virtual Task UpdateAsync(TId id, TModel item, CancellationToken token = default)
+        public virtual Task UpdateAsync(TId id, TModel item, CancellationToken cancellationToken  = default)
         {
             var implementation = CrudHelper.GetImplementationOrThrow<IUpdate<TModel, TId>>(Service);
-            return implementation.UpdateAsync(id, item, token);
+            return implementation.UpdateAsync(id, item, cancellationToken );
         }
 
         /// <inheritdoc />
-        public virtual Task<TModel> UpdateAndReturnAsync(TId id, TModel item, CancellationToken token = default)
+        public virtual Task<TModel> UpdateAndReturnAsync(TId id, TModel item, CancellationToken cancellationToken  = default)
         {
             var implementation = CrudHelper.GetImplementationOrThrow<IUpdateAndReturn<TModel, TId>>(Service);
-            return implementation.UpdateAndReturnAsync(id, item, token);
+            return implementation.UpdateAndReturnAsync(id, item, cancellationToken );
         }
 
         /// <inheritdoc />
-        public virtual Task DeleteAsync(TId id, CancellationToken token = default)
+        public virtual Task DeleteAsync(TId id, CancellationToken cancellationToken  = default)
         {
             var implementation = CrudHelper.GetImplementationOrThrow<IDelete<TId>>(Service);
-            return implementation.DeleteAsync(id, token);
+            return implementation.DeleteAsync(id, cancellationToken );
         }
 
         /// <inheritdoc />
-        public virtual Task DeleteAllAsync(CancellationToken token = default)
+        public virtual Task DeleteAllAsync(CancellationToken cancellationToken  = default)
         {
             var implementation = CrudHelper.GetImplementationOrThrow<IDeleteAll>(Service);
-            return implementation.DeleteAllAsync(token);
+            return implementation.DeleteAllAsync(cancellationToken );
         }
 
         /// <inheritdoc />
-        public virtual Task<Lock<TId>> ClaimLockAsync(TId id, CancellationToken token = default)
+        public virtual Task<Lock<TId>> ClaimLockAsync(TId id, CancellationToken cancellationToken  = default)
         {
 #pragma warning disable 618
             var implementation = CrudHelper.GetImplementationOrThrow<ILockable<TId>>(Service);
 #pragma warning restore 618
-            return implementation.ClaimLockAsync(id, token);
+            return implementation.ClaimLockAsync(id, cancellationToken );
         }
 
         /// <inheritdoc />
-        public Task ReleaseLockAsync(TId id, TId lockId, CancellationToken token = default)
+        public Task ReleaseLockAsync(TId id, TId lockId, CancellationToken cancellationToken  = default)
         {
 #pragma warning disable 618
             var implementation = CrudHelper.GetImplementationOrThrow<ILockable<TId>>(Service);
 #pragma warning restore 618
-            return implementation.ReleaseLockAsync(id, lockId, token);
+            return implementation.ReleaseLockAsync(id, lockId, cancellationToken );
         }
 
         /// <inheritdoc />
-        public Task<Lock<TId>> ClaimDistributedLockAsync(TId id, CancellationToken token = default)
+        public Task<Lock<TId>> ClaimDistributedLockAsync(TId id, CancellationToken cancellationToken  = default)
         {
             var implementation = CrudHelper.GetImplementationOrThrow<IDistributedLock<TId>>(Service);
-            return implementation.ClaimDistributedLockAsync(id, token);
+            return implementation.ClaimDistributedLockAsync(id, cancellationToken );
         }
 
         /// <inheritdoc />
-        public Task ReleaseDistributedLockAsync(TId id, TId lockId, CancellationToken token = default)
+        public Task ReleaseDistributedLockAsync(TId id, TId lockId, CancellationToken cancellationToken  = default)
         {
             var implementation = CrudHelper.GetImplementationOrThrow<IDistributedLock<TId>>(Service);
-            return implementation.ReleaseDistributedLockAsync(id, lockId, token);
+            return implementation.ReleaseDistributedLockAsync(id, lockId, cancellationToken );
         }
 
         /// <inheritdoc />
-        public Task ClaimTransactionLockAsync(TId id, CancellationToken token = default)
+        public Task ClaimTransactionLockAsync(TId id, CancellationToken cancellationToken  = default)
         {
             var implementation = CrudHelper.GetImplementationOrThrow<ITransactionLock<TModel, TId>>(Service);
-            return implementation.ClaimTransactionLockAsync(id, token);
+            return implementation.ClaimTransactionLockAsync(id, cancellationToken );
         }
 
         /// <inheritdoc />
-        public Task<TModel> ClaimTransactionLockAndReadAsync(TId id, CancellationToken token = default)
+        public Task<TModel> ClaimTransactionLockAndReadAsync(TId id, CancellationToken cancellationToken  = default)
         {
             var implementation = CrudHelper.GetImplementationOrThrow<ITransactionLock<TModel, TId>>(Service);
-            return implementation.ClaimTransactionLockAndReadAsync(id, token);
+            return implementation.ClaimTransactionLockAndReadAsync(id, cancellationToken );
         }
     }
 }

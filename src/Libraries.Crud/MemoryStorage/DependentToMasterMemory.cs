@@ -46,7 +46,7 @@ namespace Nexus.Link.Libraries.Crud.MemoryStorage
         }
 
         /// <inheritdoc />
-        public virtual async Task CreateWithSpecifiedIdAsync(TId masterId, TDependentId dependentId, TModelCreate item, CancellationToken token = default)
+        public virtual async Task CreateWithSpecifiedIdAsync(TId masterId, TDependentId dependentId, TModelCreate item, CancellationToken cancellationToken  = default)
         {
             InternalContract.RequireNotDefaultValue(masterId, nameof(masterId));
             InternalContract.RequireNotNull(item, nameof(item));
@@ -57,7 +57,7 @@ namespace Nexus.Link.Libraries.Crud.MemoryStorage
                 InternalContract.RequireAreEqual(dependentId, combinedId.DependentId, $"{nameof(item)}.{nameof(combinedId.DependentId)}");
             }
             var masterPersistence = GetStorage(masterId);
-            await masterPersistence.CreateWithSpecifiedIdAsync(dependentId, item, token);
+            await masterPersistence.CreateWithSpecifiedIdAsync(dependentId, item, cancellationToken );
             FulcrumAssert.IsTrue(masterPersistence.MemoryItems.ContainsKey(dependentId), CodeLocation.AsString());
             var memoryItem = masterPersistence.MemoryItems[dependentId];
             StorageHelper.MaybeSetMasterAndDependentId(masterId, dependentId, memoryItem);
@@ -69,7 +69,7 @@ namespace Nexus.Link.Libraries.Crud.MemoryStorage
 
         /// <inheritdoc />
         public virtual async Task<TModel> CreateWithSpecifiedIdAndReturnAsync(TId masterId, TDependentId dependentId, TModelCreate item,
-            CancellationToken token = default)
+            CancellationToken cancellationToken  = default)
         {
             InternalContract.RequireNotDefaultValue(masterId, nameof(masterId));
             InternalContract.RequireNotNull(item, nameof(item));
@@ -80,7 +80,7 @@ namespace Nexus.Link.Libraries.Crud.MemoryStorage
                 InternalContract.RequireAreEqual(dependentId, combinedId.DependentId, $"{nameof(item)}.{nameof(combinedId.DependentId)}");
             }
             var masterPersistence = GetStorage(masterId);
-            await masterPersistence.CreateWithSpecifiedIdAsync(dependentId, item, token);
+            await masterPersistence.CreateWithSpecifiedIdAsync(dependentId, item, cancellationToken );
             FulcrumAssert.IsTrue(masterPersistence.MemoryItems.ContainsKey(dependentId), CodeLocation.AsString());
             var memoryItem = masterPersistence.MemoryItems[dependentId];
             StorageHelper.MaybeSetMasterAndDependentId(masterId, dependentId, memoryItem);
@@ -89,20 +89,20 @@ namespace Nexus.Link.Libraries.Crud.MemoryStorage
                 uniqueId.Id = StorageHelper.CreateNewId<TId>();
             }
 
-            return await ReadAsync(masterId, dependentId, token);
+            return await ReadAsync(masterId, dependentId, cancellationToken );
         }
 
         /// <inheritdoc />
-        public virtual Task<TModel> ReadAsync(TId masterId, TDependentId dependentId, CancellationToken token = default)
+        public virtual Task<TModel> ReadAsync(TId masterId, TDependentId dependentId, CancellationToken cancellationToken  = default)
         {
             InternalContract.RequireNotDefaultValue(masterId, nameof(masterId));
             InternalContract.RequireNotDefaultValue(dependentId, nameof(dependentId));
             var groupPersistence = GetStorage(masterId);
-            return groupPersistence.ReadAsync(dependentId, token);
+            return groupPersistence.ReadAsync(dependentId, cancellationToken );
         }
 
         /// <inheritdoc />
-        public virtual Task<PageEnvelope<TModel>> ReadChildrenWithPagingAsync(TId masterId, int offset, int? limit = null, CancellationToken token = default)
+        public virtual Task<PageEnvelope<TModel>> ReadChildrenWithPagingAsync(TId masterId, int offset, int? limit = null, CancellationToken cancellationToken  = default)
         {
             InternalContract.RequireNotDefaultValue(masterId, nameof(masterId));
             InternalContract.RequireGreaterThanOrEqualTo(0, offset, nameof(offset));
@@ -111,20 +111,20 @@ namespace Nexus.Link.Libraries.Crud.MemoryStorage
                 InternalContract.RequireGreaterThan(0, limit.Value, nameof(limit));
             }
             var groupPersistence = GetStorage(masterId);
-            return groupPersistence.ReadAllWithPagingAsync(offset, limit, token);
+            return groupPersistence.ReadAllWithPagingAsync(offset, limit, cancellationToken );
         }
 
         /// <inheritdoc />
-        public virtual Task<IEnumerable<TModel>> ReadChildrenAsync(TId masterId, int limit = int.MaxValue, CancellationToken token = default)
+        public virtual Task<IEnumerable<TModel>> ReadChildrenAsync(TId masterId, int limit = int.MaxValue, CancellationToken cancellationToken  = default)
         {
             InternalContract.RequireNotDefaultValue(masterId, nameof(masterId));
             InternalContract.RequireGreaterThan(0, limit, nameof(limit));
             var groupPersistence = GetStorage(masterId);
-            return groupPersistence.ReadAllAsync(limit, token);
+            return groupPersistence.ReadAllAsync(limit, cancellationToken );
         }
 
         /// <inheritdoc />
-        public virtual async Task UpdateAsync(TId masterId, TDependentId dependentId, TModel item, CancellationToken token = default)
+        public virtual async Task UpdateAsync(TId masterId, TDependentId dependentId, TModel item, CancellationToken cancellationToken  = default)
         {
             InternalContract.RequireNotDefaultValue(masterId, nameof(masterId));
             InternalContract.RequireNotDefaultValue(dependentId, nameof(dependentId));
@@ -138,7 +138,7 @@ namespace Nexus.Link.Libraries.Crud.MemoryStorage
             var groupPersistence = GetStorage(masterId);
             if (item is IUniquelyIdentifiable<TId> uniquelyIdentifiable)
             {
-                var oldItem = await groupPersistence.ReadAsync(dependentId, token);
+                var oldItem = await groupPersistence.ReadAsync(dependentId, cancellationToken );
                 if (oldItem is IUniquelyIdentifiable<TId> oldUniquelyIdentifiable)
                 {
 
@@ -146,11 +146,11 @@ namespace Nexus.Link.Libraries.Crud.MemoryStorage
                         $"{nameof(item)}.{nameof(uniquelyIdentifiable.Id)}");
                 }
             }
-            await groupPersistence.UpdateAsync(dependentId, item, token);
+            await groupPersistence.UpdateAsync(dependentId, item, cancellationToken );
         }
 
         /// <inheritdoc />
-        public virtual async Task<TModel> UpdateAndReturnAsync(TId masterId, TDependentId dependentId, TModel item, CancellationToken token = default)
+        public virtual async Task<TModel> UpdateAndReturnAsync(TId masterId, TDependentId dependentId, TModel item, CancellationToken cancellationToken  = default)
         {
             InternalContract.RequireNotDefaultValue(masterId, nameof(masterId));
             InternalContract.RequireNotDefaultValue(dependentId, nameof(dependentId));
@@ -164,7 +164,7 @@ namespace Nexus.Link.Libraries.Crud.MemoryStorage
             var groupPersistence = GetStorage(masterId);
             if (item is IUniquelyIdentifiable<TId> uniquelyIdentifiable)
             {
-                var oldItem = await groupPersistence.ReadAsync(dependentId, token);
+                var oldItem = await groupPersistence.ReadAsync(dependentId, cancellationToken );
                 if (oldItem is IUniquelyIdentifiable<TId> oldUniquelyIdentifiable)
                 {
 
@@ -172,24 +172,24 @@ namespace Nexus.Link.Libraries.Crud.MemoryStorage
                         $"{nameof(item)}.{nameof(uniquelyIdentifiable.Id)}");
                 }
             }
-            return await groupPersistence.UpdateAndReturnAsync(dependentId, item, token);
+            return await groupPersistence.UpdateAndReturnAsync(dependentId, item, cancellationToken );
         }
 
         /// <inheritdoc />
-        public virtual Task DeleteAsync(TId masterId, TDependentId dependentId, CancellationToken token = default)
+        public virtual Task DeleteAsync(TId masterId, TDependentId dependentId, CancellationToken cancellationToken  = default)
         {
             InternalContract.RequireNotDefaultValue(masterId, nameof(masterId));
             InternalContract.RequireNotDefaultValue(dependentId, nameof(dependentId));
             var groupPersistence = GetStorage(masterId);
-            return groupPersistence.DeleteAsync(dependentId, token);
+            return groupPersistence.DeleteAsync(dependentId, cancellationToken );
         }
 
         /// <inheritdoc />
-        public virtual Task DeleteChildrenAsync(TId masterId, CancellationToken token = default)
+        public virtual Task DeleteChildrenAsync(TId masterId, CancellationToken cancellationToken  = default)
         {
             InternalContract.RequireNotDefaultValue(masterId, nameof(masterId));
             var groupPersistence = GetStorage(masterId);
-            return groupPersistence.DeleteAllAsync(token);
+            return groupPersistence.DeleteAllAsync(cancellationToken );
         }
 
         #region private
@@ -212,12 +212,12 @@ namespace Nexus.Link.Libraries.Crud.MemoryStorage
         private readonly ConcurrentDictionary<TId, Lock<TDependentId>> _groupLocks = new ConcurrentDictionary<TId, Lock<TDependentId>>();
 
         /// <inheritdoc />
-        public virtual async Task<DependentLock<TId, TDependentId>> ClaimDistributedLockAsync(TId masterId, TDependentId dependentId, CancellationToken token = default)
+        public virtual async Task<DependentLock<TId, TDependentId>> ClaimDistributedLockAsync(TId masterId, TDependentId dependentId, CancellationToken cancellationToken  = default)
         {
             InternalContract.RequireNotDefaultValue(masterId, nameof(masterId));
             InternalContract.RequireNotDefaultValue(dependentId, nameof(dependentId));
             var groupPersistence = GetStorage(masterId);
-            var groupLock = await groupPersistence.ClaimLockAsync(dependentId, token);
+            var groupLock = await groupPersistence.ClaimLockAsync(dependentId, cancellationToken );
             var dependentLock = new DependentLock<TId, TDependentId>
             {
                 Id = groupPersistence.CreateNewId<TId>(),
@@ -232,25 +232,25 @@ namespace Nexus.Link.Libraries.Crud.MemoryStorage
 
         /// <inheritdoc />
         public virtual async Task ReleaseDistributedLockAsync(TId masterId, TDependentId dependentId, TId lockId,
-            CancellationToken token = default)
+            CancellationToken cancellationToken  = default)
         {
             InternalContract.RequireNotDefaultValue(masterId, nameof(masterId));
             InternalContract.RequireNotDefaultValue(dependentId, nameof(dependentId));
             var groupPersistence = GetStorage(masterId);
             if (!_groupLocks.TryGetValue(lockId, out var groupLock)) return;
-            await groupPersistence.ReleaseLockAsync(dependentId, groupLock.Id, token);
+            await groupPersistence.ReleaseLockAsync(dependentId, groupLock.Id, cancellationToken );
         }
 
         /// <inheritdoc />
-        public virtual Task ClaimTransactionLockAsync(TId masterId, TDependentId dependentId, CancellationToken token = default)
+        public virtual Task ClaimTransactionLockAsync(TId masterId, TDependentId dependentId, CancellationToken cancellationToken  = default)
         {
             return Task.CompletedTask;
         }
 
         /// <inheritdoc />
-        public Task<TModel> ClaimTransactionLockAndReadAsync(TId masterId, TDependentId dependentId, CancellationToken token = default)
+        public Task<TModel> ClaimTransactionLockAndReadAsync(TId masterId, TDependentId dependentId, CancellationToken cancellationToken  = default)
         {
-            return _convenience.ClaimTransactionLockAndReadAsync(masterId, dependentId, token);
+            return _convenience.ClaimTransactionLockAndReadAsync(masterId, dependentId, cancellationToken );
         }
 
         /// <inheritdoc />
@@ -268,9 +268,9 @@ namespace Nexus.Link.Libraries.Crud.MemoryStorage
         }
 
         /// <inheritdoc />
-        public Task<TId> GetDependentUniqueIdAsync(TId masterId, TDependentId dependentId, CancellationToken token = default)
+        public Task<TId> GetDependentUniqueIdAsync(TId masterId, TDependentId dependentId, CancellationToken cancellationToken  = default)
         {
-            return _convenience.GetDependentUniqueIdAsync(masterId, dependentId, token);
+            return _convenience.GetDependentUniqueIdAsync(masterId, dependentId, cancellationToken );
         }
     }
 }

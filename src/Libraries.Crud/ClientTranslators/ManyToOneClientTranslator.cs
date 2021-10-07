@@ -49,32 +49,32 @@ namespace Nexus.Link.Libraries.Crud.ClientTranslators
 
         /// <inheritdoc />
         public async Task<PageEnvelope<TModel>> ReadChildrenWithPagingAsync(string parentId, int offset, int? limit = null,
-        CancellationToken token = default)
+        CancellationToken cancellationToken  = default)
         {
             var translator = CreateTranslator();
             parentId = translator.Decorate(_parentIdConceptName, parentId);
-            var result = await _service.ReadChildrenWithPagingAsync(parentId, offset, limit, token);
-            await translator.Add(result).ExecuteAsync(token);
+            var result = await _service.ReadChildrenWithPagingAsync(parentId, offset, limit, cancellationToken );
+            await translator.Add(result).ExecuteAsync(cancellationToken );
             return translator.Translate(result);
         }
 
         /// <inheritdoc />
-        public async Task<IEnumerable<TModel>> ReadChildrenAsync(string parentId, int limit = int.MaxValue, CancellationToken token = default)
+        public async Task<IEnumerable<TModel>> ReadChildrenAsync(string parentId, int limit = int.MaxValue, CancellationToken cancellationToken  = default)
         {
             var translator = CreateTranslator();
             parentId = translator.Decorate(_parentIdConceptName, parentId);
-            var result = await _service.ReadChildrenAsync(parentId, limit, token);
+            var result = await _service.ReadChildrenAsync(parentId, limit, cancellationToken );
             var array = result as TModel[] ?? result.ToArray();
-            await translator.Add(array).ExecuteAsync(token);
+            await translator.Add(array).ExecuteAsync(cancellationToken );
             return translator.Translate(array);
         }
 
         /// <inheritdoc />
-        public async Task DeleteChildrenAsync(string masterId, CancellationToken token = default)
+        public async Task DeleteChildrenAsync(string masterId, CancellationToken cancellationToken  = default)
         {
             var translator = CreateTranslator();
             masterId = translator.Decorate(_parentIdConceptName, masterId);
-            await _service.DeleteChildrenAsync(masterId, token);
+            await _service.DeleteChildrenAsync(masterId, cancellationToken );
         }
 
         /// <inheritdoc />
@@ -92,26 +92,26 @@ namespace Nexus.Link.Libraries.Crud.ClientTranslators
         }
 
         /// <inheritdoc />
-        public Task<string> CreateChildAsync(string parentId, TModelCreate item, CancellationToken token = default)
+        public Task<string> CreateChildAsync(string parentId, TModelCreate item, CancellationToken cancellationToken  = default)
         {
             throw new NotImplementedException();
         }
 
         /// <inheritdoc />
-        public Task<TModel> CreateChildAndReturnAsync(string parentId, TModelCreate item, CancellationToken token = default)
+        public Task<TModel> CreateChildAndReturnAsync(string parentId, TModelCreate item, CancellationToken cancellationToken  = default)
         {
             throw new NotImplementedException();
         }
 
         /// <inheritdoc />
-        public Task CreateChildWithSpecifiedIdAsync(string parentId, string childId, TModelCreate item, CancellationToken token = default)
+        public Task CreateChildWithSpecifiedIdAsync(string parentId, string childId, TModelCreate item, CancellationToken cancellationToken  = default)
         {
             throw new NotImplementedException();
         }
 
         /// <inheritdoc />
         public Task<TModel> CreateChildWithSpecifiedIdAndReturnAsync(string parentId, string childId, TModelCreate item,
-            CancellationToken token = default)
+            CancellationToken cancellationToken  = default)
         {
             throw new NotImplementedException();
         }

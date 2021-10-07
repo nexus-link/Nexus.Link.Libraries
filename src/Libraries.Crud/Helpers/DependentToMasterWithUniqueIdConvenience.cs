@@ -42,7 +42,7 @@ namespace Nexus.Link.Libraries.Crud.Helpers
         }
 
         /// <inheritdoc />
-        public virtual async Task CreateWithSpecifiedIdAsync(TId masterId, TDependentId dependentId, TModelCreate item, CancellationToken token = default)
+        public virtual async Task CreateWithSpecifiedIdAsync(TId masterId, TDependentId dependentId, TModelCreate item, CancellationToken cancellationToken  = default)
         {
             InternalContract.RequireNotDefaultValue(masterId, nameof(masterId));
             InternalContract.RequireNotNull(item, nameof(item));
@@ -53,12 +53,12 @@ namespace Nexus.Link.Libraries.Crud.Helpers
                 InternalContract.RequireAreEqual(dependentId, combinedId.DependentId, $"{nameof(item)}.{nameof(combinedId.DependentId)}");
             }
             StorageHelper.MaybeSetMasterAndDependentId(masterId, dependentId, item);
-            await _uniqueIdTable.CreateAndReturnAsync(item, token);
+            await _uniqueIdTable.CreateAndReturnAsync(item, cancellationToken );
         }
 
         /// <inheritdoc />
         public virtual async Task<TModel> CreateWithSpecifiedIdAndReturnAsync(TId masterId, TDependentId dependentId, TModelCreate item,
-            CancellationToken token = default)
+            CancellationToken cancellationToken  = default)
         {
             InternalContract.RequireNotDefaultValue(masterId, nameof(masterId));
             InternalContract.RequireNotNull(item, nameof(item));
@@ -69,20 +69,20 @@ namespace Nexus.Link.Libraries.Crud.Helpers
                 InternalContract.RequireAreEqual(dependentId, combinedId.DependentId, $"{nameof(item)}.{nameof(combinedId.DependentId)}");
             }
             StorageHelper.MaybeSetMasterAndDependentId(masterId, dependentId, item);
-            return await _uniqueIdTable.CreateAndReturnAsync(item, token);
+            return await _uniqueIdTable.CreateAndReturnAsync(item, cancellationToken );
         }
 
         /// <inheritdoc />
-        public virtual async Task<TModel> ReadAsync(TId masterId, TDependentId dependentId, CancellationToken token = default)
+        public virtual async Task<TModel> ReadAsync(TId masterId, TDependentId dependentId, CancellationToken cancellationToken  = default)
         {
             InternalContract.RequireNotDefaultValue(masterId, nameof(masterId));
             InternalContract.RequireNotDefaultValue(dependentId, nameof(dependentId));
             return await _uniqueIdTable.FindUniqueAsync(new SearchDetails<TModel>(new
-                {MasterId = masterId, DependentId = dependentId}), token);
+                {MasterId = masterId, DependentId = dependentId}), cancellationToken );
         }
 
         /// <inheritdoc />
-        public virtual Task<PageEnvelope<TModel>> ReadChildrenWithPagingAsync(TId masterId, int offset, int? limit = null, CancellationToken token = default)
+        public virtual Task<PageEnvelope<TModel>> ReadChildrenWithPagingAsync(TId masterId, int offset, int? limit = null, CancellationToken cancellationToken  = default)
         {
             InternalContract.RequireNotDefaultValue(masterId, nameof(masterId));
             InternalContract.RequireGreaterThanOrEqualTo(0, offset, nameof(offset));
@@ -90,62 +90,62 @@ namespace Nexus.Link.Libraries.Crud.Helpers
             {
                 InternalContract.RequireGreaterThan(0, limit.Value, nameof(limit));
             }
-            return _uniqueIdTable.ReadChildrenWithPagingAsync(masterId, offset, limit, token);
+            return _uniqueIdTable.ReadChildrenWithPagingAsync(masterId, offset, limit, cancellationToken );
         }
 
         /// <inheritdoc />
-        public virtual Task<IEnumerable<TModel>> ReadChildrenAsync(TId masterId, int limit = int.MaxValue, CancellationToken token = default)
+        public virtual Task<IEnumerable<TModel>> ReadChildrenAsync(TId masterId, int limit = int.MaxValue, CancellationToken cancellationToken  = default)
         {
             InternalContract.RequireNotDefaultValue(masterId, nameof(masterId));
             InternalContract.RequireGreaterThan(0, limit, nameof(limit));
-            return _uniqueIdTable.ReadChildrenAsync(masterId, limit, token);
+            return _uniqueIdTable.ReadChildrenAsync(masterId, limit, cancellationToken );
         }
 
         /// <inheritdoc />
-        public virtual async Task UpdateAsync(TId masterId, TDependentId dependentId, TModel item, CancellationToken token = default)
+        public virtual async Task UpdateAsync(TId masterId, TDependentId dependentId, TModel item, CancellationToken cancellationToken  = default)
         {
             InternalContract.RequireNotDefaultValue(masterId, nameof(masterId));
             InternalContract.RequireNotDefaultValue(dependentId, nameof(dependentId));
             InternalContract.RequireNotNull(item, nameof(item));
             InternalContract.RequireValidated(item, nameof(item));
-            var uniqueId = await GetDependentUniqueIdAsync(masterId, dependentId, token);
-            await _uniqueIdTable.UpdateAsync(uniqueId, item, token);
+            var uniqueId = await GetDependentUniqueIdAsync(masterId, dependentId, cancellationToken );
+            await _uniqueIdTable.UpdateAsync(uniqueId, item, cancellationToken );
         }
 
         /// <inheritdoc />
-        public virtual async Task<TModel> UpdateAndReturnAsync(TId masterId, TDependentId dependentId, TModel item, CancellationToken token = default)
+        public virtual async Task<TModel> UpdateAndReturnAsync(TId masterId, TDependentId dependentId, TModel item, CancellationToken cancellationToken  = default)
         {
             InternalContract.RequireNotDefaultValue(masterId, nameof(masterId));
             InternalContract.RequireNotDefaultValue(dependentId, nameof(dependentId));
             InternalContract.RequireNotNull(item, nameof(item));
             InternalContract.RequireValidated(item, nameof(item));
-            var uniqueId = await GetDependentUniqueIdAsync(masterId, dependentId, token);
-            return await _uniqueIdTable.UpdateAndReturnAsync(uniqueId, item, token);
+            var uniqueId = await GetDependentUniqueIdAsync(masterId, dependentId, cancellationToken );
+            return await _uniqueIdTable.UpdateAndReturnAsync(uniqueId, item, cancellationToken );
         }
 
         /// <inheritdoc />
-        public virtual async Task DeleteAsync(TId masterId, TDependentId dependentId, CancellationToken token = default)
+        public virtual async Task DeleteAsync(TId masterId, TDependentId dependentId, CancellationToken cancellationToken  = default)
         {
             InternalContract.RequireNotDefaultValue(masterId, nameof(masterId));
             InternalContract.RequireNotDefaultValue(dependentId, nameof(dependentId));
-            var uniqueId = await GetDependentUniqueIdAsync(masterId, dependentId, token);
-            await _uniqueIdTable.DeleteAsync(uniqueId, token);
+            var uniqueId = await GetDependentUniqueIdAsync(masterId, dependentId, cancellationToken );
+            await _uniqueIdTable.DeleteAsync(uniqueId, cancellationToken );
         }
 
         /// <inheritdoc />
-        public virtual Task DeleteChildrenAsync(TId masterId, CancellationToken token = default)
+        public virtual Task DeleteChildrenAsync(TId masterId, CancellationToken cancellationToken  = default)
         {
             InternalContract.RequireNotDefaultValue(masterId, nameof(masterId));
-            return _uniqueIdTable.DeleteChildrenAsync(masterId, token);
+            return _uniqueIdTable.DeleteChildrenAsync(masterId, cancellationToken );
         }
 
         /// <inheritdoc />
-        public virtual async Task<DependentLock<TId, TDependentId>> ClaimDistributedLockAsync(TId masterId, TDependentId dependentId, CancellationToken token = default)
+        public virtual async Task<DependentLock<TId, TDependentId>> ClaimDistributedLockAsync(TId masterId, TDependentId dependentId, CancellationToken cancellationToken  = default)
         {
             InternalContract.RequireNotDefaultValue(masterId, nameof(masterId));
             InternalContract.RequireNotDefaultValue(dependentId, nameof(dependentId));
-            var uniqueId = await GetDependentUniqueIdAsync(masterId, dependentId, token);
-            var distributedLock = await _uniqueIdTable.ClaimDistributedLockAsync(uniqueId, token);
+            var uniqueId = await GetDependentUniqueIdAsync(masterId, dependentId, cancellationToken );
+            var distributedLock = await _uniqueIdTable.ClaimDistributedLockAsync(uniqueId, cancellationToken );
             var dependentLock = new DependentLock<TId, TDependentId>
             {
                 Id = distributedLock.Id,
@@ -159,24 +159,24 @@ namespace Nexus.Link.Libraries.Crud.Helpers
 
         /// <inheritdoc />
         public virtual async Task ReleaseDistributedLockAsync(TId masterId, TDependentId dependentId, TId lockId,
-            CancellationToken token = default)
+            CancellationToken cancellationToken  = default)
         {
             InternalContract.RequireNotDefaultValue(masterId, nameof(masterId));
             InternalContract.RequireNotDefaultValue(dependentId, nameof(dependentId));
-            var uniqueId = await GetDependentUniqueIdAsync(masterId, dependentId, token);
-            await _uniqueIdTable.ReleaseLockAsync(uniqueId, lockId, token);
+            var uniqueId = await GetDependentUniqueIdAsync(masterId, dependentId, cancellationToken );
+            await _uniqueIdTable.ReleaseLockAsync(uniqueId, lockId, cancellationToken );
         }
 
         /// <inheritdoc />
-        public virtual Task ClaimTransactionLockAsync(TId masterId, TDependentId dependentId, CancellationToken token = default)
+        public virtual Task ClaimTransactionLockAsync(TId masterId, TDependentId dependentId, CancellationToken cancellationToken  = default)
         {
             return Task.CompletedTask;
         }
 
         /// <inheritdoc />
-        public Task<TModel> ClaimTransactionLockAndReadAsync(TId masterId, TDependentId dependentId, CancellationToken token = default)
+        public Task<TModel> ClaimTransactionLockAndReadAsync(TId masterId, TDependentId dependentId, CancellationToken cancellationToken  = default)
         {
-            return _convenience.ClaimTransactionLockAndReadAsync(masterId, dependentId, token);
+            return _convenience.ClaimTransactionLockAndReadAsync(masterId, dependentId, cancellationToken );
         }
 
         /// <inheritdoc />
@@ -194,33 +194,33 @@ namespace Nexus.Link.Libraries.Crud.Helpers
         }
 
         /// <inheritdoc />
-        public Task<TId> GetDependentUniqueIdAsync(TId masterId, TDependentId dependentId, CancellationToken token = default)
+        public Task<TId> GetDependentUniqueIdAsync(TId masterId, TDependentId dependentId, CancellationToken cancellationToken  = default)
         {
-            return _convenience.GetDependentUniqueIdAsync(masterId, dependentId, token);
+            return _convenience.GetDependentUniqueIdAsync(masterId, dependentId, cancellationToken );
         }
 
         /// <inheritdoc />
-        public Task<TModel> ReadAsync(TId id, CancellationToken token = default)
+        public Task<TModel> ReadAsync(TId id, CancellationToken cancellationToken  = default)
         {
-            return _uniqueIdTable.ReadAsync(id, token);
+            return _uniqueIdTable.ReadAsync(id, cancellationToken );
         }
 
         /// <inheritdoc />
-        public Task UpdateAsync(TId id, TModel item, CancellationToken token = default)
+        public Task UpdateAsync(TId id, TModel item, CancellationToken cancellationToken  = default)
         {
-            return _uniqueIdTable.UpdateAsync(id, item, token);
+            return _uniqueIdTable.UpdateAsync(id, item, cancellationToken );
         }
 
         /// <inheritdoc />
-        public Task DeleteAsync(TId id, CancellationToken token = default)
+        public Task DeleteAsync(TId id, CancellationToken cancellationToken  = default)
         {
-            return _uniqueIdTable.DeleteAsync(id, token);
+            return _uniqueIdTable.DeleteAsync(id, cancellationToken );
         }
 
         /// <inheritdoc />
-        public Task<TModel> UpdateAndReturnAsync(TId id, TModel item, CancellationToken token = default)
+        public Task<TModel> UpdateAndReturnAsync(TId id, TModel item, CancellationToken cancellationToken  = default)
         {
-            return _uniqueIdTable.UpdateAndReturnAsync(id, item, token);
+            return _uniqueIdTable.UpdateAndReturnAsync(id, item, cancellationToken );
         }
     }
 }

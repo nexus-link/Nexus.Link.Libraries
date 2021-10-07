@@ -111,44 +111,44 @@ namespace Nexus.Link.Libraries.Crud.Cache
         }
 
         /// <inheritdoc />
-        public async Task DeleteChildrenAsync(TId masterId, CancellationToken token = default)
+        public async Task DeleteChildrenAsync(TId masterId, CancellationToken cancellationToken  = default)
         {
-            await _service.DeleteChildrenAsync(masterId, token);
-            await RemoveCachedChildrenInBackgroundAsync(masterId, token);
+            await _service.DeleteChildrenAsync(masterId, cancellationToken );
+            await RemoveCachedChildrenInBackgroundAsync(masterId, cancellationToken );
         }
 
-        private async Task RemoveCachedChildrenInBackgroundAsync(TId parentId, CancellationToken token = default)
+        private async Task RemoveCachedChildrenInBackgroundAsync(TId parentId, CancellationToken cancellationToken  = default)
         {
-            await DelayUntilNoOperationActiveAsync(parentId, token);
+            await DelayUntilNoOperationActiveAsync(parentId, cancellationToken );
             var key = CacheKeyForChildrenCollection(parentId);
-            await RemoveCacheItemsInBackgroundAsync(key, async () => await CacheGetAsync(int.MaxValue, key, token), token);
+            await RemoveCacheItemsInBackgroundAsync(key, async () => await CacheGetAsync(int.MaxValue, key, cancellationToken ), cancellationToken );
         }
 
         /// <inheritdoc />
-        public async Task<PageEnvelope<TManyModel>> ReadChildrenWithPagingAsync(TId parentId, int offset, int? limit = null, CancellationToken token = default)
+        public async Task<PageEnvelope<TManyModel>> ReadChildrenWithPagingAsync(TId parentId, int offset, int? limit = null, CancellationToken cancellationToken  = default)
         {
             InternalContract.RequireNotDefaultValue(parentId, nameof(parentId));
             InternalContract.RequireGreaterThanOrEqualTo(0, offset, nameof(limit));
             if (limit == null) limit = PageInfo.DefaultLimit;
             InternalContract.RequireGreaterThan(0, limit.Value, nameof(limit));
             var key = CacheKeyForChildrenCollection(parentId);
-            var result = await CacheGetAsync(offset, limit.Value, key, token);
+            var result = await CacheGetAsync(offset, limit.Value, key, cancellationToken );
             if (result != null) return result;
-            result = await _service.ReadChildrenWithPagingAsync(parentId, offset, limit, token);
+            result = await _service.ReadChildrenWithPagingAsync(parentId, offset, limit, cancellationToken );
             if (result?.Data == null) return null;
             CacheItemsInBackground(result, limit.Value, key);
             return result;
         }
 
         /// <inheritdoc />
-        public async Task<IEnumerable<TManyModel>> ReadChildrenAsync(TId parentId, int limit = int.MaxValue, CancellationToken token = default)
+        public async Task<IEnumerable<TManyModel>> ReadChildrenAsync(TId parentId, int limit = int.MaxValue, CancellationToken cancellationToken  = default)
         {
             InternalContract.RequireNotDefaultValue(parentId, nameof(parentId));
             InternalContract.RequireGreaterThan(0, limit, nameof(limit));
             var key = CacheKeyForChildrenCollection(parentId);
-            var itemsArray = await CacheGetAsync(limit, key, token);
+            var itemsArray = await CacheGetAsync(limit, key, cancellationToken );
             if (itemsArray != null) return itemsArray;
-            var itemsCollection = await _service.ReadChildrenAsync(parentId, limit, token);
+            var itemsCollection = await _service.ReadChildrenAsync(parentId, limit, cancellationToken );
             itemsArray = itemsCollection as TManyModel[] ?? itemsCollection.ToArray();
             CacheItemsInBackground(itemsArray, limit, key);
             return itemsArray;
@@ -174,28 +174,28 @@ namespace Nexus.Link.Libraries.Crud.Cache
         }
 
         /// <inheritdoc />
-        public Task<TId> CreateChildAsync(TId parentId, TManyModelCreate item, CancellationToken token = default)
+        public Task<TId> CreateChildAsync(TId parentId, TManyModelCreate item, CancellationToken cancellationToken  = default)
         {
-            return _convenience.CreateChildAsync(parentId, item, token);
+            return _convenience.CreateChildAsync(parentId, item, cancellationToken );
         }
 
         /// <inheritdoc />
-        public Task<TManyModel> CreateChildAndReturnAsync(TId parentId, TManyModelCreate item, CancellationToken token = default)
+        public Task<TManyModel> CreateChildAndReturnAsync(TId parentId, TManyModelCreate item, CancellationToken cancellationToken  = default)
         {
-            return _convenience.CreateChildAndReturnAsync(parentId, item, token);
+            return _convenience.CreateChildAndReturnAsync(parentId, item, cancellationToken );
         }
 
         /// <inheritdoc />
-        public Task CreateChildWithSpecifiedIdAsync(TId parentId, TId childId, TManyModelCreate item, CancellationToken token = default)
+        public Task CreateChildWithSpecifiedIdAsync(TId parentId, TId childId, TManyModelCreate item, CancellationToken cancellationToken  = default)
         {
-            return _convenience.CreateChildWithSpecifiedIdAsync(parentId, childId, item, token);
+            return _convenience.CreateChildWithSpecifiedIdAsync(parentId, childId, item, cancellationToken );
         }
 
         /// <inheritdoc />
         public Task<TManyModel> CreateChildWithSpecifiedIdAndReturnAsync(TId parentId, TId childId, TManyModelCreate item,
-            CancellationToken token = default)
+            CancellationToken cancellationToken  = default)
         {
-            return _convenience.CreateChildWithSpecifiedIdAndReturnAsync(parentId, childId, item, token);
+            return _convenience.CreateChildWithSpecifiedIdAndReturnAsync(parentId, childId, item, cancellationToken );
         }
     }
 }

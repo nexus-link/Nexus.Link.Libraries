@@ -126,9 +126,9 @@ namespace Nexus.Link.Libraries.Crud.Model
         {
             if (_where == null) return default;
             var whereAsJObject = JObject.FromObject(_where);
-            foreach (var token in whereAsJObject.Children())
+            foreach (var cancellationToken  in whereAsJObject.Children())
             {
-                var property = token as JProperty;
+                var property = cancellationToken  as JProperty;
                 if (property == null) continue;
                 var whereCondition =
                     GetWhereCondition(property.Name, wildCardZeroOrMoreCharacters, wildCardOneCharacter);
@@ -156,9 +156,9 @@ namespace Nexus.Link.Libraries.Crud.Model
                 InternalContract.Require(@where.Type == JTokenType.Object,
                     $"Property {nameof(value)} must be an object with properties:\r{@where.ToString(Formatting.Indented)}");
 
-                foreach (var token in where.Children())
+                foreach (var cancellationToken  in where.Children())
                 {
-                    var property = token as JProperty;
+                    var property = cancellationToken  as JProperty;
                     InternalContract.Require(property != null,
                         $"Property {nameof(value)} must be an object with properties:\r{@where.ToString(Formatting.Indented)}");
                     if (property == null) continue;
@@ -233,9 +233,9 @@ namespace Nexus.Link.Libraries.Crud.Model
                 InternalContract.Require(orderBy.Type == JTokenType.Object,
                     $"Property {nameof(value)} must be an object with properties:\r{orderBy.ToString(Formatting.Indented)}");
 
-                foreach (var token in orderBy.Children())
+                foreach (var cancellationToken  in orderBy.Children())
                 {
-                    var property = token as JProperty;
+                    var property = cancellationToken  as JProperty;
                     InternalContract.Require(property != null,
                         $"Property {nameof(value)} must be an object with properties:\r{orderBy.ToString(Formatting.Indented)}");
                     if (property == null) continue;
@@ -273,13 +273,13 @@ namespace Nexus.Link.Libraries.Crud.Model
             {
                 var list = new List<string>();
                 var where = JToken.FromObject(_where);
-                var token = where.First;
-                while (token != null)
+                var cancellationToken  = where.First;
+                while (cancellationToken  != null)
                 {
-                    var property = token as JProperty;
+                    var property = cancellationToken  as JProperty;
                     if (property == null) continue;
                     list.Add($"  {property.Name} = {property.Value}");
-                    token = token.Next;
+                    cancellationToken  = cancellationToken .Next;
                 }
 
                 whereAsString = "\r" + string.Join(",\r", list) + "\r";
@@ -290,14 +290,14 @@ namespace Nexus.Link.Libraries.Crud.Model
             {
                 var list = new List<string>();
                 var orderBy = JToken.FromObject(_orderBy);
-                var token = orderBy.First;
-                while (token != null)
+                var cancellationToken  = orderBy.First;
+                while (cancellationToken  != null)
                 {
-                    var property = token as JProperty;
+                    var property = cancellationToken  as JProperty;
                     if (property == null) continue;
                     string ascendingOrDescending = (bool)property.Value ? "ascending" : "descending";
                     list.Add($"  {property.Name} = {ascendingOrDescending}");
-                    token = token.Next;
+                    cancellationToken  = cancellationToken .Next;
                 }
 
                 orderByAsString = "\r" + string.Join(",\r", list) + "\r";

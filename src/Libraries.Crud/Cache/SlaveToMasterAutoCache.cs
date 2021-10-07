@@ -105,86 +105,86 @@ namespace Nexus.Link.Libraries.Crud.Cache
             return IsCollectionOperationActive(CacheKeyForChildrenCollection(parentId));
         }
 
-        private async Task RemoveCachedChildrenInBackgroundAsync(TId parentId, CancellationToken token = default)
+        private async Task RemoveCachedChildrenInBackgroundAsync(TId parentId, CancellationToken cancellationToken  = default)
         {
             var key = CacheKeyForChildrenCollection(parentId);
-            await RemoveCacheItemsInBackgroundAsync(key, async () => await CacheGetAsync(int.MaxValue, key, token), token);
+            await RemoveCacheItemsInBackgroundAsync(key, async () => await CacheGetAsync(int.MaxValue, key, cancellationToken ), cancellationToken );
         }
 
         /// <inheritdoc />
-        public async Task<TId> CreateAsync(TId masterId, TManyModelCreate item, CancellationToken token = default)
+        public async Task<TId> CreateAsync(TId masterId, TManyModelCreate item, CancellationToken cancellationToken  = default)
         {
-            var slaveId = await _service.CreateAsync(masterId, item, token);
+            var slaveId = await _service.CreateAsync(masterId, item, cancellationToken );
             var id = new SlaveToMasterId<TId>(masterId, slaveId);
-            await CacheMaybeSetAsync(id, _service, token);
+            await CacheMaybeSetAsync(id, _service, cancellationToken );
             return slaveId;
         }
 
         /// <inheritdoc />
-        public async Task<TManyModel> CreateAndReturnAsync(TId masterId, TManyModelCreate item, CancellationToken token = default)
+        public async Task<TManyModel> CreateAndReturnAsync(TId masterId, TManyModelCreate item, CancellationToken cancellationToken  = default)
         {
-            var result = await _service.CreateAndReturnAsync(masterId, item, token);
-            await CacheSetAsync(result, token);
+            var result = await _service.CreateAndReturnAsync(masterId, item, cancellationToken );
+            await CacheSetAsync(result, cancellationToken );
             return result;
         }
 
         /// <inheritdoc />
         public async Task CreateWithSpecifiedIdAsync(TId masterId, TId slaveId, TManyModelCreate item,
-            CancellationToken token = default)
+            CancellationToken cancellationToken  = default)
         {
-            await _service.CreateWithSpecifiedIdAsync(masterId, slaveId, item, token);
+            await _service.CreateWithSpecifiedIdAsync(masterId, slaveId, item, cancellationToken );
             var id = new SlaveToMasterId<TId>(masterId, slaveId);
-            await CacheMaybeSetAsync(id, _service, token);
+            await CacheMaybeSetAsync(id, _service, cancellationToken );
         }
 
         /// <inheritdoc />
         public async Task<TManyModel> CreateWithSpecifiedIdAndReturnAsync(TId masterId, TId slaveId, TManyModelCreate item,
-            CancellationToken token = default)
+            CancellationToken cancellationToken  = default)
         {
-            var result = await _service.CreateWithSpecifiedIdAndReturnAsync(masterId, slaveId, item, token);
-            await CacheSetAsync(result, token);
+            var result = await _service.CreateWithSpecifiedIdAndReturnAsync(masterId, slaveId, item, cancellationToken );
+            await CacheSetAsync(result, cancellationToken );
             return result;
         }
 
         /// <inheritdoc />
-        public async Task<TManyModel> ReadAsync(TId masterId, TId slaveId, CancellationToken token = default)
+        public async Task<TManyModel> ReadAsync(TId masterId, TId slaveId, CancellationToken cancellationToken  = default)
         {
             InternalContract.RequireNotDefaultValue(masterId, nameof(masterId));
             InternalContract.RequireNotDefaultValue(slaveId, nameof(slaveId));
             var id = new SlaveToMasterId<TId>(masterId, slaveId);
-            var item = await CacheGetByIdAsync(id, token);
+            var item = await CacheGetByIdAsync(id, cancellationToken );
             if (item != null) return item;
-            item = await _service.ReadAsync(masterId, slaveId, token);
+            item = await _service.ReadAsync(masterId, slaveId, cancellationToken );
             if (Equals(item, default(TManyModel))) return default;
-            await CacheSetByIdAsync(id, item, token);
+            await CacheSetByIdAsync(id, item, cancellationToken );
             return item;
         }
 
         /// <inheritdoc />
-        public async Task<PageEnvelope<TManyModel>> ReadChildrenWithPagingAsync(TId parentId, int offset, int? limit = null, CancellationToken token = default)
+        public async Task<PageEnvelope<TManyModel>> ReadChildrenWithPagingAsync(TId parentId, int offset, int? limit = null, CancellationToken cancellationToken  = default)
         {
             InternalContract.RequireNotDefaultValue(parentId, nameof(parentId));
             InternalContract.RequireGreaterThanOrEqualTo(0, offset, nameof(limit));
             if (limit == null) limit = PageInfo.DefaultLimit;
             InternalContract.RequireGreaterThan(0, limit.Value, nameof(limit));
             var key = CacheKeyForChildrenCollection(parentId);
-            var result = await CacheGetAsync(offset, limit.Value, key, token);
+            var result = await CacheGetAsync(offset, limit.Value, key, cancellationToken );
             if (result != null) return result;
-            result = await _service.ReadChildrenWithPagingAsync(parentId, offset, limit, token);
+            result = await _service.ReadChildrenWithPagingAsync(parentId, offset, limit, cancellationToken );
             if (result?.Data == null) return null;
             CacheItemsInBackground(result, limit.Value, key);
             return result;
         }
 
         /// <inheritdoc />
-        public async Task<IEnumerable<TManyModel>> ReadChildrenAsync(TId masterId, int limit = int.MaxValue, CancellationToken token = default)
+        public async Task<IEnumerable<TManyModel>> ReadChildrenAsync(TId masterId, int limit = int.MaxValue, CancellationToken cancellationToken  = default)
         {
             InternalContract.RequireNotDefaultValue(masterId, nameof(masterId));
             InternalContract.RequireGreaterThan(0, limit, nameof(limit));
             var key = CacheKeyForChildrenCollection(masterId);
-            var itemsArray = await CacheGetAsync(limit, key, token);
+            var itemsArray = await CacheGetAsync(limit, key, cancellationToken );
             if (itemsArray != null) return itemsArray;
-            var itemsCollection = await _service.ReadChildrenAsync(masterId, limit, token);
+            var itemsCollection = await _service.ReadChildrenAsync(masterId, limit, cancellationToken );
             itemsArray = itemsCollection as TManyModel[] ?? itemsCollection.ToArray();
             CacheItemsInBackground(itemsArray, limit, key);
             return itemsArray;
@@ -205,35 +205,35 @@ namespace Nexus.Link.Libraries.Crud.Cache
         }
 
         /// <inheritdoc />
-        public async Task UpdateAsync(TId masterId, TId slaveId, TManyModel item, CancellationToken token = default)
+        public async Task UpdateAsync(TId masterId, TId slaveId, TManyModel item, CancellationToken cancellationToken  = default)
         {
-            await _service.UpdateAsync(masterId, slaveId, item, token);
+            await _service.UpdateAsync(masterId, slaveId, item, cancellationToken );
             var id = new SlaveToMasterId<TId>(masterId, slaveId);
-            await CacheMaybeSetAsync(id, _service, token);
+            await CacheMaybeSetAsync(id, _service, cancellationToken );
         }
 
         /// <inheritdoc />
         public async Task<TManyModel> UpdateAndReturnAsync(TId masterId, TId slaveId, TManyModel item,
-            CancellationToken token = default)
+            CancellationToken cancellationToken  = default)
         {
-            var result = await _service.UpdateAndReturnAsync(masterId, slaveId, item, token);
-            await CacheSetAsync(result, token);
+            var result = await _service.UpdateAndReturnAsync(masterId, slaveId, item, cancellationToken );
+            await CacheSetAsync(result, cancellationToken );
             return result;
         }
 
         /// <inheritdoc />
-        public Task DeleteAsync(TId masterId, TId slaveId, CancellationToken token = default)
+        public Task DeleteAsync(TId masterId, TId slaveId, CancellationToken cancellationToken  = default)
         {
-            var task1 = _service.DeleteAsync(masterId, slaveId, token);
-            var task2 = RemoveCachedChildrenInBackgroundAsync(masterId, token);
+            var task1 = _service.DeleteAsync(masterId, slaveId, cancellationToken );
+            var task2 = RemoveCachedChildrenInBackgroundAsync(masterId, cancellationToken );
             return Task.WhenAll(task1, task2);
         }
 
         /// <inheritdoc />
-        public Task DeleteChildrenAsync(TId masterId, CancellationToken token = default)
+        public Task DeleteChildrenAsync(TId masterId, CancellationToken cancellationToken  = default)
         {
-            var task1 = _service.DeleteChildrenAsync(masterId, token);
-            var task2 = RemoveCachedChildrenInBackgroundAsync(masterId, token);
+            var task1 = _service.DeleteChildrenAsync(masterId, cancellationToken );
+            var task2 = RemoveCachedChildrenInBackgroundAsync(masterId, cancellationToken );
             return Task.WhenAll(task1, task2);
         }
 
@@ -243,46 +243,46 @@ namespace Nexus.Link.Libraries.Crud.Cache
         }
 
         /// <inheritdoc />
-        public Task<TManyModel> ReadAsync(SlaveToMasterId<TId> id, CancellationToken token = default)
+        public Task<TManyModel> ReadAsync(SlaveToMasterId<TId> id, CancellationToken cancellationToken  = default)
         {
-            return ReadAsync(id.MasterId, id.SlaveId, token);
+            return ReadAsync(id.MasterId, id.SlaveId, cancellationToken );
         }
 
         /// <inheritdoc />
-        public Task<SlaveLock<TId>> ClaimLockAsync(TId masterId, TId slaveId, CancellationToken token = default)
+        public Task<SlaveLock<TId>> ClaimLockAsync(TId masterId, TId slaveId, CancellationToken cancellationToken  = default)
         {
-            return _service.ClaimLockAsync(masterId, slaveId, token);
+            return _service.ClaimLockAsync(masterId, slaveId, cancellationToken );
         }
 
         /// <inheritdoc />
-        public Task ReleaseLockAsync(TId masterId, TId slaveId, TId lockId, CancellationToken token = default)
+        public Task ReleaseLockAsync(TId masterId, TId slaveId, TId lockId, CancellationToken cancellationToken  = default)
         {
-            return _service.ReleaseLockAsync(masterId, slaveId, lockId, token);
+            return _service.ReleaseLockAsync(masterId, slaveId, lockId, cancellationToken );
         }
 
         /// <inheritdoc />
-        public Task<SlaveLock<TId>> ClaimDistributedLockAsync(TId masterId, TId slaveId, CancellationToken token = default)
+        public Task<SlaveLock<TId>> ClaimDistributedLockAsync(TId masterId, TId slaveId, CancellationToken cancellationToken  = default)
         {
-            return _service.ClaimDistributedLockAsync(masterId, slaveId, token);
+            return _service.ClaimDistributedLockAsync(masterId, slaveId, cancellationToken );
         }
 
         /// <inheritdoc />
         public Task ReleaseDistributedLockAsync(TId masterId, TId slaveId, TId lockId,
-            CancellationToken token = default)
+            CancellationToken cancellationToken  = default)
         {
-            return _service.ReleaseDistributedLockAsync(masterId, slaveId, lockId, token);
+            return _service.ReleaseDistributedLockAsync(masterId, slaveId, lockId, cancellationToken );
         }
 
         /// <inheritdoc />
-        public Task ClaimTransactionLockAsync(TId masterId, TId slaveId, CancellationToken token = default)
+        public Task ClaimTransactionLockAsync(TId masterId, TId slaveId, CancellationToken cancellationToken  = default)
         {
-            return _service.ClaimTransactionLockAsync(masterId, slaveId, token);
+            return _service.ClaimTransactionLockAsync(masterId, slaveId, cancellationToken );
         }
 
         /// <inheritdoc />
-        public Task<TManyModel> ClaimTransactionLockAndReadAsync(TId masterId, TId slaveId, CancellationToken token = default)
+        public Task<TManyModel> ClaimTransactionLockAndReadAsync(TId masterId, TId slaveId, CancellationToken cancellationToken  = default)
         {
-            return _convenience.ClaimTransactionLockAndReadAsync(masterId, slaveId, token);
+            return _convenience.ClaimTransactionLockAndReadAsync(masterId, slaveId, cancellationToken );
         }
     }
 }
