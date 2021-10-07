@@ -65,7 +65,7 @@ namespace Nexus.Link.Libraries.Crud.MemoryStorage
         }
 
         /// <inheritdoc />
-        public virtual Task<PageEnvelope<TModel>> ReadChildrenWithPagingAsync(TId parentId, int offset, int? limit = null, CancellationToken token = default)
+        public virtual Task<PageEnvelope<TModel>> ReadChildrenWithPagingAsync(TId parentId, int offset, int? limit = null, CancellationToken cancellationToken  = default)
         {
             limit = limit ?? PageInfo.DefaultLimit;
             InternalContract.RequireNotNull(parentId, nameof(parentId));
@@ -83,7 +83,7 @@ namespace Nexus.Link.Libraries.Crud.MemoryStorage
         }
 
         /// <inheritdoc />
-        public virtual async Task<IEnumerable<TModel>> ReadChildrenAsync(TId parentId, int limit = int.MaxValue, CancellationToken token = default)
+        public virtual async Task<IEnumerable<TModel>> ReadChildrenAsync(TId parentId, int limit = int.MaxValue, CancellationToken cancellationToken  = default)
         {
             InternalContract.RequireNotNull(parentId, nameof(parentId));
             InternalContract.RequireGreaterThan(0, limit, nameof(limit));
@@ -93,7 +93,7 @@ namespace Nexus.Link.Libraries.Crud.MemoryStorage
             var offset = 0;
             while (true)
             {
-                var page = await ReadChildrenWithPagingAsync(parentId, offset, null, token);
+                var page = await ReadChildrenWithPagingAsync(parentId, offset, null, cancellationToken );
                 if (page.PageInfo.Returned == 0) break;
                 result.AddRange(page.Data);
                 offset += page.PageInfo.Returned;
@@ -103,18 +103,18 @@ namespace Nexus.Link.Libraries.Crud.MemoryStorage
         }
 
         /// <inheritdoc />
-        public virtual async Task DeleteChildrenAsync(TId masterId, CancellationToken token = default)
+        public virtual async Task DeleteChildrenAsync(TId masterId, CancellationToken cancellationToken  = default)
         {
             InternalContract.RequireNotNull(masterId, nameof(masterId));
             InternalContract.RequireNotDefaultValue(masterId, nameof(masterId));
             var errorMessage = $"{typeof(TModel).Name} must implement the interface {nameof(IUniquelyIdentifiable<TId>)} for this method to work.";
             InternalContract.Require(typeof(IUniquelyIdentifiable<TId>).IsAssignableFrom(typeof(TModel)), errorMessage);
-            var items = new PageEnvelopeEnumerableAsync<TModel>((o, t) => ReadChildrenWithPagingAsync(masterId, o, null, t), token);
+            var items = new PageEnvelopeEnumerableAsync<TModel>((o, t) => ReadChildrenWithPagingAsync(masterId, o, null, t), cancellationToken );
             var enumerator = items.GetEnumerator();
             while (await enumerator.MoveNextAsync())
             {
                 if (!(enumerator.Current is IUniquelyIdentifiable<TId> item)) continue;
-                await DeleteAsync(item.Id, token);
+                await DeleteAsync(item.Id, cancellationToken );
             }
         }
 
@@ -133,28 +133,28 @@ namespace Nexus.Link.Libraries.Crud.MemoryStorage
         }
 
         /// <inheritdoc />
-        public Task<TId> CreateChildAsync(TId parentId, TModelCreate item, CancellationToken token = default)
+        public Task<TId> CreateChildAsync(TId parentId, TModelCreate item, CancellationToken cancellationToken  = default)
         {
-            return _convenience.CreateChildAsync(parentId, item, token);
+            return _convenience.CreateChildAsync(parentId, item, cancellationToken );
         }
 
         /// <inheritdoc />
-        public Task<TModel> CreateChildAndReturnAsync(TId parentId, TModelCreate item, CancellationToken token = default)
+        public Task<TModel> CreateChildAndReturnAsync(TId parentId, TModelCreate item, CancellationToken cancellationToken  = default)
         {
-            return _convenience.CreateChildAndReturnAsync(parentId, item, token);
+            return _convenience.CreateChildAndReturnAsync(parentId, item, cancellationToken );
         }
 
         /// <inheritdoc />
-        public Task CreateChildWithSpecifiedIdAsync(TId parentId, TId childId, TModelCreate item, CancellationToken token = default)
+        public Task CreateChildWithSpecifiedIdAsync(TId parentId, TId childId, TModelCreate item, CancellationToken cancellationToken  = default)
         {
-            return _convenience.CreateChildWithSpecifiedIdAsync(parentId, childId, item, token);
+            return _convenience.CreateChildWithSpecifiedIdAsync(parentId, childId, item, cancellationToken );
         }
 
         /// <inheritdoc />
         public Task<TModel> CreateChildWithSpecifiedIdAndReturnAsync(TId parentId, TId childId, TModelCreate item,
-            CancellationToken token = default)
+            CancellationToken cancellationToken  = default)
         {
-            return _convenience.CreateChildWithSpecifiedIdAndReturnAsync(parentId, childId, item, token);
+            return _convenience.CreateChildWithSpecifiedIdAndReturnAsync(parentId, childId, item, cancellationToken );
         }
     }
 }

@@ -19,9 +19,9 @@ namespace Nexus.Link.Libraries.Crud.Interfaces
         /// <param name="masterId">The id for the master object.</param>
         /// <param name="dependentId">The id for the dependent object.</param>
         /// <param name="item">The new version of the item.</param>
-        /// <param name="token">Propagates notification that operations should be canceled</param>
+        /// <param name="cancellationToken ">Propagates notification that operations should be canceled</param>
         /// <exception cref="FulcrumNotFoundException">Thrown if the <paramref name="masterId"/> or the <paramref name="dependentId"/> could not be found.</exception>
         /// <exception cref="FulcrumConflictException">Thrown if the <see cref="IOptimisticConcurrencyControlByETag.Etag"/> for <paramref name="item"/> was outdated.</exception>
-        Task UpdateAsync(TId masterId, TDependentId dependentId, TModel item, CancellationToken token = default);
+        Task UpdateAsync(TId masterId, TDependentId dependentId, TModel item, CancellationToken cancellationToken  = default);
     }
 }

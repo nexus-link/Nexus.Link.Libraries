@@ -50,7 +50,7 @@ namespace Nexus.Link.Libraries.Crud.AspNet.Controllers
         [SwaggerBadRequestResponse]
         [SwaggerInternalServerErrorResponse]
         public virtual async Task<PageEnvelope<TModel>> ReadChildrenWithPagingAsync(string parentId, int offset, int? limit = null,
-            CancellationToken token = new CancellationToken())
+            CancellationToken token = default)
         {
             ServiceContract.RequireNotNullOrWhiteSpace(parentId, nameof(parentId));
             ServiceContract.RequireGreaterThanOrEqualTo(0, offset, nameof(offset));
@@ -68,7 +68,7 @@ namespace Nexus.Link.Libraries.Crud.AspNet.Controllers
         /// <inheritdoc />
         [SwaggerBadRequestResponse]
         [SwaggerInternalServerErrorResponse]
-        public virtual async Task<IEnumerable<TModel>> ReadChildrenAsync(string parentId, int limit = int.MaxValue, CancellationToken token = new CancellationToken())
+        public virtual async Task<IEnumerable<TModel>> ReadChildrenAsync(string parentId, int limit = int.MaxValue, CancellationToken token = default)
         {
             ServiceContract.RequireNotNullOrWhiteSpace(parentId, nameof(parentId));
             ServiceContract.RequireGreaterThan(0, limit, nameof(limit));
@@ -81,7 +81,7 @@ namespace Nexus.Link.Libraries.Crud.AspNet.Controllers
         /// <inheritdoc />
         [SwaggerBadRequestResponse]
         [SwaggerInternalServerErrorResponse]
-        public virtual async Task DeleteChildrenAsync(string parentId, CancellationToken token = new CancellationToken())
+        public virtual async Task DeleteChildrenAsync(string parentId, CancellationToken token = default)
         {
             ServiceContract.RequireNotNullOrWhiteSpace(parentId, nameof(parentId));
             await Logic.DeleteChildrenAsync(parentId, token);

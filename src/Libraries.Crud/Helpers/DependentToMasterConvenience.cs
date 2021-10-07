@@ -72,24 +72,24 @@ namespace Nexus.Link.Libraries.Crud.Helpers
         }
 
         /// <inheritdoc />
-        public Task ClaimTransactionLockAsync(TId masterId, TDependentId dependentId, CancellationToken token = default)
+        public Task ClaimTransactionLockAsync(TId masterId, TDependentId dependentId, CancellationToken cancellationToken  = default)
         {
             throw new NotImplementedException();
         }
 
         /// <inheritdoc />
-        public async Task<TModel> ClaimTransactionLockAndReadAsync(TId masterId, TDependentId dependentId, CancellationToken token = default)
+        public async Task<TModel> ClaimTransactionLockAndReadAsync(TId masterId, TDependentId dependentId, CancellationToken cancellationToken  = default)
         {
-            await _service.ClaimDistributedLockAsync(masterId, dependentId, token);
-            return await _service.ReadAsync(masterId, dependentId, token);
+            await _service.ClaimDistributedLockAsync(masterId, dependentId, cancellationToken );
+            return await _service.ReadAsync(masterId, dependentId, cancellationToken );
         }
 
         /// <inheritdoc />
-        public async Task<TId> GetDependentUniqueIdAsync(TId masterId, TDependentId dependentId, CancellationToken token = default)
+        public async Task<TId> GetDependentUniqueIdAsync(TId masterId, TDependentId dependentId, CancellationToken cancellationToken  = default)
         {
             InternalContract.Require(typeof(IUniquelyIdentifiable<TId>).IsAssignableFrom(typeof(TModel)), 
                 $"The method {nameof(GetDependentUniqueIdAsync)} requires that the type {typeof(TModel).Name} implements {typeof(IUniquelyIdentifiable<TId>).Name}.");
-            var item = await _service.ReadAsync(masterId, dependentId, token);
+            var item = await _service.ReadAsync(masterId, dependentId, cancellationToken );
             if (item == null)
             {
                 throw new FulcrumNotFoundException($"Could not find a dependent object of type {typeof(TModel).Name} with master id {masterId} and dependent id {dependentId}.");

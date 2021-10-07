@@ -222,7 +222,7 @@ namespace Nexus.Link.Libraries.Crud.Cache
                 await CacheItemPageOperationAsync(pageEnvelope, int.MaxValue, keyPrefix, false, CancellationToken.None).ConfigureAwait(false));
         }
 
-        private async Task CacheItemCollectionOperationAsync(TModel[] itemsArray, int limit, string key, bool isSetOperation, CancellationToken token)
+        private async Task CacheItemCollectionOperationAsync(TModel[] itemsArray, int limit, string key, bool isSetOperation, CancellationToken cancellationToken )
         {
             InternalContract.RequireNotNull(itemsArray, nameof(itemsArray));
             InternalContract.RequireGreaterThan(0, limit, nameof(limit));
@@ -236,8 +236,8 @@ namespace Nexus.Link.Libraries.Crud.Cache
                 {
 
                     var cacheArrayTask = isSetOperation 
-                        ? CacheSetAsync(itemsArray, limit, key, token)
-                        : Cache.RemoveAsync(key, token);
+                        ? CacheSetAsync(itemsArray, limit, key, cancellationToken )
+                        : Cache.RemoveAsync(key, cancellationToken );
                     var cachePageTasks = new List<Task>();
 
                     // Cache individual pages
@@ -246,7 +246,7 @@ namespace Nexus.Link.Libraries.Crud.Cache
                     {
                         var data = itemsArray.Skip(offset).Take(PageInfo.DefaultLimit);
                         var pageEnvelope = new PageEnvelope<TModel>(offset, PageInfo.DefaultLimit, itemsArray.Length, data);
-                        var task = CacheItemPageOperationAsync(pageEnvelope, limit, key, isSetOperation, token);
+                        var task = CacheItemPageOperationAsync(pageEnvelope, limit, key, isSetOperation, cancellationToken );
                         cachePageTasks.Add(task);
                         offset += PageInfo.DefaultLimit;
                     }
@@ -257,8 +257,8 @@ namespace Nexus.Link.Libraries.Crud.Cache
                 {
                     // Cache individual items
                     var cacheIndividualItemTasks = isSetOperation 
-                    ? itemsArray.Select(item => CacheSetAsync(item, token))
-                        : itemsArray.Select(item => CacheRemoveByIdAsync(GetIdDelegate(item), token));
+                    ? itemsArray.Select(item => CacheSetAsync(item, cancellationToken ))
+                        : itemsArray.Select(item => CacheRemoveByIdAsync(GetIdDelegate(item), cancellationToken ));
                     await Task.WhenAll(cacheIndividualItemTasks);
                 }
             }
@@ -268,18 +268,18 @@ namespace Nexus.Link.Libraries.Crud.Cache
             }
         }
 
-        private async Task CacheItemPageOperationAsync(PageEnvelope<TModel> pageEnvelope, int limit, string keyPrefix, bool isSetOperation, CancellationToken token)
+        private async Task CacheItemPageOperationAsync(PageEnvelope<TModel> pageEnvelope, int limit, string keyPrefix, bool isSetOperation, CancellationToken cancellationToken )
         {
             var key = GetCacheKeyForPage(keyPrefix, pageEnvelope.PageInfo.Offset, pageEnvelope.PageInfo.Limit);
             try
             {
                 var cacheIndividualItemTasks = isSetOperation
-                    ? pageEnvelope.Data.Select(item => CacheSetAsync(item, token))
-                    : pageEnvelope.Data.Select(item => CacheRemoveByIdAsync(GetIdDelegate(item), token));
+                    ? pageEnvelope.Data.Select(item => CacheSetAsync(item, cancellationToken ))
+                    : pageEnvelope.Data.Select(item => CacheRemoveByIdAsync(GetIdDelegate(item), cancellationToken ));
                 if (!PageWasTruncated(pageEnvelope.PageInfo, limit))
                 {
-                    if (isSetOperation) await CacheSetAsync(pageEnvelope, keyPrefix, token);
-                    else await Cache.RemoveAsync(key, token);
+                    if (isSetOperation) await CacheSetAsync(pageEnvelope, keyPrefix, cancellationToken );
+                    else await Cache.RemoveAsync(key, cancellationToken );
                 }
                 await Task.WhenAll(cacheIndividualItemTasks);
             }
@@ -299,23 +299,23 @@ namespace Nexus.Link.Libraries.Crud.Cache
         /// <summary>
         /// Get a value from the cache if all constraints are fulfilled.
         /// </summary>
-        protected internal async Task<PageEnvelope<TModel>> CacheGetAsync(int offset, int limit, string keyPrefix, CancellationToken token)
+        protected internal async Task<PageEnvelope<TModel>> CacheGetAsync(int offset, int limit, string keyPrefix, CancellationToken cancellationToken )
         {
             if (UseCacheAtAllMethodAsync != null &&
-                !await UseCacheAtAllMethodAsync(typeof(PageEnvelope<TModel>), token)) return null;
+                !await UseCacheAtAllMethodAsync(typeof(PageEnvelope<TModel>), cancellationToken )) return null;
             var key = GetCacheKeyForPage(keyPrefix, offset, limit);
-            return await GetAndMaybeReturnAsync(key, cacheEnvelope => SerializingSupport.Deserialize<PageEnvelope<TModel>>(cacheEnvelope.Data), token: token);
+            return await GetAndMaybeReturnAsync(key, cacheEnvelope => SerializingSupport.Deserialize<PageEnvelope<TModel>>(cacheEnvelope.Data), cancellationToken : cancellationToken );
         }
 
         /// <summary>
         /// Get a value from the cache if all constraints are fulfilled.
         /// </summary>
-        protected internal async Task<TModel[]> CacheGetAsync(int limit, string key, CancellationToken token)
+        protected internal async Task<TModel[]> CacheGetAsync(int limit, string key, CancellationToken cancellationToken )
         {
             InternalContract.RequireGreaterThan(0, limit, nameof(limit));
             if (limit > _limitOfItemsInReadAllCache) return null;
             if (UseCacheAtAllMethodAsync != null &&
-                !await UseCacheAtAllMethodAsync(typeof(TModel[]), token)) return null;
+                !await UseCacheAtAllMethodAsync(typeof(TModel[]), cancellationToken )) return null;
 
             return await GetAndMaybeReturnAsync(key, cacheEnvelope =>
                 {
@@ -323,46 +323,46 @@ namespace Nexus.Link.Libraries.Crud.Cache
                     if (limit > array.Length) return array;
                     var subset = array.Take(limit);
                     return subset as TModel[] ?? subset.ToArray();
-                }, token: token);
+                }, cancellationToken : cancellationToken );
         }
 
         /// <summary>
         /// Get a value from the cache if all constraints are fulfilled.
         /// </summary>
-        private async Task<TModel> CacheGetAsync(TId id, string key, CancellationToken token = default)
+        private async Task<TModel> CacheGetAsync(TId id, string key, CancellationToken cancellationToken  = default)
         {
-            if (UseCacheAtAllMethodAsync != null && !await UseCacheAtAllMethodAsync(typeof(TModel), token)) return default;
+            if (UseCacheAtAllMethodAsync != null && !await UseCacheAtAllMethodAsync(typeof(TModel), cancellationToken )) return default;
             key = key ?? GetCacheKeyFromId(id);
 
-            return await GetAndMaybeReturnAsync(key, cacheEnvelope => SerializingSupport.Deserialize<TModel>(cacheEnvelope.Data), id, token);
+            return await GetAndMaybeReturnAsync(key, cacheEnvelope => SerializingSupport.Deserialize<TModel>(cacheEnvelope.Data), id, cancellationToken );
         }
 
         /// <summary>
         /// Get a value from the cache if all constraints are fulfilled.
         /// </summary>
-        protected async Task<TModel> CacheGetByIdAsync(TId id, CancellationToken token = default)
+        protected async Task<TModel> CacheGetByIdAsync(TId id, CancellationToken cancellationToken  = default)
         {
             InternalContract.RequireNotDefaultValue(id, nameof(id));
-            return await CacheGetAsync(id, null, token);
+            return await CacheGetAsync(id, null, cancellationToken );
         }
 
         /// <summary>
         /// Get a value from the cache if all constraints are fulfilled.
         /// </summary>
-        protected async Task<TModel> CacheGetByKeyAsync(string key, CancellationToken token = default)
+        protected async Task<TModel> CacheGetByKeyAsync(string key, CancellationToken cancellationToken  = default)
         {
             InternalContract.RequireNotNullOrWhiteSpace(key, nameof(key));
-            return await CacheGetAsync(default(TId), key, token);
+            return await CacheGetAsync(default(TId), key, cancellationToken );
         }
 
         private delegate TReturn DeserializeDelegate<out TReturn>(CacheEnvelope cacheEnvelope);
 
-        private async Task<TReturn> GetAndMaybeReturnAsync<TReturn>(string key, DeserializeDelegate<TReturn> deserializeDelegate, TId id = default, CancellationToken token = default)
+        private async Task<TReturn> GetAndMaybeReturnAsync<TReturn>(string key, DeserializeDelegate<TReturn> deserializeDelegate, TId id = default, CancellationToken cancellationToken  = default)
         {
-            var byteArray = await Cache.GetAsync(key, token);
+            var byteArray = await Cache.GetAsync(key, cancellationToken );
             if (byteArray == null) return default;
             var cacheEnvelope = SerializingSupport.Deserialize<CacheEnvelope>(byteArray);
-            var cacheItemStrategy = Equals(id, default(TId)) ? GetCacheItemStrategy(cacheEnvelope) : await GetCacheItemStrategyAsync(id, cacheEnvelope, token);
+            var cacheItemStrategy = Equals(id, default(TId)) ? GetCacheItemStrategy(cacheEnvelope) : await GetCacheItemStrategyAsync(id, cacheEnvelope, cancellationToken );
             switch (cacheItemStrategy)
             {
                 case UseCacheStrategyEnum.Use:
@@ -370,7 +370,7 @@ namespace Nexus.Link.Libraries.Crud.Cache
                 case UseCacheStrategyEnum.Ignore:
                     return default;
                 case UseCacheStrategyEnum.Remove:
-                    await Cache.RemoveAsync(key, token);
+                    await Cache.RemoveAsync(key, cancellationToken );
                     return default;
                 default:
                     FulcrumAssert.Fail($"Unexpected value of {nameof(UseCacheStrategyEnum)} ({cacheItemStrategy}).");
@@ -378,7 +378,7 @@ namespace Nexus.Link.Libraries.Crud.Cache
             }
         }
 
-        private async Task<UseCacheStrategyEnum> GetCacheItemStrategyAsync(TId id, CacheEnvelope cacheEnvelope, CancellationToken token)
+        private async Task<UseCacheStrategyEnum> GetCacheItemStrategyAsync(TId id, CacheEnvelope cacheEnvelope, CancellationToken cancellationToken )
         {
             InternalContract.RequireNotDefaultValue(id, nameof(id));
             InternalContract.RequireNotNull(cacheEnvelope, nameof(cacheEnvelope));
@@ -391,7 +391,7 @@ namespace Nexus.Link.Libraries.Crud.Cache
                 Id = id,
                 UpdatedAt = cacheEnvelope.UpdatedAt
             };
-            return await UseCacheStrategyMethodAsync(cachedItemInformation, token);
+            return await UseCacheStrategyMethodAsync(cachedItemInformation, cancellationToken );
         }
 
         private UseCacheStrategyEnum GetCacheItemStrategy(CacheEnvelope cacheEnvelope)
@@ -411,62 +411,62 @@ namespace Nexus.Link.Libraries.Crud.Cache
         /// <summary>
         /// Put the item in the cache.
         /// </summary>
-        protected Task CacheSetAsync(TModel item, CancellationToken token)
+        protected Task CacheSetAsync(TModel item, CancellationToken cancellationToken )
         {
             InternalContract.RequireNotDefaultValue(item, nameof(item));
-            return CacheSetAsync(GetIdDelegate(item), item, null, token);
+            return CacheSetAsync(GetIdDelegate(item), item, null, cancellationToken );
         }
 
         /// <summary>
         /// Put the item in the cache.
         /// </summary>
-        protected async Task CacheSetByIdAsync(TId id, TModel item, CancellationToken token = default)
+        protected async Task CacheSetByIdAsync(TId id, TModel item, CancellationToken cancellationToken  = default)
         {
             InternalContract.RequireNotDefaultValue(id, nameof(id));
-            await CacheSetAsync(id, item, null, token);
+            await CacheSetAsync(id, item, null, cancellationToken );
         }
 
         /// <summary>
         /// Put the item in the cache.
         /// </summary>
-        protected async Task CacheSetByKeyAsync(string key, TModel item, CancellationToken token = default)
+        protected async Task CacheSetByKeyAsync(string key, TModel item, CancellationToken cancellationToken  = default)
         {
             InternalContract.RequireNotNullOrWhiteSpace(key, nameof(key));
-            await CacheSetAsync(default, item, key, token);
+            await CacheSetAsync(default, item, key, cancellationToken );
         }
 
         /// <summary>
         /// Put the item in the cache.
         /// </summary>
-        private async Task CacheSetAsync(TId id, TModel item, string key = null, CancellationToken token = default)
+        private async Task CacheSetAsync(TId id, TModel item, string key = null, CancellationToken cancellationToken  = default)
         {
             InternalContract.RequireNotDefaultValue(item, nameof(item));
             key = key ?? GetCacheKeyFromId(id);
             var serializedCacheEnvelope = ToSerializedCacheEnvelope(item);
-            await Cache.SetAsync(key, serializedCacheEnvelope, CacheOptions, token);
+            await Cache.SetAsync(key, serializedCacheEnvelope, CacheOptions, cancellationToken );
         }
 
         /// <summary>
         /// Put the item in the cache.
         /// </summary>
-        private async Task CacheSetAsync(TModel[] itemsArray, int limit, string key, CancellationToken token)
+        private async Task CacheSetAsync(TModel[] itemsArray, int limit, string key, CancellationToken cancellationToken )
         {
             InternalContract.RequireNotDefaultValue(itemsArray, nameof(itemsArray));
             var serializedCacheEnvelope = ToSerializedCacheEnvelope(itemsArray);
-            await Cache.SetAsync(key, serializedCacheEnvelope, CacheOptions, token);
+            await Cache.SetAsync(key, serializedCacheEnvelope, CacheOptions, cancellationToken );
             _limitOfItemsInReadAllCache = limit;
         }
 
         /// <summary>
         /// Put the item in the cache.
         /// </summary>
-        private async Task CacheSetAsync(PageEnvelope<TModel> pageEnvelope, string keyPrefix, CancellationToken token)
+        private async Task CacheSetAsync(PageEnvelope<TModel> pageEnvelope, string keyPrefix, CancellationToken cancellationToken )
         {
             InternalContract.RequireNotDefaultValue(pageEnvelope, nameof(pageEnvelope));
             InternalContract.RequireValidated(pageEnvelope, nameof(pageEnvelope));
             var serializedCacheEnvelope = ToSerializedCacheEnvelope(pageEnvelope);
             var key = GetCacheKeyForPage(keyPrefix, pageEnvelope.PageInfo.Offset, pageEnvelope.PageInfo.Limit);
-            await Cache.SetAsync(key, serializedCacheEnvelope, CacheOptions, token);
+            await Cache.SetAsync(key, serializedCacheEnvelope, CacheOptions, cancellationToken );
         }
 
         /// <summary>
@@ -474,30 +474,30 @@ namespace Nexus.Link.Libraries.Crud.Cache
         /// </summary>
         /// <param name="id">The id of the item.</param>
         /// <param name="service">A service to use for reading the item.</param>
-        /// <param name="token">Propagates notification that operations should be canceled</param>
-        protected async Task CacheMaybeSetAsync(TId id, IRead<TModel, TId> service, CancellationToken token = default)
+        /// <param name="cancellationToken ">Propagates notification that operations should be canceled</param>
+        protected async Task CacheMaybeSetAsync(TId id, IRead<TModel, TId> service, CancellationToken cancellationToken  = default)
         {
             async Task<bool> IsAlreadyCachedAndGetIsOkToUpdate()
             {
-                return Options.DoGetToUpdate && await CacheItemExistsAsync(id, token);
+                return Options.DoGetToUpdate && await CacheItemExistsAsync(id, cancellationToken );
             }
 
             var getAndSave = Options.SaveAll || await IsAlreadyCachedAndGetIsOkToUpdate();
             if (!getAndSave) return;
-            var item = await service.ReadAsync(id, token);
-            await CacheSetByIdAsync(id, item, token);
+            var item = await service.ReadAsync(id, cancellationToken );
+            await CacheSetByIdAsync(id, item, cancellationToken );
         }
 
         /// <summary>
         /// Check if an item exists in the cache.
         /// </summary>
         /// <param name="id">The id for the item</param>
-        /// <param name="token">Propagates notification that operations should be canceled</param>
-        protected async Task<bool> CacheItemExistsAsync(TId id, CancellationToken token)
+        /// <param name="cancellationToken ">Propagates notification that operations should be canceled</param>
+        protected async Task<bool> CacheItemExistsAsync(TId id, CancellationToken cancellationToken )
         {
             InternalContract.RequireNotDefaultValue(id, nameof(id));
             var key = GetCacheKeyFromId(id);
-            var cachedItem = await Cache.GetAsync(key, token);
+            var cachedItem = await Cache.GetAsync(key, cancellationToken );
             return cachedItem != null;
         }
 
@@ -523,11 +523,11 @@ namespace Nexus.Link.Libraries.Crud.Cache
         /// <summary>
         /// Remove from cache
         /// </summary>
-        protected async Task CacheRemoveByIdAsync(TId id, CancellationToken token)
+        protected async Task CacheRemoveByIdAsync(TId id, CancellationToken cancellationToken )
         {
             InternalContract.RequireNotDefaultValue(id, nameof(id));
             var key = GetCacheKeyFromId(id);
-            await Cache.RemoveAsync(key, token);
+            await Cache.RemoveAsync(key, cancellationToken );
         }
 
         /// <summary>
@@ -547,7 +547,7 @@ namespace Nexus.Link.Libraries.Crud.Cache
         }
 
         /// <inheritdoc />
-        public async Task FlushAsync(CancellationToken token = default)
+        public async Task FlushAsync(CancellationToken cancellationToken  = default)
         {
             if (_flushCacheDelegateAsync == null)
             {
@@ -558,7 +558,7 @@ namespace Nexus.Link.Libraries.Crud.Cache
                 return;
             }
 
-            await _flushCacheDelegateAsync(token);
+            await _flushCacheDelegateAsync(cancellationToken );
             CacheIdentity = Guid.NewGuid().ToString();
         }
     }

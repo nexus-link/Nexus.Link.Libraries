@@ -42,7 +42,7 @@ namespace Nexus.Link.Libraries.Azure.Storage.Blob
         public IDirectory Directory { get; }
 
         /// <inheritdoc />
-        public async Task<TId> CreateAsync(TModelCreate item, CancellationToken token = new CancellationToken())
+        public async Task<TId> CreateAsync(TModelCreate item, CancellationToken token = default)
         {
             var id = StorageHelper.CreateNewId<TId>();
             await CreateWithSpecifiedIdAsync(id, item, token);
@@ -50,7 +50,7 @@ namespace Nexus.Link.Libraries.Azure.Storage.Blob
         }
 
         /// <inheritdoc />
-        public async Task<TModel> CreateAndReturnAsync(TModelCreate item, CancellationToken token = new CancellationToken())
+        public async Task<TModel> CreateAndReturnAsync(TModelCreate item, CancellationToken token = default)
         {
             var id = await CreateAsync(item, token);
             return await ReadAsync(id, token);
@@ -77,20 +77,20 @@ namespace Nexus.Link.Libraries.Azure.Storage.Blob
         }
 
         /// <inheritdoc />
-        public async Task<TModel> CreateWithSpecifiedIdAndReturnAsync(TId id, TModelCreate item, CancellationToken token = new CancellationToken())
+        public async Task<TModel> CreateWithSpecifiedIdAndReturnAsync(TId id, TModelCreate item, CancellationToken token = default)
         {
             await CreateWithSpecifiedIdAsync(id, item, token);
             return await ReadAsync(id, token);
         }
 
         /// <inheritdoc />
-        public Task<Lock<TId>> ClaimLockAsync(TId id, CancellationToken token = new CancellationToken())
+        public Task<Lock<TId>> ClaimLockAsync(TId id, CancellationToken token = default)
         {
             throw new FulcrumNotImplementedException();
         }
 
         /// <inheritdoc />
-        public Task ReleaseLockAsync(TId id, TId itemId, CancellationToken token = new CancellationToken())
+        public Task ReleaseLockAsync(TId id, TId itemId, CancellationToken token = default)
         {
             throw new FulcrumNotImplementedException();
         }
@@ -150,7 +150,7 @@ namespace Nexus.Link.Libraries.Azure.Storage.Blob
         }
 
         /// <inheritdoc />
-        public Task<IEnumerable<TModel>> ReadAllAsync(int limit = 2147483647, CancellationToken token = new CancellationToken())
+        public Task<IEnumerable<TModel>> ReadAllAsync(int limit = 2147483647, CancellationToken token = default)
         {
             InternalContract.RequireGreaterThan(0, limit, nameof(limit));
             return StorageHelper.ReadPagesAsync<TModel>((offset, ct) => ReadAllWithPagingAsync(offset, null, ct), limit, token);
@@ -209,7 +209,7 @@ namespace Nexus.Link.Libraries.Azure.Storage.Blob
         }
 
         /// <inheritdoc />
-        public async Task<TModel> UpdateAndReturnAsync(TId id, TModel item, CancellationToken token = new CancellationToken())
+        public async Task<TModel> UpdateAndReturnAsync(TId id, TModel item, CancellationToken token = default)
         {
             await UpdateAsync(id, item, token);
             return await ReadAsync(id, token);

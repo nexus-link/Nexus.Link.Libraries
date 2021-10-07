@@ -25,18 +25,18 @@ namespace Nexus.Link.Libraries.Crud.Helpers
         }
 
         /// <inheritdoc />
-        public async Task<TModel> CreateAndReturnAsync(TModelCreate item, CancellationToken token = default)
+        public async Task<TModel> CreateAndReturnAsync(TModelCreate item, CancellationToken cancellationToken  = default)
         {
             InternalContract.RequireNotNull(item, nameof(item));
-            var id = await _service.CreateAsync(item, token);
-            return await _service.ReadAsync(id, token);
+            var id = await _service.CreateAsync(item, cancellationToken );
+            return await _service.ReadAsync(id, cancellationToken );
         }
 
         /// <inheritdoc />
-        public Task<IEnumerable<TModel>> ReadAllAsync(int limit = Int32.MaxValue, CancellationToken token = default)
+        public Task<IEnumerable<TModel>> ReadAllAsync(int limit = Int32.MaxValue, CancellationToken cancellationToken  = default)
         {
             InternalContract.RequireGreaterThan(0, limit, nameof(limit));
-            return StorageHelper.ReadPagesAsync<TModel>((offset, ct) => _service.ReadAllWithPagingAsync(offset, null, ct), limit, token);
+            return StorageHelper.ReadPagesAsync<TModel>((offset, ct) => _service.ReadAllWithPagingAsync(offset, null, ct), limit, cancellationToken );
         }
 
         /// <summary>
@@ -82,16 +82,16 @@ namespace Nexus.Link.Libraries.Crud.Helpers
         }
 
         /// <inheritdoc />
-        public Task ClaimTransactionLockAsync(TId id, CancellationToken token = default)
+        public Task ClaimTransactionLockAsync(TId id, CancellationToken cancellationToken  = default)
         {
             throw new NotImplementedException();
         }
 
         /// <inheritdoc />
-        public async Task<TModel> ClaimTransactionLockAndReadAsync(TId id, CancellationToken token = default)
+        public async Task<TModel> ClaimTransactionLockAndReadAsync(TId id, CancellationToken cancellationToken  = default)
         {
-            await _service.ClaimTransactionLockAsync(id, token);
-            return await _service.ReadAsync(id, token);
+            await _service.ClaimTransactionLockAsync(id, cancellationToken );
+            return await _service.ReadAsync(id, cancellationToken );
         }
     }
 }

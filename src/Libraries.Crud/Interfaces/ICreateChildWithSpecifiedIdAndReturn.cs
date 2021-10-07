@@ -26,7 +26,7 @@ namespace Nexus.Link.Libraries.Crud.Interfaces
         /// <param name="parentId">The id of the parent for this child.</param>
         /// <param name="childId">The proposed id for this child.</param>
         /// <param name="item">The item to store.</param>
-        /// <param name="token">Propagates notification that operations should be canceled</param>
+        /// <param name="cancellationToken ">Propagates notification that operations should be canceled</param>
         /// <returns>The new item as it was saved, see remarks below.</returns>
         /// <remarks>
         /// If the returned type implements <see cref="IUniquelyIdentifiable{TChildId}"/>, then the <see cref="IUniquelyIdentifiable{TChildId}.Id"/> is updated with the new id. 
@@ -34,6 +34,6 @@ namespace Nexus.Link.Libraries.Crud.Interfaces
         /// </remarks>
         /// <seealso cref="IOptimisticConcurrencyControlByETag"/>
         /// <seealso cref="IUniquelyIdentifiable{TId}"/>
-        Task<TModel> CreateChildWithSpecifiedIdAndReturnAsync(TId parentId, TId childId, TModelCreate item, CancellationToken token = default);
+        Task<TModel> CreateChildWithSpecifiedIdAndReturnAsync(TId parentId, TId childId, TModelCreate item, CancellationToken cancellationToken  = default);
     }
 }

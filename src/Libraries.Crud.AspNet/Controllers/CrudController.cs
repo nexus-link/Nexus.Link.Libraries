@@ -75,7 +75,7 @@ namespace Nexus.Link.Libraries.Crud.AspNet.Controllers
         /// <inheritdoc />
         [SwaggerBadRequestResponse]
         [SwaggerInternalServerErrorResponse]
-        public virtual async Task CreateWithSpecifiedIdAsync(string id, TModelCreate item, CancellationToken token = new CancellationToken())
+        public virtual async Task CreateWithSpecifiedIdAsync(string id, TModelCreate item, CancellationToken token = default)
         {
             ServiceContract.RequireNotNullOrWhiteSpace(id, nameof(id));
             ServiceContract.RequireNotNull(item, nameof(item));
@@ -87,7 +87,7 @@ namespace Nexus.Link.Libraries.Crud.AspNet.Controllers
         [SwaggerBadRequestResponse]
         [SwaggerInternalServerErrorResponse]
         public virtual async Task<TModel> CreateWithSpecifiedIdAndReturnAsync(string id, TModelCreate item,
-            CancellationToken token = new CancellationToken())
+            CancellationToken token = default)
         {
             ServiceContract.RequireNotNullOrWhiteSpace(id, nameof(id));
             ServiceContract.RequireNotNull(item, nameof(item));
@@ -207,7 +207,7 @@ namespace Nexus.Link.Libraries.Crud.AspNet.Controllers
         /// <inheritdoc />
         [SwaggerBadRequestResponse]
         [SwaggerInternalServerErrorResponse]
-        public virtual async Task<Lock<string>> ClaimLockAsync(string id, CancellationToken token = new CancellationToken())
+        public virtual async Task<Lock<string>> ClaimLockAsync(string id, CancellationToken token = default)
         {
             ServiceContract.RequireNotNullOrWhiteSpace(id, nameof(id));
             var @lock = await Logic.ClaimLockAsync(id, token);
@@ -219,7 +219,7 @@ namespace Nexus.Link.Libraries.Crud.AspNet.Controllers
         /// <inheritdoc />
         [SwaggerBadRequestResponse]
         [SwaggerInternalServerErrorResponse]
-        public virtual async Task ReleaseLockAsync(string id, string lockId, CancellationToken token = new CancellationToken())
+        public virtual async Task ReleaseLockAsync(string id, string lockId, CancellationToken token = default)
         {
             ServiceContract.RequireNotNullOrWhiteSpace(id, nameof(id));
             ServiceContract.RequireNotNullOrWhiteSpace(lockId, nameof(lockId));

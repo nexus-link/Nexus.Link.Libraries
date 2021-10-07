@@ -46,97 +46,97 @@ namespace Nexus.Link.Libraries.Crud.PassThrough
 
         /// <inheritdoc />
         public virtual Task CreateWithSpecifiedIdAsync(TId masterId, TDependentId dependentId, TModelCreate item,
-            CancellationToken token = default)
+            CancellationToken cancellationToken  = default)
         {
             var implementation = CrudHelper.GetImplementationOrThrow<ICreateDependentWithSpecifiedId<TModelCreate, TModel, TId, TDependentId>>(Service);
-            return implementation.CreateWithSpecifiedIdAsync(masterId, dependentId, item, token);
+            return implementation.CreateWithSpecifiedIdAsync(masterId, dependentId, item, cancellationToken );
         }
 
         /// <inheritdoc />
         public virtual Task<TModel> CreateWithSpecifiedIdAndReturnAsync(TId masterId, TDependentId dependentId, TModelCreate item,
-            CancellationToken token = default)
+            CancellationToken cancellationToken  = default)
         {
             var implementation = CrudHelper.GetImplementationOrThrow<ICreateDependentWithSpecifiedIdAndReturn<TModelCreate, TModel, TId, TDependentId>>(Service);
-            return implementation.CreateWithSpecifiedIdAndReturnAsync(masterId, dependentId, item, token);
+            return implementation.CreateWithSpecifiedIdAndReturnAsync(masterId, dependentId, item, cancellationToken );
         }
 
         /// <inheritdoc />
-        public virtual Task<TModel> ReadAsync(TId masterId, TDependentId dependentId, CancellationToken token = default)
+        public virtual Task<TModel> ReadAsync(TId masterId, TDependentId dependentId, CancellationToken cancellationToken  = default)
         {
             var implementation = CrudHelper.GetImplementationOrThrow<IReadDependent<TModel, TId, TDependentId>>(Service);
-            return implementation.ReadAsync(masterId, dependentId, token);
+            return implementation.ReadAsync(masterId, dependentId, cancellationToken );
         }
 
         /// <inheritdoc />
         public virtual Task<PageEnvelope<TModel>> ReadChildrenWithPagingAsync(TId parentId, int offset, int? limit = null,
-            CancellationToken token = default)
+            CancellationToken cancellationToken  = default)
         {
             var implementation = CrudHelper.GetImplementationOrThrow<IReadChildrenWithPaging<TModel, TId>>(Service);
-            return implementation.ReadChildrenWithPagingAsync(parentId, offset, limit, token);
+            return implementation.ReadChildrenWithPagingAsync(parentId, offset, limit, cancellationToken );
         }
 
         /// <inheritdoc />
-        public virtual Task<IEnumerable<TModel>> ReadChildrenAsync(TId parentId, int limit = int.MaxValue, CancellationToken token = default)
+        public virtual Task<IEnumerable<TModel>> ReadChildrenAsync(TId parentId, int limit = int.MaxValue, CancellationToken cancellationToken  = default)
         {
             var implementation = CrudHelper.GetImplementationOrThrow<IReadChildren<TModel, TId>>(Service);
-            return implementation.ReadChildrenAsync(parentId, limit, token);
+            return implementation.ReadChildrenAsync(parentId, limit, cancellationToken );
         }
 
         /// <inheritdoc />
-        public virtual Task UpdateAsync(TId masterId, TDependentId dependentId, TModel item, CancellationToken token = default)
+        public virtual Task UpdateAsync(TId masterId, TDependentId dependentId, TModel item, CancellationToken cancellationToken  = default)
         {
             var implementation = CrudHelper.GetImplementationOrThrow<IUpdateDependent<TModel, TId, TDependentId>>(Service);
-            return implementation.UpdateAsync(masterId, dependentId, item, token);
+            return implementation.UpdateAsync(masterId, dependentId, item, cancellationToken );
         }
 
         /// <inheritdoc />
-        public virtual Task<TModel> UpdateAndReturnAsync(TId masterId, TDependentId dependentId, TModel item, CancellationToken token = default)
+        public virtual Task<TModel> UpdateAndReturnAsync(TId masterId, TDependentId dependentId, TModel item, CancellationToken cancellationToken  = default)
         {
             var implementation = CrudHelper.GetImplementationOrThrow<IUpdateDependentAndReturn<TModel, TId, TDependentId>>(Service);
-            return implementation.UpdateAndReturnAsync(masterId, dependentId, item, token);
+            return implementation.UpdateAndReturnAsync(masterId, dependentId, item, cancellationToken );
         }
 
         /// <inheritdoc />
-        public virtual Task DeleteAsync(TId masterId, TDependentId dependentId, CancellationToken token = default)
+        public virtual Task DeleteAsync(TId masterId, TDependentId dependentId, CancellationToken cancellationToken  = default)
         {
             var implementation = CrudHelper.GetImplementationOrThrow<IDeleteDependent<TId, TDependentId>>(Service);
-            return implementation.DeleteAsync(masterId, dependentId, token);
+            return implementation.DeleteAsync(masterId, dependentId, cancellationToken );
         }
 
         /// <inheritdoc />
-        public virtual Task DeleteChildrenAsync(TId parentId, CancellationToken token = default)
+        public virtual Task DeleteChildrenAsync(TId parentId, CancellationToken cancellationToken  = default)
         {
             var implementation = CrudHelper.GetImplementationOrThrow<IDeleteChildren<TId>>(Service);
-            return implementation.DeleteChildrenAsync(parentId, token);
+            return implementation.DeleteChildrenAsync(parentId, cancellationToken );
         }
 
         /// <inheritdoc />
-        public virtual Task<DependentLock<TId, TDependentId>> ClaimDistributedLockAsync(TId masterId, TDependentId dependentId, CancellationToken token = default)
+        public virtual Task<DependentLock<TId, TDependentId>> ClaimDistributedLockAsync(TId masterId, TDependentId dependentId, CancellationToken cancellationToken  = default)
         {
             var implementation = CrudHelper.GetImplementationOrThrow<IDependentDistributedLock<TId, TDependentId>>(Service);
-            return implementation.ClaimDistributedLockAsync(masterId, dependentId, token);
+            return implementation.ClaimDistributedLockAsync(masterId, dependentId, cancellationToken );
         }
 
         /// <inheritdoc />
         public virtual Task ReleaseDistributedLockAsync(TId masterId, TDependentId dependentId, TId lockId,
-            CancellationToken token = default)
+            CancellationToken cancellationToken  = default)
         {
             var implementation = CrudHelper.GetImplementationOrThrow<IDependentDistributedLock<TId, TDependentId>>(Service);
-            return implementation.ReleaseDistributedLockAsync(masterId, dependentId, lockId, token);
+            return implementation.ReleaseDistributedLockAsync(masterId, dependentId, lockId, cancellationToken );
         }
 
         /// <inheritdoc />
-        public virtual Task ClaimTransactionLockAsync(TId masterId, TDependentId dependentId, CancellationToken token = default)
+        public virtual Task ClaimTransactionLockAsync(TId masterId, TDependentId dependentId, CancellationToken cancellationToken  = default)
         {
             var implementation = CrudHelper.GetImplementationOrThrow<ITransactionLockDependent<TModel, TId, TDependentId>>(Service);
-            return implementation.ClaimTransactionLockAsync(masterId, dependentId, token);
+            return implementation.ClaimTransactionLockAsync(masterId, dependentId, cancellationToken );
         }
 
         /// <inheritdoc />
-        public Task<TModel> ClaimTransactionLockAndReadAsync(TId masterId, TDependentId dependentId, CancellationToken token = default)
+        public Task<TModel> ClaimTransactionLockAndReadAsync(TId masterId, TDependentId dependentId, CancellationToken cancellationToken  = default)
         {
             var implementation = CrudHelper.GetImplementationOrThrow<ITransactionLockDependent<TModel, TId, TDependentId>>(Service);
-            return implementation.ClaimTransactionLockAndReadAsync(masterId, dependentId, token);
+            return implementation.ClaimTransactionLockAndReadAsync(masterId, dependentId, cancellationToken );
         }
 
         /// <inheritdoc />
@@ -156,10 +156,10 @@ namespace Nexus.Link.Libraries.Crud.PassThrough
         }
 
         /// <inheritdoc />
-        public Task<TId> GetDependentUniqueIdAsync(TId masterId, TDependentId dependentId, CancellationToken token = default)
+        public Task<TId> GetDependentUniqueIdAsync(TId masterId, TDependentId dependentId, CancellationToken cancellationToken  = default)
         {
             var implementation = CrudHelper.GetImplementationOrThrow<IGetDependentUniqueId<TId, TDependentId>>(Service);
-            return implementation.GetDependentUniqueIdAsync(masterId, dependentId, token);
+            return implementation.GetDependentUniqueIdAsync(masterId, dependentId, cancellationToken );
         }
     }
 }

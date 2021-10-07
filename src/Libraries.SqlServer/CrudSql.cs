@@ -59,7 +59,7 @@ namespace Nexus.Link.Libraries.SqlServer
         }
 
         /// <inheritdoc />
-        public async Task<Guid> CreateAsync(TDatabaseItemCreate item, CancellationToken token = new CancellationToken())
+        public async Task<Guid> CreateAsync(TDatabaseItemCreate item, CancellationToken token = default)
         {
             var id = Guid.NewGuid();
             await CreateWithSpecifiedIdAsync(id, item, token);
@@ -67,7 +67,7 @@ namespace Nexus.Link.Libraries.SqlServer
         }
 
         /// <inheritdoc />
-        public async Task<TDatabaseItem> CreateAndReturnAsync(TDatabaseItemCreate item, CancellationToken token = new CancellationToken())
+        public async Task<TDatabaseItem> CreateAndReturnAsync(TDatabaseItemCreate item, CancellationToken token = default)
         {
             var id = Guid.NewGuid();
             return await CreateWithSpecifiedIdAndReturnAsync(id, item, token);
@@ -101,7 +101,7 @@ namespace Nexus.Link.Libraries.SqlServer
 
         /// <inheritdoc />
         public async Task<TDatabaseItem> CreateWithSpecifiedIdAndReturnAsync(Guid id, TDatabaseItemCreate item,
-            CancellationToken token = new CancellationToken())
+            CancellationToken token = default)
         {
             await CreateWithSpecifiedIdAsync(id, item, token);
             return await ReadAsync(id, token);
@@ -151,7 +151,7 @@ namespace Nexus.Link.Libraries.SqlServer
         }
 
         /// <inheritdoc />
-        public async Task<IEnumerable<TDatabaseItem>> ReadAllAsync(int limit = 2147483647, CancellationToken token = new CancellationToken())
+        public async Task<IEnumerable<TDatabaseItem>> ReadAllAsync(int limit = 2147483647, CancellationToken token = default)
         {
             InternalContract.RequireGreaterThan(0, limit, nameof(limit));
             return await StorageHelper.ReadPagesAsync<TDatabaseItem>(
@@ -175,7 +175,7 @@ namespace Nexus.Link.Libraries.SqlServer
         }
 
         /// <inheritdoc />
-        public async Task<TDatabaseItem> UpdateAndReturnAsync(Guid id, TDatabaseItem item, CancellationToken token = new CancellationToken())
+        public async Task<TDatabaseItem> UpdateAndReturnAsync(Guid id, TDatabaseItem item, CancellationToken token = default)
         {
             InternalContract.RequireNotNull(item, nameof(item));
             InternalContract.RequireValidated(item, nameof(item));
@@ -219,13 +219,13 @@ namespace Nexus.Link.Libraries.SqlServer
         }
 
         /// <inheritdoc />
-        public Task<Lock<Guid>> ClaimLockAsync(Guid id, CancellationToken token = new CancellationToken())
+        public Task<Lock<Guid>> ClaimLockAsync(Guid id, CancellationToken token = default)
         {
             throw new FulcrumNotImplementedException();
         }
 
         /// <inheritdoc />
-        public Task ReleaseLockAsync(Guid id, Guid lockId, CancellationToken token = new CancellationToken())
+        public Task ReleaseLockAsync(Guid id, Guid lockId, CancellationToken token = default)
         {
             throw new FulcrumNotImplementedException();
         }

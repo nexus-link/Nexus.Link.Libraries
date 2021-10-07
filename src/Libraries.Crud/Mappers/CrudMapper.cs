@@ -46,132 +46,132 @@ namespace Nexus.Link.Libraries.Crud.Mappers
         }
 
         /// <inheritdoc />
-        public virtual async Task<TClientId> CreateAsync(TClientModelCreate item, CancellationToken token = default)
+        public virtual async Task<TClientId> CreateAsync(TClientModelCreate item, CancellationToken cancellationToken  = default)
         {
             var record = _mapper.MapToServer(item);
-            var serverId = await _service.CreateAsync(record, token);
+            var serverId = await _service.CreateAsync(record, cancellationToken );
             FulcrumAssert.IsNotDefaultValue(serverId);
             return MapperHelper.MapToType<TClientId, TServerId>(serverId);
         }
 
         /// <inheritdoc />
-        public virtual async Task<TClientModel> CreateAndReturnAsync(TClientModelCreate item, CancellationToken token = default)
+        public virtual async Task<TClientModel> CreateAndReturnAsync(TClientModelCreate item, CancellationToken cancellationToken  = default)
         {
             var record = _mapper.MapToServer(item);
-            record = await _service.CreateAndReturnAsync(record, token);
+            record = await _service.CreateAndReturnAsync(record, cancellationToken );
             FulcrumAssert.IsNotDefaultValue(record);
             return _mapper.MapFromServer(record);
         }
 
         /// <inheritdoc />
-        public virtual Task CreateWithSpecifiedIdAsync(TClientId id, TClientModelCreate item, CancellationToken token = default)
+        public virtual Task CreateWithSpecifiedIdAsync(TClientId id, TClientModelCreate item, CancellationToken cancellationToken  = default)
         {
             var serverId = MapperHelper.MapToType<TServerId, TClientId>(id);
             var record = _mapper.MapToServer(item);
-            return _service.CreateWithSpecifiedIdAsync(serverId, record, token);
+            return _service.CreateWithSpecifiedIdAsync(serverId, record, cancellationToken );
         }
 
         /// <inheritdoc />
         public virtual async Task<TClientModel> CreateWithSpecifiedIdAndReturnAsync(TClientId id, TClientModelCreate item,
-            CancellationToken token = default)
+            CancellationToken cancellationToken  = default)
         {
             var serverId = MapperHelper.MapToType<TServerId, TClientId>(id);
             var record = _mapper.MapToServer(item);
-            record = await _service.CreateWithSpecifiedIdAndReturnAsync(serverId, record, token);
+            record = await _service.CreateWithSpecifiedIdAndReturnAsync(serverId, record, cancellationToken );
             return _mapper.MapFromServer(record);
         }
 
         /// <inheritdoc />
-        public virtual async Task<TClientModel> ReadAsync(TClientId id, CancellationToken token = default)
+        public virtual async Task<TClientModel> ReadAsync(TClientId id, CancellationToken cancellationToken  = default)
         {
             var serverId = MapperHelper.MapToType<TServerId, TClientId>(id);
-            var record = await _service.ReadAsync(serverId, token);
+            var record = await _service.ReadAsync(serverId, cancellationToken );
             return _mapper.MapFromServer(record);
         }
 
         /// <inheritdoc />
-        public virtual async Task<PageEnvelope<TClientModel>> ReadAllWithPagingAsync(int offset, int? limit = null, CancellationToken token = default)
+        public virtual async Task<PageEnvelope<TClientModel>> ReadAllWithPagingAsync(int offset, int? limit = null, CancellationToken cancellationToken  = default)
         {
-            var storagePage = await _service.ReadAllWithPagingAsync(offset, limit, token);
+            var storagePage = await _service.ReadAllWithPagingAsync(offset, limit, cancellationToken );
             FulcrumAssert.IsNotNull(storagePage?.Data);
             var data = storagePage?.Data.Select(_mapper.MapFromServer);
             return new PageEnvelope<TClientModel>(storagePage?.PageInfo, data);
         }
 
         /// <inheritdoc />
-        public virtual async Task<IEnumerable<TClientModel>> ReadAllAsync(int limit = 2147483647, CancellationToken token = default)
+        public virtual async Task<IEnumerable<TClientModel>> ReadAllAsync(int limit = 2147483647, CancellationToken cancellationToken  = default)
         {
-            var items = await _service.ReadAllAsync(limit, token);
+            var items = await _service.ReadAllAsync(limit, cancellationToken );
             FulcrumAssert.IsNotNull(items);
             return items?.Select(_mapper.MapFromServer);
         }
 
         /// <inheritdoc />
-        public virtual Task UpdateAsync(TClientId id, TClientModel item, CancellationToken token = default)
+        public virtual Task UpdateAsync(TClientId id, TClientModel item, CancellationToken cancellationToken  = default)
         {
             var serverId = MapperHelper.MapToType<TServerId, TClientId>(id);
             var record = _mapper.MapToServer(item);
-            return _service.UpdateAsync(serverId, record, token);
+            return _service.UpdateAsync(serverId, record, cancellationToken );
         }
 
         /// <inheritdoc />
-        public virtual async Task<TClientModel> UpdateAndReturnAsync(TClientId id, TClientModel item, CancellationToken token = default)
+        public virtual async Task<TClientModel> UpdateAndReturnAsync(TClientId id, TClientModel item, CancellationToken cancellationToken  = default)
         {
             var serverId = MapperHelper.MapToType<TServerId, TClientId>(id);
             var record = _mapper.MapToServer(item);
-            record = await _service.UpdateAndReturnAsync(serverId, record, token);
+            record = await _service.UpdateAndReturnAsync(serverId, record, cancellationToken );
             return _mapper.MapFromServer(record);
         }
 
         /// <inheritdoc />
-        public virtual Task DeleteAsync(TClientId id, CancellationToken token = default)
+        public virtual Task DeleteAsync(TClientId id, CancellationToken cancellationToken  = default)
         {
             var serverId = MapperHelper.MapToType<TServerId, TClientId>(id);
-            return _service.DeleteAsync(serverId, token);
+            return _service.DeleteAsync(serverId, cancellationToken );
         }
 
         /// <inheritdoc />
-        public virtual Task DeleteAllAsync(CancellationToken token = default)
+        public virtual Task DeleteAllAsync(CancellationToken cancellationToken  = default)
         {
-            return _service.DeleteAllAsync(token);
+            return _service.DeleteAllAsync(cancellationToken );
         }
 
         /// <inheritdoc />
-        public async Task<Lock<TClientId>> ClaimLockAsync(TClientId id, CancellationToken token = default)
+        public async Task<Lock<TClientId>> ClaimLockAsync(TClientId id, CancellationToken cancellationToken  = default)
         {
             var serverId = MapperHelper.MapToType<TServerId, TClientId>(id);
-            var @lock = await _service.ClaimLockAsync(serverId, token);
+            var @lock = await _service.ClaimLockAsync(serverId, cancellationToken );
             return MapperHelper.MapToType<TClientId, TServerId>(@lock);
         }
 
         /// <inheritdoc />
-        public Task ReleaseLockAsync(TClientId id, TClientId lockId, CancellationToken token = default)
+        public Task ReleaseLockAsync(TClientId id, TClientId lockId, CancellationToken cancellationToken  = default)
         {
             var serverId = MapperHelper.MapToType<TServerId, TClientId>(id);
             var serverLockId = MapperHelper.MapToType<TServerId, TClientId>(lockId);
-            return _service.ReleaseLockAsync(serverId, serverLockId, token);
+            return _service.ReleaseLockAsync(serverId, serverLockId, cancellationToken );
         }
 
         /// <inheritdoc />
-        public Task<Lock<TClientId>> ClaimDistributedLockAsync(TClientId id, CancellationToken token = default)
+        public Task<Lock<TClientId>> ClaimDistributedLockAsync(TClientId id, CancellationToken cancellationToken  = default)
         {
             throw new NotImplementedException();
         }
 
         /// <inheritdoc />
-        public Task ReleaseDistributedLockAsync(TClientId id, TClientId lockId, CancellationToken token = default)
+        public Task ReleaseDistributedLockAsync(TClientId id, TClientId lockId, CancellationToken cancellationToken  = default)
         {
             throw new NotImplementedException();
         }
 
         /// <inheritdoc />
-        public Task ClaimTransactionLockAsync(TClientId id, CancellationToken token = default)
+        public Task ClaimTransactionLockAsync(TClientId id, CancellationToken cancellationToken  = default)
         {
             throw new NotImplementedException();
         }
 
         /// <inheritdoc />
-        public Task<TClientModel> ClaimTransactionLockAndReadAsync(TClientId id, CancellationToken token = default)
+        public Task<TClientModel> ClaimTransactionLockAndReadAsync(TClientId id, CancellationToken cancellationToken  = default)
         {
             throw new NotImplementedException();
         }

@@ -16,6 +16,6 @@ namespace Nexus.Link.Libraries.Crud.Interfaces
         /// </summary>
         /// <returns>The found id or exception.</returns>
         /// <exception cref="FulcrumNotFoundException"></exception>
-        Task<TId> GetDependentUniqueIdAsync(TId masterId, TDependentId dependentId, CancellationToken token = default);
+        Task<TId> GetDependentUniqueIdAsync(TId masterId, TDependentId dependentId, CancellationToken cancellationToken  = default);
     }
 }

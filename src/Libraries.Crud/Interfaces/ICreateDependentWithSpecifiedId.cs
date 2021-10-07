@@ -25,8 +25,8 @@ namespace Nexus.Link.Libraries.Crud.Interfaces
         /// <param name="masterId">The id of the master for this dependent.</param>
         /// <param name="dependentId">The proposed id for this dependent.</param>
         /// <param name="item">The item to create in storage.</param>
-        /// <param name="token">Propagates notification that operations should be canceled</param>
+        /// <param name="cancellationToken ">Propagates notification that operations should be canceled</param>
         /// <returns>The newly created item.</returns>
-        Task CreateWithSpecifiedIdAsync(TId masterId, TDependentId dependentId, TModelCreate item, CancellationToken token = default);
+        Task CreateWithSpecifiedIdAsync(TId masterId, TDependentId dependentId, TModelCreate item, CancellationToken cancellationToken  = default);
     }
 }

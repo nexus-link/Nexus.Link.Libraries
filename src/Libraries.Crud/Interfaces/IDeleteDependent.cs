@@ -15,7 +15,7 @@ namespace Nexus.Link.Libraries.Crud.Interfaces
         /// </summary>
         /// <param name="masterId">The id for the master object.</param>
         /// <param name="dependentId">The id for the dependent object.</param>
-        /// <param name="token">Propagates notification that operations should be canceled</param>
-        Task DeleteAsync(TId masterId, TDependentId dependentId, CancellationToken token = default);
+        /// <param name="cancellationToken ">Propagates notification that operations should be canceled</param>
+        Task DeleteAsync(TId masterId, TDependentId dependentId, CancellationToken cancellationToken  = default);
     }
 }

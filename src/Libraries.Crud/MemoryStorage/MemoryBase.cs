@@ -34,9 +34,9 @@ namespace Nexus.Link.Libraries.Crud.MemoryStorage
         /// </summary>
         /// <param name="id"></param>
         /// <param name="item"></param>
-        /// <param name="token">Propagates notification that operations should be canceled</param>
+        /// <param name="cancellationToken ">Propagates notification that operations should be canceled</param>
         /// <returns></returns>
-        protected virtual TModel MaybeVerifyEtagForUpdate(TId id, TModel item, CancellationToken token = default)
+        protected virtual TModel MaybeVerifyEtagForUpdate(TId id, TModel item, CancellationToken cancellationToken  = default)
         {
             var oldItem = GetMemoryItem(id);
             if (!(item is IOptimisticConcurrencyControlByETag eTaggable)) return oldItem;

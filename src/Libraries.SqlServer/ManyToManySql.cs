@@ -65,7 +65,7 @@ namespace Nexus.Link.Libraries.SqlServer
 
         /// <inheritdoc />
         public Task CreateWithSpecifiedIdAsync(Guid masterId, Guid slaveId, TManyToManyModelCreate item,
-            CancellationToken token = new CancellationToken())
+            CancellationToken token = default)
         {
             InternalContract.RequireNotDefaultValue(masterId, nameof(masterId));
             InternalContract.RequireNotDefaultValue(slaveId, nameof(slaveId));
@@ -76,7 +76,7 @@ namespace Nexus.Link.Libraries.SqlServer
 
         /// <inheritdoc />
         public Task<TManyToManyModel> CreateWithSpecifiedIdAndReturnAsync(Guid masterId, Guid slaveId, TManyToManyModelCreate item,
-            CancellationToken token = new CancellationToken())
+            CancellationToken token = default)
         {
             InternalContract.RequireNotDefaultValue(masterId, nameof(masterId));
             InternalContract.RequireNotDefaultValue(slaveId, nameof(slaveId));
@@ -119,7 +119,7 @@ namespace Nexus.Link.Libraries.SqlServer
         }
 
         /// <inheritdoc />
-        public async Task UpdateAsync(Guid masterId, Guid slaveId, TManyToManyModel item, CancellationToken token = new CancellationToken())
+        public async Task UpdateAsync(Guid masterId, Guid slaveId, TManyToManyModel item, CancellationToken token = default)
         {
             InternalContract.RequireNotDefaultValue(masterId, nameof(masterId));
             InternalContract.RequireNotDefaultValue(slaveId, nameof(slaveId));
@@ -133,7 +133,7 @@ namespace Nexus.Link.Libraries.SqlServer
 
         /// <inheritdoc />
         public async Task<TManyToManyModel> UpdateAndReturnAsync(Guid masterId, Guid slaveId, TManyToManyModel item,
-            CancellationToken token = new CancellationToken())
+            CancellationToken token = default)
         {
             InternalContract.RequireNotDefaultValue(masterId, nameof(masterId));
             InternalContract.RequireNotDefaultValue(slaveId, nameof(slaveId));
@@ -146,7 +146,7 @@ namespace Nexus.Link.Libraries.SqlServer
         }
 
         /// <inheritdoc />
-        public Task DeleteAsync(Guid masterId, Guid slaveId, CancellationToken token = new CancellationToken())
+        public Task DeleteAsync(Guid masterId, Guid slaveId, CancellationToken token = default)
         {
             var param = new { Reference1Id = masterId, Reference2Id = slaveId };
             return DeleteWhereAsync(

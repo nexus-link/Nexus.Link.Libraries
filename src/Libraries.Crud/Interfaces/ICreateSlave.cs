@@ -26,8 +26,8 @@ namespace Nexus.Link.Libraries.Crud.Interfaces
         /// </summary>
         /// <param name="masterId">The master that the slave belongs to.</param>
         /// <param name="item">The item to store.</param>
-        /// <param name="token">Propagates notification that operations should be canceled</param>
+        /// <param name="cancellationToken ">Propagates notification that operations should be canceled</param>
         /// <returns>The new id for the created object.</returns>
-        Task<TId> CreateAsync(TId masterId, TModelCreate item, CancellationToken token = default);
+        Task<TId> CreateAsync(TId masterId, TModelCreate item, CancellationToken cancellationToken  = default);
     }
 }

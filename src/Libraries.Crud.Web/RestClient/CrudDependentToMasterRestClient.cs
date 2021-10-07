@@ -61,7 +61,7 @@ namespace Nexus.Link.Libraries.Crud.Web.RestClient
         }
 
         /// <inheritdoc />
-        public Task CreateWithSpecifiedIdAsync(TId masterId, TDependentId dependentId, TManyModelCreate item, CancellationToken token = new CancellationToken())
+        public Task CreateWithSpecifiedIdAsync(TId masterId, TDependentId dependentId, TManyModelCreate item, CancellationToken token = default)
         {
             InternalContract.RequireNotDefaultValue(masterId, nameof(masterId));
             InternalContract.RequireNotDefaultValue(dependentId, nameof(dependentId));
@@ -70,7 +70,7 @@ namespace Nexus.Link.Libraries.Crud.Web.RestClient
 
         /// <inheritdoc />
         public Task<TManyModel> CreateWithSpecifiedIdAndReturnAsync(TId masterId, TDependentId dependentId, TManyModelCreate item,
-            CancellationToken token = new CancellationToken())
+            CancellationToken token = default)
         {
             InternalContract.RequireNotDefaultValue(masterId, nameof(masterId));
             InternalContract.RequireNotDefaultValue(dependentId, nameof(dependentId));
@@ -78,7 +78,7 @@ namespace Nexus.Link.Libraries.Crud.Web.RestClient
         }
 
         /// <inheritdoc />
-        public Task<TManyModel> ReadAsync(TId masterId, TDependentId dependentId, CancellationToken token = new CancellationToken())
+        public Task<TManyModel> ReadAsync(TId masterId, TDependentId dependentId, CancellationToken token = default)
         {
             InternalContract.RequireNotDefaultValue(masterId, nameof(masterId));
             InternalContract.RequireNotDefaultValue(dependentId, nameof(dependentId));
@@ -130,7 +130,7 @@ namespace Nexus.Link.Libraries.Crud.Web.RestClient
         }
 
         /// <inheritdoc />
-        public Task UpdateAsync(TId masterId, TDependentId dependentId, TManyModel item, CancellationToken token = new CancellationToken())
+        public Task UpdateAsync(TId masterId, TDependentId dependentId, TManyModel item, CancellationToken token = default)
         {
             InternalContract.RequireNotDefaultValue(masterId, nameof(masterId));
             InternalContract.RequireNotDefaultValue(dependentId, nameof(dependentId));
@@ -146,7 +146,7 @@ namespace Nexus.Link.Libraries.Crud.Web.RestClient
 
         /// <inheritdoc />
         public Task<TManyModel> UpdateAndReturnAsync(TId masterId, TDependentId dependentId, TManyModel item,
-            CancellationToken token = new CancellationToken())
+            CancellationToken token = default)
         {
             InternalContract.RequireNotDefaultValue(masterId, nameof(masterId));
             InternalContract.RequireNotDefaultValue(dependentId, nameof(dependentId));
@@ -156,7 +156,7 @@ namespace Nexus.Link.Libraries.Crud.Web.RestClient
         }
 
         /// <inheritdoc />
-        public Task DeleteAsync(TId masterId, TDependentId dependentId, CancellationToken token = new CancellationToken())
+        public Task DeleteAsync(TId masterId, TDependentId dependentId, CancellationToken token = default)
         {
             InternalContract.RequireNotDefaultValue(masterId, nameof(masterId));
             InternalContract.RequireNotDefaultValue(dependentId, nameof(dependentId));

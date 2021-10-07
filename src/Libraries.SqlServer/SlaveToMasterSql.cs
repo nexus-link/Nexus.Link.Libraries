@@ -67,39 +67,39 @@ namespace Nexus.Link.Libraries.SqlServer
         }
 
         /// <inheritdoc />
-        public Task<Guid> CreateAsync(Guid masterId, TSlaveModelCreate item, CancellationToken token = new CancellationToken())
+        public Task<Guid> CreateAsync(Guid masterId, TSlaveModelCreate item, CancellationToken token = default)
         {
             return SlaveTableHandler.CreateAsync(item, token);
         }
 
         /// <inheritdoc />
-        public Task<TSlaveModel> CreateAndReturnAsync(Guid masterId, TSlaveModelCreate item, CancellationToken token = new CancellationToken())
+        public Task<TSlaveModel> CreateAndReturnAsync(Guid masterId, TSlaveModelCreate item, CancellationToken token = default)
         {
             return SlaveTableHandler.CreateAndReturnAsync(item, token);
         }
 
         /// <inheritdoc />
         public Task CreateWithSpecifiedIdAsync(Guid masterId, Guid slaveId, TSlaveModelCreate item,
-            CancellationToken token = new CancellationToken())
+            CancellationToken token = default)
         {
             return SlaveTableHandler.CreateWithSpecifiedIdAsync(slaveId, item, token);
         }
 
         /// <inheritdoc />
         public Task<TSlaveModel> CreateWithSpecifiedIdAndReturnAsync(Guid masterId, Guid slaveId, TSlaveModelCreate item,
-            CancellationToken token = new CancellationToken())
+            CancellationToken token = default)
         {
             return SlaveTableHandler.CreateWithSpecifiedIdAndReturnAsync(slaveId, item, token);
         }
 
         /// <inheritdoc />
-        public Task<TSlaveModel> ReadAsync(Guid masterId, Guid slaveId, CancellationToken token = new CancellationToken())
+        public Task<TSlaveModel> ReadAsync(Guid masterId, Guid slaveId, CancellationToken token = default)
         {
             return SlaveTableHandler.ReadAsync(slaveId, token);
         }
 
         /// <inheritdoc />
-        public Task<TSlaveModel> ReadAsync(SlaveToMasterId<Guid> id, CancellationToken token = new CancellationToken())
+        public Task<TSlaveModel> ReadAsync(SlaveToMasterId<Guid> id, CancellationToken token = default)
         {
             InternalContract.RequireNotNull(id, nameof(id));
             InternalContract.RequireValidated(id, nameof(id));
@@ -147,20 +147,20 @@ namespace Nexus.Link.Libraries.SqlServer
         }
 
         /// <inheritdoc />
-        public Task UpdateAsync(Guid masterId, Guid slaveId, TSlaveModel item, CancellationToken token = new CancellationToken())
+        public Task UpdateAsync(Guid masterId, Guid slaveId, TSlaveModel item, CancellationToken token = default)
         {
             return SlaveTableHandler.UpdateAsync(slaveId, item, token);
         }
 
         /// <inheritdoc />
         public Task<TSlaveModel> UpdateAndReturnAsync(Guid masterId, Guid slaveId, TSlaveModel item,
-            CancellationToken token = new CancellationToken())
+            CancellationToken token = default)
         {
             return SlaveTableHandler.UpdateAndReturnAsync(slaveId, item, token);
         }
 
         /// <inheritdoc />
-        public Task DeleteAsync(Guid masterId, Guid slaveId, CancellationToken token = new CancellationToken())
+        public Task DeleteAsync(Guid masterId, Guid slaveId, CancellationToken token = default)
         {
             return SlaveTableHandler.DeleteAsync(slaveId, token);
         }
@@ -172,13 +172,13 @@ namespace Nexus.Link.Libraries.SqlServer
         }
 
         /// <inheritdoc />
-        public Task<SlaveLock<Guid>> ClaimLockAsync(Guid masterId, Guid slaveId, CancellationToken token = new CancellationToken())
+        public Task<SlaveLock<Guid>> ClaimLockAsync(Guid masterId, Guid slaveId, CancellationToken token = default)
         {
             throw new NotImplementedException();
         }
 
         /// <inheritdoc />
-        public Task ReleaseLockAsync(Guid masterId, Guid slaveId, Guid lockId, CancellationToken token = new CancellationToken())
+        public Task ReleaseLockAsync(Guid masterId, Guid slaveId, Guid lockId, CancellationToken token = default)
         {
             throw new NotImplementedException();
         }

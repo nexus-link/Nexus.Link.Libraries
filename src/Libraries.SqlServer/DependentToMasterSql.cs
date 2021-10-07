@@ -66,7 +66,7 @@ namespace Nexus.Link.Libraries.SqlServer
 
         /// <inheritdoc />
         public async Task CreateWithSpecifiedIdAsync(Guid masterId, TDependentId dependentId, TDependentModelCreate item,
-            CancellationToken token = new CancellationToken())
+            CancellationToken token = default)
         {
             InternalContract.RequireAreEqual(item.MasterId, masterId, nameof(masterId));
             InternalContract.RequireAreEqual(item.DependentId, dependentId, nameof(dependentId));
@@ -75,7 +75,7 @@ namespace Nexus.Link.Libraries.SqlServer
 
         /// <inheritdoc />
         public Task<TDependentModel> CreateWithSpecifiedIdAndReturnAsync(Guid masterId, TDependentId dependentId, TDependentModelCreate item,
-            CancellationToken token = new CancellationToken())
+            CancellationToken token = default)
         {
             InternalContract.RequireAreEqual(item.MasterId, masterId, nameof(masterId));
             InternalContract.RequireAreEqual(item.DependentId, dependentId, nameof(dependentId));
@@ -83,7 +83,7 @@ namespace Nexus.Link.Libraries.SqlServer
         }
 
         /// <inheritdoc />
-        public Task<TDependentModel> ReadAsync(Guid masterId, TDependentId dependentId, CancellationToken token = new CancellationToken())
+        public Task<TDependentModel> ReadAsync(Guid masterId, TDependentId dependentId, CancellationToken token = default)
         {
             return DependentTableHandler.FindUniqueAsync(
                 new SearchDetails<TDependentModel>(new {MasterId = masterId, DependentId = dependentId}), token);
@@ -132,7 +132,7 @@ namespace Nexus.Link.Libraries.SqlServer
         }
 
         /// <inheritdoc />
-        public async Task UpdateAsync(Guid masterId, TDependentId dependentId, TDependentModel item, CancellationToken token = new CancellationToken())
+        public async Task UpdateAsync(Guid masterId, TDependentId dependentId, TDependentModel item, CancellationToken token = default)
         {
             var uniqueId = await GetDependentUniqueIdAsync(masterId, dependentId, token);
             await DependentTableHandler.UpdateAsync(uniqueId, item, token);
@@ -140,14 +140,14 @@ namespace Nexus.Link.Libraries.SqlServer
 
         /// <inheritdoc />
         public async Task<TDependentModel> UpdateAndReturnAsync(Guid masterId, TDependentId dependentId, TDependentModel item,
-            CancellationToken token = new CancellationToken())
+            CancellationToken token = default)
         {
             var uniqueId = await GetDependentUniqueIdAsync(masterId, dependentId, token);
             return await DependentTableHandler.UpdateAndReturnAsync(uniqueId, item, token);
         }
 
         /// <inheritdoc />
-        public async Task DeleteAsync(Guid masterId, TDependentId dependentId, CancellationToken token = new CancellationToken())
+        public async Task DeleteAsync(Guid masterId, TDependentId dependentId, CancellationToken token = default)
         {
             try
             {

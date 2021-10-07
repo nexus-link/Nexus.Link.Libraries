@@ -55,7 +55,7 @@ namespace Nexus.Link.Libraries.Crud.AspNet.DefaultControllers
         /// <inheritdoc />
         [HttpPost]
         [Route("{masterId}/Children")]
-        public override Task<string> CreateAsync(string masterId, TModelCreate item, CancellationToken token = new CancellationToken())
+        public override Task<string> CreateAsync(string masterId, TModelCreate item, CancellationToken token = default)
         {
             return base.CreateAsync(masterId, item, token);
         }
@@ -63,7 +63,7 @@ namespace Nexus.Link.Libraries.Crud.AspNet.DefaultControllers
         /// <inheritdoc />
         [HttpDelete]
         [Route("{masterId}/Children")]
-        public override Task DeleteChildrenAsync(string masterId, CancellationToken token = new CancellationToken())
+        public override Task DeleteChildrenAsync(string masterId, CancellationToken token = default)
         {
             return base.DeleteChildrenAsync(masterId, token);
         }
@@ -71,7 +71,7 @@ namespace Nexus.Link.Libraries.Crud.AspNet.DefaultControllers
         /// <inheritdoc cref="ICrudSlaveToMaster{TModel,TId}" />
         [HttpGet]
         [Route("{masterId}/Children/{slaveId}")]
-        public override Task<TModel> ReadAsync(string masterId, string slaveId, CancellationToken token = new CancellationToken())
+        public override Task<TModel> ReadAsync(string masterId, string slaveId, CancellationToken token = default)
         {
             return base.ReadAsync(masterId, slaveId, token);
         }
@@ -79,7 +79,7 @@ namespace Nexus.Link.Libraries.Crud.AspNet.DefaultControllers
         /// <inheritdoc cref="ICrudSlaveToMaster{TModel,TId}" />
         [HttpPut]
         [Route("{masterId}/Children/{slaveId}")]
-        public override Task UpdateAsync(string masterId, string slaveId, TModel item, CancellationToken token = new CancellationToken())
+        public override Task UpdateAsync(string masterId, string slaveId, TModel item, CancellationToken token = default)
         {
             return base.UpdateAsync(masterId, slaveId, item, token);
         }
@@ -87,7 +87,7 @@ namespace Nexus.Link.Libraries.Crud.AspNet.DefaultControllers
         /// <inheritdoc cref="ICrudSlaveToMaster{TModel,TId}" />
         [HttpDelete]
         [Route("{masterId}/Children/{slaveId}")]
-        public override Task DeleteAsync(string masterId, string slaveId, CancellationToken token = new CancellationToken())
+        public override Task DeleteAsync(string masterId, string slaveId, CancellationToken token = default)
         {
             return base.DeleteAsync(masterId, slaveId, token);
         }

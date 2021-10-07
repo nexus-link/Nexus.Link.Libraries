@@ -17,28 +17,28 @@ namespace Nexus.Link.Libraries.Crud.Interfaces
         /// </summary>
         /// <param name="masterId">The id for the master object.</param>
         /// <param name="dependentId">The id for the dependent object.</param>
-        /// <param name="token">Propagates notification that operations should be canceled</param>
+        /// <param name="cancellationToken ">Propagates notification that operations should be canceled</param>
         /// <exception cref="FulcrumTryAgainException">
         /// Thrown if there already is a claimed lock. Will contain information about when the lock is automatically released.
         /// </exception>
         /// <remarks>
         /// The lock will be automatically released when the transaction has completed or been aborted.
         /// </remarks>
-        Task ClaimTransactionLockAsync(TId masterId, TDependentId dependentId, CancellationToken token = default);
+        Task ClaimTransactionLockAsync(TId masterId, TDependentId dependentId, CancellationToken cancellationToken  = default);
 
         /// <summary>
         /// Returns the item uniquely identified by <paramref name="masterId"/> and <paramref name="dependentId"/> from storage and locks it with a transactional lock.
         /// </summary>
         /// <param name="masterId">The id for the master object.</param>
         /// <param name="dependentId">The id for the dependent object.</param>
-        /// <param name="token">Propagates notification that operations should be canceled</param>
+        /// <param name="cancellationToken ">Propagates notification that operations should be canceled</param>
         /// <exception cref="FulcrumTryAgainException">
         /// Thrown if there already is a claimed lock. Will contain information about when the lock is automatically released.
         /// </exception>
         /// <remarks>
         /// The lock will be automatically released when the transaction has completed or been aborted.
         /// </remarks>
-        Task<TModel> ClaimTransactionLockAndReadAsync(TId masterId, TDependentId dependentId, CancellationToken token = default);
+        Task<TModel> ClaimTransactionLockAndReadAsync(TId masterId, TDependentId dependentId, CancellationToken cancellationToken  = default);
 
     }
 }

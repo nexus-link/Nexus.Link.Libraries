@@ -45,66 +45,66 @@ namespace Nexus.Link.Libraries.Crud.MemoryStorage
 
 
         /// <inheritdoc />
-        public virtual Task<TId> CreateAsync(TId masterId, TModelCreate item, CancellationToken token = default)
+        public virtual Task<TId> CreateAsync(TId masterId, TModelCreate item, CancellationToken cancellationToken  = default)
         {
             InternalContract.RequireNotDefaultValue(masterId, nameof(masterId));
             InternalContract.RequireNotNull(item, nameof(item));
             InternalContract.RequireValidated(item, nameof(item));
             var groupPersistence = GetStorage(masterId);
-            return groupPersistence.CreateAsync(item, token);
+            return groupPersistence.CreateAsync(item, cancellationToken );
         }
 
         /// <inheritdoc />
-        public virtual Task<TModel> CreateAndReturnAsync(TId masterId, TModelCreate item, CancellationToken token = default)
+        public virtual Task<TModel> CreateAndReturnAsync(TId masterId, TModelCreate item, CancellationToken cancellationToken  = default)
         {
             InternalContract.RequireNotDefaultValue(masterId, nameof(masterId));
             InternalContract.RequireNotNull(item, nameof(item));
             InternalContract.RequireValidated(item, nameof(item));
             var groupPersistence = GetStorage(masterId);
-            return groupPersistence.CreateAndReturnAsync(item, token);
+            return groupPersistence.CreateAndReturnAsync(item, cancellationToken );
         }
 
         /// <inheritdoc />
         public virtual Task CreateWithSpecifiedIdAsync(TId masterId, TId slaveId, TModelCreate item,
-            CancellationToken token = default)
+            CancellationToken cancellationToken  = default)
         {
             InternalContract.RequireNotDefaultValue(masterId, nameof(masterId));
             InternalContract.RequireNotDefaultValue(slaveId, nameof(slaveId));
             InternalContract.RequireNotNull(item, nameof(item));
             InternalContract.RequireValidated(item, nameof(item));
             var groupPersistence = GetStorage(masterId);
-            return groupPersistence.CreateWithSpecifiedIdAsync(slaveId, item, token);
+            return groupPersistence.CreateWithSpecifiedIdAsync(slaveId, item, cancellationToken );
         }
 
         /// <inheritdoc />
         public virtual Task<TModel> CreateWithSpecifiedIdAndReturnAsync(TId masterId, TId slaveId, TModelCreate item,
-            CancellationToken token = default)
+            CancellationToken cancellationToken  = default)
         {
             InternalContract.RequireNotDefaultValue(masterId, nameof(masterId));
             InternalContract.RequireNotDefaultValue(slaveId, nameof(slaveId));
             InternalContract.RequireNotNull(item, nameof(item));
             InternalContract.RequireValidated(item, nameof(item));
             var groupPersistence = GetStorage(masterId);
-            return groupPersistence.CreateWithSpecifiedIdAndReturnAsync(slaveId, item, token);
+            return groupPersistence.CreateWithSpecifiedIdAndReturnAsync(slaveId, item, cancellationToken );
         }
 
         /// <inheritdoc />
-        public virtual Task<TModel> ReadAsync(TId masterId, TId slaveId, CancellationToken token = default)
+        public virtual Task<TModel> ReadAsync(TId masterId, TId slaveId, CancellationToken cancellationToken  = default)
         {
             InternalContract.RequireNotDefaultValue(masterId, nameof(masterId));
             InternalContract.RequireNotDefaultValue(slaveId, nameof(slaveId));
             var groupPersistence = GetStorage(masterId);
-            return groupPersistence.ReadAsync(slaveId, token);
+            return groupPersistence.ReadAsync(slaveId, cancellationToken );
         }
 
         /// <inheritdoc />
-        public virtual Task<TModel> ReadAsync(SlaveToMasterId<TId> id, CancellationToken token = default)
+        public virtual Task<TModel> ReadAsync(SlaveToMasterId<TId> id, CancellationToken cancellationToken  = default)
         {
-            return ReadAsync(id.MasterId, id.SlaveId, token);
+            return ReadAsync(id.MasterId, id.SlaveId, cancellationToken );
         }
 
         /// <inheritdoc />
-        public virtual Task<PageEnvelope<TModel>> ReadChildrenWithPagingAsync(TId parentId, int offset, int? limit = null, CancellationToken token = default)
+        public virtual Task<PageEnvelope<TModel>> ReadChildrenWithPagingAsync(TId parentId, int offset, int? limit = null, CancellationToken cancellationToken  = default)
         {
             InternalContract.RequireNotDefaultValue(parentId, nameof(parentId));
             InternalContract.RequireGreaterThanOrEqualTo(0, offset, nameof(offset));
@@ -113,55 +113,55 @@ namespace Nexus.Link.Libraries.Crud.MemoryStorage
                 InternalContract.RequireGreaterThan(0, limit.Value, nameof(limit));
             }
             var groupPersistence = GetStorage(parentId);
-            return groupPersistence.ReadAllWithPagingAsync(offset, limit, token);
+            return groupPersistence.ReadAllWithPagingAsync(offset, limit, cancellationToken );
         }
 
         /// <inheritdoc />
-        public virtual Task<IEnumerable<TModel>> ReadChildrenAsync(TId masterId, int limit = int.MaxValue, CancellationToken token = default)
+        public virtual Task<IEnumerable<TModel>> ReadChildrenAsync(TId masterId, int limit = int.MaxValue, CancellationToken cancellationToken  = default)
         {
             InternalContract.RequireNotDefaultValue(masterId, nameof(masterId));
             InternalContract.RequireGreaterThan(0, limit, nameof(limit));
             var groupPersistence = GetStorage(masterId);
-            return groupPersistence.ReadAllAsync(limit, token);
+            return groupPersistence.ReadAllAsync(limit, cancellationToken );
         }
 
         /// <inheritdoc />
-        public virtual Task UpdateAsync(TId masterId, TId slaveId, TModel item, CancellationToken token = default)
+        public virtual Task UpdateAsync(TId masterId, TId slaveId, TModel item, CancellationToken cancellationToken  = default)
         {
             InternalContract.RequireNotDefaultValue(masterId, nameof(masterId));
             InternalContract.RequireNotDefaultValue(slaveId, nameof(slaveId));
             InternalContract.RequireNotNull(item, nameof(item));
             InternalContract.RequireValidated(item, nameof(item));
             var groupPersistence = GetStorage(masterId);
-            return groupPersistence.UpdateAsync(slaveId, item, token);
+            return groupPersistence.UpdateAsync(slaveId, item, cancellationToken );
         }
 
         /// <inheritdoc />
-        public virtual Task<TModel> UpdateAndReturnAsync(TId masterId, TId slaveId, TModel item, CancellationToken token = default)
+        public virtual Task<TModel> UpdateAndReturnAsync(TId masterId, TId slaveId, TModel item, CancellationToken cancellationToken  = default)
         {
             InternalContract.RequireNotDefaultValue(masterId, nameof(masterId));
             InternalContract.RequireNotDefaultValue(slaveId, nameof(slaveId));
             InternalContract.RequireNotNull(item, nameof(item));
             InternalContract.RequireValidated(item, nameof(item));
             var groupPersistence = GetStorage(masterId);
-            return groupPersistence.UpdateAndReturnAsync(slaveId, item, token);
+            return groupPersistence.UpdateAndReturnAsync(slaveId, item, cancellationToken );
         }
 
         /// <inheritdoc />
-        public virtual Task DeleteAsync(TId masterId, TId slaveId, CancellationToken token = default)
+        public virtual Task DeleteAsync(TId masterId, TId slaveId, CancellationToken cancellationToken  = default)
         {
             InternalContract.RequireNotDefaultValue(masterId, nameof(masterId));
             InternalContract.RequireNotDefaultValue(slaveId, nameof(slaveId));
             var groupPersistence = GetStorage(masterId);
-            return groupPersistence.DeleteAsync(slaveId, token);
+            return groupPersistence.DeleteAsync(slaveId, cancellationToken );
         }
 
         /// <inheritdoc />
-        public virtual Task DeleteChildrenAsync(TId masterId, CancellationToken token = default)
+        public virtual Task DeleteChildrenAsync(TId masterId, CancellationToken cancellationToken  = default)
         {
             InternalContract.RequireNotDefaultValue(masterId, nameof(masterId));
             var groupPersistence = GetStorage(masterId);
-            return groupPersistence.DeleteAllAsync(token);
+            return groupPersistence.DeleteAllAsync(cancellationToken );
         }
 
         #region private
@@ -178,12 +178,12 @@ namespace Nexus.Link.Libraries.Crud.MemoryStorage
         #endregion
 
         /// <inheritdoc />
-        public virtual async Task<SlaveLock<TId>> ClaimLockAsync(TId masterId, TId slaveId, CancellationToken token = default)
+        public virtual async Task<SlaveLock<TId>> ClaimLockAsync(TId masterId, TId slaveId, CancellationToken cancellationToken  = default)
         {
             InternalContract.RequireNotDefaultValue(masterId, nameof(masterId));
             InternalContract.RequireNotDefaultValue(slaveId, nameof(slaveId));
             var groupPersistence = GetStorage(masterId);
-            var groupLock = await groupPersistence.ClaimLockAsync(slaveId, token);
+            var groupLock = await groupPersistence.ClaimLockAsync(slaveId, cancellationToken );
             return new SlaveLock<TId>
             {
                 Id = groupLock.Id,
@@ -194,21 +194,21 @@ namespace Nexus.Link.Libraries.Crud.MemoryStorage
         }
 
         /// <inheritdoc />
-        public virtual Task ReleaseLockAsync(TId masterId, TId slaveId, TId lockId, CancellationToken token = default)
+        public virtual Task ReleaseLockAsync(TId masterId, TId slaveId, TId lockId, CancellationToken cancellationToken  = default)
         {
             InternalContract.RequireNotDefaultValue(masterId, nameof(masterId));
             InternalContract.RequireNotDefaultValue(slaveId, nameof(slaveId));
             var groupPersistence = GetStorage(masterId);
-            return groupPersistence.ReleaseLockAsync(slaveId, lockId, token);
+            return groupPersistence.ReleaseLockAsync(slaveId, lockId, cancellationToken );
         }
 
         /// <inheritdoc />
-        public virtual async Task<SlaveLock<TId>> ClaimDistributedLockAsync(TId masterId, TId slaveId, CancellationToken token = default)
+        public virtual async Task<SlaveLock<TId>> ClaimDistributedLockAsync(TId masterId, TId slaveId, CancellationToken cancellationToken  = default)
         {
             InternalContract.RequireNotDefaultValue(masterId, nameof(masterId));
             InternalContract.RequireNotDefaultValue(slaveId, nameof(slaveId));
             var groupPersistence = GetStorage(masterId);
-            var groupLock = await groupPersistence.ClaimLockAsync(slaveId, token);
+            var groupLock = await groupPersistence.ClaimLockAsync(slaveId, cancellationToken );
             return new SlaveLock<TId>
             {
                 Id = groupLock.Id,
@@ -220,24 +220,24 @@ namespace Nexus.Link.Libraries.Crud.MemoryStorage
 
         /// <inheritdoc />
         public virtual Task ReleaseDistributedLockAsync(TId masterId, TId slaveId, TId lockId,
-            CancellationToken token = default)
+            CancellationToken cancellationToken  = default)
         {
             InternalContract.RequireNotDefaultValue(masterId, nameof(masterId));
             InternalContract.RequireNotDefaultValue(slaveId, nameof(slaveId));
             var groupPersistence = GetStorage(masterId);
-            return groupPersistence.ReleaseLockAsync(slaveId, lockId, token);
+            return groupPersistence.ReleaseLockAsync(slaveId, lockId, cancellationToken );
         }
 
         /// <inheritdoc />
-        public virtual Task ClaimTransactionLockAsync(TId masterId, TId slaveId, CancellationToken token = default)
+        public virtual Task ClaimTransactionLockAsync(TId masterId, TId slaveId, CancellationToken cancellationToken  = default)
         {
             return Task.CompletedTask;
         }
 
         /// <inheritdoc />
-        public Task<TModel> ClaimTransactionLockAndReadAsync(TId masterId, TId slaveId, CancellationToken token = default)
+        public Task<TModel> ClaimTransactionLockAndReadAsync(TId masterId, TId slaveId, CancellationToken cancellationToken  = default)
         {
-            return _convenience.ClaimTransactionLockAndReadAsync(masterId, slaveId, token);
+            return _convenience.ClaimTransactionLockAndReadAsync(masterId, slaveId, cancellationToken );
         }
 
         /// <inheritdoc />
