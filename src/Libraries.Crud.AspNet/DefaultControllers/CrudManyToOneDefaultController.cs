@@ -57,7 +57,7 @@ namespace Nexus.Link.Libraries.Crud.AspNet.DefaultControllers
         /// <inheritdoc />
         [HttpDelete]
         [Route("")]
-        public override Task DeleteChildrenAsync(string parentId, CancellationToken token = new CancellationToken())
+        public override Task DeleteChildrenAsync(string parentId, CancellationToken token = default)
         {
             return base.DeleteChildrenAsync(parentId, token);
         }

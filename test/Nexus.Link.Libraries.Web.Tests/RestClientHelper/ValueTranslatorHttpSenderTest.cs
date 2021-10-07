@@ -168,7 +168,7 @@ namespace Nexus.Link.Libraries.Web.Tests.RestClientHelper
 
             /// <inheritdoc />
             public Task<HttpResponseMessage> SendRequestAsync(HttpMethod method, string relativeUrl, Dictionary<string, List<string>> customHeaders = null,
-                CancellationToken cancellationToken = new CancellationToken())
+                CancellationToken cancellationToken = default)
             {
                 RelativeUrl = relativeUrl;
                 return Task.FromResult(new HttpResponseMessage(HttpStatusCode.OK));

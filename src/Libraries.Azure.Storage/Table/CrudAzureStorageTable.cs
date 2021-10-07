@@ -42,7 +42,7 @@ namespace Nexus.Link.Libraries.Azure.Storage.Table
         }
 
         /// <inheritdoc />
-        public async Task<TId> CreateAsync(TItemCreate item, CancellationToken token = new CancellationToken())
+        public async Task<TId> CreateAsync(TItemCreate item, CancellationToken token = default)
         {
             InternalContract.RequireNotNull(item, nameof(item));
             InternalContract.RequireValidated(item, nameof(item));
@@ -52,7 +52,7 @@ namespace Nexus.Link.Libraries.Azure.Storage.Table
         }
 
         /// <inheritdoc />
-        public async Task<TModel> CreateAndReturnAsync(TItemCreate item, CancellationToken token = new CancellationToken())
+        public async Task<TModel> CreateAndReturnAsync(TItemCreate item, CancellationToken token = default)
         {
             InternalContract.RequireNotNull(item, nameof(item));
             InternalContract.RequireValidated(item, nameof(item));
@@ -73,7 +73,7 @@ namespace Nexus.Link.Libraries.Azure.Storage.Table
         }
 
         /// <inheritdoc />
-        public async Task<TModel> CreateWithSpecifiedIdAndReturnAsync(TId id, TItemCreate item, CancellationToken token = new CancellationToken())
+        public async Task<TModel> CreateWithSpecifiedIdAndReturnAsync(TId id, TItemCreate item, CancellationToken token = default)
         {
             InternalContract.RequireNotDefaultValue(id, nameof(id));
             InternalContract.RequireNotNull(item, nameof(item));
@@ -83,13 +83,13 @@ namespace Nexus.Link.Libraries.Azure.Storage.Table
         }
 
         /// <inheritdoc />
-        public Task<Lock<TId>> ClaimLockAsync(TId id, CancellationToken token = new CancellationToken())
+        public Task<Lock<TId>> ClaimLockAsync(TId id, CancellationToken token = default)
         {
             throw new FulcrumNotImplementedException();
         }
 
         /// <inheritdoc />
-        public Task ReleaseLockAsync(TId id, TId itemId, CancellationToken token = new CancellationToken())
+        public Task ReleaseLockAsync(TId id, TId itemId, CancellationToken token = default)
         {
             throw new FulcrumNotImplementedException();
         }
@@ -115,7 +115,7 @@ namespace Nexus.Link.Libraries.Azure.Storage.Table
         }
 
         /// <inheritdoc />
-        public async Task<TModel> UpdateAndReturnAsync(TId id, TModel item, CancellationToken token = new CancellationToken())
+        public async Task<TModel> UpdateAndReturnAsync(TId id, TModel item, CancellationToken token = default)
         {
             InternalContract.RequireNotDefaultValue(id, nameof(id));
             InternalContract.RequireNotNull(item, nameof(item));
@@ -144,7 +144,7 @@ namespace Nexus.Link.Libraries.Azure.Storage.Table
         }
 
         /// <inheritdoc />
-        public Task<IEnumerable<TModel>> ReadAllAsync(int limit = 2147483647, CancellationToken token = new CancellationToken())
+        public Task<IEnumerable<TModel>> ReadAllAsync(int limit = 2147483647, CancellationToken token = default)
         {
             return StorageHelper.ReadPagesAsync<TModel>((offset, ct) => ReadAllWithPagingAsync(offset, null, ct), limit,
                 token);

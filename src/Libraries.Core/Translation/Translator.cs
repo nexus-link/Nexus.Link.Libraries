@@ -151,7 +151,7 @@ namespace Nexus.Link.Libraries.Core.Translation
         }
 
         /// <inheritdoc/>
-        public async Task ExecuteAsync(CancellationToken cancellationToken = new CancellationToken())
+        public async Task ExecuteAsync(CancellationToken cancellationToken = default)
         {
             if (!_conceptValues.Any())
             {

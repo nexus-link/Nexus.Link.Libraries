@@ -44,7 +44,7 @@ namespace Nexus.Link.Libraries.Azure.Storage.Table
         }
 
         /// <inheritdoc />
-        public async Task<TId> CreateAsync(TId masterId, TItemCreate item, CancellationToken token = new CancellationToken())
+        public async Task<TId> CreateAsync(TId masterId, TItemCreate item, CancellationToken token = default)
         {
             InternalContract.RequireNotDefaultValue(masterId, nameof(masterId));
             InternalContract.RequireNotNull(item, nameof(item));
@@ -55,7 +55,7 @@ namespace Nexus.Link.Libraries.Azure.Storage.Table
         }
 
         /// <inheritdoc />
-        public async Task<TItem> CreateAndReturnAsync(TId masterId, TItemCreate item, CancellationToken token = new CancellationToken())
+        public async Task<TItem> CreateAndReturnAsync(TId masterId, TItemCreate item, CancellationToken token = default)
         {
             InternalContract.RequireNotDefaultValue(masterId, nameof(masterId));
             var slaveId = await CreateAsync(masterId, item, token);
@@ -78,7 +78,7 @@ namespace Nexus.Link.Libraries.Azure.Storage.Table
 
         /// <inheritdoc />
         public async Task<TItem> CreateWithSpecifiedIdAndReturnAsync(TId masterId, TId slaveId, TItemCreate item,
-            CancellationToken token = new CancellationToken())
+            CancellationToken token = default)
         {
             InternalContract.RequireNotDefaultValue(masterId, nameof(masterId));
             InternalContract.RequireNotDefaultValue(slaveId, nameof(slaveId));
@@ -97,7 +97,7 @@ namespace Nexus.Link.Libraries.Azure.Storage.Table
         }
 
         /// <inheritdoc />
-        public Task<IEnumerable<TItem>> ReadChildrenAsync(TId parentId, int limit = 2147483647, CancellationToken token = new CancellationToken())
+        public Task<IEnumerable<TItem>> ReadChildrenAsync(TId parentId, int limit = 2147483647, CancellationToken token = default)
         {
             InternalContract.RequireNotDefaultValue(parentId, nameof(parentId));
             InternalContract.RequireGreaterThan(0, limit, nameof(limit));
@@ -115,7 +115,7 @@ namespace Nexus.Link.Libraries.Azure.Storage.Table
         }
 
         /// <inheritdoc />
-        public Task<TItem> ReadAsync(SlaveToMasterId<TId> id, CancellationToken token = new CancellationToken())
+        public Task<TItem> ReadAsync(SlaveToMasterId<TId> id, CancellationToken token = default)
         {
             InternalContract.RequireNotNull(id, nameof(id));
             InternalContract.RequireValidated(id, nameof(id));
@@ -123,7 +123,7 @@ namespace Nexus.Link.Libraries.Azure.Storage.Table
         }
 
         /// <inheritdoc />
-        public async Task UpdateAsync(TId masterId, TId slaveId, TItem item, CancellationToken token = new CancellationToken())
+        public async Task UpdateAsync(TId masterId, TId slaveId, TItem item, CancellationToken token = default)
         {
             InternalContract.RequireNotDefaultValue(masterId, nameof(masterId));
             InternalContract.RequireNotDefaultValue(slaveId, nameof(slaveId));
@@ -133,7 +133,7 @@ namespace Nexus.Link.Libraries.Azure.Storage.Table
         }
 
         /// <inheritdoc />
-        public async Task<TItem> UpdateAndReturnAsync(TId masterId, TId slaveId, TItem item, CancellationToken token = new CancellationToken())
+        public async Task<TItem> UpdateAndReturnAsync(TId masterId, TId slaveId, TItem item, CancellationToken token = default)
         {
             InternalContract.RequireNotDefaultValue(masterId, nameof(masterId));
             InternalContract.RequireNotDefaultValue(slaveId, nameof(slaveId));
@@ -161,13 +161,13 @@ namespace Nexus.Link.Libraries.Azure.Storage.Table
         }
 
         /// <inheritdoc />
-        public Task<SlaveLock<TId>> ClaimLockAsync(TId masterId, TId slaveId, CancellationToken token = new CancellationToken())
+        public Task<SlaveLock<TId>> ClaimLockAsync(TId masterId, TId slaveId, CancellationToken token = default)
         {
             throw new NotImplementedException();
         }
 
         /// <inheritdoc />
-        public Task ReleaseLockAsync(TId masterId, TId slaveId, TId lockId, CancellationToken token = new CancellationToken())
+        public Task ReleaseLockAsync(TId masterId, TId slaveId, TId lockId, CancellationToken token = default)
         {
             throw new NotImplementedException();
         }
