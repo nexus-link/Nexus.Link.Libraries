@@ -25,7 +25,7 @@ namespace Nexus.Link.Capabilities.WorkflowMgmt.UnitTests.Services
             var name = "Name1";
             var itemToCreate = new WorkflowParameterCreate
             {
-                WorkflowFormId = masterId,
+                WorkflowVersionId = masterId,
                 Name = name
             };
 
@@ -35,7 +35,7 @@ namespace Nexus.Link.Capabilities.WorkflowMgmt.UnitTests.Services
 
             // Assert
             Assert.NotNull(readItem);
-            Assert.Equal(masterId, readItem.WorkflowFormId);
+            Assert.Equal(masterId, readItem.WorkflowVersionId);
             Assert.Equal(name, readItem.Name);
         }
 
@@ -47,7 +47,7 @@ namespace Nexus.Link.Capabilities.WorkflowMgmt.UnitTests.Services
             var name = "Name1";
             var itemToCreate = new WorkflowParameterCreate
             {
-                WorkflowFormId = masterId,
+                WorkflowVersionId = masterId,
                 Name = name
             };
             await _workflowParameterService.CreateWithSpecifiedIdAsync(masterId, name, itemToCreate);

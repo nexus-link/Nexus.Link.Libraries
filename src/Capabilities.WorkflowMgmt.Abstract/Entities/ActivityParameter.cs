@@ -21,13 +21,13 @@ namespace Nexus.Link.Capabilities.WorkflowMgmt.Abstract.Entities
     }
     public class ActivityParameterCreate : IValidatable
     {
-        public string ActivityFormId {get; set; }
+        public string ActivityVersionId {get; set; }
         public string Name { get; set; }
 
         /// <inheritdoc />
         public virtual void Validate(string errorLocation, string propertyPath = "")
         {
-            FulcrumValidate.IsNotNullOrWhiteSpace(ActivityFormId, nameof(ActivityFormId), errorLocation);
+            FulcrumValidate.IsNotNullOrWhiteSpace(ActivityVersionId, nameof(ActivityVersionId), errorLocation);
             FulcrumValidate.IsNotNullOrWhiteSpace(Name, nameof(Name), errorLocation);
         }
     }
