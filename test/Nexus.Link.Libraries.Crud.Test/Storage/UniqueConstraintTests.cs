@@ -36,20 +36,30 @@ namespace Nexus.Link.Libraries.Crud.Test.Storage
         [ExpectedException(typeof(FulcrumConflictException))]
         public async Task Create_Given_Constraint_Gives_CantAddDuplicates()
         {
-            _storage.UniqueConstraintAsyncMethods += async (i, token) =>
-            {
-                var page = await _storage.SearchAsync(new SearchDetails<TestItemId<Guid>>(new { i.Value }), 0, 1,
-                    token);
-                if (page != null && page.PageInfo.Returned > 0)
-                {
-                    throw new FulcrumConflictException($"Item is not unique.");
-                }
-            };
+            _storage.UniqueConstraintMethods += i => new { i.Value };
             var item = new TestItemId<Guid>();
             item.InitializeWithDataForTesting(TypeOfTestDataEnum.Variant1);
 
             await _storage.CreateAsync(item);
             await _storage.CreateAsync(item);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(FulcrumConflictException))]
+        public async Task Update_Given_Constraint_Gives_CantAddDuplicates()
+        {
+            _storage.UniqueConstraintMethods += i => new { i.Value };
+            var item1 = new TestItemId<Guid>();
+            item1.InitializeWithDataForTesting(TypeOfTestDataEnum.Variant1);
+            item1.Id = await _storage.CreateAsync(item1);
+
+            var item2 = new TestItemId<Guid>();
+            item2.InitializeWithDataForTesting(TypeOfTestDataEnum.Variant2);
+            item2.Id = await _storage.CreateAsync(item2);
+
+            item2.Value = item1.Value;
+            await _storage.UpdateAsync(item2.Id, item2);
+
         }
     }
 }

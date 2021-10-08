@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Nexus.Link.Libraries.Core.Assert;
 using Nexus.Link.Libraries.Crud.Interfaces;
 using Nexus.Link.Libraries.Core.Error.Logic;
+using Nexus.Link.Libraries.Core.Misc;
 using Nexus.Link.Libraries.Core.Storage.Logic;
 using Nexus.Link.Libraries.Core.Storage.Model;
 using Nexus.Link.Libraries.Core.Threads;
@@ -43,12 +44,10 @@ namespace Nexus.Link.Libraries.Crud.MemoryStorage
         /// Delegate for verifying that an item is unique before creating it.
         /// </summary>
         /// <param name="item">The item that should be verified for uniqueness.</param>
-        /// <param name="cancellationToken">Cancellation token</param>
-        /// <exception cref="FulcrumConflictException">Thrown if <paramref name="item"/> is not unique.</exception>
-        public delegate Task UniqueConstraintAsyncDelegate(TModelCreate item,
-            CancellationToken cancellationToken = default);
+        /// <returns>A "where" object that can be used as the parameter for the <see cref="SearchDetails{TModel}"/> constructor.</returns>
+        public delegate object UniqueConstraintDelegate(TModelCreate item);
 
-        public UniqueConstraintAsyncDelegate UniqueConstraintAsyncMethods { get; set; }
+        public UniqueConstraintDelegate UniqueConstraintMethods { get; set; }
 
         public CrudMemory()
         {
@@ -112,10 +111,7 @@ namespace Nexus.Link.Libraries.Crud.MemoryStorage
         private async Task InternalCreateAsync(TId id, TModel item, CancellationToken cancellationToken)
         {
             ValidateNotExists(id);
-            if (UniqueConstraintAsyncMethods != null)
-            {
-                await UniqueConstraintAsyncMethods(item, cancellationToken);
-            }
+            await VerifyUniqueForCreateAsync(item, cancellationToken);
 
             StorageHelper.MaybeSetId(id, item);
             var success = MemoryItems.TryAdd(id, item);
@@ -232,15 +228,11 @@ namespace Nexus.Link.Libraries.Crud.MemoryStorage
             var itemCopy = CopyItem(item);
             StorageHelper.MaybeUpdateTimeStamps(itemCopy, false);
             StorageHelper.MaybeCreateNewEtag(itemCopy);
-            try
+            await _semaphore.ExecuteAsync(async () =>
             {
-                await _semaphore.RaiseAsync(cancellationToken);
+                await VerifyUniqueForUpdateAsync(id, item, cancellationToken);
                 MemoryItems[id] = itemCopy;
-            }
-            finally
-            {
-                _semaphore.Lower();
-            }
+            }, cancellationToken);
         }
 
         /// <inheritdoc />
@@ -419,6 +411,41 @@ namespace Nexus.Link.Libraries.Crud.MemoryStorage
         public Task<TModel> ClaimTransactionLockAndReadAsync(TId id, CancellationToken cancellationToken = default)
         {
             return ReadAsync(id, cancellationToken);
+        }
+
+        private async Task VerifyUniqueForCreateAsync(TModelCreate item, CancellationToken cancellationToken)
+        {
+            if (UniqueConstraintMethods == null) return;
+            foreach (var method in UniqueConstraintMethods.GetInvocationList())
+            {
+                var getSearchObjectMethod = method as UniqueConstraintDelegate;
+                if (getSearchObjectMethod == null) continue;
+                var where = getSearchObjectMethod(item);
+                var page = await SearchAsync(new SearchDetails<TModel>(where), 0, 1, cancellationToken);
+                if (page != null && page.PageInfo.Returned > 0)
+                {
+                    throw new FulcrumConflictException($"The new item of type {typeof(TModelCreate).Name} must be unique.");
+                }
+            }
+        }
+
+        private async Task VerifyUniqueForUpdateAsync(TId id, TModelCreate item, CancellationToken cancellationToken)
+        {
+            if (UniqueConstraintMethods == null) return;
+            InternalContract.RequireNotDefaultValue(id, nameof(id));
+            foreach (var method in UniqueConstraintMethods.GetInvocationList())
+            {
+                var getSearchObjectMethod = method as UniqueConstraintDelegate;
+                if (getSearchObjectMethod == null) continue;
+                var where = getSearchObjectMethod(item);
+                var page = await SearchAsync(new SearchDetails<TModel>(where), 0, 1, cancellationToken);
+                if (page == null || page.PageInfo.Returned <= 0) continue;
+                var foundItem = page.Data.First();
+                FulcrumAssert.IsNotNull(foundItem, CodeLocation.AsString());
+                if (!(foundItem is IUniquelyIdentifiable<TId> foundItemWithId)) continue;
+                if (foundItemWithId.Id.Equals(id)) continue;
+                throw new FulcrumConflictException($"The new item of type {typeof(TModelCreate).Name} must be unique.");
+            }
         }
     }
 }
