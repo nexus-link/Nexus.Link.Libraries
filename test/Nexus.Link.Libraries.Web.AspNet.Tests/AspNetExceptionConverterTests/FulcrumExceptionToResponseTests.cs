@@ -36,8 +36,21 @@ namespace Nexus.Link.Libraries.Web.AspNet.Tests.AspNetExceptionConverterTests
         public void RequestAcceptedException()
         {
             var url = Guid.NewGuid().ToString();
+            var exception = new RequestAcceptedException(url);
+#if NETCOREAPP
+            var result = AspNetExceptionConverter.ToContentResult(exception);
+#else
+            var result = AspNetExceptionConverter.ToHttpResponseMessage(exception);
+#endif
+            // ReSharper disable once PossibleInvalidOperationException
+            Assert.AreEqual((int) HttpStatusCode.Accepted, (int) result.StatusCode);
+        }
+
+        [TestMethod]
+        public void RequestPostponedException()
+        {
             var id = Guid.NewGuid().ToString();
-            var exception = new RequestAcceptedException(url).AddOutstandingRequestId(id);
+            var exception = new RequestPostponedException(id);
 #if NETCOREAPP
             var result = AspNetExceptionConverter.ToContentResult(exception);
 #else

@@ -60,6 +60,23 @@ namespace Nexus.Link.Libraries.Web.Tests
         }
 
         [TestMethod]
+        public async Task RequestPostponedException()
+        {
+            var handler =
+                new ThrowFulcrumExceptionOnFailForTest { UnitTest_SendAsyncDependencyInjection = SendAsyncRequestPostponedException };
+            var request = new HttpRequestMessage(HttpMethod.Post, "http://example.com/exception");
+            try
+            {
+                await handler.SendAsync(request);
+                Assert.Fail("Expected an exception");
+            }
+            catch (Exception e)
+            {
+                Assert.IsNotNull(e as RequestPostponedException, $"Expected exception of type {nameof(RequestPostponedException)}, but was {e.GetType().FullName}");
+            }
+        }
+
+        [TestMethod]
         public async Task Success()
         {
             var handler =
@@ -87,10 +104,23 @@ namespace Nexus.Link.Libraries.Web.Tests
         private static Task<HttpResponseMessage> SendAsyncRequestAcceptedException(HttpRequestMessage request,
             CancellationToken cancellationToken)
         {
-            var accept = new AcceptedInformation
+            var accept = new RequestAcceptedContent()
             {
-                UrlWhereResponseWillBeMadeAvailable = Guid.NewGuid().ToString(),
-                OutstandingRequestIds = new List<string> { Guid.NewGuid().ToString() }
+                UrlWhereResponseWillBeMadeAvailable = Guid.NewGuid().ToString()
+            };
+            var response = new HttpResponseMessage(HttpStatusCode.Accepted)
+            {
+                Content = new StringContent(JsonConvert.SerializeObject(accept), Encoding.UTF8)
+            };
+            return Task.FromResult(response);
+        }
+
+        private static Task<HttpResponseMessage> SendAsyncRequestPostponedException(HttpRequestMessage request,
+            CancellationToken cancellationToken)
+        {
+            var accept = new RequestPostponedContent()
+            {
+                WaitingForRequestIds = new List<string> { Guid.NewGuid().ToString() }
             };
             var response = new HttpResponseMessage(HttpStatusCode.Accepted)
             {

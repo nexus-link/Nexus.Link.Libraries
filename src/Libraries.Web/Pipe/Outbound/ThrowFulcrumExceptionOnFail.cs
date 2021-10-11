@@ -59,11 +59,18 @@ namespace Nexus.Link.Libraries.Web.Pipe.Outbound
                 {
                     await response.Content.LoadIntoBufferAsync();
                     var content = await response.Content.ReadAsStringAsync();
-                    var acceptInfo = JsonHelper.SafeDeserializeObject<AcceptedInformation>(content);
-                    if (acceptInfo == null) return response;
-                    throw new RequestAcceptedException(
-                        acceptInfo.UrlWhereResponseWillBeMadeAvailable,
-                        acceptInfo.OutstandingRequestIds);
+                    var acceptInfo = JsonHelper.SafeDeserializeObject<RequestAcceptedContent>(content);
+                    if (acceptInfo?.UrlWhereResponseWillBeMadeAvailable != null)
+                    {
+                        throw new RequestAcceptedException(acceptInfo.UrlWhereResponseWillBeMadeAvailable);
+                    }
+                    var postponeInfo = JsonHelper.SafeDeserializeObject<RequestPostponedContent>(content);
+                    if (postponeInfo?.WaitingForRequestIds != null)
+                    {
+                        throw new RequestPostponedException(postponeInfo.WaitingForRequestIds);
+                    }
+
+                    return response;
                 }
                 fulcrumException = await ExceptionConverter.ToFulcrumExceptionAsync(response, cancellationToken);
                 if (fulcrumException == null) return response;
@@ -76,6 +83,11 @@ namespace Nexus.Link.Libraries.Web.Pipe.Outbound
             catch (RequestAcceptedException)
             {
                 Log.LogInformation($"{requestDescription} was converted to (and threw) the exception {nameof(RequestAcceptedException)}");
+                throw;
+            }
+            catch (RequestPostponedException)
+            {
+                Log.LogInformation($"{requestDescription} was converted to (and threw) the exception {nameof(RequestPostponedException)}");
                 throw;
             }
             catch (TaskCanceledException e)

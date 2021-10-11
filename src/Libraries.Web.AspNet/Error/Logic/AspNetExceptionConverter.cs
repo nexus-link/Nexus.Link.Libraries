@@ -62,16 +62,30 @@ namespace Nexus.Link.Libraries.Web.AspNet.Error.Logic
         {
             if (e is RequestAcceptedException acceptedException)
             {
-                var accepted = new AcceptedInformation
+                var acceptedContent = new RequestAcceptedContent()
                 {
                     UrlWhereResponseWillBeMadeAvailable = acceptedException.UrlWhereResponseWillBeMadeAvailable,
-                    OutstandingRequestIds = acceptedException.OutstandingRequestIds
                 };
+                FulcrumAssert.IsValidated(acceptedContent, CodeLocation.AsString());
                 return new StatusAndContent
                 {
                     // ReSharper disable once PossibleInvalidOperationException
                     StatusCode = HttpStatusCode.Accepted,
-                    Content = JsonConvert.SerializeObject(accepted)
+                    Content = JsonConvert.SerializeObject(acceptedContent)
+                };
+            }
+            if (e is RequestPostponedException postponedException)
+            {
+                var postponedContent = new RequestPostponedContent()
+                {
+                    WaitingForRequestIds = postponedException.WaitingForRequestIds,
+                };
+                FulcrumAssert.IsValidated(postponedContent, CodeLocation.AsString());
+                return new StatusAndContent
+                {
+                    // ReSharper disable once PossibleInvalidOperationException
+                    StatusCode = HttpStatusCode.Accepted,
+                    Content = JsonConvert.SerializeObject(postponedContent)
                 };
             }
             if (!(e is FulcrumException fulcrumException))
