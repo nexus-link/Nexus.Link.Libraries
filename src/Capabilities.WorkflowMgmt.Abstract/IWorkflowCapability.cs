@@ -5,7 +5,6 @@ namespace Nexus.Link.Capabilities.WorkflowMgmt.Abstract
 
     public interface IWorkflowCapability
     {
-        IAsyncContextService AsyncContext { get; }
         IWorkflowFormService WorkflowForm { get; }
         IWorkflowVersionService WorkflowVersion{ get; }
         IWorkflowParameterService WorkflowParameter { get; }
