@@ -77,7 +77,9 @@ namespace Nexus.Link.Libraries.Web.Error.Logic
             AddFulcrumException(typeof(FulcrumServiceContractException), HttpStatusCode.BadRequest, FulcrumContractException.ExceptionType);
             AddFulcrumException(typeof(FulcrumUnauthorizedException), HttpStatusCode.BadRequest, FulcrumUnauthorizedException.ExceptionType);
             AddFulcrumException(typeof(FulcrumForbiddenAccessException), HttpStatusCode.BadRequest, FulcrumForbiddenAccessException.ExceptionType);
+#pragma warning disable 618
             AddFulcrumException(typeof(FulcrumAcceptedException), HttpStatusCode.Accepted, FulcrumAcceptedException.ExceptionType);
+#pragma warning restore 618
         }
 
         /// <summary>
@@ -261,7 +263,9 @@ namespace Nexus.Link.Libraries.Web.Error.Logic
             }
             else if (statusCodeAsInt == 202)
             {
+#pragma warning disable 618
                 fulcrumError.Type = FulcrumAcceptedException.ExceptionType;
+#pragma warning restore 618
             }
             else
             {

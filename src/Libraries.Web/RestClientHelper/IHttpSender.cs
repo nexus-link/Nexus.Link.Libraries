@@ -62,5 +62,13 @@ namespace Nexus.Link.Libraries.Web.RestClientHelper
         Task<HttpOperationResponse<TResponse>> SendRequestAsync<TResponse, TBody>(HttpMethod method, string relativeUrl,
             TBody body = default, Dictionary<string, List<string>> customHeaders = null,
             CancellationToken cancellationToken = default);
+
+        /// <summary>
+        /// The core method for sending a <paramref name="requestMessage"/>.
+        /// </summary>
+        /// <param name="requestMessage">The request to send.</param>
+        /// <param name="cancellationToken">Optional cancellation token.</param>
+        /// <returns></returns>
+        Task<HttpResponseMessage> SendAsync(HttpRequestMessage requestMessage, CancellationToken cancellationToken = default);
     }
 }

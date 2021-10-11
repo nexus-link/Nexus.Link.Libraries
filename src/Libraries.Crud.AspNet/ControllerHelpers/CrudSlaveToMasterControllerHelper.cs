@@ -19,6 +19,7 @@ using Nexus.Link.Libraries.Crud.PassThrough;
 namespace Nexus.Link.Libraries.Crud.AspNet.ControllerHelpers
 {
     /// <inheritdoc cref="CrudSlaveToMasterControllerHelper{TModel, TModel}" />
+    [Obsolete("Use DependentToMaster instead of SlaveToMaster. Obsolete since 2021-10-06.")]
     public class CrudSlaveToMasterControllerHelper<TModel> :
         CrudSlaveToMasterControllerHelper<TModel, TModel>,
         ICrudSlaveToMaster<TModel, string>
@@ -31,6 +32,7 @@ namespace Nexus.Link.Libraries.Crud.AspNet.ControllerHelpers
     }
 
     /// <inheritdoc cref="ICrudSlaveToMaster{TModelCreate, TModel, TId}" />
+    [Obsolete("Use DependentToMaster instead of SlaveToMaster. Obsolete since 2021-10-06.")]
     public class CrudSlaveToMasterControllerHelper<TModelCreate, TModel> : 
         ICrudSlaveToMaster<TModelCreate, TModel, string>
         where TModel : TModelCreate

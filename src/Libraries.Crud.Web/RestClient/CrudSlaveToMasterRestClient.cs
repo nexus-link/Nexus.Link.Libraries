@@ -15,6 +15,7 @@ using Nexus.Link.Libraries.Web.RestClientHelper;
 namespace Nexus.Link.Libraries.Crud.Web.RestClient
 {
     /// <inheritdoc cref="CrudSlaveToMasterRestClient{TModelCreate,TModel,TId}" />
+    [Obsolete("Use DependentToMaster instead of SlaveToMaster. Obsolete since 2021-10-06.")]
     public class CrudSlaveToMasterRestClient<TModel, TId> :
         CrudSlaveToMasterRestClient<TModel, TModel, TId>,
         ICrudSlaveToMaster<TModel, TId>
@@ -65,6 +66,7 @@ namespace Nexus.Link.Libraries.Crud.Web.RestClient
     }
 
     /// <inheritdoc cref="Nexus.Link.Libraries.Crud.Web.RestClient" />
+    [Obsolete("Use DependentToMaster instead of SlaveToMaster. Obsolete since 2021-10-06.")]
     public class CrudSlaveToMasterRestClient<TManyModelCreate, TManyModel, TId> : 
         Libraries.Web.RestClientHelper.RestClient, 
         ICrudSlaveToMaster<TManyModelCreate, TManyModel, TId> 

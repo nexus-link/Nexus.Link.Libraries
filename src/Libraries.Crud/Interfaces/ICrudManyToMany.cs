@@ -1,6 +1,7 @@
 ﻿
 // ReSharper disable RedundantExtendsListEntry
 
+#pragma warning disable 618
 namespace Nexus.Link.Libraries.Crud.Interfaces
 {
     /// <summary>

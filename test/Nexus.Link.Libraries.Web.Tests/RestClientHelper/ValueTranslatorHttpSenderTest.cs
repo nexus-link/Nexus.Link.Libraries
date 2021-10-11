@@ -219,6 +219,12 @@ namespace Nexus.Link.Libraries.Web.Tests.RestClientHelper
                 }
                 return Task.FromResult(httpOperationResponse);
             }
+
+            /// <inheritdoc />
+            public Task<HttpResponseMessage> SendAsync(HttpRequestMessage requestMessage, CancellationToken cancellationToken = default)
+            {
+                throw new NotImplementedException();
+            }
         }
 
         private class Foo : IUniquelyIdentifiable<string>

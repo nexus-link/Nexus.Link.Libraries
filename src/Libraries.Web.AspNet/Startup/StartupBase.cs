@@ -357,7 +357,6 @@ namespace Nexus.Link.Libraries.Web.AspNet.Startup
         protected virtual void ConfigureAppMiddleware(IApplicationBuilder app, IHostingEnvironment env)
         {
             ConfigureSwaggerMiddleware(app, env);
-
             // Get the correlation ID from the request header and store it in FulcrumApplication.Context
             app.UseNexusSaveCorrelationId();
             // Start and stop a batch of logs, see also Nexus.Link.Libraries.Core.Logging.BatchLogger.

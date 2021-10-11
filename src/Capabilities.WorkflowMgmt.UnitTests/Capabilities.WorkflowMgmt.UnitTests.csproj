@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netstandard2.0</TargetFramework>
+    <TargetFramework>netcoreapp2.1</TargetFramework>
 
     <!-- Publish the repository URL in the built .nupkg (in the NuSpec <Repository> element) -->
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
@@ -16,43 +16,40 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0" PrivateAssets="All" />
-    <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.11.0" />
+    <PackageReference Include="xunit" Version="2.4.1" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="2.4.3">
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
+    <PackageReference Include="coverlet.collector" Version="3.1.0">
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Libraries.Crud\Libraries.Crud.csproj" />
-    <ProjectReference Include="..\Libraries.Web\Libraries.Web.csproj" />
+    <ProjectReference Include="..\..\src\Capabilities.WorkflowMgmt.Abstract\Capabilities.WorkflowMgmt.Abstract.csproj" />
   </ItemGroup>
-
-  <PropertyGroup>
-    <DefineConstants>TRACE;DEBUG</DefineConstants>
-  </PropertyGroup>
-
-  <PropertyGroup>
-    <DebugType>full</DebugType>
-    <DebugSymbols>true</DebugSymbols>
-  </PropertyGroup>
 
   
   <PropertyGroup>
-    <PackageId>Nexus.Link.Capabilities.WorkflowMgmt.Abstract</PackageId>
-    <Version>1.0.3-rc01</Version>
+    <PackageId>Nexus.Link.Capabilities.WorkflowMgmt.UnitTests</PackageId>
+    <Version>1.0.0-rc01</Version>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <PackageTags>nexus;link;fulcrum;lever</PackageTags>
     <Authors>XLENT Link</Authors>
     <PackageProjectUrl>https://github.com/nexus-link/Nexus.Link.Libraries</PackageProjectUrl>
     <PackageLanguage>en-US</PackageLanguage>
-    <Description>Workflow management contract</Description>
+    <Description>Workflow management capability unit tests</Description>
     <Copyright>Copyright ©2021 Xlent Link AB</Copyright>
     <IncludeSymbols>true</IncludeSymbols>
     <PackageReleaseNotes>
-		1.0.3 Added ActivityInstance.HasCompleted
-		1.0.2 Removed IWorkflowCapabilityForClient and IWorkflowCapabilityForServer
-		1.0.1 Change netcoreapp3.1 to netstandard2.0
-		1.0.0 First release
-	</PackageReleaseNotes>
-    <RootNamespace>Nexus.Link.Capabilities.WorkflowMgmt.Abstract</RootNamespace>
-    <AssemblyName>Nexus.Link.Capabilities.WorkflowMgmt.Abstract</AssemblyName>
+      1.0.0 First release
+    </PackageReleaseNotes>
+    <RootNamespace>Nexus.Link.Capabilities.WorkflowMgmt.UnitTests</RootNamespace>
+    <AssemblyName>Nexus.Link.Capabilities.WorkflowMgmt.UnitTests</AssemblyName>
   </PropertyGroup>
+
 
 </Project>

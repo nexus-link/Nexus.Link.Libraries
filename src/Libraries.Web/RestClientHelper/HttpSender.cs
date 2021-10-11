@@ -180,9 +180,9 @@ namespace Nexus.Link.Libraries.Web.RestClientHelper
                 request?.Dispose();
             }
         }
-
-        private async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request,
-            CancellationToken cancellationToken)
+        
+        /// <inheritdoc />
+        public async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken = default)
         {
             cancellationToken.ThrowIfCancellationRequested();
             var response = await HttpClient.SendAsync(request, cancellationToken).ConfigureAwait(false);

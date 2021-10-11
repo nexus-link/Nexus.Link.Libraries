@@ -217,6 +217,12 @@ namespace Nexus.Link.Libraries.Web.RestClientHelper
         {
             return HttpSender.SendRequestAsync(method, relativeUrl, customHeaders, cancellationToken);
         }
+        
+        /// <inheritdoc />
+        public Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken = default)
+        {
+            return HttpSender.SendAsync(request, cancellationToken);
+        }
         #endregion
 
         #region Helpers

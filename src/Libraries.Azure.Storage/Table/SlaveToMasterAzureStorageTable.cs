@@ -15,6 +15,7 @@ namespace Nexus.Link.Libraries.Azure.Storage.Table
     /// <summary>
     /// Functionality for persisting objects in groups.
     /// </summary>
+    [Obsolete("Use DependentToMaster instead of SlaveToMaster. Obsolete since 2021-10-06.")]
     public class
         SlaveToMasterAzureStorageTable<TItem, TId> :
             SlaveToMasterAzureStorageTable<TItem, TItem, TId>,
@@ -30,6 +31,7 @@ namespace Nexus.Link.Libraries.Azure.Storage.Table
     /// <summary>
     /// Functionality for persisting objects in groups.
     /// </summary>
+    [Obsolete("Use DependentToMaster instead of SlaveToMaster. Obsolete since 2021-10-06.")]
     public class SlaveToMasterAzureStorageTable<TItemCreate, TItem, TId> :
         ICrudSlaveToMaster<TItemCreate, TItem, TId>
         where TItem : TItemCreate, IOptimisticConcurrencyControlByETag

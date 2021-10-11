@@ -1,4 +1,5 @@
-﻿namespace Nexus.Link.Libraries.Crud.Interfaces
+﻿#pragma warning disable 618
+namespace Nexus.Link.Libraries.Crud.Interfaces
 {
     /// <inheritdoc cref="ICrudManyToManyBasic{TManyToManyModelCreate, TManyToManyModel,TReferenceModel1,TReferenceModel2,TId}" />
     public interface ICrudManyToManyBasic<TManyToManyModel, TReferenceModel1, TReferenceModel2, TId> :
