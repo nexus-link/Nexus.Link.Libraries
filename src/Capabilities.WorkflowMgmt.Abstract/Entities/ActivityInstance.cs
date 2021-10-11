@@ -37,14 +37,14 @@ namespace Nexus.Link.Capabilities.WorkflowMgmt.Abstract.Entities
         public string WorkflowInstanceId { get; set; }
         public string ActivityVersionId { get; set; }
         public string ParentActivityInstanceId { get; set; }
-        public int? Iteration { get; set; }
+        public int? ParentIteration { get; set; }
 
         /// <inheritdoc />
         public virtual void Validate(string errorLocation, string propertyPath = "")
         {
             FulcrumValidate.IsNotNullOrWhiteSpace(WorkflowInstanceId, nameof(WorkflowInstanceId), errorLocation);
             FulcrumValidate.IsNotNullOrWhiteSpace(ActivityVersionId, nameof(ActivityVersionId), errorLocation);
-            if (Iteration.HasValue) FulcrumValidate.IsGreaterThanOrEqualTo(1, Iteration.Value, nameof(Iteration), errorLocation);
+            if (ParentIteration.HasValue) FulcrumValidate.IsGreaterThanOrEqualTo(1, ParentIteration.Value, nameof(ParentIteration), errorLocation);
         }
     }
 }

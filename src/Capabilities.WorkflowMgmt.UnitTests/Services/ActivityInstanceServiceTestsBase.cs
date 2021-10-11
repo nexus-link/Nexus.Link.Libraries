@@ -27,7 +27,7 @@ namespace Nexus.Link.Capabilities.WorkflowMgmt.UnitTests.Services
                 WorkflowInstanceId = workflowInstanceId,
                 ActivityVersionId = activityVersionId,
                 ParentActivityInstanceId = Guid.NewGuid().ToString(),
-                Iteration = 1, 
+                ParentIteration = 1, 
             };
 
             // Act
@@ -37,7 +37,7 @@ namespace Nexus.Link.Capabilities.WorkflowMgmt.UnitTests.Services
                 WorkflowInstanceId = itemToCreate.WorkflowInstanceId,
                 ActivityVersionId = itemToCreate.ActivityVersionId,
                 ParentActivityInstanceId = itemToCreate.ParentActivityInstanceId,
-                Iteration = itemToCreate.Iteration
+                Iteration = itemToCreate.ParentIteration
             };
             var readItem = await _service.FindUniqueAsync(findUnique);
 
@@ -47,7 +47,7 @@ namespace Nexus.Link.Capabilities.WorkflowMgmt.UnitTests.Services
             Assert.Equal(workflowInstanceId, readItem.WorkflowInstanceId);
             Assert.Equal(itemToCreate.ActivityVersionId, readItem.ActivityVersionId);
             Assert.Equal(itemToCreate.ParentActivityInstanceId, readItem.ParentActivityInstanceId);
-            Assert.Equal(itemToCreate.Iteration, readItem.Iteration);
+            Assert.Equal(itemToCreate.ParentIteration, readItem.ParentIteration);
         }
 
         [Fact]
@@ -61,7 +61,7 @@ namespace Nexus.Link.Capabilities.WorkflowMgmt.UnitTests.Services
                 WorkflowInstanceId = workflowInstanceId,
                 ActivityVersionId = activityVersionId,
                 ParentActivityInstanceId = Guid.NewGuid().ToString(),
-                Iteration = 1, 
+                ParentIteration = 1, 
             };
             var id = await _service.CreateAsync(itemToCreate);
             var findUnique = new ActivityInstanceUnique
@@ -69,7 +69,7 @@ namespace Nexus.Link.Capabilities.WorkflowMgmt.UnitTests.Services
                 WorkflowInstanceId = itemToCreate.WorkflowInstanceId,
                 ActivityVersionId = itemToCreate.ActivityVersionId,
                 ParentActivityInstanceId = itemToCreate.ParentActivityInstanceId,
-                Iteration = itemToCreate.Iteration
+                Iteration = itemToCreate.ParentIteration
             };
             var itemToUpdate = await _service.FindUniqueAsync(findUnique);
 
@@ -86,7 +86,7 @@ namespace Nexus.Link.Capabilities.WorkflowMgmt.UnitTests.Services
             Assert.Equal(itemToUpdate.ActivityVersionId, readItem.ActivityVersionId);
             Assert.Equal(itemToUpdate.ParentActivityInstanceId, readItem.ParentActivityInstanceId);
             Assert.Equal(itemToUpdate.FinishedAt, readItem.FinishedAt);
-            Assert.Equal(itemToUpdate.Iteration, readItem.Iteration);
+            Assert.Equal(itemToUpdate.ParentIteration, readItem.ParentIteration);
             Assert.Equal(itemToUpdate.ExceptionType, readItem.ExceptionType);
             Assert.Equal(itemToUpdate.ExceptionMessage, readItem.ExceptionMessage);
         }
