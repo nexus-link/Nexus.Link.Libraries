@@ -69,7 +69,7 @@ namespace Nexus.Link.Capabilities.WorkflowMgmt.UnitTests.Services
                 WorkflowInstanceId = itemToCreate.WorkflowInstanceId,
                 ActivityVersionId = itemToCreate.ActivityVersionId,
                 ParentActivityInstanceId = itemToCreate.ParentActivityInstanceId,
-                Iteration = itemToCreate.ParentIteration
+                ParentIteration = itemToCreate.ParentIteration
             };
             var itemToUpdate = await _service.FindUniqueAsync(findUnique);
 
