@@ -1,4 +1,6 @@
-﻿namespace Nexus.Link.Libraries.Web.Pipe
+﻿using Nexus.Link.Libraries.Web.Error;
+
+namespace Nexus.Link.Libraries.Web.Pipe
 {
     public class Constants
     {
@@ -10,7 +12,12 @@
         /// <summary>
         /// The header for the Async Manager execution id
         /// </summary>
-        public static string ExecutionIdHeaderName = "X-Nexus-Async-ExecutionId";
+        public static string ExecutionIdHeaderName = "X-Nexus-Async-ExecutionId";     
+        
+        /// <summary>
+        /// The header for the Async Manager reentry authentication, <see cref="RequestPostponedContent.ReentryAuthentication"/>.
+        /// </summary>
+        public static string ReentryAuthenticationHeaderName = "X-Nexus-Reentry-Authentication";
 
         /// <summary>
         /// Standard correlation id header
