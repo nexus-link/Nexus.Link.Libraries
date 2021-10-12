@@ -67,7 +67,10 @@ namespace Nexus.Link.Libraries.Web.Pipe.Outbound
                     var postponeInfo = JsonHelper.SafeDeserializeObject<RequestPostponedContent>(content);
                     if (postponeInfo?.WaitingForRequestIds != null)
                     {
-                        throw new RequestPostponedException(postponeInfo.WaitingForRequestIds);
+                        throw new RequestPostponedException(postponeInfo.WaitingForRequestIds)
+                        {
+                            ReentryAuthentication = postponeInfo.ReentryAuthentication
+                        };
                     }
 
                     return response;

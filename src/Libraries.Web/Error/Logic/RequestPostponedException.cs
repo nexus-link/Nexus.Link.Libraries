@@ -15,6 +15,11 @@ namespace Nexus.Link.Libraries.Web.Error.Logic
         public List<string> WaitingForRequestIds { get; } = new List<string>();
 
         /// <summary>
+        /// This value can be used instead of normal authentication to continue a postponed execution.
+        /// </summary>
+        public string ReentryAuthentication { get; set; }
+
+        /// <summary>
         /// Constructor
         /// </summary>
         public RequestPostponedException(IEnumerable<string> waitingForRequestIds)
