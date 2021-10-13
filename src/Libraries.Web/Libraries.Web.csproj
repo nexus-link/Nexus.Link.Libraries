@@ -31,7 +31,7 @@
 
   <PropertyGroup>
     <PackageId>Nexus.Link.Libraries.Web</PackageId>
-    <Version>2.20.2</Version>
+    <Version>2.20.3</Version>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <PackageTags>nexus;link;fulcrum;lever</PackageTags>
     <Authors>XLENT Link</Authors>
@@ -41,7 +41,7 @@
     <Copyright>Copyright ©2021 Xlent Link AB</Copyright>
     <IncludeSymbols>true</IncludeSymbols>
     <PackageReleaseNotes>
-      2.20.2 Added ReentryAuthentication to postpone and Constants.ReentryAuthenticationHeaderName
+      2.20.3 Added ReentryAuthentication to postpone and Constants.ReentryAuthenticationHeaderName
       2.20.0 Added SendAsync() to IHttpSender. Can convert HttpStatus Accepted to RequestAcceptedException and RequestPostponedException
       2.19.0 Added new constants for HTTP headers. Added Serialization; RequestData and ResponseData
       2.18.0 Added outbound handlers targeted at Business APIs, including propagating end user authentication and translated user id
