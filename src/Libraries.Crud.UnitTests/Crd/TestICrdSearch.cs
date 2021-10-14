@@ -19,11 +19,13 @@ namespace Nexus.Link.Libraries.Crud.UnitTests.Crd
         [DataTestMethod]
         [DataRow("Variant1")]
         [DataRow("Variant2")]
+        [DataRow(null)]
         public async Task Search_Item_Async(string value)
         {
             // Arrange
             await CreateItemAsync(TypeOfTestDataEnum.Variant1);
             await CreateItemAsync(TypeOfTestDataEnum.Variant2);
+            await CreateItemAsync(TypeOfTestDataEnum.NullValue);
 
             // Act 
             var search = CrudStorage as ISearch<TestItemSort<TId>, TId>;
@@ -48,6 +50,7 @@ namespace Nexus.Link.Libraries.Crud.UnitTests.Crd
             await CreateItemAsync(TypeOfTestDataEnum.Variant1);
             await CreateItemAsync(TypeOfTestDataEnum.Default);
             await CreateItemAsync(TypeOfTestDataEnum.Variant2);
+            await CreateItemAsync(TypeOfTestDataEnum.NullValue);
 
             // Act 
             var search = CrudStorage as ISearch<TestItemSort<TId>, TId>;
@@ -70,6 +73,7 @@ namespace Nexus.Link.Libraries.Crud.UnitTests.Crd
             await CreateItemAsync(TypeOfTestDataEnum.Variant2);
             await CreateItemAsync(TypeOfTestDataEnum.Variant1);
             await CreateItemAsync(TypeOfTestDataEnum.Variant2);
+            await CreateItemAsync(TypeOfTestDataEnum.NullValue);
 
             // Act 
             var search = CrudStorage as ISearch<TestItemSort<TId>, TId>;
@@ -77,7 +81,7 @@ namespace Nexus.Link.Libraries.Crud.UnitTests.Crd
             var page = await search.SearchAsync(new SearchDetails<TestItemSort<TId>>(null), 0, 10);
 
             // Assert
-            Assert.AreEqual(4, page.PageInfo.Returned);
+            Assert.AreEqual(5, page.PageInfo.Returned);
         }
 
         [DataTestMethod]
@@ -90,6 +94,7 @@ namespace Nexus.Link.Libraries.Crud.UnitTests.Crd
             await CreateItemAsync(TypeOfTestDataEnum.Variant2);
             await CreateItemAsync(TypeOfTestDataEnum.Variant1);
             await CreateItemAsync(TypeOfTestDataEnum.Variant2);
+            await CreateItemAsync(TypeOfTestDataEnum.NullValue);
 
             // Act 
             var search = CrudStorage as ISearch<TestItemSort<TId>, TId>;
@@ -120,6 +125,7 @@ namespace Nexus.Link.Libraries.Crud.UnitTests.Crd
             await CreateItemAsync(TypeOfTestDataEnum.Variant2);
             await CreateItemAsync(TypeOfTestDataEnum.Variant1);
             await CreateItemAsync(TypeOfTestDataEnum.Variant2);
+            await CreateItemAsync(TypeOfTestDataEnum.NullValue);
 
             // Act 
             var search = CrudStorage as ISearch<TestItemSort<TId>, TId>;
@@ -207,6 +213,7 @@ namespace Nexus.Link.Libraries.Crud.UnitTests.Crd
             // Arrange
             await CreateItemAsync(TypeOfTestDataEnum.Variant1);
             await CreateItemAsync(TypeOfTestDataEnum.Variant2);
+            await CreateItemAsync(TypeOfTestDataEnum.NullValue);
 
             // Act 
             var search = CrudStorage as ISearch<TestItemSort<TId>, TId>;
@@ -224,6 +231,7 @@ namespace Nexus.Link.Libraries.Crud.UnitTests.Crd
             // Arrange
             await CreateItemAsync(TypeOfTestDataEnum.Variant1);
             await CreateItemAsync(TypeOfTestDataEnum.Variant2);
+            await CreateItemAsync(TypeOfTestDataEnum.NullValue);
 
             // Act 
             var search = CrudStorage as ISearch<TestItemSort<TId>, TId>;
@@ -240,6 +248,7 @@ namespace Nexus.Link.Libraries.Crud.UnitTests.Crd
             // Arrange
             await CreateItemAsync(TypeOfTestDataEnum.Variant2);
             await CreateItemAsync(TypeOfTestDataEnum.Variant2);
+            await CreateItemAsync(TypeOfTestDataEnum.NullValue);
 
             // Act 
             var search = CrudStorage as ISearch<TestItemSort<TId>, TId>;
@@ -261,6 +270,7 @@ namespace Nexus.Link.Libraries.Crud.UnitTests.Crd
             await CreateItemAsync(TypeOfTestDataEnum.Variant2);
             await CreateItemAsync(TypeOfTestDataEnum.Variant1);
             await CreateItemAsync(TypeOfTestDataEnum.Variant2);
+            await CreateItemAsync(TypeOfTestDataEnum.NullValue);
 
             // Act 
             var search = CrudStorage as ISearch<TestItemSort<TId>, TId>;
@@ -284,6 +294,7 @@ namespace Nexus.Link.Libraries.Crud.UnitTests.Crd
             await CreateItemAsync(TypeOfTestDataEnum.NullValue);
             await CreateItemAsync(TypeOfTestDataEnum.Variant1);
             await CreateItemAsync(TypeOfTestDataEnum.EmptyValue);
+            await CreateItemAsync(TypeOfTestDataEnum.NullValue);
 
             // Act 
             var search = CrudStorage as ISearch<TestItemSort<TId>, TId>;
@@ -307,6 +318,7 @@ namespace Nexus.Link.Libraries.Crud.UnitTests.Crd
             await CreateItemAsync(TypeOfTestDataEnum.Variant2);
             await CreateItemAsync(TypeOfTestDataEnum.Variant1);
             await CreateItemAsync(TypeOfTestDataEnum.Variant2);
+            await CreateItemAsync(TypeOfTestDataEnum.NullValue);
 
             // Act 
             var search = CrudStorage as ISearch<TestItemSort<TId>, TId>;

@@ -13,7 +13,7 @@ namespace Nexus.Link.Libraries.SqlServer.Logic
         {
             if (!details.WherePropertyNames.Any() && extraColumnNames == null) return null;
             var comparisons = details.WherePropertyNames
-                .Select(key => $"[{key}] {EqualsOrLike(key, details)} @{key}")
+                .Select(key => Comparison(details, key))
                 .ToList();
             comparisons.AddRange(extraColumnNames.Select(columnName => $"[{columnName}] = @{columnName}"));
 
@@ -22,10 +22,11 @@ namespace Nexus.Link.Libraries.SqlServer.Logic
             return string.IsNullOrWhiteSpace(@where) ? null : @where;
         }
 
-        private static string EqualsOrLike<T>(string key, SearchDetails<T> details)
+        private static string Comparison<T>(SearchDetails<T> details, string columnName)
         {
-            var whereCondition = details.GetWhereCondition(key, "%", "_");
-            return whereCondition.IsWildCard ? "LIKE" : "=";
+            var whereCondition = details.GetWhereCondition(columnName, "%", "_");
+            if (whereCondition.Object == null) return $"[{columnName}] IS NULL";
+            return whereCondition.IsWildCard ? $"[{columnName}] LIKE @{columnName}" : $"[{columnName}] = @{columnName}";
         }
 
         /// <summary>

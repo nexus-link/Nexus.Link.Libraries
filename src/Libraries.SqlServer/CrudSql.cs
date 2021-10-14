@@ -154,8 +154,6 @@ namespace Nexus.Link.Libraries.SqlServer
             var where = CrudSearchHelper.GetWhereStatement(details);
             var orderBy = CrudSearchHelper.GetOrderByStatement(details);
 
-
-
             return await SearchWhereAsync(where, orderBy, details.GetWhereAsModel("%", "_"), offset, limit, cancellationToken);
         }
 
