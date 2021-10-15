@@ -37,7 +37,7 @@ namespace Nexus.Link.Capabilities.WorkflowMgmt.UnitTests.Services
                 WorkflowInstanceId = itemToCreate.WorkflowInstanceId,
                 ActivityVersionId = itemToCreate.ActivityVersionId,
                 ParentActivityInstanceId = itemToCreate.ParentActivityInstanceId,
-                Iteration = itemToCreate.ParentIteration
+                ParentIteration = itemToCreate.ParentIteration
             };
             var readItem = await _service.FindUniqueAsync(findUnique);
 
@@ -69,14 +69,16 @@ namespace Nexus.Link.Capabilities.WorkflowMgmt.UnitTests.Services
                 WorkflowInstanceId = itemToCreate.WorkflowInstanceId,
                 ActivityVersionId = itemToCreate.ActivityVersionId,
                 ParentActivityInstanceId = itemToCreate.ParentActivityInstanceId,
-                Iteration = itemToCreate.ParentIteration
+                ParentIteration = itemToCreate.ParentIteration
             };
             var itemToUpdate = await _service.FindUniqueAsync(findUnique);
 
             // Act
             itemToUpdate.FinishedAt = DateTimeOffset.Now;
-            itemToUpdate.ExceptionType = nameof(FulcrumConflictException);
-            itemToUpdate.ExceptionMessage = Guid.NewGuid().ToString();
+            itemToUpdate.FailUrgency = ActivityFailUrgencyEnum.Stopping;
+            itemToUpdate.ExceptionCategory = ActivityExceptionCategoryEnum.Other;
+            itemToUpdate.ExceptionFriendlyMessage =  Guid.NewGuid().ToString();
+            itemToUpdate.ExceptionTechnicalMessage = Guid.NewGuid().ToString();
             await _service.UpdateAsync(id, itemToUpdate);
             var readItem = await _service.FindUniqueAsync(findUnique);
 
@@ -87,8 +89,11 @@ namespace Nexus.Link.Capabilities.WorkflowMgmt.UnitTests.Services
             Assert.Equal(itemToUpdate.ParentActivityInstanceId, readItem.ParentActivityInstanceId);
             Assert.Equal(itemToUpdate.FinishedAt, readItem.FinishedAt);
             Assert.Equal(itemToUpdate.ParentIteration, readItem.ParentIteration);
-            Assert.Equal(itemToUpdate.ExceptionType, readItem.ExceptionType);
-            Assert.Equal(itemToUpdate.ExceptionMessage, readItem.ExceptionMessage);
+            Assert.Equal(itemToUpdate.State, readItem.State);
+            Assert.Equal(itemToUpdate.FailUrgency, readItem.FailUrgency);
+            Assert.Equal(itemToUpdate.ExceptionCategory, readItem.ExceptionCategory);
+            Assert.Equal(itemToUpdate.ExceptionFriendlyMessage, readItem.ExceptionFriendlyMessage);
+            Assert.Equal(itemToUpdate.ExceptionTechnicalMessage, readItem.ExceptionTechnicalMessage);
         }
     }
 }

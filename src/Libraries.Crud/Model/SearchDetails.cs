@@ -94,7 +94,7 @@ namespace Nexus.Link.Libraries.Crud.Model
         /// </example>
         public SearchDetails(object where, object orderBy = null)
         {
-            this.PrepareWhere(where);
+            PrepareWhere(where);
             _where = where;
             PrepareOrderBy(orderBy);
             _orderBy = orderBy;

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data.SqlClient;
 using System.Linq;
 using System.Text;
 using System.Threading;
@@ -85,7 +86,7 @@ namespace Nexus.Link.Libraries.SqlServer
                 if (dbItem is IRecordVersion r)
                 {
                     // This is to set Etag to a fictive value that will never be used (but may be required by the validation below)
-                    r.RecordVersion = new byte[]{0,0,0,0,0,0,0,0};
+                    r.RecordVersion = new byte[] { 0, 0, 0, 0, 0, 0, 0, 0 };
                     MaybeTransformRecordVersionToEtag(dbItem);
                 }
                 else
@@ -96,7 +97,21 @@ namespace Nexus.Link.Libraries.SqlServer
             StorageHelper.MaybeUpdateTimeStamps(dbItem, true);
             InternalContract.RequireValidated(dbItem, nameof(item));
             var sql = SqlHelper.Create(TableMetadata);
-            await ExecuteAsync(sql, dbItem, token);
+            try
+            {
+                await ExecuteAsync(sql, dbItem, token);
+            }
+            catch (SqlException e)
+            {
+                // https://stackoverflow.com/questions/6483699/unique-key-violation-in-sql-server-is-it-safe-to-assume-error-2627
+                if (e.Class == 14 && (e.Number == 2627 || e.Number == 2601))
+                {
+                    // Unique constraint
+                    throw new FulcrumConflictException("The new item must be unique.", e);
+                }
+
+                throw;
+            }
         }
 
         /// <inheritdoc />
@@ -135,17 +150,15 @@ namespace Nexus.Link.Libraries.SqlServer
             InternalContract.RequireValidated(details, nameof(details));
             InternalContract.RequireGreaterThanOrEqualTo(0, offset, nameof(offset));
             if (limit != null) InternalContract.RequireGreaterThan(0, limit.Value, nameof(limit));
-            
+
             var where = CrudSearchHelper.GetWhereStatement(details);
             var orderBy = CrudSearchHelper.GetOrderByStatement(details);
-
-            
 
             return await SearchWhereAsync(where, orderBy, details.GetWhereAsModel("%", "_"), offset, limit, cancellationToken);
         }
 
         /// <inheritdoc />
-        public  Task<TDatabaseItem> FindUniqueAsync(SearchDetails<TDatabaseItem> details, CancellationToken cancellationToken = default)
+        public Task<TDatabaseItem> FindUniqueAsync(SearchDetails<TDatabaseItem> details, CancellationToken cancellationToken = default)
         {
             return _convenience.FindUniqueAsync(details, cancellationToken);
         }
@@ -203,8 +216,22 @@ namespace Nexus.Link.Libraries.SqlServer
                     break;
             }
 
-            var count = await ExecuteAsync(sql, item, token);
+            int count;
+            try
+            {
+                count = await ExecuteAsync(sql, item, token);
+            }
+            catch (SqlException e)
+            {
+                // https://stackoverflow.com/questions/6483699/unique-key-violation-in-sql-server-is-it-safe-to-assume-error-2627
+                if (e.Class == 14 && (e.Number == 2627 || e.Number == 2601))
+                {
+                    // Unique constraint
+                    throw new FulcrumConflictException("The new item must be unique.", e);
+                }
 
+                throw;
+            }
             if (count == 0)
             {
                 if (item is IRecordVersion || item is IOptimisticConcurrencyControlByETag)
@@ -247,14 +274,14 @@ namespace Nexus.Link.Libraries.SqlServer
         {
             var selectStatement =
                 $"SELECT {SqlHelper.ReadColumnList(TableMetadata)} FROM [{TableMetadata.TableName}] WITH (ROWLOCK, UPDLOCK, READPAST) WHERE Id=@Id";
-            var result = await SearchAdvancedSingleAsync(selectStatement, new {Id = id}, token);
+            var result = await SearchAdvancedSingleAsync(selectStatement, new { Id = id }, token);
             if (result == null)
             {
                 throw new FulcrumTryAgainException(
                         $"Item {id} in table {TableMetadata.TableName} was already locked by another client.")
-                    {
-                        RecommendedWaitTimeInSeconds = 1
-                    };
+                {
+                    RecommendedWaitTimeInSeconds = 1
+                };
             }
         }
 

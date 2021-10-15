@@ -79,6 +79,7 @@ namespace Nexus.Link.Libraries.Web.AspNet.Error.Logic
                 var postponedContent = new RequestPostponedContent()
                 {
                     WaitingForRequestIds = postponedException.WaitingForRequestIds,
+                    ReentryAuthentication = postponedException.ReentryAuthentication
                 };
                 FulcrumAssert.IsValidated(postponedContent, CodeLocation.AsString());
                 return new StatusAndContent

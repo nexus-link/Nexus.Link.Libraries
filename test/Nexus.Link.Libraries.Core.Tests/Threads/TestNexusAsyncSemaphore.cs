@@ -41,15 +41,15 @@ namespace Nexus.Link.Libraries.Core.Tests.Threads
         {
             var asyncSemaphore = new NexusAsyncSemaphore();
             await asyncSemaphore.RaiseAsync();
-            await asyncSemaphore.LowerAsync();
+            asyncSemaphore.Lower();
         }
 
         [TestMethod]
         [ExpectedException(typeof(FulcrumContractException))]
-        public async Task VerifyCannotLowerFirst()
+        public void VerifyCannotLowerFirst()
         {
             var asyncSemaphore = new NexusAsyncSemaphore();
-            await asyncSemaphore.LowerAsync();
+            asyncSemaphore.Lower();
         }
 
         [TestMethod]
@@ -58,8 +58,8 @@ namespace Nexus.Link.Libraries.Core.Tests.Threads
         {
             var asyncSemaphore = new NexusAsyncSemaphore();
             await asyncSemaphore.RaiseAsync();
-            await asyncSemaphore.LowerAsync();
-            await asyncSemaphore.LowerAsync();
+            asyncSemaphore.Lower();
+            asyncSemaphore.Lower();
         }
 
         [TestMethod]

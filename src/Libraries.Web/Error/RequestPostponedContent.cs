@@ -10,6 +10,11 @@ namespace Nexus.Link.Libraries.Web.Error
         /// </summary>
         public IEnumerable<string> WaitingForRequestIds { get; set; }
 
+        /// <summary>
+        /// This value can be used instead of normal authentication to continue a postponed execution.
+        /// </summary>
+        public string ReentryAuthentication { get; set; }
+
         /// <inheritdoc />
         public void Validate(string errorLocation, string propertyPath = "")
         {

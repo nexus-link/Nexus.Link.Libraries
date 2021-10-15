@@ -2,20 +2,24 @@
 using System;
 using System.Diagnostics;
 using System.Linq;
+using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Options;
+using Newtonsoft.Json;
 using Nexus.Link.Libraries.Core.Application;
 using Nexus.Link.Libraries.Core.Assert;
 using Nexus.Link.Libraries.Core.Error.Logic;
+using Nexus.Link.Libraries.Core.Json;
 using Nexus.Link.Libraries.Core.Logging;
 using Nexus.Link.Libraries.Core.Misc;
 using Nexus.Link.Libraries.Core.MultiTenant.Model;
 using Nexus.Link.Libraries.Core.Platform.Configurations;
 using Nexus.Link.Libraries.Web.AspNet.Error.Logic;
 using Nexus.Link.Libraries.Web.AspNet.Logging;
+using Nexus.Link.Libraries.Web.Error;
 using Nexus.Link.Libraries.Web.Pipe;
 
 namespace Nexus.Link.Libraries.Web.AspNet.Pipe
@@ -245,9 +249,25 @@ namespace Nexus.Link.Libraries.Web.AspNet.Pipe
             FulcrumAssert.IsTrue(response.StatusCode.HasValue, CodeLocation.AsString());
             Debug.Assert(response.StatusCode.HasValue);
             context.Response.StatusCode = response.StatusCode.Value;
+            if (response.StatusCode.Value == (int)HttpStatusCode.Accepted)
+            {
+                var content = JsonHelper.SafeDeserializeObject<RequestPostponedContent>(response.Content);
+                if (content.WaitingForRequestIds != null && content.ReentryAuthentication == null)
+                {
+                    content.ReentryAuthentication = CalculateReentryAuthentication(context.Request);
+                    response.Content = JsonConvert.SerializeObject(content);
+                }
+            }
             context.Response.ContentType = response.ContentType;
             await context.Response.WriteAsync(response.Content, cancellationToken: cancellationToken);
         }
+
+        private static string CalculateReentryAuthentication(HttpRequest contextRequest)
+        {
+            // TODO: Calculate a hash value and sign it so it can't be calculated by anyone else
+            return null;
+        }
+
         #endregion
 
         #region LogRequestResponse
