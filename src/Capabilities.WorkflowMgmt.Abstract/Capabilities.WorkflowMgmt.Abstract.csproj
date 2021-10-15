@@ -36,7 +36,7 @@
   
   <PropertyGroup>
     <PackageId>Nexus.Link.Capabilities.WorkflowMgmt.Abstract</PackageId>
-    <Version>1.0.4-rc01</Version>
+    <Version>1.0.5-alfa01</Version>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <PackageTags>nexus;link;fulcrum;lever</PackageTags>
     <Authors>XLENT Link</Authors>
@@ -46,6 +46,7 @@
     <Copyright>Copyright ©2021 Xlent Link AB</Copyright>
     <IncludeSymbols>true</IncludeSymbols>
     <PackageReleaseNotes>
+      1.0.5 Removed exceptions.
       1.0.4 Refactored ActivityInstance
       1.0.3 Added ActivityInstance.HasCompleted. Removed Context service
       1.0.2 Removed IWorkflowCapabilityForClient and IWorkflowCapabilityForServer

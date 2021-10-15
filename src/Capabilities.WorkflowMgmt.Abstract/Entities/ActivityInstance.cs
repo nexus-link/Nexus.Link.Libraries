@@ -41,7 +41,7 @@ namespace Nexus.Link.Capabilities.WorkflowMgmt.Abstract.Entities
         /// </summary>
         Stopping,
         /// <summary>
-        /// The activity does not hinder others, in fact the whole workflow can deliver a result without it.
+        /// The activity does not hinder other activities, in fact the whole workflow can deliver a result without it.
         /// It is important that the activity is completed anyway, so it should be dealt with to complete the workflow entirely.
         /// </summary>
         CanWait,
