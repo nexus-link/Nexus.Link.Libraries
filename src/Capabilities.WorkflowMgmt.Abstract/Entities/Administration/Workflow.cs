@@ -29,7 +29,7 @@ namespace Nexus.Link.Capabilities.WorkflowMgmt.Abstract.Entities.Administration
         /// <summary>
         /// State of the workflow (instance), calculated from the <see cref="Activities"/>
         /// </summary>
-        public ActivityStateEnum State { get; set; }
+        public ActivityStateEnum State { get; set; } // TODO: Annan enum som sätts på WorkflowInstanceRecord när den ändras
 
         /// <summary>
         /// Top level activities (instances) of the workflow (instance)

@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using Nexus.Link.Capabilities.WorkflowMgmt.Abstract.Model;
 
 namespace Nexus.Link.Capabilities.WorkflowMgmt.Abstract.Entities.Administration
 {
@@ -31,12 +30,23 @@ namespace Nexus.Link.Capabilities.WorkflowMgmt.Abstract.Entities.Administration
         /// </summary>
         public DateTimeOffset? FinishedAt { get; set; }
 
-
-        public ActivityStateEnum State { get; set; }
-        public string ErrorMessage { get; set; }
-
         /// <summary>
         /// State of the activity (instance)
+        /// </summary>
+        public ActivityStateEnum State { get; set; }
+
+        /// <summary>
+        /// An error message that is readable by nusiness people
+        /// </summary>
+        public string FriendlyErrorMessage { get; set; }
+
+        /// <summary>
+        /// An error message that can contain technical details
+        /// </summary>
+        public string TechnicalErrorMessage { get; set; }
+
+        /// <summary>
+        /// Reference to a workflow that this activity waits for
         /// </summary>
         public AnnotatedWorkflowId WaitingForWorkflow { get; set; }
 
