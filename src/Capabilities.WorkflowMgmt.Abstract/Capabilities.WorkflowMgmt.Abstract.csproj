@@ -36,7 +36,7 @@
   
   <PropertyGroup>
     <PackageId>Nexus.Link.Capabilities.WorkflowMgmt.Abstract</PackageId>
-    <Version>1.0.5-rc01</Version>
+    <Version>1.0.6-rc01</Version>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <PackageTags>nexus;link;fulcrum;lever</PackageTags>
     <Authors>XLENT Link</Authors>
@@ -46,12 +46,13 @@
     <Copyright>Copyright ©2021 Xlent Link AB</Copyright>
     <IncludeSymbols>true</IncludeSymbols>
     <PackageReleaseNotes>
-		1.0.5 Added IAdministrationCapability
-		1.0.4 Refactored ActivityInstance
-		1.0.3 Added ActivityInstance.HasCompleted
-		1.0.2 Removed IWorkflowCapabilityForClient and IWorkflowCapabilityForServer
-		1.0.1 Change netcoreapp3.1 to netstandard2.0
-		1.0.0 First release
+      1.0.6 Removed exceptions. Renamed enum values.
+      1.0.5 Added IAdministrationCapability
+      1.0.4 Refactored ActivityInstance
+      1.0.3 Added ActivityInstance.HasCompleted. Removed Context service
+      1.0.2 Removed IWorkflowCapabilityForClient and IWorkflowCapabilityForServer
+      1.0.1 Change netcoreapp3.1 to netstandard2.0
+      1.0.0 First release
 	</PackageReleaseNotes>
     <RootNamespace>Nexus.Link.Capabilities.WorkflowMgmt.Abstract</RootNamespace>
     <AssemblyName>Nexus.Link.Capabilities.WorkflowMgmt.Abstract</AssemblyName>
