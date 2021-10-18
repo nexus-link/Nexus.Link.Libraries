@@ -41,14 +41,14 @@ namespace Nexus.Link.Capabilities.WorkflowMgmt.Abstract.Entities
         /// </summary>
         Stopping,
         /// <summary>
-        /// The activity does not hinder other activities, in fact the whole workflow can deliver a result without it.
-        /// It is important that the activity is completed anyway, so it should be dealt with to complete the workflow entirely.
+        /// The activity does not hinder other activities, in fact the whole workflow can deliver a result even if this activity fails.
+        /// It is important that the activity is completed anyway, so it should be dealt with eventually to complete the workflow entirely.
         /// </summary>
-        CanWait,
+        HandleLater,
         /// <summary>
         /// The activity was of a "fire and forget" character, i.e. it doesn't matter if it failed, as long as we tried.
         /// </summary>
-        CanBeIgnored
+        Ignore
     };
     public class ActivityInstance : ActivityInstanceCreate, IUniquelyIdentifiable<string>, IOptimisticConcurrencyControlByETag
     {
