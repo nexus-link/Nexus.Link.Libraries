@@ -65,8 +65,6 @@ namespace Nexus.Link.Capabilities.WorkflowMgmt.Abstract.Entities
 
         public ActivityExceptionCategoryEnum? ExceptionCategory { get; set; }
 
-        public ActivityFailUrgencyEnum FailUrgency { get; set; }
-
         public string ExceptionTechnicalMessage { get; set; }
 
         public string ExceptionFriendlyMessage { get; set; }
@@ -108,6 +106,8 @@ namespace Nexus.Link.Capabilities.WorkflowMgmt.Abstract.Entities
     public class ActivityInstanceCreate : ActivityInstanceUnique, IValidatable
     {
         public ActivityStateEnum State { get; set; }
+
+        public ActivityFailUrgencyEnum FailUrgency { get; set; }
 
         public bool HasCompleted => State == ActivityStateEnum.Success || State == ActivityStateEnum.Failed;
 
