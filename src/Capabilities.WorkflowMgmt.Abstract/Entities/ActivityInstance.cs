@@ -65,8 +65,6 @@ namespace Nexus.Link.Capabilities.WorkflowMgmt.Abstract.Entities
 
         public ActivityExceptionCategoryEnum? ExceptionCategory { get; set; }
 
-        public ActivityFailUrgencyEnum? FailUrgency { get; set; }
-
         public string ExceptionTechnicalMessage { get; set; }
 
         public string ExceptionFriendlyMessage { get; set; }
@@ -79,17 +77,11 @@ namespace Nexus.Link.Capabilities.WorkflowMgmt.Abstract.Entities
             FulcrumValidate.IsNotNullOrWhiteSpace(Etag, nameof(Etag), errorLocation);
             if (State == ActivityStateEnum.Failed)
             {
-                FulcrumValidate.IsNotNull(FailUrgency, nameof(FailUrgency), errorLocation);
                 FulcrumValidate.IsNotNull(ExceptionCategory, nameof(ExceptionCategory), errorLocation);
                 FulcrumValidate.IsNotNullOrWhiteSpace(ExceptionTechnicalMessage, nameof(ExceptionTechnicalMessage), errorLocation);
                 FulcrumValidate.IsNotNullOrWhiteSpace(ExceptionFriendlyMessage, nameof(ExceptionFriendlyMessage), errorLocation);
             }
-
-            if (FailUrgency != null)
-            {
-                FulcrumValidate.AreEqual(ActivityStateEnum.Failed, State, nameof(State), errorLocation,
-                    $"Inconsistency: {nameof(State)} can't have value {State} if {nameof(FailUrgency)} is not null.");
-            }
+            
 
             if (ExceptionCategory != null)
             {
@@ -114,6 +106,8 @@ namespace Nexus.Link.Capabilities.WorkflowMgmt.Abstract.Entities
     public class ActivityInstanceCreate : ActivityInstanceUnique, IValidatable
     {
         public ActivityStateEnum State { get; set; }
+
+        public ActivityFailUrgencyEnum FailUrgency { get; set; }
 
         public bool HasCompleted => State == ActivityStateEnum.Success || State == ActivityStateEnum.Failed;
 
