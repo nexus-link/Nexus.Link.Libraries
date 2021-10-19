@@ -15,7 +15,7 @@ namespace Nexus.Link.Libraries.Core.Error.Logic
         /// </summary>
         public static FulcrumException Create(string message, Exception innerException = null)
         {
-            return new FulcrumResourceException(message, innerException);
+            return new FulcrumCancelledException(message, innerException);
         }
 
         /// <summary>
