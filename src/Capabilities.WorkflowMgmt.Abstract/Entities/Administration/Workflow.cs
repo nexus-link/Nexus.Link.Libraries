@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using Nexus.Link.Capabilities.WorkflowMgmt.Abstract.Model;
 
 namespace Nexus.Link.Capabilities.WorkflowMgmt.Abstract.Entities.Administration
 {
@@ -25,6 +24,11 @@ namespace Nexus.Link.Capabilities.WorkflowMgmt.Abstract.Entities.Administration
         /// If not null, timestamp when the workflow (instance) finished
         /// </summary>
         public DateTimeOffset? FinishedAt { get; set; }
+
+        /// <summary>
+        /// If not null, timestamp when the workflow (instance) was cancelled (probably by an administrator)
+        /// </summary>
+        public DateTimeOffset? CancelledAt { get; set; }
 
         /// <summary>
         /// State of the workflow (instance), calculated from the <see cref="Activities"/>
