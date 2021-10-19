@@ -3,7 +3,7 @@ using Nexus.Link.Libraries.Crud.Interfaces;
 
 namespace Nexus.Link.Capabilities.WorkflowMgmt.Abstract.Services
 {
-    public interface IActivityFormService : ICreateChildWithSpecifiedId<ActivityFormCreate,ActivityForm, string>, IRead<ActivityForm, string>, IUpdate<ActivityForm, string>
+    public interface IActivityFormService : ICreateWithSpecifiedId<ActivityFormCreate,ActivityForm, string>, IRead<ActivityForm, string>, IUpdate<ActivityForm, string>
     {
     }
 }

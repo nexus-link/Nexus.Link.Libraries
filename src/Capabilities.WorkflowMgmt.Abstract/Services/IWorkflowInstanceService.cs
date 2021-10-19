@@ -3,7 +3,7 @@ using Nexus.Link.Libraries.Crud.Interfaces;
 
 namespace Nexus.Link.Capabilities.WorkflowMgmt.Abstract.Services
 {
-    public interface IWorkflowInstanceService : ICreateChildWithSpecifiedId<WorkflowInstanceCreate,WorkflowInstance, string>, IRead<WorkflowInstance, string>
+    public interface IWorkflowInstanceService : ICreateWithSpecifiedId<WorkflowInstanceCreate,WorkflowInstance, string>, IRead<WorkflowInstance, string>
     {
     }
 }

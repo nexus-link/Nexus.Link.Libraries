@@ -32,7 +32,7 @@ namespace Nexus.Link.Capabilities.WorkflowMgmt.UnitTests.Services
 
             // Act
             var childId = await _service.CreateChildAsync(workflowVersionId, itemToCreate);
-            var readItem = await _service.FindUniqueAsync(itemToCreate);
+            var readItem = await _service.FindUniqueAsync(workflowVersionId, itemToCreate);
 
             // Assert
             Assert.NotNull(readItem);

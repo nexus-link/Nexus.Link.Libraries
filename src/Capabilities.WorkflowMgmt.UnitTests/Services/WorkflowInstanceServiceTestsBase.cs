@@ -31,7 +31,7 @@ namespace Nexus.Link.Capabilities.WorkflowMgmt.UnitTests.Services
             };
 
             // Act
-            await _workflowInstanceService.CreateChildWithSpecifiedIdAsync(workflowVersionId, instanceId, itemToCreate);
+            await _workflowInstanceService.CreateWithSpecifiedIdAsync(instanceId, itemToCreate);
             var readItem = await _workflowInstanceService.ReadAsync(instanceId);
 
             // Assert

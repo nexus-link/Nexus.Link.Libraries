@@ -5,9 +5,8 @@ using Nexus.Link.Libraries.Crud.Interfaces;
 
 namespace Nexus.Link.Capabilities.WorkflowMgmt.Abstract.Services
 {
-    public interface IActivityVersionService : ICreateChild<ActivityVersionCreate,ActivityVersion, string>, IUpdate<ActivityVersion, string>
+    public interface IActivityVersionService : ICreate<ActivityVersionCreate, ActivityVersion, string>, IUpdate<ActivityVersion, string>
     {
-        Task<ActivityVersion> FindUniqueByWorkflowVersionActivityAsync(string workflowVersionId, string activityId,
-            CancellationToken cancellationToken = default);
+        Task<ActivityVersion> FindUniqueAsync(string workflowVersionId, string activityFormId, CancellationToken cancellationToken = default);
     }
 }

@@ -15,5 +15,6 @@ namespace Nexus.Link.Capabilities.WorkflowMgmt.Abstract
         IActivityParameterService ActivityParameter { get; }
         IWorkflowInstanceService WorkflowInstance { get; }
         IWorkflowService Workflow { get; }
+        IWorkflowAdministrationService WorkflowAdministrationService { get; }
     }
 }

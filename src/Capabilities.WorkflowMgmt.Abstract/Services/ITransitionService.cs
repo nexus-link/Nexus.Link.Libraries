@@ -7,6 +7,6 @@ namespace Nexus.Link.Capabilities.WorkflowMgmt.Abstract.Services
 {
     public interface ITransitionService : ICreateChild<TransitionCreate,Transition, string>, IReadChildrenWithPaging<Transition, string>
     {
-        Task<Transition> FindUniqueAsync(TransitionUnique transition, CancellationToken cancellationToken = default);
+        Task<Transition> FindUniqueAsync(string workflowVersionId, TransitionUnique transition, CancellationToken cancellationToken = default);
     }
 }
