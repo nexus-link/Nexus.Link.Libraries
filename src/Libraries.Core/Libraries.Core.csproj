@@ -48,7 +48,7 @@
 
   <PropertyGroup>
     <PackageId>Nexus.Link.Libraries.Core</PackageId>
-    <Version>5.6.1</Version>
+    <Version>5.7.0</Version>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <PackageTags>nexus;link;fulcrum;lever</PackageTags>
     <Authors>XLENT Link</Authors>
@@ -58,7 +58,8 @@
     <Copyright>Copyright ©2021 Xlent Link AB</Copyright>
     <IncludeSymbols>true</IncludeSymbols>
     <PackageReleaseNotes>
-      5.6.1 NexusAsyncSemaphore now can support nested locks
+      5.7.0 Added FulcrumCancelledException
+	  5.6.1 NexusAsyncSemaphore now can support nested locks
       5.6.0 Added JSON StringValuesConverter and JsonExtensions. Added ChannelQueue.
       5.5.2 Symbols
       5.5.1 Added DependentToMaster
