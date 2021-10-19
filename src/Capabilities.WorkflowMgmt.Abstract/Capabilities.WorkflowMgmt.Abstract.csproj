@@ -36,7 +36,7 @@
   
   <PropertyGroup>
     <PackageId>Nexus.Link.Capabilities.WorkflowMgmt.Abstract</PackageId>
-    <Version>1.0.7-rc01</Version>
+    <Version>1.0.8-rc01</Version>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <PackageTags>nexus;link;fulcrum;lever</PackageTags>
     <Authors>XLENT Link</Authors>
@@ -46,9 +46,10 @@
     <Copyright>Copyright ©2021 Xlent Link AB</Copyright>
     <IncludeSymbols>true</IncludeSymbols>
     <PackageReleaseNotes>
-        1.0.7 Service contract changes, mostly removing child things
+		1.0.8 Added IWorkflowAdministrationService.CancelWorkflow
+		1.0.7 Service contract changes, mostly removing child things
 		1.0.6 Removed exceptions. Renamed enum values.
-	    1.0.5 Added IAdministrationCapability
+		1.0.5 Added IAdministrationCapability
 		1.0.4 Refactored ActivityInstance
 		1.0.3 Added ActivityInstance.HasCompleted
 		1.0.2 Removed IWorkflowCapabilityForClient and IWorkflowCapabilityForServer

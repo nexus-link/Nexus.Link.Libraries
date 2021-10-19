@@ -41,6 +41,7 @@ namespace Nexus.Link.Capabilities.WorkflowMgmt.UnitTests.Services
             Assert.Equal(itemToCreate.StartedAt, readItem.StartedAt);
             Assert.Equal(itemToCreate.Title, readItem.Title);
             Assert.Null(readItem.FinishedAt);
+            Assert.Null(readItem.CancelledAt);
         }
     }
 }

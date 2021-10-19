@@ -16,6 +16,8 @@ namespace Nexus.Link.Capabilities.WorkflowMgmt.Abstract.Entities
         public string Etag { get; set; }
 
         public DateTimeOffset? FinishedAt { get; set; }
+        
+        public DateTimeOffset? CancelledAt { get; set; }
 
         /// <inheritdoc />
         public override void Validate(string errorLocation, string propertyPath = "")
