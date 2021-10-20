@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using Nexus.Link.Libraries.Core.Assert;
 
 namespace Nexus.Link.Libraries.Web.Error.Logic
@@ -29,10 +30,7 @@ namespace Nexus.Link.Libraries.Web.Error.Logic
         /// </summary>
         public RequestPostponedException(IEnumerable<string> waitingForRequestIds)
         {
-            if (waitingForRequestIds != null)
-            {
-                WaitingForRequestIds.AddRange(waitingForRequestIds);
-            }
+            AddWaitingForIds(waitingForRequestIds);
         }
 
         /// <summary>
@@ -40,10 +38,7 @@ namespace Nexus.Link.Libraries.Web.Error.Logic
         /// </summary>
         public RequestPostponedException(params string[] waitingForRequestIds)
         {
-            if (waitingForRequestIds != null)
-            {
-                WaitingForRequestIds.AddRange(waitingForRequestIds);
-            }
+            AddWaitingForIds(waitingForRequestIds);
         }
 
         /// <summary>
@@ -54,7 +49,7 @@ namespace Nexus.Link.Libraries.Web.Error.Logic
         public RequestPostponedException AddWaitingForIds(IEnumerable<string> waitingForRequestIds)
         {
             if (waitingForRequestIds == null) return this;
-            WaitingForRequestIds.AddRange(waitingForRequestIds);
+            WaitingForRequestIds.AddRange(waitingForRequestIds.Where(ri => ri != null));
             return this;
         }
 
@@ -66,7 +61,7 @@ namespace Nexus.Link.Libraries.Web.Error.Logic
         public RequestPostponedException AddWaitingForIds(params string[] waitingForRequestIds)
         {
             if (waitingForRequestIds == null) return this;
-            WaitingForRequestIds.AddRange(waitingForRequestIds);
+            WaitingForRequestIds.AddRange(waitingForRequestIds.Where(ri => ri != null));
             return this;
         }
     }

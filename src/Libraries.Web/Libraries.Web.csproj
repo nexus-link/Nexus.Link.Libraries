@@ -31,7 +31,7 @@
 
   <PropertyGroup>
     <PackageId>Nexus.Link.Libraries.Web</PackageId>
-    <Version>2.22.0</Version>
+    <Version>2.22.1</Version>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <PackageTags>nexus;link;fulcrum;lever</PackageTags>
     <Authors>XLENT Link</Authors>
@@ -41,7 +41,7 @@
     <Copyright>Copyright ©2021 Xlent Link AB</Copyright>
     <IncludeSymbols>true</IncludeSymbols>
     <PackageReleaseNotes>
-      2.22.0 Added TryAgain to ReqeustPostponed
+      2.22.1 Added TryAgain to ReqeustPostponed
       2.21.3 Bump
       2.21.1 Added converter for FulcrumCancelledException
       2.20.3 Added ReentryAuthentication to postpone and Constants.ReentryAuthenticationHeaderName
