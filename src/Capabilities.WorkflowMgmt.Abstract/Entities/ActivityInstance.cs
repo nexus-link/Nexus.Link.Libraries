@@ -63,6 +63,8 @@ namespace Nexus.Link.Capabilities.WorkflowMgmt.Abstract.Entities
 
         public string ResultAsJson { get; set; }
 
+        public bool? ExceptionAlertHandled { get; set; }
+
         public ActivityExceptionCategoryEnum? ExceptionCategory { get; set; }
 
         public string ExceptionTechnicalMessage { get; set; }
