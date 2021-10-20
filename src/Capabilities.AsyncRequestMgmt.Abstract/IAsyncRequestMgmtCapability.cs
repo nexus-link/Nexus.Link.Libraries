@@ -16,5 +16,15 @@ namespace Nexus.Link.Capabilities.AsyncRequestMgmt.Abstract
         /// The <see cref="IRequestResponseService"/>.
         /// </summary>
         IRequestResponseService RequestResponse { get; }
+
+        /// <summary>
+        /// The <see cref="IExecutionService"/>.
+        /// </summary>
+        IExecutionService Execution { get; }
+
+        /// <summary>
+        /// The <see cref="IExecutionResponseService"/>.
+        /// </summary>
+        IExecutionResponseService ExecutionResponse { get; }
     }
 }
