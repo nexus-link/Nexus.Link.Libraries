@@ -36,7 +36,7 @@
 
   <PropertyGroup>
     <PackageId>Nexus.Link.Capabilities.WorkflowMgmt.Abstract</PackageId>
-    <Version>1.0.11-alfa02</Version>
+    <Version>1.0.11-rc01</Version>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <PackageTags>nexus;link;fulcrum;lever</PackageTags>
     <Authors>XLENT Link</Authors>
@@ -49,7 +49,7 @@
       1.0.11 Added ExceptionAlertHandled
       1.0.10 Admin: Retry activity
       1.0.9 FailUrgency is now not nullable
-		1.0.8 Added IWorkflowAdministrationService.CancelWorkflow
+      1.0.8 Added IWorkflowAdministrationService.CancelWorkflow
 		1.0.7 Service contract changes, mostly removing child things
 		1.0.6 Removed exceptions. Renamed enum values.
 		1.0.5 Added IAdministrationCapability
