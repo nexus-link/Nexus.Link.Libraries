@@ -78,6 +78,7 @@ namespace Nexus.Link.Libraries.Web.AspNet.Error.Logic
             {
                 var postponedContent = new RequestPostponedContent()
                 {
+                    TryAgain = postponedException.TryAgain,
                     WaitingForRequestIds = postponedException.WaitingForRequestIds,
                     ReentryAuthentication = postponedException.ReentryAuthentication
                 };
