@@ -11,5 +11,10 @@ namespace Nexus.Link.Capabilities.WorkflowMgmt.Abstract.Services
         /// Set a workflow in a cancelled state, which aborts the workflow process.
         /// </summary>
         Task CancelWorkflowAsync(string workflowInstanceId, CancellationToken cancellationToken = default);
+
+        /// <summary>
+        /// Retry an activity that is in a halted state
+        /// </summary>
+        Task RetryActivityAsync(string activityInstanceId, CancellationToken cancellationToken = default);
     }
 }

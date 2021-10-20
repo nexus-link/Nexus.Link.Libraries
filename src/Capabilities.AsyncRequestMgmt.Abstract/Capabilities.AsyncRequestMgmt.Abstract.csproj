@@ -30,6 +30,7 @@
   <ItemGroup>
     <ProjectReference Include="..\Libraries.Core\Libraries.Core.csproj" />
     <ProjectReference Include="..\Libraries.Crud\Libraries.Crud.csproj" />
+    <ProjectReference Include="..\Libraries.Web\Libraries.Web.csproj" />
   </ItemGroup>
 
   <PropertyGroup>
@@ -43,7 +44,7 @@
 
   <PropertyGroup>
     <PackageId>Nexus.Link.Capabilities.AsyncRequestMgmt.Abstract</PackageId>
-    <Version>1.0.1</Version>
+    <Version>1.0.2-rc01</Version>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <PackageTags>nexus;link;fulcrum;lever</PackageTags>
     <Authors>XLENT Link</Authors>
@@ -53,8 +54,9 @@
     <Copyright>Copyright ©2021 Xlent Link AB</Copyright>
     <IncludeSymbols>true</IncludeSymbols>
     <PackageReleaseNotes>
-      1.0.1 Removed reduntant service operation.
-      1.0.0 First release
+	    1.0.2 Added IExecutionService
+	    1.0.1 Removed reduntant service operation.
+        1.0.0 First release
     </PackageReleaseNotes>
     <LangVersion>latest</LangVersion>
     <AssemblyName>Nexus.Link.Capabilities.AsyncRequestMgmt.Abstract</AssemblyName>
