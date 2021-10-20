@@ -10,6 +10,11 @@ namespace Nexus.Link.Libraries.Web.Error.Logic
     public class RequestPostponedException : Exception
     {
         /// <summary>
+        /// True means that there was a problem, so the caller should try to call us again.
+        /// </summary>
+        public bool TryAgain { get; set; }
+
+        /// <summary>
         /// If there are any other requests that we are waiting for, they will be listed here.
         /// </summary>
         public List<string> WaitingForRequestIds { get; } = new List<string>();

@@ -262,6 +262,7 @@ namespace Nexus.Link.Libraries.Web.AspNet.Pipe
             await context.Response.WriteAsync(response.Content, cancellationToken: cancellationToken);
         }
 
+
         private static string CalculateReentryAuthentication(HttpRequest contextRequest)
         {
             // TODO: Calculate a hash value and sign it so it can't be calculated by anyone else

@@ -69,6 +69,7 @@ namespace Nexus.Link.Libraries.Web.Pipe.Outbound
                     {
                         throw new RequestPostponedException(postponeInfo.WaitingForRequestIds)
                         {
+                            TryAgain = postponeInfo.TryAgain,
                             ReentryAuthentication = postponeInfo.ReentryAuthentication
                         };
                     }
