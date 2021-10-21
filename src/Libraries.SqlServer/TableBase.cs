@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data;
-using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -29,11 +28,22 @@ namespace Nexus.Link.Libraries.SqlServer
         /// </summary>
         /// <param name="connectionString"></param>
         /// <param name="tableMetadata"></param>
-        protected TableBase(string connectionString, ISqlTableMetadata tableMetadata)
+        [Obsolete("Use TableBase(IDatabaseOptions, ISqlTableMetadata) instead. Obsolete since 2021-10-21.", error: false)]
+        protected TableBase(string connectionString, ISqlTableMetadata tableMetadata) : this(new DatabaseOptions(connectionString), tableMetadata)
         {
-            InternalContract.RequireNotNullOrWhiteSpace(connectionString, nameof(connectionString));
+        }
+
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        /// <param name="options"></param>
+        /// <param name="tableMetadata"></param>
+        protected TableBase(IDatabaseOptions options, ISqlTableMetadata tableMetadata)
+        {
+            InternalContract.RequireNotNull(options, nameof(options));
             InternalContract.RequireValidated(tableMetadata, nameof(tableMetadata));
-            Database = new Database(connectionString);
+
+            Database = new Database(options);
             TableMetadata = tableMetadata;
         }
 
@@ -94,7 +104,7 @@ namespace Nexus.Link.Libraries.SqlServer
             InternalContract.RequireNotNullOrWhiteSpace(selectRest, nameof(selectRest));
             if (selectRest == null) return 0;
             var selectStatement = $"{selectFirst} {selectRest}";
-            using (IDbConnection db = Database.NewSqlConnection())
+            using (IDbConnection db = await Database.NewSqlConnectionAsync(token))
             {
                 return (await db.QueryAsync<int>(selectStatement, param))
                     .SingleOrDefault();
@@ -200,7 +210,7 @@ namespace Nexus.Link.Libraries.SqlServer
         {
             InternalContract.RequireNotNullOrWhiteSpace(statement, nameof(statement));
             MaybeTransformEtagToRecordVersion(param);
-            using (var db = Database.NewSqlConnection())
+            using (var db = await Database.NewSqlConnectionAsync(token))
             {
                 int count;
                 await db.VerifyAvailabilityAsync(null, token);
@@ -222,7 +232,7 @@ namespace Nexus.Link.Libraries.SqlServer
         protected internal async Task<IEnumerable<TDatabaseItem>> QueryAsync(string statement, object param = null, CancellationToken token = default)
         {
             InternalContract.RequireNotNullOrWhiteSpace(statement, nameof(statement));
-            using (var db = Database.NewSqlConnection())
+            using (var db = await Database.NewSqlConnectionAsync(token))
             {
                 await db.VerifyAvailabilityAsync(null, token);
                 IEnumerable<TDatabaseItem> items;

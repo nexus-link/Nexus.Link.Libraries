@@ -1,17 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
-using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using Dapper;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using Nexus.Link.Libraries.Core.Assert;
 using Nexus.Link.Libraries.Crud.Interfaces;
 using Nexus.Link.Libraries.Core.Error.Logic;
-using Nexus.Link.Libraries.Core.Misc;
 using Nexus.Link.Libraries.Core.Storage.Logic;
 using Nexus.Link.Libraries.Core.Storage.Model;
 using Nexus.Link.Libraries.Crud.Helpers;
@@ -21,6 +15,7 @@ using Nexus.Link.Libraries.SqlServer.Model;
 
 namespace Nexus.Link.Libraries.SqlServer
 {
+
     /// <summary>
     /// Helper class for advanced SELECT statements 
     /// </summary>
@@ -31,12 +26,19 @@ namespace Nexus.Link.Libraries.SqlServer
         /// <summary>
         /// Constructor
         /// </summary>
-        /// <param name="connectionString"></param>
-        /// <param name="tableMetadata"></param>
+        [Obsolete("Use CrudSql(IDatabaseOptions, ISqlTableMetadata) instead. Obsolete since 2021-10-21.", error: false)]
         public CrudSql(string connectionString, ISqlTableMetadata tableMetadata)
             : base(connectionString, tableMetadata)
         {
             InternalContract.RequireValidated(tableMetadata, nameof(tableMetadata));
+        }
+
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        public CrudSql(IDatabaseOptions options, ISqlTableMetadata tableMetadata)
+            : base(options, tableMetadata)
+        {
         }
     }
 
@@ -52,11 +54,20 @@ namespace Nexus.Link.Libraries.SqlServer
         /// </summary>
         /// <param name="connectionString"></param>
         /// <param name="tableMetadata"></param>
+        [Obsolete("Use CrudSql(IDatabaseOptions, ISqlTableMetadata) instead. Obsolete since 2021-10-21.", error: false)]
         public CrudSql(string connectionString, ISqlTableMetadata tableMetadata)
             : base(connectionString, tableMetadata)
         {
             InternalContract.RequireValidated(tableMetadata, nameof(tableMetadata));
             _convenience = new CrudConvenience<TDatabaseItemCreate, TDatabaseItem, Guid>(this);
+        }
+
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        public CrudSql(IDatabaseOptions options, ISqlTableMetadata tableMetadata)
+            : base(options, tableMetadata)
+        {
         }
 
         /// <inheritdoc />
