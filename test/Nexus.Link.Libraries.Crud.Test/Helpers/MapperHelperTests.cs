@@ -95,7 +95,7 @@ namespace Nexus.Link.Libraries.Crud.Test.Helpers
         public void MapToTypeGuid_Nullable()
         {
             var source = (string) null;
-            var value = MapperHelper.MapToType<Guid?, string>((string)null);
+            var value = MapperHelper.MapToType<Guid?, string>(source);
             Assert.IsNull(value);
         }
 
