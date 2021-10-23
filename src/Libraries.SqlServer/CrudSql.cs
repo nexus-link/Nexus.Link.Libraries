@@ -68,6 +68,7 @@ namespace Nexus.Link.Libraries.SqlServer
         public CrudSql(IDatabaseOptions options, ISqlTableMetadata tableMetadata)
             : base(options, tableMetadata)
         {
+            _convenience = new CrudConvenience<TDatabaseItemCreate, TDatabaseItem, Guid>(this);
         }
 
         /// <inheritdoc />
