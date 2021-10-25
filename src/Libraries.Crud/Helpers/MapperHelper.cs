@@ -48,7 +48,12 @@ namespace Nexus.Link.Libraries.Crud.Helpers
             if (targetType == typeof(string))
             {
                 if (source == null) return (TTarget) (object) null;
-                return (TTarget)(object)source.ToString();
+                var result = source.ToString();
+                if (sourceType == typeof(Guid) || sourceType == typeof(Guid?))
+                {
+                    result = result.ToLowerInvariant();
+                }
+                return (TTarget)(object)result;
             }
             InternalContract.Require(!targetType.IsEnum, $"Use MapToStruct for mapping of enums.");
             if (targetType == typeof(Guid) || targetType == typeof(Guid?))
