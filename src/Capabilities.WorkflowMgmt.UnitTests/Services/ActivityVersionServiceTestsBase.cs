@@ -54,19 +54,22 @@ namespace Nexus.Link.Capabilities.WorkflowMgmt.UnitTests.Services
                 WorkflowVersionId = parentId,
                 Position = 1,
                 ActivityFormId = activityFormId,
-                ParentActivityVersionId = Guid.NewGuid().ToString()
+                ParentActivityVersionId = Guid.NewGuid().ToString(),
+                FailUrgency = ActivityFailUrgencyEnum.Stopping
             };
             var childId = await _service.CreateAsync(itemToCreate);
             var itemToUpdate = await _service.FindUniqueAsync(parentId, activityFormId);
 
             // Act
             itemToUpdate.Position = 2;
+            itemToUpdate.FailUrgency = ActivityFailUrgencyEnum.Ignore;
             await _service.UpdateAsync(childId, itemToUpdate);
             var readItem = await _service.FindUniqueAsync(parentId, activityFormId);
 
             // Assert
             Assert.Equal(childId, readItem.Id);
             Assert.Equal(itemToUpdate.Position, readItem.Position);
+            Assert.Equal(itemToUpdate.FailUrgency, readItem.FailUrgency);
         }
 
         [Fact]
@@ -80,6 +83,7 @@ namespace Nexus.Link.Capabilities.WorkflowMgmt.UnitTests.Services
                 WorkflowVersionId = parentId,
                 Position = 1,
                 ActivityFormId = activityFormId,
+                FailUrgency = ActivityFailUrgencyEnum.Stopping,
                 ParentActivityVersionId = Guid.NewGuid().ToString()
             };
             var childId = await _service.CreateAsync(itemToCreate);

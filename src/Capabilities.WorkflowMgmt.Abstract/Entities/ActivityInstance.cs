@@ -7,19 +7,25 @@ namespace Nexus.Link.Capabilities.WorkflowMgmt.Abstract.Entities
     public enum ActivityExceptionCategoryEnum 
     {
         /// <summary>
-        /// The activity had a maximum time to execute and it was exceeded.
+        /// The exception for this activity was of category "technical problems", e.g. a programmers error
         /// </summary>
-        Timeout,
+        /// <remarks>
+        /// The default value for this enumeration
+        /// </remarks>
+        Technical,
         /// <summary>
-        /// None of the current categories was fitting for this exception.
+        /// The exception for this activity was of category "business problem".
         /// </summary>
-        Other
+        Business
     };
     public enum ActivityStateEnum 
     {
         /// <summary>
-        /// The activity has been started
+        /// The activity has been started (default value)
         /// </summary>
+        /// <remarks>
+        /// The default value for this enumeration
+        /// </remarks>
         Started,
         /// <summary>
         /// We are asynchronously waiting for the activity to finish
@@ -33,26 +39,6 @@ namespace Nexus.Link.Capabilities.WorkflowMgmt.Abstract.Entities
         /// The activity has finished, but it failed. <see cref="ActivityFailUrgencyEnum"/> for the level of urgency to deal with this.
         /// </summary>
         Failed
-    };
-    public enum ActivityFailUrgencyEnum 
-    {
-        /// <summary>
-        /// If this activity fails, the entire workflow should be cancelled.
-        /// </summary>
-        CancelWorkflow,
-        /// <summary>
-        /// The activity is hindering other activities to complete.
-        /// </summary>
-        Stopping,
-        /// <summary>
-        /// The activity does not hinder other activities, in fact the whole workflow can deliver a result even if this activity fails.
-        /// It is important that the activity is completed anyway, so it should be dealt with eventually to complete the workflow entirely.
-        /// </summary>
-        HandleLater,
-        /// <summary>
-        /// The activity was of a "fire and forget" character, i.e. it doesn't matter if it failed, as long as we tried.
-        /// </summary>
-        Ignore
     };
     public class ActivityInstance : ActivityInstanceCreate, IUniquelyIdentifiable<string>, IOptimisticConcurrencyControlByETag
     {
@@ -112,8 +98,6 @@ namespace Nexus.Link.Capabilities.WorkflowMgmt.Abstract.Entities
     public class ActivityInstanceCreate : ActivityInstanceUnique, IValidatable
     {
         public ActivityStateEnum State { get; set; }
-
-        public ActivityFailUrgencyEnum FailUrgency { get; set; }
 
         public bool HasCompleted => State == ActivityStateEnum.Success || State == ActivityStateEnum.Failed;
 
