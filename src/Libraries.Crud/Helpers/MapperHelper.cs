@@ -30,7 +30,7 @@ namespace Nexus.Link.Libraries.Crud.Helpers
         {
             InternalContract.Require(typeof(T).IsEnum, $"The generic type {typeof(T).Name} must be an enum.");
             var success = Enum.TryParse<T>(source, out var valueAsEnum);
-            InternalContract.Require(success, $"Could not parse parameter {nameof(source)} ({source}) of type {nameof(String)} into type {nameof(Int32)}.");
+            InternalContract.Require(success, $"Could not parse parameter {nameof(source)} ({source}) of type {nameof(String)} into type {nameof(T)}.");
             return valueAsEnum;
         }
 

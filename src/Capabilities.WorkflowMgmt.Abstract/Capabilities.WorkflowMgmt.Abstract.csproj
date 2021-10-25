@@ -36,7 +36,7 @@
 
   <PropertyGroup>
     <PackageId>Nexus.Link.Capabilities.WorkflowMgmt.Abstract</PackageId>
-    <Version>1.1.0-rc01</Version>
+    <Version>1.2.0-rc01</Version>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <PackageTags>nexus;link;fulcrum;lever</PackageTags>
     <Authors>XLENT Link</Authors>
@@ -46,6 +46,7 @@
     <Copyright>Copyright ©2021 Xlent Link AB</Copyright>
     <IncludeSymbols>true</IncludeSymbols>
     <PackageReleaseNotes>
+      1.2.0 Added CancelWorkflow as fail urgency. Added ActivityTypeEnum
       1.1.0 Added info about latest and parent activity in static context
       1.0.11 Added ExceptionAlertHandled
       1.0.10 Admin: Retry activity

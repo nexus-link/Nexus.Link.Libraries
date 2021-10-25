@@ -3,6 +3,15 @@ using Nexus.Link.Libraries.Core.Storage.Model;
 
 namespace Nexus.Link.Capabilities.WorkflowMgmt.Abstract.Entities
 {
+    public enum ActivityTypeEnum
+    {
+        Action, 
+        Condition, 
+        LoopUntilTrue,
+        ForEachParallel,
+        ForEachSequential
+    }
+
     public class ActivityForm : ActivityFormCreate, IUniquelyIdentifiable<string>, IOptimisticConcurrencyControlByETag
     {
         public string Id { get; set; }
@@ -20,7 +29,7 @@ namespace Nexus.Link.Capabilities.WorkflowMgmt.Abstract.Entities
     public class ActivityFormCreate : IValidatable
     {
         public string WorkflowFormId { get; set; }
-        public string Type { get; set; }
+        public ActivityTypeEnum Type { get; set; }
         public string Title { get; set; }
 
         /// <inheritdoc />
@@ -28,7 +37,6 @@ namespace Nexus.Link.Capabilities.WorkflowMgmt.Abstract.Entities
         {
             FulcrumValidate.IsNotNullOrWhiteSpace(WorkflowFormId, nameof(WorkflowFormId), errorLocation);
             FulcrumValidate.IsNotNullOrWhiteSpace(Title, nameof(Title), errorLocation);
-            FulcrumValidate.IsNotNullOrWhiteSpace(Type, nameof(Type), errorLocation);
         }
     }
 }

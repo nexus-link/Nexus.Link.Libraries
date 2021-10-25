@@ -37,6 +37,10 @@ namespace Nexus.Link.Capabilities.WorkflowMgmt.Abstract.Entities
     public enum ActivityFailUrgencyEnum 
     {
         /// <summary>
+        /// If this activity fails, the entire workflow should be cancelled.
+        /// </summary>
+        CancelWorkflow,
+        /// <summary>
         /// The activity is hindering other activities to complete.
         /// </summary>
         Stopping,
