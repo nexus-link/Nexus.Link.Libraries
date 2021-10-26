@@ -12,5 +12,10 @@ namespace Nexus.Link.Capabilities.WorkflowMgmt.Abstract.Entities.Runtime
         /// Sorted top level activities in position order
         /// </summary>
         public List<Activity> Activities { get; set; }
+
+        /// <summary>
+        /// The activities that haven't been referred yet, i.e. they have no <see cref="Activity.Instance"/>.
+        /// </summary>
+        public List<Activity> NotReferredActivities { get; set; }
     }
 }
