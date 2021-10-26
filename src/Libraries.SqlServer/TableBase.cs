@@ -29,7 +29,7 @@ namespace Nexus.Link.Libraries.SqlServer
         /// <param name="connectionString"></param>
         /// <param name="tableMetadata"></param>
         [Obsolete("Use TableBase(IDatabaseOptions, ISqlTableMetadata) instead. Obsolete since 2021-10-21.", error: false)]
-        protected TableBase(string connectionString, ISqlTableMetadata tableMetadata) : this(new DatabaseOptions(connectionString), tableMetadata)
+        protected TableBase(string connectionString, ISqlTableMetadata tableMetadata) : this(new DatabaseOptions() { ConnectionString = connectionString }, tableMetadata)
         {
         }
 
@@ -98,16 +98,27 @@ namespace Nexus.Link.Libraries.SqlServer
         }
 
         /// <inheritdoc />
-        public async Task<int> CountItemsAdvancedAsync(string selectFirst, string selectRest, object param = null, CancellationToken token = default)
+        public async Task<int> CountItemsAdvancedAsync(string selectFirst, string selectRest, object param = null, CancellationToken cancellationToken = default)
         {
             InternalContract.RequireNotNullOrWhiteSpace(selectFirst, nameof(selectFirst));
             InternalContract.RequireNotNullOrWhiteSpace(selectRest, nameof(selectRest));
             if (selectRest == null) return 0;
             var selectStatement = $"{selectFirst} {selectRest}";
-            using (IDbConnection db = await Database.NewSqlConnectionAsync(token))
+            using (IDbConnection db = await Database.NewSqlConnectionAsync(cancellationToken))
             {
-                return (await db.QueryAsync<int>(selectStatement, param))
-                    .SingleOrDefault();
+                try
+                {
+                    var items = await db.QueryAsync<int>(selectStatement, param);
+                    var paramAsString = param == null ? "NULL" : JsonConvert.SerializeObject(param);
+                    Log.LogVerbose($"{selectStatement} {JsonConvert.SerializeObject(paramAsString)}");
+                    return items.SingleOrDefault();
+                }
+                catch (Exception e)
+                {
+                    var paramAsString = param == null ? "NULL" : JsonConvert.SerializeObject(param);
+                    Log.LogError($"Query failed:\r{selectStatement}\rwith param:\r{paramAsString}:\r{e.Message}");
+                    throw;
+                }
             }
         }
 
@@ -217,11 +228,16 @@ namespace Nexus.Link.Libraries.SqlServer
                 try
                 {
                     count = await db.ExecuteAsync(statement, param);
+                    if (Database.Options.VerboseLogging)
+                    {
+                        var paramAsString = param == null ? "NULL" : JsonConvert.SerializeObject(param);
+                        Log.LogVerbose($"{statement} {JsonConvert.SerializeObject(paramAsString)}");
+                    }
                 }
-                catch (Exception)
+                catch (Exception e)
                 {
                     var paramAsString = param == null ? "NULL" : JsonConvert.SerializeObject(param);
-                    Log.LogError($"Could not execute statement:\r{statement}\rwith param:\r{paramAsString}");
+                    Log.LogError($"Execution failed:\r{statement}\rwith param:\r{paramAsString}:\r{e.Message}");
                     throw;
                 }
                 return count;
@@ -229,21 +245,23 @@ namespace Nexus.Link.Libraries.SqlServer
 
         }
 
-        protected internal async Task<IEnumerable<TDatabaseItem>> QueryAsync(string statement, object param = null, CancellationToken token = default)
+        protected internal async Task<IEnumerable<TDatabaseItem>> QueryAsync(string statement, object param = null, CancellationToken cancellationToken = default)
         {
             InternalContract.RequireNotNullOrWhiteSpace(statement, nameof(statement));
-            using (var db = await Database.NewSqlConnectionAsync(token))
+            using (var db = await Database.NewSqlConnectionAsync(cancellationToken))
             {
-                await db.VerifyAvailabilityAsync(null, token);
+                await db.VerifyAvailabilityAsync(null, cancellationToken);
                 IEnumerable<TDatabaseItem> items;
                 try
                 {
                     items = await db.QueryAsync<TDatabaseItem>(statement, param);
+                    var paramAsString = param == null ? "NULL" : JsonConvert.SerializeObject(param);
+                    Log.LogVerbose($"{statement} {JsonConvert.SerializeObject(paramAsString)}");
                 }
-                catch (Exception)
+                catch (Exception e)
                 {
                     var paramAsString = param == null ? "NULL" : JsonConvert.SerializeObject(param);
-                    Log.LogError($"Could not execute query:\r{statement}\rwith param:\r{paramAsString}");
+                    Log.LogError($"Query failed:\r{statement}\rwith param:\r{paramAsString}:\r{e.Message}");
                     throw;
                 }
 

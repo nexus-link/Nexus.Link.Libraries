@@ -9,17 +9,19 @@ namespace Nexus.Link.Libraries.SqlServer
     public interface IDatabaseOptions
     {
         string ConnectionString { get; }
+        bool VerboseLogging { get; }
         OnBeforeNewSqlConnectionAsync OnBeforeNewSqlConnectionAsync { get; }
     }
 
-    internal class DatabaseOptions : IDatabaseOptions
+    public class DatabaseOptions : IDatabaseOptions
     {
-        public DatabaseOptions(string connectionString)
-        {
-            ConnectionString = connectionString;
-        }
+        /// <inheritdoc />
+        public string ConnectionString { get; set; }
 
-        public string ConnectionString { get; }
-        public OnBeforeNewSqlConnectionAsync OnBeforeNewSqlConnectionAsync => null;
+        /// <inheritdoc />
+        public bool VerboseLogging { get; set; }
+
+        /// <inheritdoc />
+        public OnBeforeNewSqlConnectionAsync OnBeforeNewSqlConnectionAsync { get; set; }
     }
 }

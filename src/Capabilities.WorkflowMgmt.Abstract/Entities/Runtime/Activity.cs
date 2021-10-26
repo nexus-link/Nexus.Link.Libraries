@@ -11,6 +11,9 @@ namespace Nexus.Link.Capabilities.WorkflowMgmt.Abstract.Entities.Runtime
         /// <summary>
         /// Sorted child activities in position order
         /// </summary>
-        public List<Activity> Children { get; set; }
+        public IReadOnlyList<Activity> Children { get; set; }
+
+        /// <inheritdoc />
+        public override string ToString() => $"{Form} {Version} {Instance}";
     }
 }

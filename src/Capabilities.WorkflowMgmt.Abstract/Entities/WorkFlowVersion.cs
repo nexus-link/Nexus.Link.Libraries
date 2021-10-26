@@ -40,5 +40,8 @@ namespace Nexus.Link.Capabilities.WorkflowMgmt.Abstract.Entities
             FulcrumValidate.IsGreaterThanOrEqualTo(0, MajorVersion, nameof(MajorVersion), errorLocation);
             FulcrumValidate.IsGreaterThanOrEqualTo(0, MinorVersion, nameof(MinorVersion), errorLocation);
         }
+
+        /// <inheritdoc />
+        public override string ToString() => $"{MajorVersion}.{MinorVersion}";
     }
 }
