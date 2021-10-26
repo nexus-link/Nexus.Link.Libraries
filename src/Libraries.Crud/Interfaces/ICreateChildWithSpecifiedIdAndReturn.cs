@@ -26,7 +26,7 @@ namespace Nexus.Link.Libraries.Crud.Interfaces
         /// <param name="parentId">The id of the parent for this child.</param>
         /// <param name="childId">The proposed id for this child.</param>
         /// <param name="item">The item to store.</param>
-        /// <param name="cancellationToken ">Propagates notification that operations should be canceled</param>
+        /// <param name="cancellationToken">Propagates notification that operations should be canceled</param>
         /// <returns>The new item as it was saved, see remarks below.</returns>
         /// <remarks>
         /// If the returned type implements <see cref="IUniquelyIdentifiable{TChildId}"/>, then the <see cref="IUniquelyIdentifiable{TChildId}.Id"/> is updated with the new id. 

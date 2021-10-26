@@ -17,7 +17,7 @@ namespace Nexus.Link.Libraries.Crud.Interfaces
         /// </summary>
         /// <param name="id">How the object to be updated is identified.</param>
         /// <param name="item">The new version of the item.</param>
-        /// <param name="cancellationToken ">Propagates notification that operations should be canceled</param>
+        /// <param name="cancellationToken">Propagates notification that operations should be canceled</param>
         /// <exception cref="FulcrumNotFoundException">Thrown if the <paramref name="id"/> could not be found.</exception>
         /// <exception cref="FulcrumConflictException">Thrown if the <see cref="IOptimisticConcurrencyControlByETag.Etag"/> for <paramref name="item"/> was outdated.</exception>
         Task UpdateAsync(TId id, TModel item, CancellationToken cancellationToken  = default);

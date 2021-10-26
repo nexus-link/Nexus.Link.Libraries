@@ -43,7 +43,7 @@ namespace Nexus.Link.Libraries.Crud.Cache
     /// This means for example that you will not have to check if the data is too old in the general sense.
     /// </summary>
     /// <param name="cachedItemInformation">Information about the cached item.</param>
-    /// <param name="cancellationToken ">Propagates notification that operations should be canceled</param>
+    /// <param name="cancellationToken">Propagates notification that operations should be canceled</param>
     public delegate Task<UseCacheStrategyEnum> UseCacheStrategyDelegateAsync<TId>(CachedItemInformation<TId> cachedItemInformation, CancellationToken cancellationToken  = default);
 
     /// <summary>
