@@ -16,7 +16,7 @@ namespace Nexus.Link.Libraries.Crud.Interfaces
         /// Claim a lock for the item with id <paramref name="id"/>
         /// </summary>
         /// <param name="id">How the object to be locked is identified.</param>
-        /// <param name="cancellationToken ">Propagates notification that operations should be canceled</param>
+        /// <param name="cancellationToken">Propagates notification that operations should be canceled</param>
         /// <exception cref="FulcrumTryAgainException">
         /// Thrown if there already is a claimed lock.
         /// </exception>
@@ -32,7 +32,7 @@ namespace Nexus.Link.Libraries.Crud.Interfaces
         /// </summary>
         /// <returns>The found item or null.</returns>
         /// <param name="id">How the object to be locked is identified.</param>
-        /// <param name="cancellationToken ">Propagates notification that operations should be canceled</param>
+        /// <param name="cancellationToken">Propagates notification that operations should be canceled</param>
         /// <exception cref="FulcrumTryAgainException">
         /// Thrown if there already is a claimed lock.
         /// </exception>

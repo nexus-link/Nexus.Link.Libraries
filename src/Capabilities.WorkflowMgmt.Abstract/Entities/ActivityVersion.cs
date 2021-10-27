@@ -56,5 +56,8 @@ namespace Nexus.Link.Capabilities.WorkflowMgmt.Abstract.Entities
             FulcrumValidate.IsNotNullOrWhiteSpace(ActivityFormId, nameof(ActivityFormId), errorLocation);
             FulcrumValidate.IsGreaterThanOrEqualTo(1, Position, nameof(Position), errorLocation);
         }
+
+        /// <inheritdoc />
+        public override string ToString() => $"{Position}";
     }
 }

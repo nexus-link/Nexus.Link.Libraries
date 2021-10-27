@@ -1,6 +1,7 @@
 ﻿
 using Nexus.Link.Libraries.Core.Misc;
 using Nexus.Link.Libraries.Core.Platform.Services;
+using Nexus.Link.Libraries.Web.AspNet.Pipe;
 #if NETCOREAPP
 using System;
 using System.Reflection;
@@ -357,14 +358,16 @@ namespace Nexus.Link.Libraries.Web.AspNet.Startup
         protected virtual void ConfigureAppMiddleware(IApplicationBuilder app, IHostingEnvironment env)
         {
             ConfigureSwaggerMiddleware(app, env);
+            var options = new NexusLinkMiddlewareOptions();
             // Get the correlation ID from the request header and store it in FulcrumApplication.Context
-            app.UseNexusSaveCorrelationId();
+            options.Features.SaveCorrelationId.Enabled = true;
             // Start and stop a batch of logs, see also Nexus.Link.Libraries.Core.Logging.BatchLogger.
-            app.UseNexusBatchLogs();
+            options.Features.BatchLog.Enabled = true;
             // Log all requests and responses
-            app.UseNexusLogRequestAndResponse();
+            options.Features.LogRequestAndResponse.Enabled= true;
             // Convert exceptions into error responses (HTTP status codes 400 and 500)
-            app.UseNexusExceptionToFulcrumResponse();
+            options.Features.ConvertExceptionToHttpResponse.Enabled = true;
+            app.UseNexusLinkMiddleware(options);
         }
 
         /// <summary>

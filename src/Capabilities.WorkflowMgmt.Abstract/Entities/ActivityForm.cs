@@ -38,5 +38,8 @@ namespace Nexus.Link.Capabilities.WorkflowMgmt.Abstract.Entities
             FulcrumValidate.IsNotNullOrWhiteSpace(WorkflowFormId, nameof(WorkflowFormId), errorLocation);
             FulcrumValidate.IsNotNullOrWhiteSpace(Title, nameof(Title), errorLocation);
         }
+
+        /// <inheritdoc />
+        public override string ToString() => $"{Type} {Title}";
     }
 }

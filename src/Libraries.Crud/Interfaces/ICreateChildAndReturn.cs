@@ -27,7 +27,7 @@ namespace Nexus.Link.Libraries.Crud.Interfaces
         /// </summary>
         /// <param name="parentId">The specific parent to create a child item for.</param>
         /// <param name="item">The item to store.</param>
-        /// <param name="cancellationToken ">Propagates notification that operations should be canceled</param>
+        /// <param name="cancellationToken">Propagates notification that operations should be canceled</param>
         /// <returns>The created object.</returns>
         Task<TModel> CreateChildAndReturnAsync(TId parentId, TModelCreate item, CancellationToken cancellationToken  = default);
     }

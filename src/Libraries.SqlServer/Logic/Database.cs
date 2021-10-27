@@ -13,7 +13,7 @@ namespace Nexus.Link.Libraries.SqlServer.Logic
     public class Database
     {
         private readonly string _connectionString;
-        private readonly IDatabaseOptions _options;
+        public IDatabaseOptions Options { get; }
 
         /// <summary>
         /// The constructor
@@ -32,7 +32,7 @@ namespace Nexus.Link.Libraries.SqlServer.Logic
         public Database(IDatabaseOptions options) : this(options?.ConnectionString)
         {
             InternalContract.RequireNotNull(options, nameof(options));
-            _options = options;
+            Options = options;
         }
 
         /// <summary>
@@ -45,9 +45,9 @@ namespace Nexus.Link.Libraries.SqlServer.Logic
         [Obsolete("Use NewSqlConnectionAsync instead. Obsolete since 2021-10-21.", error: false)]
         public virtual SqlConnection NewSqlConnection()
         {
-            if (_options?.OnBeforeNewSqlConnectionAsync != null)
+            if (Options?.OnBeforeNewSqlConnectionAsync != null)
             {
-                ThreadHelper.CallAsyncFromSync(() => _options.OnBeforeNewSqlConnectionAsync(_connectionString));
+                ThreadHelper.CallAsyncFromSync(() => Options.OnBeforeNewSqlConnectionAsync(_connectionString));
             }
             return new SqlConnection(_connectionString);
         }
@@ -61,9 +61,9 @@ namespace Nexus.Link.Libraries.SqlServer.Logic
         /// <returns>A new <see cref="SqlConnection"/></returns>
         public virtual async Task<SqlConnection> NewSqlConnectionAsync(CancellationToken cancellationToken = default)
         {
-            if (_options?.OnBeforeNewSqlConnectionAsync != null)
+            if (Options?.OnBeforeNewSqlConnectionAsync != null)
             {
-                await _options.OnBeforeNewSqlConnectionAsync(_connectionString, cancellationToken);
+                await Options.OnBeforeNewSqlConnectionAsync(_connectionString, cancellationToken);
             }
             return new SqlConnection(_connectionString);
         }

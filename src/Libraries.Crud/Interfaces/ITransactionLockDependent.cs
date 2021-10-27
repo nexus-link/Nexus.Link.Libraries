@@ -17,7 +17,7 @@ namespace Nexus.Link.Libraries.Crud.Interfaces
         /// </summary>
         /// <param name="masterId">The id for the master object.</param>
         /// <param name="dependentId">The id for the dependent object.</param>
-        /// <param name="cancellationToken ">Propagates notification that operations should be canceled</param>
+        /// <param name="cancellationToken">Propagates notification that operations should be canceled</param>
         /// <exception cref="FulcrumTryAgainException">
         /// Thrown if there already is a claimed lock. Will contain information about when the lock is automatically released.
         /// </exception>
@@ -31,7 +31,7 @@ namespace Nexus.Link.Libraries.Crud.Interfaces
         /// </summary>
         /// <param name="masterId">The id for the master object.</param>
         /// <param name="dependentId">The id for the dependent object.</param>
-        /// <param name="cancellationToken ">Propagates notification that operations should be canceled</param>
+        /// <param name="cancellationToken">Propagates notification that operations should be canceled</param>
         /// <exception cref="FulcrumTryAgainException">
         /// Thrown if there already is a claimed lock. Will contain information about when the lock is automatically released.
         /// </exception>

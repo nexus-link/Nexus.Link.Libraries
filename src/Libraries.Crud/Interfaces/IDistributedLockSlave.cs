@@ -18,7 +18,7 @@ namespace Nexus.Link.Libraries.Crud.Interfaces
         /// </summary>
         /// <param name="masterId">The id for the master object.</param>
         /// <param name="slaveId">The id for the slave object.</param>
-        /// <param name="cancellationToken ">Propagates notification that operations should be canceled</param>
+        /// <param name="cancellationToken">Propagates notification that operations should be canceled</param>
         /// <returns>A <see cref="Lock{TId}"/> object that proves that the lock has been claimed.</returns>
         /// <exception cref="FulcrumTryAgainException">
         /// Thrown if there already is a claimed lock. Will contain information about when the lock is automatically released.
@@ -34,7 +34,7 @@ namespace Nexus.Link.Libraries.Crud.Interfaces
         /// <param name="masterId">The id for the master object.</param>
         /// <param name="slaveId">The id for the slave object.</param>
         /// <param name="lockId">The id of the lock for this item, to prove that you are eligible of unlocking it.</param>
-        /// <param name="cancellationToken ">Propagates notification that operations should be canceled</param>
+        /// <param name="cancellationToken">Propagates notification that operations should be canceled</param>
         Task ReleaseDistributedLockAsync(TId masterId, TId slaveId, TId lockId, CancellationToken cancellationToken  = default);
     }
 }

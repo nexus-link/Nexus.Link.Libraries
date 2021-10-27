@@ -474,7 +474,7 @@ namespace Nexus.Link.Libraries.Crud.Cache
         /// </summary>
         /// <param name="id">The id of the item.</param>
         /// <param name="service">A service to use for reading the item.</param>
-        /// <param name="cancellationToken ">Propagates notification that operations should be canceled</param>
+        /// <param name="cancellationToken">Propagates notification that operations should be canceled</param>
         protected async Task CacheMaybeSetAsync(TId id, IRead<TModel, TId> service, CancellationToken cancellationToken  = default)
         {
             async Task<bool> IsAlreadyCachedAndGetIsOkToUpdate()
@@ -492,7 +492,7 @@ namespace Nexus.Link.Libraries.Crud.Cache
         /// Check if an item exists in the cache.
         /// </summary>
         /// <param name="id">The id for the item</param>
-        /// <param name="cancellationToken ">Propagates notification that operations should be canceled</param>
+        /// <param name="cancellationToken">Propagates notification that operations should be canceled</param>
         protected async Task<bool> CacheItemExistsAsync(TId id, CancellationToken cancellationToken )
         {
             InternalContract.RequireNotDefaultValue(id, nameof(id));

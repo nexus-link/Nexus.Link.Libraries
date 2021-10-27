@@ -54,5 +54,8 @@ namespace Nexus.Link.Capabilities.WorkflowMgmt.Abstract.Entities
             FulcrumValidate.IsNotNullOrWhiteSpace(InitialVersion, nameof(InitialVersion), errorLocation);
             FulcrumValidate.IsLessThanOrEqualTo(DateTimeOffset.Now, StartedAt, nameof(StartedAt), errorLocation);
         }
+
+        /// <inheritdoc />
+        public override string ToString() => $"{Title}";
     }
 }

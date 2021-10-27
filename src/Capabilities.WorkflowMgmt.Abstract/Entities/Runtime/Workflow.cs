@@ -11,11 +11,19 @@ namespace Nexus.Link.Capabilities.WorkflowMgmt.Abstract.Entities.Runtime
         /// <summary>
         /// Sorted top level activities in position order
         /// </summary>
-        public List<Activity> Activities { get; set; }
+        public IReadOnlyList<Activity> ActivityTree { get; set; }
+
+        /// <summary>
+        /// Sorted top level activities in position order
+        /// </summary>
+        public IReadOnlyList<Activity> ReferredActivities { get; set; }
 
         /// <summary>
         /// The activities that haven't been referred yet, i.e. they have no <see cref="Activity.Instance"/>.
         /// </summary>
-        public List<Activity> NotReferredActivities { get; set; }
+        public IReadOnlyList<Activity> NotReferredActivities { get; set; }
+
+        /// <inheritdoc />
+        public override string ToString() => $"{Form} {Version} {Instance}";
     }
 }
