@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Nexus.Link.Libraries.Core.Misc.Models;
 
 namespace Nexus.Link.Capabilities.WorkflowMgmt.Abstract.Entities.Administration
 {
@@ -36,7 +37,7 @@ namespace Nexus.Link.Capabilities.WorkflowMgmt.Abstract.Entities.Administration
         public ActivityStateEnum State { get; set; }
 
         /// <summary>
-        /// An error message that is readable by nusiness people
+        /// An error message that is readable by business people
         /// </summary>
         public string FriendlyErrorMessage { get; set; }
 
@@ -48,7 +49,7 @@ namespace Nexus.Link.Capabilities.WorkflowMgmt.Abstract.Entities.Administration
         /// <summary>
         /// Reference to a workflow that this activity waits for
         /// </summary>
-        public AnnotatedWorkflowId WaitingForWorkflow { get; set; }
+        public AnnotatedId<string> WaitingForWorkflow { get; set; }
 
         /// <summary>
         /// Sub activities (instances) of this activity (instance)

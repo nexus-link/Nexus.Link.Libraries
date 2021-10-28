@@ -2,7 +2,7 @@
 
 namespace Nexus.Link.Capabilities.WorkflowMgmt.Abstract.Entities.Runtime
 {
-    public class Activity
+    public class ActivitySummary
     {
         public ActivityForm Form { get; set; }
         public ActivityVersion Version { get; set; }
@@ -11,7 +11,7 @@ namespace Nexus.Link.Capabilities.WorkflowMgmt.Abstract.Entities.Runtime
         /// <summary>
         /// Sorted child activities in position order
         /// </summary>
-        public IReadOnlyList<Activity> Children { get; set; }
+        public IReadOnlyList<ActivitySummary> Children { get; set; }
 
         /// <inheritdoc />
         public override string ToString() => $"{Form} {Version} {Instance}";

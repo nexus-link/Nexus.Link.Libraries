@@ -2,7 +2,7 @@
 
 namespace Nexus.Link.Capabilities.WorkflowMgmt.Abstract.Entities.Runtime
 {
-    public class Workflow
+    public class WorkflowSummary
     {
         public WorkflowForm Form { get; set; }
         public WorkflowVersion Version { get; set; }
@@ -11,17 +11,17 @@ namespace Nexus.Link.Capabilities.WorkflowMgmt.Abstract.Entities.Runtime
         /// <summary>
         /// Sorted top level activities in position order
         /// </summary>
-        public IReadOnlyList<Activity> ActivityTree { get; set; }
+        public IReadOnlyList<ActivitySummary> ActivityTree { get; set; }
 
         /// <summary>
         /// Sorted top level activities in position order
         /// </summary>
-        public IReadOnlyList<Activity> ReferredActivities { get; set; }
+        public IReadOnlyList<ActivitySummary> ReferredActivities { get; set; }
 
         /// <summary>
-        /// The activities that haven't been referred yet, i.e. they have no <see cref="Activity.Instance"/>.
+        /// The activities that haven't been referred yet, i.e. they have no <see cref="ActivitySummary.Instance"/>.
         /// </summary>
-        public IReadOnlyList<Activity> NotReferredActivities { get; set; }
+        public IReadOnlyList<ActivitySummary> NotReferredActivities { get; set; }
 
         /// <inheritdoc />
         public override string ToString() => $"{Form} {Version} {Instance}";
