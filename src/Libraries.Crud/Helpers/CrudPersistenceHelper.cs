@@ -72,6 +72,13 @@ namespace Nexus.Link.Libraries.Crud.Helpers
             return Task.CompletedTask;
         }
 
+        public Task<TModel> GetLatestItem(TId id, CancellationToken cancellationToken = default)
+        {
+            var found = _stored.TryGetValue(id, out var stored);
+            if (!found || stored == null) return null;
+            return Task.FromResult(stored.AsCopy());
+        }
+
         /// <summary>
         /// Create or update the <paramref name="item"/>. If there is a conflict, use the strategy from the <see cref="CrudPersistenceHelperOptions"/>.
         /// </summary>
