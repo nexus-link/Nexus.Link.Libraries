@@ -1,7 +1,7 @@
 ﻿using Nexus.Link.Libraries.Core.Assert;
 using Nexus.Link.Libraries.Core.Storage.Model;
 
-namespace Nexus.Link.Capabilities.WorkflowMgmt.Abstract.Entities
+namespace Nexus.Link.Capabilities.WorkflowMgmt.Abstract.Entities.Configuration
 {
     public class WorkflowForm : WorkflowFormCreate, IUniquelyIdentifiable<string>, IOptimisticConcurrencyControlByETag
     {

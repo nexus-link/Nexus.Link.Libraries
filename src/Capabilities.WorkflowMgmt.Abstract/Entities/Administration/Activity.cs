@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Nexus.Link.Capabilities.WorkflowMgmt.Abstract.Entities.State;
 using Nexus.Link.Libraries.Core.Misc.Models;
 
 namespace Nexus.Link.Capabilities.WorkflowMgmt.Abstract.Entities.Administration

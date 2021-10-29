@@ -3,9 +3,9 @@ using System.Threading.Tasks;
 using Nexus.Link.Capabilities.WorkflowMgmt.Abstract.Entities.Administration;
 using Nexus.Link.Libraries.Crud.Interfaces;
 
-namespace Nexus.Link.Capabilities.WorkflowMgmt.Abstract.Services
+namespace Nexus.Link.Capabilities.WorkflowMgmt.Abstract.Services.Administration
 {
-    public interface IWorkflowAdministrationService : IRead<Workflow, string>
+    public interface IWorkflowService : IRead<Workflow, string>
     {
         /// <summary>
         /// Set a workflow in a cancelled state, which aborts the workflow process.

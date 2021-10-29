@@ -1,8 +1,9 @@
 ﻿using System;
+using Nexus.Link.Capabilities.WorkflowMgmt.Abstract.Entities.Configuration;
 using Nexus.Link.Libraries.Core.Assert;
 using Nexus.Link.Libraries.Core.Storage.Model;
 
-namespace Nexus.Link.Capabilities.WorkflowMgmt.Abstract.Entities
+namespace Nexus.Link.Capabilities.WorkflowMgmt.Abstract.Entities.State
 {
     /// <summary>
     /// Information about an instance of a <see cref="WorkflowVersion"/>.

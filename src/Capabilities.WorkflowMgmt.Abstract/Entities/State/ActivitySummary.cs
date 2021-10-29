@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
+using Nexus.Link.Capabilities.WorkflowMgmt.Abstract.Entities.Configuration;
 
-namespace Nexus.Link.Capabilities.WorkflowMgmt.Abstract.Entities.Runtime
+namespace Nexus.Link.Capabilities.WorkflowMgmt.Abstract.Entities.State
 {
     public class ActivitySummary
     {
