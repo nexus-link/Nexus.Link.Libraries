@@ -11,12 +11,22 @@ namespace Nexus.Link.Libraries.Crud.Helpers
     /// </summary>
     public static class MapperHelper
     {
-
         public static Guid ToGuid(this string source)
         {
             var success = Guid.TryParse(source, out var valueAsGuid);
             InternalContract.Require(success, $"Could not parse parameter {nameof(source)} ({source}) of type {nameof(String)} into type {nameof(Guid)}.");
             return valueAsGuid;
+        }
+
+        public static string ToLowerCaseString(this Guid source)
+        {
+            return source.ToString().ToLowerInvariant();
+        }
+
+        public static string ToLowerCaseString(this Guid? source)
+        {
+            if (source == null) return null;
+            return source.ToString().ToLowerInvariant();
         }
 
         public static int ToInt(this string source)

@@ -9,7 +9,7 @@ namespace Nexus.Link.Libraries.Crud.Interfaces
     /// </summary>
     /// <typeparam name="TModel">The type for creating objects in persistent storage.</typeparam>
     /// <typeparam name="TId">The type for the id of the stored objects.</typeparam>
-    public interface ICreateChildWithSpecifiedIdAndReturn<TModel, in TId> : ICreateChildWithSpecifiedIdAndReturn<TModel, TModel, TId>
+    public interface ICreateChildWithSpecifiedIdAndReturn<TModel, in TId> : ICreateChildWithSpecifiedIdAndReturn<TModel, TModel, TId>, ICrudable<TModel, TId>
     {
     }
 
@@ -17,7 +17,7 @@ namespace Nexus.Link.Libraries.Crud.Interfaces
     /// Functionality for persisting objects that has no life of their own, but are only relevant with their parent.
     /// Examples: A list of rows on an invoice, a list of attributes of an object, the contact details of a person.
     /// </summary>
-    public interface ICreateChildWithSpecifiedIdAndReturn<in TModelCreate, TModel, in TId> : ICrudable<TModel, TId>
+    public interface ICreateChildWithSpecifiedIdAndReturn<in TModelCreate, TModel, in TId> : ICrudable<TModelCreate, TModel, TId>
         where TModel : TModelCreate
     {
         /// <summary>

@@ -32,7 +32,7 @@ namespace Nexus.Link.Capabilities.WorkflowMgmt.UnitTests.Services
             };
 
             // Act
-            await _service.CreateWithSpecifiedIdAsync(childId, itemToCreate);
+            await _service.CreateWithSpecifiedIdAndReturnAsync(childId, itemToCreate);
             var readItem = await _service.ReadAsync(childId);
 
             // Assert
@@ -55,12 +55,12 @@ namespace Nexus.Link.Capabilities.WorkflowMgmt.UnitTests.Services
                 Type = ActivityTypeEnum.Action,
                 Title = Guid.NewGuid().ToString()
             };
-            await _service.CreateWithSpecifiedIdAsync(childId, itemToCreate);
+            await _service.CreateWithSpecifiedIdAndReturnAsync(childId, itemToCreate);
             var itemToUpdate = await _service.ReadAsync(childId);
 
             // Act
             itemToUpdate.Title = Guid.NewGuid().ToString();
-            await _service.UpdateAsync(childId, itemToUpdate);
+            await _service.UpdateAndReturnAsync(childId, itemToUpdate);
             var readItem = await _service.ReadAsync(childId);
 
             // Assert
@@ -80,14 +80,14 @@ namespace Nexus.Link.Capabilities.WorkflowMgmt.UnitTests.Services
                 Type = ActivityTypeEnum.Action,
                 Title = Guid.NewGuid().ToString()
             };
-            await _service.CreateWithSpecifiedIdAsync(childId, itemToCreate);
+            await _service.CreateWithSpecifiedIdAndReturnAsync(childId, itemToCreate);
             var itemToUpdate = await _service.ReadAsync(childId);
 
             // Act & Assert
             itemToUpdate.Title = Guid.NewGuid().ToString();
             itemToUpdate.Etag = Guid.NewGuid().ToString();
             await Assert.ThrowsAsync<FulcrumConflictException>(() =>
-                _service.UpdateAsync(childId, itemToUpdate));
+                _service.UpdateAndReturnAsync(childId, itemToUpdate));
         }
     }
 }

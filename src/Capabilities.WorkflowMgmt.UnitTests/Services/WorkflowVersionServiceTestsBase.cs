@@ -23,6 +23,7 @@ namespace Nexus.Link.Capabilities.WorkflowMgmt.UnitTests.Services
         public async Task CreateAndReadAsync()
         {
             // Arrange
+            var id = Guid.NewGuid().ToString();
             var masterId = Guid.NewGuid().ToString();
             var majorVersion = 1;
             var itemToCreate = new WorkflowVersionCreate
@@ -34,11 +35,12 @@ namespace Nexus.Link.Capabilities.WorkflowMgmt.UnitTests.Services
             };
 
             // Act
-            await _workflowVersionService.CreateWithSpecifiedIdAsync(masterId, majorVersion, itemToCreate);
-            var readItem = await _workflowVersionService.ReadAsync(masterId, majorVersion);
+            var createdItem = await _workflowVersionService.CreateWithSpecifiedIdAndReturnAsync(id, itemToCreate);
+            var readItem = await _workflowVersionService.ReadAsync(id);
 
             // Assert
             Assert.NotNull(readItem);
+            Assert.Equal(id, createdItem.Id);
             Assert.Equal(masterId, readItem.WorkflowFormId);
             Assert.Equal(majorVersion, readItem.MajorVersion);
             Assert.Equal(itemToCreate.MinorVersion, readItem.MinorVersion);
@@ -49,6 +51,7 @@ namespace Nexus.Link.Capabilities.WorkflowMgmt.UnitTests.Services
         public async Task Create_Given_SameVersion_Gives_Exception()
         {
             // Arrange
+            var id = Guid.NewGuid().ToString();
             var masterId = Guid.NewGuid().ToString();
             var majorVersion = 1;
             var itemToCreate = new WorkflowVersionCreate
@@ -57,17 +60,18 @@ namespace Nexus.Link.Capabilities.WorkflowMgmt.UnitTests.Services
                 MajorVersion = majorVersion,
                 MinorVersion = 3
             };
-            await _workflowVersionService.CreateWithSpecifiedIdAsync(masterId, majorVersion, itemToCreate);
+            var createdItem = await _workflowVersionService.CreateWithSpecifiedIdAndReturnAsync(id, itemToCreate);
 
             // Act && Assert
             await Assert.ThrowsAsync<FulcrumConflictException>(() =>
-                _workflowVersionService.CreateWithSpecifiedIdAsync(masterId, majorVersion, itemToCreate));
+                _workflowVersionService.CreateWithSpecifiedIdAndReturnAsync(Guid.NewGuid().ToString(), itemToCreate));
         }
 
         [Fact]
         public async Task UpdateAsync()
         {
             // Arrange
+            var id = Guid.NewGuid().ToString();
             var masterId = Guid.NewGuid().ToString();
             var majorVersion = 1;
             var itemToCreate = new WorkflowVersionCreate
@@ -77,14 +81,14 @@ namespace Nexus.Link.Capabilities.WorkflowMgmt.UnitTests.Services
                 MinorVersion = 3,
                 DynamicCreate = false
             };
-            await _workflowVersionService.CreateWithSpecifiedIdAsync(masterId, majorVersion, itemToCreate);
-            var itemToUpdate = await _workflowVersionService.ReadAsync(masterId, majorVersion);
+            await _workflowVersionService.CreateWithSpecifiedIdAndReturnAsync(id, itemToCreate);
+            var itemToUpdate = await _workflowVersionService.ReadAsync(id);
 
             // Act
             itemToUpdate.MinorVersion =itemToCreate.MinorVersion+1;
             itemToUpdate.DynamicCreate = true;
-            await _workflowVersionService.UpdateAsync(masterId, majorVersion, itemToUpdate);
-            var readItem = await _workflowVersionService.ReadAsync(masterId, majorVersion);
+            await _workflowVersionService.UpdateAndReturnAsync(id, itemToUpdate);
+            var readItem = await _workflowVersionService.ReadAsync(id);
 
             // Assert
             Assert.Equal(masterId, readItem.WorkflowFormId);
@@ -97,6 +101,7 @@ namespace Nexus.Link.Capabilities.WorkflowMgmt.UnitTests.Services
         public async Task Update_Given_WrongEtag_Gives_Exception()
         {
             // Arrange
+            var id = Guid.NewGuid().ToString();
             var masterId = Guid.NewGuid().ToString();
             var majorVersion = 1;
             var itemToCreate = new WorkflowVersionCreate
@@ -105,20 +110,21 @@ namespace Nexus.Link.Capabilities.WorkflowMgmt.UnitTests.Services
                 MajorVersion = majorVersion,
                 MinorVersion = 3
             };
-            await _workflowVersionService.CreateWithSpecifiedIdAsync(masterId, majorVersion, itemToCreate);
-            var itemToUpdate = await _workflowVersionService.ReadAsync(masterId, majorVersion);
+            await _workflowVersionService.CreateWithSpecifiedIdAndReturnAsync(id, itemToCreate);
+            var itemToUpdate = await _workflowVersionService.ReadAsync(id);
 
             // Act & Assert
             itemToUpdate.MinorVersion =itemToCreate.MinorVersion+1;
             itemToUpdate.Etag = Guid.NewGuid().ToString();
             await Assert.ThrowsAsync<FulcrumConflictException>(() =>
-                _workflowVersionService.UpdateAsync(masterId, majorVersion, itemToUpdate));
+                _workflowVersionService.UpdateAndReturnAsync(id, itemToUpdate));
         }
 
         [Fact]
         public async Task Update_Given_NewMajorVersion_Gives_Exception()
         {
             // Arrange
+            var id = Guid.NewGuid().ToString();
             var masterId = Guid.NewGuid().ToString();
             var majorVersion = 1;
             var itemToCreate = new WorkflowVersionCreate
@@ -127,14 +133,14 @@ namespace Nexus.Link.Capabilities.WorkflowMgmt.UnitTests.Services
                 MajorVersion = majorVersion,
                 MinorVersion = 3
             };
-            await _workflowVersionService.CreateWithSpecifiedIdAsync(masterId, majorVersion, itemToCreate);
-            var itemToUpdate = await _workflowVersionService.ReadAsync(masterId, majorVersion);
+            await _workflowVersionService.CreateWithSpecifiedIdAndReturnAsync(id, itemToCreate);
+            var itemToUpdate = await _workflowVersionService.ReadAsync(id);
 
             // Act & Assert
             itemToUpdate.MajorVersion = itemToCreate.MajorVersion+1;
             itemToUpdate.MinorVersion =1;
             await Assert.ThrowsAsync<FulcrumContractException>(() =>
-                _workflowVersionService.UpdateAsync(masterId, majorVersion, itemToUpdate));
+                _workflowVersionService.UpdateAndReturnAsync(id, itemToUpdate));
         }
     }
 }

@@ -22,6 +22,7 @@ namespace Nexus.Link.Capabilities.WorkflowMgmt.UnitTests.Services
         public async Task CreateAndReadAsync()
         {
             // Arrange
+            var id = Guid.NewGuid().ToString();
             var workflowInstanceId = Guid.NewGuid().ToString();
             var activityVersionId = Guid.NewGuid().ToString();
             var itemToCreate = new ActivityInstanceCreate
@@ -33,7 +34,7 @@ namespace Nexus.Link.Capabilities.WorkflowMgmt.UnitTests.Services
             };
 
             // Act
-            var created = await _service.CreateAndReturnAsync(itemToCreate);
+            var created = await _service.CreateWithSpecifiedIdAndReturnAsync(id, itemToCreate);
             var findUnique = new ActivityInstanceUnique
             {
                 WorkflowInstanceId = itemToCreate.WorkflowInstanceId,
@@ -41,7 +42,7 @@ namespace Nexus.Link.Capabilities.WorkflowMgmt.UnitTests.Services
                 ParentActivityInstanceId = itemToCreate.ParentActivityInstanceId,
                 ParentIteration = itemToCreate.ParentIteration
             };
-            var readItem = await _service.FindUniqueAsync(findUnique);
+            var readItem = await _service.ReadAsync(id);
 
             // Assert
             Assert.NotNull(readItem);
@@ -56,6 +57,7 @@ namespace Nexus.Link.Capabilities.WorkflowMgmt.UnitTests.Services
         public async Task UpdateAsync()
         {
             // Arrange
+            var id = Guid.NewGuid().ToString();
             var workflowInstanceId = Guid.NewGuid().ToString();
             var activityVersionId = Guid.NewGuid().ToString();
             var itemToCreate = new ActivityInstanceCreate
@@ -65,7 +67,7 @@ namespace Nexus.Link.Capabilities.WorkflowMgmt.UnitTests.Services
                 ParentActivityInstanceId = Guid.NewGuid().ToString(),
                 ParentIteration = 1, 
             };
-            var created = await _service.CreateAndReturnAsync(itemToCreate);
+            var created = await _service.CreateWithSpecifiedIdAndReturnAsync(id, itemToCreate);
             var findUnique = new ActivityInstanceUnique
             {
                 WorkflowInstanceId = itemToCreate.WorkflowInstanceId,
@@ -73,7 +75,7 @@ namespace Nexus.Link.Capabilities.WorkflowMgmt.UnitTests.Services
                 ParentActivityInstanceId = itemToCreate.ParentActivityInstanceId,
                 ParentIteration = itemToCreate.ParentIteration
             };
-            var itemToUpdate = await _service.FindUniqueAsync(findUnique);
+            var itemToUpdate = await _service.ReadAsync(id);
 
             // Act
             itemToUpdate.FinishedAt = DateTimeOffset.Now;

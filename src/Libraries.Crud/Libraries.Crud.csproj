@@ -20,7 +20,7 @@
 
   <PropertyGroup>
     <PackageId>Nexus.Link.Libraries.Crud</PackageId>
-    <Version>3.7.1</Version>
+    <Version>3.8.0</Version>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <PackageTags>nexus;link;fulcrum;lever</PackageTags>
     <Authors>XLENT Link</Authors>
@@ -30,6 +30,7 @@
     <Copyright>Copyright ©2019 Xlent Link AB</Copyright>
     <IncludeSymbols>true</IncludeSymbols>
     <PackageReleaseNotes>
+      3.8.0 Added ICreateWithSpecifiedIdNoReturn. More specific ICrudable for ICreate*. Modified CrudPersistenceHelper to put less constraints on the CRUD service. Added Guid.ToLowerCaseString().
       3.7.1 Added CrudPersistenceHelper
       3.6.0 Added ICreateWithSpecifiedIdAndReturn
       3.5.2 Guids to strings are now lowercase

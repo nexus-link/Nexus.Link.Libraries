@@ -22,6 +22,7 @@ namespace Nexus.Link.Capabilities.WorkflowMgmt.UnitTests.Services
         public async Task CreateAndReadAsync()
         {
             // Arrange
+            var id = Guid.NewGuid().ToString();
             var parentId = Guid.NewGuid().ToString();
             var activityFormId = Guid.NewGuid().ToString();
             var itemToCreate = new ActivityVersionCreate
@@ -33,8 +34,9 @@ namespace Nexus.Link.Capabilities.WorkflowMgmt.UnitTests.Services
             };
 
             // Act
-            var childId = await _service.CreateAsync(itemToCreate);
-            var readItem = await _service.FindUniqueAsync(parentId, activityFormId);
+            var activityVersion = await _service.CreateWithSpecifiedIdAndReturnAsync(id, itemToCreate);
+            var childId = activityVersion.Id;
+            var readItem = await _service.ReadAsync(id);
 
             // Assert
             Assert.NotNull(readItem);
@@ -49,6 +51,7 @@ namespace Nexus.Link.Capabilities.WorkflowMgmt.UnitTests.Services
         public async Task UpdateAsync()
         {
             // Arrange
+            var id = Guid.NewGuid().ToString();
             var parentId = Guid.NewGuid().ToString();
             var activityFormId = Guid.NewGuid().ToString();
             var itemToCreate = new ActivityVersionCreate
@@ -59,14 +62,15 @@ namespace Nexus.Link.Capabilities.WorkflowMgmt.UnitTests.Services
                 ParentActivityVersionId = Guid.NewGuid().ToString(),
                 FailUrgency = ActivityFailUrgencyEnum.Stopping
             };
-            var childId = await _service.CreateAsync(itemToCreate);
-            var itemToUpdate = await _service.FindUniqueAsync(parentId, activityFormId);
+            var activityVersion = await _service.CreateWithSpecifiedIdAndReturnAsync(id, itemToCreate);
+            var childId = activityVersion.Id;
+            var itemToUpdate = await _service.ReadAsync(id);
 
             // Act
             itemToUpdate.Position = 2;
             itemToUpdate.FailUrgency = ActivityFailUrgencyEnum.Ignore;
-            await _service.UpdateAsync(childId, itemToUpdate);
-            var readItem = await _service.FindUniqueAsync(parentId, activityFormId);
+            await _service.UpdateAndReturnAsync(childId, itemToUpdate);
+            var readItem = await _service.ReadAsync(id);
 
             // Assert
             Assert.Equal(childId, readItem.Id);
@@ -78,6 +82,7 @@ namespace Nexus.Link.Capabilities.WorkflowMgmt.UnitTests.Services
         public async Task Update_Given_WrongEtag_Gives_Exception()
         {
             // Arrange
+            var id = Guid.NewGuid().ToString();
             var parentId = Guid.NewGuid().ToString();
             var activityFormId = Guid.NewGuid().ToString();
             var itemToCreate = new ActivityVersionCreate
@@ -88,14 +93,15 @@ namespace Nexus.Link.Capabilities.WorkflowMgmt.UnitTests.Services
                 FailUrgency = ActivityFailUrgencyEnum.Stopping,
                 ParentActivityVersionId = Guid.NewGuid().ToString()
             };
-            var childId = await _service.CreateAsync(itemToCreate);
-            var itemToUpdate = await _service.FindUniqueAsync(parentId, activityFormId);
+            var activityVersion = await _service.CreateWithSpecifiedIdAndReturnAsync(id, itemToCreate);
+            var childId = activityVersion.Id;
+            var itemToUpdate = await _service.ReadAsync(id);
 
             // Act & Assert
             itemToUpdate.Position = 2;
             itemToUpdate.Etag = Guid.NewGuid().ToString();
             await Assert.ThrowsAsync<FulcrumConflictException>(() =>
-                _service.UpdateAsync(childId, itemToUpdate));
+                _service.UpdateAndReturnAsync(childId, itemToUpdate));
         }
     }
 }

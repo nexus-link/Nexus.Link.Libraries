@@ -8,7 +8,7 @@ namespace Nexus.Link.Libraries.Crud.Interfaces
     /// Functionality for persisting objects that has no life of their own, but are only relevant with their master.
     /// Examples: A list of rows on an invoice, a list of attributes of an object, the contact details of a person.
     /// </summary>
-    public interface ICreateDependentWithSpecifiedId<in TModel, in TId, in TDependentId> : ICreateDependentWithSpecifiedId<TModel, TModel, TId, TDependentId>
+    public interface ICreateDependentWithSpecifiedId<in TModel, in TId, in TDependentId> : ICreateDependentWithSpecifiedId<TModel, TModel, TId, TDependentId>, ICrudableDependent<TModel, TId, TDependentId>
     {
     }
 
@@ -16,7 +16,7 @@ namespace Nexus.Link.Libraries.Crud.Interfaces
     /// Functionality for persisting objects that has no life of their own, but are only relevant with their master.
     /// Examples: A list of rows on an invoice, a list of attributes of an object, the contact details of a person.
     /// </summary>
-    public interface ICreateDependentWithSpecifiedId<in TModelCreate, in TModel, in TId, in TDependentId> : ICrudableDependent<TModel, TId, TDependentId>
+    public interface ICreateDependentWithSpecifiedId<in TModelCreate, in TModel, in TId, in TDependentId> : ICrudableDependent<TModelCreate, TModel, TId, TDependentId>
         where TModel : TModelCreate
     {
         /// <summary>

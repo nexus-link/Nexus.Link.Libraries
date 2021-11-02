@@ -9,7 +9,7 @@ namespace Nexus.Link.Libraries.Crud.Interfaces
     /// </summary>
     /// <typeparam name="TModel">The type for creating objects in persistent storage.</typeparam>
     /// <typeparam name="TId">The type for the id of the stored objects.</typeparam>
-    public interface ICreateChild<in TModel, TId> : ICreateChild<TModel, TModel, TId>, ICrudable<TModel, TId>
+    public interface ICreateWithSpecifiedIdNoReturn<TModel, in TId> : ICreateWithSpecifiedIdNoReturn<TModel, TModel, TId>, ICreateWithSpecifiedIdAndReturn<TModel, TId>
     {
     }
 
@@ -19,16 +19,17 @@ namespace Nexus.Link.Libraries.Crud.Interfaces
     /// <typeparam name="TModelCreate">The type for creating objects in persistent storage.</typeparam>
     /// <typeparam name="TModel">The type of objects that are returned from persistent storage.</typeparam>
     /// <typeparam name="TId">The type for the <see cref="IUniquelyIdentifiable{TId}.Id"/> property.</typeparam>
-    public interface ICreateChild<in TModelCreate, in TModel, TId> : ICrudable<TModelCreate, TModel, TId>
+    public interface ICreateWithSpecifiedIdNoReturn<in TModelCreate, TModel, in TId> : ICrudable<TModelCreate, TModel, TId>
     where TModel : TModelCreate
     {
+
         /// <summary>
-        /// Creates a new item in storage and returns the new Id.
+        /// Same as <see cref="ICreate{TModelCreate,TModel,TId}.CreateAsync"/>, but you can specify the new id.
         /// </summary>
-        /// <param name="parentId">The specific parent to create a child item for.</param>
-        /// <param name="item">The item to store.</param>
+        /// <param name="id">The id to use for the new item.</param>
+        /// <param name="item">The item to create in storage.</param>
         /// <param name="cancellationToken">Propagates notification that operations should be canceled</param>
-        /// <returns>The new id for the created child.</returns>
-        Task<TId> CreateChildAsync(TId parentId, TModelCreate item, CancellationToken cancellationToken  = default);
+        /// <returns>The newly created item.</returns>
+        Task CreateWithSpecifiedIdAsync(TId id, TModelCreate item, CancellationToken cancellationToken  = default);
     }
 }

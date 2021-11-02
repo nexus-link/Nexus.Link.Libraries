@@ -9,7 +9,7 @@ namespace Nexus.Link.Libraries.Crud.Interfaces
     /// </summary>
     /// <typeparam name="TModel">The type for creating objects in persistent storage.</typeparam>
     /// <typeparam name="TId">The type for the id of the stored objects.</typeparam>
-    public interface ICreateChildAndReturn<TModel, in TId> : ICreateChildAndReturn<TModel, TModel, TId>
+    public interface ICreateChildAndReturn<TModel, in TId> : ICreateChildAndReturn<TModel, TModel, TId>,  ICrudable<TModel, TId>
     {
     }
 
@@ -19,7 +19,7 @@ namespace Nexus.Link.Libraries.Crud.Interfaces
     /// <typeparam name="TModelCreate">The type for creating objects in persistent storage.</typeparam>
     /// <typeparam name="TModel">The type of objects that are returned from persistent storage.</typeparam>
     /// <typeparam name="TId">The type for the <see cref="IUniquelyIdentifiable{TId}.Id"/> property.</typeparam>
-    public interface ICreateChildAndReturn<in TModelCreate, TModel, in TId> : ICrudable<TModel, TId>
+    public interface ICreateChildAndReturn<in TModelCreate, TModel, in TId> : ICrudable<TModelCreate, TModel, TId>
     where TModel : TModelCreate
     {
         /// <summary>

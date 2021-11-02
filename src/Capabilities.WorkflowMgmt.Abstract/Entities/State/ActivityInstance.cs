@@ -26,7 +26,7 @@ namespace Nexus.Link.Capabilities.WorkflowMgmt.Abstract.Entities.State
         /// <remarks>
         /// The default value for this enumeration
         /// </remarks>
-        Started,
+        Executing,
         /// <summary>
         /// We are asynchronously waiting for the activity to finish
         /// </summary>
@@ -45,7 +45,23 @@ namespace Nexus.Link.Capabilities.WorkflowMgmt.Abstract.Entities.State
         public string Id { get; set; }
         public string Etag { get; set; }
 
+
+        /// <inheritdoc />
+        public override void Validate(string errorLocation, string propertyPath = "")
+        {
+            base.Validate(errorLocation, propertyPath);
+            FulcrumValidate.IsNotNullOrWhiteSpace(Id, nameof(Id), errorLocation);
+            FulcrumValidate.IsNotNullOrWhiteSpace(Etag, nameof(Etag), errorLocation);
+        }
+    }
+
+    public class ActivityInstanceCreate : ActivityInstanceUnique, IValidatable
+    {
+        public ActivityStateEnum State { get; set; }
+
         public DateTimeOffset StartedAt{ get; set; }
+
+        public bool HasCompleted => State == ActivityStateEnum.Success || State == ActivityStateEnum.Failed;
 
         public DateTimeOffset? FinishedAt { get; set; }
 
@@ -62,11 +78,12 @@ namespace Nexus.Link.Capabilities.WorkflowMgmt.Abstract.Entities.State
         public string ExceptionFriendlyMessage { get; set; }
 
         /// <inheritdoc />
-        public override void Validate(string errorLocation, string propertyPath = "")
+        public virtual void Validate(string errorLocation, string propertyPath = "")
         {
-            base.Validate(errorLocation, propertyPath);
-            FulcrumValidate.IsNotNullOrWhiteSpace(Id, nameof(Id), errorLocation);
-            FulcrumValidate.IsNotNullOrWhiteSpace(Etag, nameof(Etag), errorLocation);
+            FulcrumValidate.IsNotNullOrWhiteSpace(WorkflowInstanceId, nameof(WorkflowInstanceId), errorLocation);
+            FulcrumValidate.IsNotNullOrWhiteSpace(ActivityVersionId, nameof(ActivityVersionId), errorLocation);
+            if (ParentIteration.HasValue) FulcrumValidate.IsGreaterThanOrEqualTo(1, ParentIteration.Value, nameof(ParentIteration), errorLocation);
+
             if (State == ActivityStateEnum.Failed)
             {
                 FulcrumValidate.IsNotNull(ExceptionCategory, nameof(ExceptionCategory), errorLocation);
@@ -92,21 +109,6 @@ namespace Nexus.Link.Capabilities.WorkflowMgmt.Abstract.Entities.State
                 FulcrumValidate.AreEqual(ActivityStateEnum.Failed, State, nameof(State), errorLocation,
                     $"Inconsistency: {nameof(State)} can't have value {State} if {nameof(ExceptionFriendlyMessage)} is not null.");
             }
-        }
-    }
-
-    public class ActivityInstanceCreate : ActivityInstanceUnique, IValidatable
-    {
-        public ActivityStateEnum State { get; set; }
-
-        public bool HasCompleted => State == ActivityStateEnum.Success || State == ActivityStateEnum.Failed;
-
-        /// <inheritdoc />
-        public virtual void Validate(string errorLocation, string propertyPath = "")
-        {
-            FulcrumValidate.IsNotNullOrWhiteSpace(WorkflowInstanceId, nameof(WorkflowInstanceId), errorLocation);
-            FulcrumValidate.IsNotNullOrWhiteSpace(ActivityVersionId, nameof(ActivityVersionId), errorLocation);
-            if (ParentIteration.HasValue) FulcrumValidate.IsGreaterThanOrEqualTo(1, ParentIteration.Value, nameof(ParentIteration), errorLocation);
         }
 
         /// <inheritdoc />
