@@ -5,7 +5,7 @@ namespace Nexus.Link.Capabilities.WorkflowMgmt.Abstract.Entities.State
 {
     public class ActivityInstanceFailedResult : IValidatable
     {
-        public ActivityExceptionCategoryEnum? ExceptionCategory { get; set; }
+        public ActivityExceptionCategoryEnum ExceptionCategory { get; set; }
         public string ExceptionTechnicalMessage { get; set; }
         public string ExceptionFriendlyMessage { get; set; }
 
