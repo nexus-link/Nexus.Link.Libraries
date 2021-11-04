@@ -43,7 +43,7 @@
 
   <PropertyGroup>
     <PackageId>Nexus.Link.Libraries.Web.AspNet</PackageId>
-    <Version>2.29.5</Version>
+    <Version>2.29.6</Version>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <PackageTags>nexus;link;fulcrum;lever</PackageTags>
     <Authors>XLENT Link</Authors>
@@ -53,6 +53,7 @@
     <Copyright>Copyright ©2019 Xlent Link AB</Copyright>
     <IncludeSymbols>true</IncludeSymbols>
     <PackageReleaseNotes>
+      2.29.6 Fix: Swagger grouping
       2.29.5 Bump
       2.29.1 Added ReentryAuthentication to postpone.
       2.29.0 Can convert RequestAcceptedException and RequestPostponedException to response with HttpStatusCode Accepted

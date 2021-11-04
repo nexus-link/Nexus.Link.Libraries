@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc.Controllers;
 using Microsoft.Extensions.DependencyInjection;
 using Swashbuckle.AspNetCore.SwaggerGen;
 using Swashbuckle.AspNetCore.SwaggerUI;
+// ReSharper disable MemberCanBePrivate.Global
 
 namespace Nexus.Link.Libraries.Web.AspNet.Annotations
 {
@@ -47,19 +48,26 @@ namespace Nexus.Link.Libraries.Web.AspNet.Annotations
             return options;
         }
 
+
+        [Obsolete("Use UseCapabilityGrouping instead", true)]
+        public static SwaggerUIOptions EnableCapabilityGrouping(this SwaggerUIOptions options)
+        {
+            return UseCapabilityGrouping(options, "h4");
+        }
+
         /// <summary>
         /// Adds javascript to HeadContent that will group sections according to the use of <see cref="CapabilityGroupingAttribute"/>.
         ///
         /// Uses DOM manipulation.
         /// </summary>
-        public static SwaggerUIOptions EnableCapabilityGrouping(this SwaggerUIOptions options)
+        public static SwaggerUIOptions UseCapabilityGrouping(this SwaggerUIOptions options, string headerTag = "h3")
         {
             var script = WrapSwaggerHeadScript(
                 "        const groupSections = () => {\n" +
                 "            let hash = [];\n" +
-                "            document.querySelectorAll('h4.opblock-tag').forEach(h4 => {\n" +
-                "                const tag = h4.getAttribute('data-tag');\n" +
-                "                const span = h4.parentNode.parentNode;\n" +
+               $"            document.querySelectorAll('{headerTag}.opblock-tag').forEach(headerTag => {{" +
+                "                const tag = headerTag.getAttribute('data-tag');\n" +
+                "                const span = headerTag.parentNode.parentNode;\n" +
                $"                if (tag.indexOf('{CapabilityGroupingAttribute.DescriptionDivder}') !== -1) {{\n" +
                $"                    const heading = tag.split('{CapabilityGroupingAttribute.DescriptionDivder}')[0].trim();\n" +
                 "                    if (!hash[heading]) hash[heading] = [];\n" +
@@ -99,16 +107,22 @@ namespace Nexus.Link.Libraries.Web.AspNet.Annotations
             return options;
         }
 
+        [Obsolete("Use UseSectionToggling", true)]
+        public static SwaggerUIOptions EnableSectionToggling(this SwaggerUIOptions options, bool sectionsInitiallyClosed = true)
+        {
+            return UseSectionToggling(options, sectionsInitiallyClosed, "h4");
+        }
+
         /// <summary>
         /// Adds javascript to HeadContent that will add a "Toggle sections" button that will expand/collapse all sections at once.
         /// </summary>
-        public static SwaggerUIOptions EnableSectionToggling(this SwaggerUIOptions options, bool sectionsInitiallyClosed = true)
+        public static SwaggerUIOptions UseSectionToggling(this SwaggerUIOptions options, bool sectionsInitiallyClosed = true, string headerTag = "h3")
         {
             var script = WrapSwaggerHeadScript(
                 "        const toggleButton = document.createElement('button');\n" +
                 "        toggleButton.classList.add('btn');\n" +
                 "        toggleButton.innerHTML = 'Toggle sections';\n" +
-                "        toggleButton.addEventListener('click', event => { document.querySelectorAll('h4').forEach(x => x.click()); });\n" +
+               $"        toggleButton.addEventListener('click', event => {{ document.querySelectorAll('{headerTag}').forEach(x => x.click()); }});\n" +
                 "        authorizeButton.insertAdjacentElement('afterend', toggleButton);\n" +
                 (sectionsInitiallyClosed ? "        toggleButton.click();" : ""));
 
