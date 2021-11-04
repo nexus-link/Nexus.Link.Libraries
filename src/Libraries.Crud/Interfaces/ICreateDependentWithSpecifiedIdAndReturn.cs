@@ -28,7 +28,7 @@ namespace Nexus.Link.Libraries.Crud.Interfaces
         /// <param name="cancellationToken">Propagates notification that operations should be canceled</param>
         /// <returns>The new item as it was saved, see remarks below.</returns>
         /// <remarks>
-        /// If the returned type implements <see cref="IUniquelyIdentifiable{TDependentId}"/>, then the <see cref="IUniquelyIdentifiable{TDependentId}.Id"/> is updated with the new id. 
+        /// If the returned type implements <see cref="IUniquelyIdentifiable{TDependentId}"/>, then the <see cref="IUniquelyIdentifiable{TId}.Id"/> is updated with the new id. 
         /// If it implements <see cref="IOptimisticConcurrencyControlByETag"/>, then the <see cref="IOptimisticConcurrencyControlByETag.Etag"/> is updated..
         /// </remarks>
         /// <seealso cref="IOptimisticConcurrencyControlByETag"/>

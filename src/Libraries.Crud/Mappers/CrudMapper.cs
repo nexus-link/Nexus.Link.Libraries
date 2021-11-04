@@ -153,7 +153,9 @@ namespace Nexus.Link.Libraries.Crud.Mappers
         }
 
         /// <inheritdoc />
-        public Task<Lock<TClientId>> ClaimDistributedLockAsync(TClientId id, CancellationToken cancellationToken  = default)
+        public Task<Lock<TClientId>> ClaimDistributedLockAsync(TClientId id, TimeSpan? lockTimeSpan = null,
+            TClientId currentLockId = default,
+            CancellationToken cancellationToken = default)
         {
             throw new NotImplementedException();
         }

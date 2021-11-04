@@ -190,6 +190,7 @@ namespace Nexus.Link.Libraries.Crud.AspNet.ControllerHelpers
         }
 
         /// <inheritdoc />
+        [Obsolete("Use IDistributedLock. Obsolete warning since 2021-04-29")]
         public virtual async Task<Lock<string>> ClaimLockAsync(string id, CancellationToken token = default)
         {
             ServiceContract.RequireNotNullOrWhiteSpace(id, nameof(id));
@@ -200,6 +201,7 @@ namespace Nexus.Link.Libraries.Crud.AspNet.ControllerHelpers
         }
 
         /// <inheritdoc />
+        [Obsolete("Use IDistributedLock. Obsolete warning since 2021-04-29")]
         public virtual async Task ReleaseLockAsync(string id, string lockId, CancellationToken token = default)
         {
             ServiceContract.RequireNotNullOrWhiteSpace(id, nameof(id));
@@ -208,10 +210,12 @@ namespace Nexus.Link.Libraries.Crud.AspNet.ControllerHelpers
         }
 
         /// <inheritdoc />
-        public async Task<Lock<string>> ClaimDistributedLockAsync(string id, CancellationToken token = default)
+        public async Task<Lock<string>> ClaimDistributedLockAsync(string id, TimeSpan? lockTimeSpan = null,
+            string currentLockId = default,
+            CancellationToken token = default)
         {
             ServiceContract.RequireNotNullOrWhiteSpace(id, nameof(id));
-            var @lock = await Logic.ClaimLockAsync(id, token);
+            var @lock = await Logic.ClaimDistributedLockAsync(id, lockTimeSpan, currentLockId, token);
             FulcrumAssert.IsNotNull(@lock);
             FulcrumAssert.IsValidated(@lock);
             return @lock;
@@ -222,7 +226,7 @@ namespace Nexus.Link.Libraries.Crud.AspNet.ControllerHelpers
         {
             ServiceContract.RequireNotNullOrWhiteSpace(id, nameof(id));
             ServiceContract.RequireNotNullOrWhiteSpace(lockId, nameof(lockId));
-            await Logic.ReleaseLockAsync(id, lockId, token);
+            await Logic.ReleaseDistributedLockAsync(id, lockId, token);
         }
 
         /// <inheritdoc />

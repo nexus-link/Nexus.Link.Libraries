@@ -186,7 +186,7 @@ namespace Nexus.Link.Libraries.Crud.MemoryStorage
             var groupLock = await groupPersistence.ClaimLockAsync(slaveId, cancellationToken );
             return new SlaveLock<TId>
             {
-                Id = groupLock.Id,
+                LockId = groupLock.LockId,
                 MasterId = masterId,
                 SlaveId = groupLock.ItemId,
                 ValidUntil = groupLock.ValidUntil
@@ -211,7 +211,7 @@ namespace Nexus.Link.Libraries.Crud.MemoryStorage
             var groupLock = await groupPersistence.ClaimLockAsync(slaveId, cancellationToken );
             return new SlaveLock<TId>
             {
-                Id = groupLock.Id,
+                LockId = groupLock.LockId,
                 MasterId = masterId,
                 SlaveId = groupLock.ItemId,
                 ValidUntil = groupLock.ValidUntil

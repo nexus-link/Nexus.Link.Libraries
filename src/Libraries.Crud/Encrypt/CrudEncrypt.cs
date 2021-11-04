@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -148,9 +149,10 @@ namespace Nexus.Link.Libraries.Crud.Encrypt
         }
 
         /// <inheritdoc />
-        public Task<Lock<TId>> ClaimDistributedLockAsync(TId id, CancellationToken cancellationToken  = default)
+        public Task<Lock<TId>> ClaimDistributedLockAsync(TId id, TimeSpan? lockTimeSpan = null, TId currentLockId = default,
+            CancellationToken cancellationToken = default)
         {
-            return _service.ClaimDistributedLockAsync(id, cancellationToken );
+            return _service.ClaimDistributedLockAsync(id, lockTimeSpan, currentLockId, cancellationToken );
         }
 
         /// <inheritdoc />

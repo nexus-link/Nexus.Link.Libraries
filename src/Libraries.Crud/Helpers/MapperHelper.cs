@@ -155,7 +155,7 @@ namespace Nexus.Link.Libraries.Crud.Helpers
         {
             return new Lock<TTarget>
             {
-                Id = MapToType<TTarget, TSource>(source.Id),
+                LockId = MapToType<TTarget, TSource>(source.LockId),
                 ItemId = MapToType<TTarget, TSource>(source.ItemId),
                 ValidUntil = source.ValidUntil
             };

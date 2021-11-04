@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Nexus.Link.Libraries.Core.Assert;
@@ -152,10 +153,11 @@ namespace Nexus.Link.Libraries.Crud.PassThrough
         }
 
         /// <inheritdoc />
-        public Task<Lock<TId>> ClaimDistributedLockAsync(TId id, CancellationToken cancellationToken  = default)
+        public Task<Lock<TId>> ClaimDistributedLockAsync(TId id, TimeSpan? lockTimeSpan = null, TId currentLockId = default,
+            CancellationToken cancellationToken = default)
         {
             var implementation = CrudHelper.GetImplementationOrThrow<IDistributedLock<TId>>(Service);
-            return implementation.ClaimDistributedLockAsync(id, cancellationToken );
+            return implementation.ClaimDistributedLockAsync(id, lockTimeSpan, currentLockId, cancellationToken );
         }
 
         /// <inheritdoc />

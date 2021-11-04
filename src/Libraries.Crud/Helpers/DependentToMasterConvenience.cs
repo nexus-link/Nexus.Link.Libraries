@@ -80,7 +80,7 @@ namespace Nexus.Link.Libraries.Crud.Helpers
         /// <inheritdoc />
         public async Task<TModel> ClaimTransactionLockAndReadAsync(TId masterId, TDependentId dependentId, CancellationToken cancellationToken  = default)
         {
-            await _service.ClaimDistributedLockAsync(masterId, dependentId, cancellationToken );
+            await _service.ClaimDistributedLockAsync(masterId, dependentId, default, cancellationToken );
             return await _service.ReadAsync(masterId, dependentId, cancellationToken );
         }
 

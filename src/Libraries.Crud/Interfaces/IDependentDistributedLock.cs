@@ -17,6 +17,7 @@ namespace Nexus.Link.Libraries.Crud.Interfaces
         /// </summary>
         /// <param name="masterId">The id for the master object.</param>
         /// <param name="dependentId">The id for the dependent object.</param>
+        /// <param name="currentLockId">If you currently have a lock and would like to extend it, pass the old lock id here.</param>
         /// <param name="cancellationToken">Propagates notification that operations should be canceled</param>
         /// <returns>A <see cref="Lock{TId}"/> object that proves that the lock has been claimed.</returns>
         /// <exception cref="FulcrumTryAgainException">
@@ -25,7 +26,7 @@ namespace Nexus.Link.Libraries.Crud.Interfaces
         /// <remarks>
         /// The lock will be automatically released after 30 seconds, but please use <see cref="ReleaseDistributedLockAsync"/> to release the lock as soon as you don't need the lock anymore.
         /// </remarks>
-        Task<DependentLock<TId, TDependentId>> ClaimDistributedLockAsync(TId masterId, TDependentId dependentId, CancellationToken cancellationToken  = default);
+        Task<DependentLock<TId, TDependentId>> ClaimDistributedLockAsync(TId masterId, TDependentId dependentId, TId currentLockId = default, CancellationToken cancellationToken  = default);
 
         /// <summary>
         /// Releases the lock for an item.

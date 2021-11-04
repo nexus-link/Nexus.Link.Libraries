@@ -6,6 +6,7 @@ using Nexus.Link.Libraries.Core.Assert;
 using Nexus.Link.Libraries.Crud.Interfaces;
 using Nexus.Link.Libraries.Crud.UnitTests.Crud;
 using Nexus.Link.Libraries.Crud.UnitTests.Model;
+using Nexus.Link.Libraries.SqlServer.Logic;
 using Nexus.Link.Libraries.SqlServer.Model;
 
 namespace Nexus.Link.Libraries.SqlServer.Test
@@ -25,29 +26,18 @@ namespace Nexus.Link.Libraries.SqlServer.Test
             {
                 TableName = "TestItem",
                 CustomColumnNames = new[] { "Value" },
-                OrderBy = new string[] {}
+                OrderBy = new string[] { }
             };
-            _storage = new CrudSql<TestItemBare, TestItemId<Guid>>(connectionString, tableMetadata);
+            var options = new DatabaseOptions
+            {
+                ConnectionString = connectionString,
+                DefaultLockTimeSpan = TimeSpan.FromSeconds(30)
+            };
+            options.DistributedLockTable = new DistributedLockTable(options);
+            _storage = new CrudSql<TestItemBare, TestItemId<Guid>>(options, tableMetadata);
         }
 
         protected override ICrud<TestItemBare, TestItemId<Guid>, Guid> CrudStorage => _storage;
 
-        [Ignore]
-        public new async Task LockFailAsync()
-        {
-            await Task.Yield();
-        }
-
-        [Ignore]
-        public new async Task LockReleaseLockAsync()
-        {
-            await Task.Yield();
-        }
-
-        [Ignore]
-        public new async Task Lock_Async()
-        {
-            await Task.Yield();
-        }
     }
 }

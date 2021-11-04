@@ -25,6 +25,7 @@ namespace Nexus.Link.Libraries.Crud.Interfaces
         /// <remarks>
         /// The lock will be automatically released after 30 seconds, but please use <see cref="ReleaseLockAsync"/> to release the lock as soon as you don't need the lock anymore.
         /// </remarks>
+        [Obsolete("Use IDistributedLock. Obsolete warning since 2021-04-29")]
         Task<Lock<TId>> ClaimLockAsync(TId id, CancellationToken cancellationToken  = default);
 
         /// <summary>
@@ -33,6 +34,7 @@ namespace Nexus.Link.Libraries.Crud.Interfaces
         /// <param name="id">The id of the item that should be release.</param>
         /// <param name="lockId">The id of the lock for this item, to prove that you are eligable of unlocking it.</param>
         /// <param name="cancellationToken">Propagates notification that operations should be canceled</param>
+        [Obsolete("Use IDistributedLock. Obsolete warning since 2021-04-29")]
         Task ReleaseLockAsync(TId id, TId lockId, CancellationToken cancellationToken  = default);
     }
 }

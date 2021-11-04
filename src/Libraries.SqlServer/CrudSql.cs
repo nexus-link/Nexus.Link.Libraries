@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Data.SqlClient;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Transactions;
 using Nexus.Link.Libraries.Core.Assert;
 using Nexus.Link.Libraries.Crud.Interfaces;
 using Nexus.Link.Libraries.Core.Error.Logic;
@@ -45,7 +46,9 @@ namespace Nexus.Link.Libraries.SqlServer
     /// <summary>
     /// Helper class for advanced SELECT statements
     /// </summary>
-    public class CrudSql<TDatabaseItemCreate, TDatabaseItem> : TableBase<TDatabaseItem>, ICrud<TDatabaseItemCreate, TDatabaseItem, Guid>, ISearch<TDatabaseItem, Guid>
+    public class CrudSql<TDatabaseItemCreate, TDatabaseItem> :
+        TableBase<TDatabaseItem>, ICrud<TDatabaseItemCreate, TDatabaseItem, Guid>,
+        ISearch<TDatabaseItem, Guid>
         where TDatabaseItem : TDatabaseItemCreate, IUniquelyIdentifiable<Guid>
     {
         private readonly CrudConvenience<TDatabaseItemCreate, TDatabaseItem, Guid> _convenience;
@@ -270,15 +273,29 @@ namespace Nexus.Link.Libraries.SqlServer
         }
 
         /// <inheritdoc />
-        public Task<Lock<Guid>> ClaimDistributedLockAsync(Guid id, CancellationToken token = default)
+        public Task<Lock<Guid>> ClaimDistributedLockAsync(Guid id, TimeSpan? lockTimeSpan = null, Guid currentLockId = default,
+            CancellationToken cancellationToken = default)
         {
-            throw new NotImplementedException();
+            var lockTable = Database.Options.DistributedLockTable;
+            if (lockTable == null)
+            {
+                throw new FulcrumContractException(
+                    $"You must set {nameof(IDatabaseOptions)}.{nameof(IDatabaseOptions.DistributedLockTable)} to use distributed locks.");
+            }
+
+            return lockTable.TryAddAsync(id, Database.Options.DefaultLockTimeSpan, currentLockId, cancellationToken);
         }
 
         /// <inheritdoc />
-        public Task ReleaseDistributedLockAsync(Guid id, Guid lockId, CancellationToken token = default)
+        public Task ReleaseDistributedLockAsync(Guid id, Guid lockId, CancellationToken cancellationToken = default)
         {
-            throw new NotImplementedException();
+            var lockTable = Database.Options.DistributedLockTable;
+            if (lockTable == null)
+            {
+                throw new FulcrumContractException(
+                    $"You must set {nameof(IDatabaseOptions)}.{nameof(IDatabaseOptions.DistributedLockTable)} to use distributed locks.");
+            }
+            return lockTable.RemoveAsync(id, lockId, cancellationToken);
         }
 
         /// <inheritdoc />

@@ -167,7 +167,8 @@ namespace Nexus.Link.Libraries.SqlServer
         }
 
         /// <inheritdoc />
-        public Task<DependentLock<Guid, TDependentId>> ClaimDistributedLockAsync(Guid masterId, TDependentId dependentId, CancellationToken token = default)
+        public Task<DependentLock<Guid, TDependentId>> ClaimDistributedLockAsync(Guid masterId,
+            TDependentId dependentId, Guid currentLockId = default, CancellationToken token = default)
         {
             throw new NotImplementedException();
         }

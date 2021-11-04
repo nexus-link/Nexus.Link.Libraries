@@ -235,15 +235,25 @@ namespace Nexus.Link.Libraries.Crud.Web.RestClient
         }
 
         /// <inheritdoc />
-        public async Task<Lock<TId>> ClaimDistributedLockAsync(TId id, CancellationToken token = default)
+        public Task<Lock<TId>> ClaimDistributedLockAsync(TId id, TimeSpan? lockTimeSpan = null, TId currentLockId = default,
+            CancellationToken token = default)
         {
-            return await PostAsync<Lock<TId>>($"{id}/Locks", cancellationToken: token);
+            var relativeUrl = $"{id}/Locks";
+            if (!Equals(currentLockId, default))
+            {
+                relativeUrl += $"/{currentLockId}";
+            }
+            if (lockTimeSpan != null)
+            {
+                relativeUrl += $"?seconds={lockTimeSpan.Value.TotalSeconds}";
+            }
+            return PostAsync<Lock<TId>>(relativeUrl, cancellationToken: token);
         }
 
         /// <inheritdoc />
         public async Task ReleaseDistributedLockAsync(TId id, TId lockId, CancellationToken token = default)
         {
-            await PostNoResponseContentAsync($"{id}/Locks/{lockId}", cancellationToken: token);
+            await DeleteAsync($"{id}/Locks/{lockId}", cancellationToken: token);
         }
 
         /// <inheritdoc />

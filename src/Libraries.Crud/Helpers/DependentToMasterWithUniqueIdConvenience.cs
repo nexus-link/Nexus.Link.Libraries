@@ -140,15 +140,16 @@ namespace Nexus.Link.Libraries.Crud.Helpers
         }
 
         /// <inheritdoc />
-        public virtual async Task<DependentLock<TId, TDependentId>> ClaimDistributedLockAsync(TId masterId, TDependentId dependentId, CancellationToken cancellationToken  = default)
+        public virtual async Task<DependentLock<TId, TDependentId>> ClaimDistributedLockAsync(TId masterId,
+            TDependentId dependentId, TId currentLockId = default, CancellationToken cancellationToken = default)
         {
             InternalContract.RequireNotDefaultValue(masterId, nameof(masterId));
             InternalContract.RequireNotDefaultValue(dependentId, nameof(dependentId));
             var uniqueId = await GetDependentUniqueIdAsync(masterId, dependentId, cancellationToken );
-            var distributedLock = await _uniqueIdTable.ClaimDistributedLockAsync(uniqueId, cancellationToken );
+            var distributedLock = await _uniqueIdTable.ClaimDistributedLockAsync(uniqueId, null, currentLockId, cancellationToken);
             var dependentLock = new DependentLock<TId, TDependentId>
             {
-                Id = distributedLock.Id,
+                LockId = distributedLock.LockId,
                 MasterId = masterId,
                 DependentId = dependentId,
                 ValidUntil = distributedLock.ValidUntil

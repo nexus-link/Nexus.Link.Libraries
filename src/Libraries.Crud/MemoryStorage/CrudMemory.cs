@@ -286,7 +286,7 @@ namespace Nexus.Link.Libraries.Crud.MemoryStorage
             var key = MapperHelper.MapToType<string, TId>(id);
             var newLock = new Lock<TId>
             {
-                Id = CreateNewId<TId>(),
+                LockId = CreateNewId<TId>(),
                 ItemId = id,
                 ValidUntil = DateTimeOffset.Now.AddSeconds(30)
             };
@@ -315,12 +315,12 @@ namespace Nexus.Link.Libraries.Crud.MemoryStorage
             InternalContract.RequireNotDefaultValue(id, nameof(id));
             InternalContract.RequireNotDefaultValue(lockId, nameof(lockId));
             if (!Locks.TryGetValue(id, out var @lock)) return Task.CompletedTask;
-            if (!Equals(lockId, @lock.Id)) return Task.CompletedTask;
+            if (!Equals(lockId, @lock.LockId)) return Task.CompletedTask;
             // Try to temporarily add additional time to make sure that nobody steals the lock while we are releasing it.
             // The TryUpdate will return false if there is no lock or if the current lock differs from the lock we want to release.
             var newLock = new Lock<TId>
             {
-                Id = lockId,
+                LockId = lockId,
                 ItemId = id,
                 ValidUntil = DateTimeOffset.Now.AddSeconds(30)
             };
@@ -350,24 +350,26 @@ namespace Nexus.Link.Libraries.Crud.MemoryStorage
         #endregion
 
         /// <inheritdoc />
-        public virtual Task<Lock<TId>> ClaimDistributedLockAsync(TId id, CancellationToken cancellationToken = default)
+        public virtual Task<Lock<TId>> ClaimDistributedLockAsync(TId id, TimeSpan? lockTimeSpan = null,
+            TId currentLockId = default,
+            CancellationToken cancellationToken = default)
         {
-            InternalContract.RequireNotDefaultValue(id, nameof(id));
-
+            lockTimeSpan = lockTimeSpan ?? TimeSpan.FromSeconds(30);
             var key = MapperHelper.MapToType<string, TId>(id);
-            var newLock = new Lock<TId>
-            {
-                Id = MapperHelper.MapToType<TId, Guid>(Guid.NewGuid()),
-                ItemId = id,
-                ValidUntil = DateTimeOffset.Now.AddSeconds(30)
-            };
+            var newLockId = MapperHelper.MapToType<TId, Guid>(Guid.NewGuid());
             while (true)
             {
+                var newLock = new Lock<TId>
+                {
+                    LockId = newLockId,
+                    ItemId = id,
+                    ValidUntil = DateTimeOffset.Now.Add(lockTimeSpan.Value)
+                };
                 cancellationToken.ThrowIfCancellationRequested();
                 if (Locks.TryAdd(id, newLock)) return Task.FromResult(newLock);
                 if (!Locks.TryGetValue(id, out var oldLock)) continue;
                 var remainingTime = oldLock.ValidUntil.Subtract(DateTimeOffset.Now);
-                if (remainingTime > TimeSpan.Zero)
+                if (remainingTime > TimeSpan.Zero && !Equals(oldLock.LockId, currentLockId))
                 {
                     var message = $"Item {key} is locked by someone else. The lock will be released before {oldLock.ValidUntil}";
                     var exception = new FulcrumTryAgainException(message)
@@ -376,6 +378,8 @@ namespace Nexus.Link.Libraries.Crud.MemoryStorage
                     };
                     throw exception;
                 }
+
+                newLock.LockId = Equals(currentLockId, oldLock.LockId) ? currentLockId : newLockId;
                 if (Locks.TryUpdate(id, newLock, oldLock)) return Task.FromResult(newLock);
             }
         }
@@ -386,12 +390,12 @@ namespace Nexus.Link.Libraries.Crud.MemoryStorage
             InternalContract.RequireNotDefaultValue(id, nameof(id));
             InternalContract.RequireNotDefaultValue(lockId, nameof(lockId));
             if (!Locks.TryGetValue(id, out Lock<TId> @lock)) return Task.CompletedTask;
-            if (!Equals(lockId, @lock.Id)) return Task.CompletedTask;
+            if (!Equals(lockId, @lock.LockId)) return Task.CompletedTask;
             // Try to temporarily add additional time to make sure that nobody steals the lock while we are releasing it.
             // The TryUpdate will return false if there is no lock or if the current lock differs from the lock we want to release.
             var newLock = new Lock<TId>
             {
-                Id = lockId,
+                LockId = lockId,
                 ItemId = id,
                 ValidUntil = DateTimeOffset.Now.AddSeconds(30)
             };

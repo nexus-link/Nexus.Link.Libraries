@@ -1,5 +1,7 @@
-﻿using System.Threading;
+﻿using System;
+using System.Threading;
 using System.Threading.Tasks;
+using Nexus.Link.Libraries.SqlServer.Model;
 
 namespace Nexus.Link.Libraries.SqlServer
 {
@@ -8,8 +10,29 @@ namespace Nexus.Link.Libraries.SqlServer
 
     public interface IDatabaseOptions
     {
+        /// <summary>
+        /// The connection string to connect to the database
+        /// </summary>
         string ConnectionString { get; }
+
+        /// <summary>
+        /// True means that we should log all SQL statements
+        /// </summary>
         bool VerboseLogging { get; }
+
+        /// <summary>
+        /// Set this if you have a distributed lock table that you want to use.
+        /// </summary>
+        IDistributedLockTable DistributedLockTable { get; set; }
+
+        /// <summary>
+        /// When a lock is claimed and the caller didn't specify a time span for the lock, then this time span will be used.
+        /// </summary>
+        TimeSpan DefaultLockTimeSpan { get; set; }
+
+        /// <summary>
+        /// These delegates will be called before we connect to a database. For instance to patch the database schema.
+        /// </summary>
         OnBeforeNewSqlConnectionAsync OnBeforeNewSqlConnectionAsync { get; }
     }
 
@@ -20,6 +43,12 @@ namespace Nexus.Link.Libraries.SqlServer
 
         /// <inheritdoc />
         public bool VerboseLogging { get; set; }
+        
+        /// <inheritdoc />
+        public IDistributedLockTable DistributedLockTable { get; set; }
+
+        /// <inheritdoc />
+        public TimeSpan DefaultLockTimeSpan { get; set; } = TimeSpan.FromSeconds(30);
 
         /// <inheritdoc />
         public OnBeforeNewSqlConnectionAsync OnBeforeNewSqlConnectionAsync { get; set; }

@@ -1,5 +1,6 @@
 ﻿using System;
 using Nexus.Link.Libraries.Core.Assert;
+using Nexus.Link.Libraries.Core.Logging;
 using Nexus.Link.Libraries.Core.Storage.Model;
 
 namespace Nexus.Link.Libraries.SqlServer.Model
@@ -21,8 +22,8 @@ namespace Nexus.Link.Libraries.SqlServer.Model
         {
             base.Validate(errorLocation, propertyPath);
             var now = DateTimeOffset.UtcNow;
-            FulcrumValidate.IsTrue(RecordCreatedAt < now, errorLocation, $"Expected {nameof(RecordCreatedAt)} ({RecordCreatedAt}) to have a value less than the current time ({now}).");
-            FulcrumValidate.IsTrue(RecordUpdatedAt < now, errorLocation, $"Expected {nameof(RecordUpdatedAt)} ({RecordUpdatedAt}) to have a value less than the current time ({now}).");
+            FulcrumValidate.IsTrue(RecordCreatedAt <= now, errorLocation, $"Expected {nameof(RecordCreatedAt)} ({RecordCreatedAt.ToLogString()}) to have a value <= than the current time ({now.ToLogString()}).");
+            FulcrumValidate.IsTrue(RecordUpdatedAt <= now, errorLocation, $"Expected {nameof(RecordUpdatedAt)} ({RecordUpdatedAt.ToLogString()}) to have a value <= than the current time ({now.ToLogString()}).");
         }
     }
 }

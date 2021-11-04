@@ -133,7 +133,9 @@ namespace Nexus.Link.Libraries.Crud.ServerTranslators.From
         }
 
         /// <inheritdoc />
-        public Task<Lock<string>> ClaimDistributedLockAsync(string id, CancellationToken cancellationToken  = default)
+        public Task<Lock<string>> ClaimDistributedLockAsync(string id, TimeSpan? lockTimeSpan = null,
+            string currentLockId = default,
+            CancellationToken cancellationToken = default)
         {
             throw new NotImplementedException();
         }

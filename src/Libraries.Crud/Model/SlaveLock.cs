@@ -36,7 +36,7 @@ namespace Nexus.Link.Libraries.Crud.Model
         public override int GetHashCode()
         {
             // ReSharper disable once NonReadonlyMemberInGetHashCode
-            return Id.GetHashCode();
+            return LockId.GetHashCode();
         }
 
         /// <inheritdoc />
@@ -44,7 +44,7 @@ namespace Nexus.Link.Libraries.Crud.Model
         {
             if (obj == null) return false;
             if (!(obj is SlaveLock<TId> @lock)) return false;
-            return Equals(Id, @lock.Id) && Equals(MasterId, @lock.MasterId) && Equals(SlaveId, @lock.SlaveId);
+            return Equals(LockId, @lock.LockId) && Equals(MasterId, @lock.MasterId) && Equals(SlaveId, @lock.SlaveId);
         }
     }
 }

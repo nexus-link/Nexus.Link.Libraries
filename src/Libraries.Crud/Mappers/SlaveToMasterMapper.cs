@@ -201,7 +201,7 @@ namespace Nexus.Link.Libraries.Crud.Mappers
             var serverLock = await _service.ClaimLockAsync(serverMasterId, serverSlaveId, cancellationToken );
             var clientLock = new SlaveLock<TClientId>
             {
-                Id = MapperHelper.MapToType<TClientId, TServerId>(serverLock.Id),
+                LockId = MapperHelper.MapToType<TClientId, TServerId>(serverLock.LockId),
                 MasterId = MapperHelper.MapToType<TClientId, TServerId>(serverLock.MasterId),
                 SlaveId = MapperHelper.MapToType<TClientId, TServerId>(serverLock.SlaveId)
             };

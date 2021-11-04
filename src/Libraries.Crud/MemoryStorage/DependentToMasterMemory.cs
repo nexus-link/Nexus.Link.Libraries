@@ -212,7 +212,8 @@ namespace Nexus.Link.Libraries.Crud.MemoryStorage
         private readonly ConcurrentDictionary<TId, Lock<TDependentId>> _groupLocks = new ConcurrentDictionary<TId, Lock<TDependentId>>();
 
         /// <inheritdoc />
-        public virtual async Task<DependentLock<TId, TDependentId>> ClaimDistributedLockAsync(TId masterId, TDependentId dependentId, CancellationToken cancellationToken  = default)
+        public virtual async Task<DependentLock<TId, TDependentId>> ClaimDistributedLockAsync(TId masterId,
+            TDependentId dependentId, TId currentLockId = default, CancellationToken cancellationToken = default)
         {
             InternalContract.RequireNotDefaultValue(masterId, nameof(masterId));
             InternalContract.RequireNotDefaultValue(dependentId, nameof(dependentId));
@@ -220,13 +221,13 @@ namespace Nexus.Link.Libraries.Crud.MemoryStorage
             var groupLock = await groupPersistence.ClaimLockAsync(dependentId, cancellationToken );
             var dependentLock = new DependentLock<TId, TDependentId>
             {
-                Id = groupPersistence.CreateNewId<TId>(),
+                LockId = groupPersistence.CreateNewId<TId>(),
                 MasterId = masterId,
                 DependentId = groupLock.ItemId,
                 ValidUntil = groupLock.ValidUntil
             };
 
-            _groupLocks.TryAdd(dependentLock.Id, groupLock);
+            _groupLocks.TryAdd(dependentLock.LockId, groupLock);
             return dependentLock;
         }
 
@@ -238,7 +239,7 @@ namespace Nexus.Link.Libraries.Crud.MemoryStorage
             InternalContract.RequireNotDefaultValue(dependentId, nameof(dependentId));
             var groupPersistence = GetStorage(masterId);
             if (!_groupLocks.TryGetValue(lockId, out var groupLock)) return;
-            await groupPersistence.ReleaseLockAsync(dependentId, groupLock.Id, cancellationToken );
+            await groupPersistence.ReleaseLockAsync(dependentId, groupLock.LockId, cancellationToken );
         }
 
         /// <inheritdoc />

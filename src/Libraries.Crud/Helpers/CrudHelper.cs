@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
 using Nexus.Link.Libraries.Core.Assert;
 using Nexus.Link.Libraries.Core.Error.Logic;
@@ -38,6 +40,7 @@ namespace Nexus.Link.Libraries.Crud.Helpers
                 FulcrumAssert.Fail(null,
                     $"{nameof(CreateNewId)} can handle Guid and string as type for Id, but it can't handle {typeof(TId)}.");
             }
+
             return id;
         }
 
@@ -52,7 +55,8 @@ namespace Nexus.Link.Libraries.Crud.Helpers
         {
             InternalContract.RequireNotNull(service, nameof(service));
             if (service is T implemented) return implemented;
-            throw new FulcrumNotImplementedException($"The service {service.GetType()} does not implement {typeof(T).Name}");
+            throw new FulcrumNotImplementedException(
+                $"The service {service.GetType()} does not implement {typeof(T).Name}");
         }
 
         /// <summary>
@@ -62,11 +66,14 @@ namespace Nexus.Link.Libraries.Crud.Helpers
         /// <typeparam name="T">The type that <paramref name="service"/> must implement.</typeparam>
         /// <returns></returns>
         /// <exception cref="FulcrumNotImplementedException">Thrown if <paramref name="service"/> doesn't implement <typeparamref name="T"/>.</exception>
-        [Obsolete("We no longer recommend to use this mapping technique. Obsolete warning since 2020-09-23, error since 2021-06-09.", true)]
+        [Obsolete(
+            "We no longer recommend to use this mapping technique. Obsolete warning since 2020-09-23, error since 2021-06-09.",
+            true)]
         public static T GetImplementationOrThrow<T>(IMappable service) where T : IMappable
         {
             if (service is T implemented) return implemented;
-            throw new FulcrumNotImplementedException($"The service {service.GetType()} does not implement {typeof(T).Name}");
+            throw new FulcrumNotImplementedException(
+                $"The service {service.GetType()} does not implement {typeof(T).Name}");
         }
     }
 }

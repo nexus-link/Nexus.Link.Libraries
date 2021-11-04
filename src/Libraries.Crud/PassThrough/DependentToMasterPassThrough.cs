@@ -111,10 +111,11 @@ namespace Nexus.Link.Libraries.Crud.PassThrough
         }
 
         /// <inheritdoc />
-        public virtual Task<DependentLock<TId, TDependentId>> ClaimDistributedLockAsync(TId masterId, TDependentId dependentId, CancellationToken cancellationToken  = default)
+        public virtual Task<DependentLock<TId, TDependentId>> ClaimDistributedLockAsync(TId masterId,
+            TDependentId dependentId, TId currentLockId = default, CancellationToken cancellationToken = default)
         {
             var implementation = CrudHelper.GetImplementationOrThrow<IDependentDistributedLock<TId, TDependentId>>(Service);
-            return implementation.ClaimDistributedLockAsync(masterId, dependentId, cancellationToken );
+            return implementation.ClaimDistributedLockAsync(masterId, dependentId, currentLockId, cancellationToken );
         }
 
         /// <inheritdoc />

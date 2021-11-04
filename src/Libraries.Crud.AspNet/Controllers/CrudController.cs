@@ -227,7 +227,9 @@ namespace Nexus.Link.Libraries.Crud.AspNet.Controllers
         }
 
         /// <inheritdoc />
-        public Task<Lock<string>> ClaimDistributedLockAsync(string id, CancellationToken token = default)
+        public Task<Lock<string>> ClaimDistributedLockAsync(string id, TimeSpan? lockTimeSpan = null,
+            string currentLockId = default,
+            CancellationToken token = default)
         {
             throw new NotImplementedException();
         }

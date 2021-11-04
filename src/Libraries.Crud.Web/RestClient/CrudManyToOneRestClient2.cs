@@ -272,15 +272,16 @@ namespace Nexus.Link.Libraries.Crud.Web.RestClient
         }
 
         /// <inheritdoc />
-        public Task<Lock<TId>> ClaimDistributedLockAsync(TId id, CancellationToken token = default)
+        public Task<Lock<TId>> ClaimDistributedLockAsync(TId id, TimeSpan? lockTimeSpan = null, TId currentLockId = default,
+            CancellationToken token = default)
         {
-            return CrudRestClient.ClaimDistributedLockAsync(id, token);
+            return CrudRestClient.ClaimDistributedLockAsync(id, lockTimeSpan, currentLockId,token);
         }
 
         /// <inheritdoc />
         public Task ReleaseDistributedLockAsync(TId objectId, TId lockId, CancellationToken token = default)
         {
-            return CrudRestClient.ClaimDistributedLockAsync(objectId, token);
+            return CrudRestClient.ReleaseDistributedLockAsync(objectId, lockId, token);
         }
 
         /// <inheritdoc />

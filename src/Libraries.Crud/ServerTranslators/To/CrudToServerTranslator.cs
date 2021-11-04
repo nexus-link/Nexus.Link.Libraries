@@ -152,12 +152,14 @@ namespace Nexus.Link.Libraries.Crud.ServerTranslators.To
         }
 
         /// <inheritdoc />
-        public async Task<Lock<string>> ClaimDistributedLockAsync(string id, CancellationToken cancellationToken  = default)
+        public async Task<Lock<string>> ClaimDistributedLockAsync(string id, TimeSpan? lockTimeSpan = null,
+            string currentLockId = default,
+            CancellationToken cancellationToken = default)
         {
             var translator = CreateTranslator();
             await translator.Add(id).ExecuteAsync(cancellationToken );
             id = translator.Translate(id);
-            return await _service.ClaimDistributedLockAsync(id, cancellationToken );
+            return await _service.ClaimDistributedLockAsync(id, lockTimeSpan, currentLockId, cancellationToken );
         }
 
         /// <inheritdoc />

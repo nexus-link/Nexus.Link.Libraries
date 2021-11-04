@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using System;
+using Newtonsoft.Json;
 using Nexus.Link.Libraries.Azure.Storage.File;
 using Nexus.Link.Libraries.Core.Assert;
 using Nexus.Link.Libraries.Core.Error.Logic;
@@ -153,7 +154,7 @@ namespace Nexus.Link.Libraries.Azure.Storage.Blob
         public Task<IEnumerable<TModel>> ReadAllAsync(int limit = 2147483647, CancellationToken token = default)
         {
             InternalContract.RequireGreaterThan(0, limit, nameof(limit));
-            return StorageHelper.ReadPagesAsync<TModel>((offset, ct) => ReadAllWithPagingAsync(offset, null, ct), limit, token);
+            return StorageHelper.ReadPagesAsync((offset, ct) => ReadAllWithPagingAsync(offset, null, ct), limit, token);
         }
 
         /// <inheritdoc />
@@ -239,7 +240,8 @@ namespace Nexus.Link.Libraries.Azure.Storage.Blob
         }
 
         /// <inheritdoc />
-        public Task<Lock<TId>> ClaimDistributedLockAsync(TId id, CancellationToken token = default)
+        public Task<Lock<TId>> ClaimDistributedLockAsync(TId id, TimeSpan? lockTimeSpan = null, TId currentLockId = default,
+            CancellationToken token = default)
         {
             throw new System.NotImplementedException();
         }

@@ -51,10 +51,10 @@ namespace Nexus.Link.Libraries.Crud.UnitTests.Crd
         /// Create a lock.
         /// </summary>
         [TestMethod]
-        public async Task Lock_Async()
+        public async Task ClaimLock()
         {
             var id = await CreateItemAsync(TypeOfTestDataEnum.Variant1);
-            var itemLock = await CrdStorage.ClaimLockAsync(id);
+            var itemLock = await CrdStorage.ClaimDistributedLockAsync(id, TimeSpan.FromSeconds(30));
             Assert.AreEqual(id, itemLock.ItemId);
             Assert.IsTrue(itemLock.ValidUntil > DateTimeOffset.Now.AddSeconds(20));
         }
@@ -63,13 +63,13 @@ namespace Nexus.Link.Libraries.Crud.UnitTests.Crd
         /// Create a lock and then lock it again (which should fail).
         /// </summary>
         [TestMethod]
-        public async Task LockFailAsync()
+        public async Task ClaimLock_Given_AlreadyLocked_GivesException()
         {
             var id = await CreateItemAsync(TypeOfTestDataEnum.Variant1);
-            var itemLock1 = await CrdStorage.ClaimLockAsync(id);
+            var itemLock1 = await CrdStorage.ClaimDistributedLockAsync(id, TimeSpan.FromSeconds(30));
             try
             {
-                var itemLock2 = await CrdStorage.ClaimLockAsync(id);
+                var itemLock2 = await CrdStorage.ClaimDistributedLockAsync(id, TimeSpan.FromSeconds(30));
                 Assert.Fail($"Expected an exception of type {nameof(FulcrumTryAgainException)}.");
             }
             catch (FulcrumTryAgainException ex)
@@ -86,15 +86,30 @@ namespace Nexus.Link.Libraries.Crud.UnitTests.Crd
         /// Create a lock, release the lock and lock it again (which should succeed).
         /// </summary>
         [TestMethod]
-        public async Task LockReleaseLockAsync()
+        public async Task Claim_Release_Claim()
         {
             var id = await CreateItemAsync(TypeOfTestDataEnum.Variant1);
-            var itemLock1 = await CrdStorage.ClaimLockAsync(id);
-            await CrdStorage.ReleaseLockAsync(id, itemLock1.Id);
-            var itemLock2 = await CrdStorage.ClaimLockAsync(id);
+            var itemLock1 = await CrdStorage.ClaimDistributedLockAsync(id, TimeSpan.FromSeconds(30));
+            await CrdStorage.ReleaseDistributedLockAsync(itemLock1.ItemId, itemLock1.LockId);
+            var itemLock2 = await CrdStorage.ClaimDistributedLockAsync(id, TimeSpan.FromSeconds(30));;
             Assert.AreEqual(id, itemLock2.ItemId);
-            Assert.AreNotEqual(itemLock1.Id, itemLock2.Id);
-            Assert.IsTrue(itemLock2.ValidUntil > DateTimeOffset.Now.AddSeconds(20));
+            Assert.AreNotEqual(itemLock1.LockId, itemLock2.LockId);
+            Assert.IsTrue(itemLock2.ValidUntil > DateTimeOffset.UtcNow.AddSeconds(20));
+        }
+
+        /// <summary>
+        /// Create a lock, release the lock and lock it again (which should succeed).
+        /// </summary>
+        [TestMethod]
+        public async Task Claim_Reclaim()
+        {
+            var id = await CreateItemAsync(TypeOfTestDataEnum.Variant1);
+            var itemLock1 = await CrdStorage.ClaimDistributedLockAsync(id, TimeSpan.FromSeconds(30));
+            await Task.Delay(10);
+            var itemLock2 = await CrdStorage.ClaimDistributedLockAsync(id, TimeSpan.FromSeconds(30), itemLock1.LockId);
+            Assert.AreEqual(id, itemLock2.ItemId);
+            Assert.AreEqual(itemLock1.LockId, itemLock2.LockId);
+            Assert.IsTrue(itemLock2.ValidUntil > itemLock1.ValidUntil);
         }
     }
 }
