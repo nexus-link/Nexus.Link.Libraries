@@ -48,7 +48,7 @@
 
   <PropertyGroup>
     <PackageId>Nexus.Link.Libraries.Core</PackageId>
-    <Version>5.8.0</Version>
+    <Version>5.9.0</Version>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <PackageTags>nexus;link;fulcrum;lever</PackageTags>
     <Authors>XLENT Link</Authors>
@@ -58,6 +58,7 @@
     <Copyright>Copyright ©2021 Xlent Link AB</Copyright>
     <IncludeSymbols>true</IncludeSymbols>
     <PackageReleaseNotes>
+      5.9.0 Added TypeConversionExtensions
       5.8.0 Added AnnotatedId
       5.7.1 Bump
       5.7.0 Added FulcrumCancelledException

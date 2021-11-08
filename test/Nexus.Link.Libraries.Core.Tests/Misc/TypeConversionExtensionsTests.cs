@@ -1,17 +1,12 @@
 ﻿using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Nexus.Link.Libraries.Core.Error.Logic;
-using Nexus.Link.Libraries.Crud.Helpers;
-using Nexus.Link.Libraries.Crud.Interfaces;
-using Nexus.Link.Libraries.Crud.MemoryStorage;
-using Nexus.Link.Libraries.Crud.UnitTests.Crd;
-using Nexus.Link.Libraries.Crud.UnitTests.Model;
-#pragma warning disable 618
+using Nexus.Link.Libraries.Core.Misc;
 
-namespace Nexus.Link.Libraries.Crud.Test.Helpers
+namespace Nexus.Link.Libraries.Core.Tests.Misc
 {
     [TestClass]
-    public class MapperHelperTests
+    public class TypeConversionExtensionsTests
     {
 
         [TestInitialize]
@@ -21,11 +16,18 @@ namespace Nexus.Link.Libraries.Crud.Test.Helpers
 
         #region ToGuid
         [TestMethod]
+        public void ToGuid()
+        {
+            var source = Guid.NewGuid().ToString();
+            var value = source.ToGuid();
+            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual(source, value.ToString());
+        }
+        [TestMethod]
         public void MapToTypeGuid()
         {
             var source = Guid.NewGuid().ToString();
-            var value = MapperHelper.MapToType<Guid, string>(source);
-            Assert.AreEqual(source, value.ToString());
+            var value = TypeConversionExtensions.MapToType<Guid, string>(source);
+            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual(source, value.ToString());
         }
 
         [TestMethod]
@@ -33,7 +35,7 @@ namespace Nexus.Link.Libraries.Crud.Test.Helpers
         {
             var source = Guid.NewGuid().ToString();
             var value = source.ToGuid();
-            Assert.AreEqual(source, value.ToString());
+            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual(source, value.ToString());
         }
 
         [DataTestMethod]
@@ -42,7 +44,7 @@ namespace Nexus.Link.Libraries.Crud.Test.Helpers
         [ExpectedException(typeof(FulcrumContractException))]
         public void MapToTypeGuidFail(string source)
         {
-            MapperHelper.MapToType<Guid, string>(source);
+            TypeConversionExtensions.MapToType<Guid, string>(source);
         }
 
         [DataTestMethod]
@@ -60,8 +62,8 @@ namespace Nexus.Link.Libraries.Crud.Test.Helpers
         public void MapToStructEnum()
         {
             var source = TestEnum.Value1.ToString();
-            var value = MapperHelper.MapToStruct<TestEnum, string>(source);
-            Assert.AreEqual(source, value.ToString());
+            var value = TypeConversionExtensions.MapToStruct<TestEnum, string>(source);
+            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual(source, value.ToString());
         }
 
         [TestMethod]
@@ -69,7 +71,7 @@ namespace Nexus.Link.Libraries.Crud.Test.Helpers
         {
             var source = TestEnum.Value1.ToString();
             var value = source.ToEnum<TestEnum>();
-            Assert.AreEqual(source, value.ToString());
+            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual(source, value.ToString());
         }
 
         [DataTestMethod]
@@ -78,7 +80,7 @@ namespace Nexus.Link.Libraries.Crud.Test.Helpers
         [ExpectedException(typeof(FulcrumContractException))]
         public void MapToStructEnumFail(string source)
         {
-            MapperHelper.MapToStruct<TestEnum, string>(source);
+            TypeConversionExtensions.MapToStruct<TestEnum, string>(source);
         }
 
         [DataTestMethod]
@@ -96,8 +98,8 @@ namespace Nexus.Link.Libraries.Crud.Test.Helpers
         public void MapToTypeGuid_Nullable()
         {
             var source = (string) null;
-            var value = MapperHelper.MapToType<Guid?, string>(source);
-            Assert.IsNull(value);
+            var value = TypeConversionExtensions.MapToType<Guid?, string>(source);
+            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsNull(value);
         }
 
         [DataTestMethod]
@@ -105,7 +107,7 @@ namespace Nexus.Link.Libraries.Crud.Test.Helpers
         [ExpectedException(typeof(FulcrumContractException))]
         public void MapToTypeGuidFail_Nullable(string source)
         {
-            MapperHelper.MapToType<Guid?, string>(source);
+            TypeConversionExtensions.MapToType<Guid?, string>(source);
         }
         #endregion
 
@@ -113,8 +115,9 @@ namespace Nexus.Link.Libraries.Crud.Test.Helpers
         [TestMethod]
         public void MapToStructEnum_Nullable()
         {
-            var value = MapperHelper.MapToStructOrNull<TestEnum, string>((string)null);
-            Assert.IsNull(value);
+            var source = (string)null;
+            var value = TypeConversionExtensions.MapToStructOrNull<TestEnum, string>(source);
+            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsNull(value);
         }
 
         [DataTestMethod]
@@ -122,7 +125,7 @@ namespace Nexus.Link.Libraries.Crud.Test.Helpers
         [ExpectedException(typeof(FulcrumContractException))]
         public void MapToStructEnumFail_Nullable(string source)
         {
-            MapperHelper.MapToStructOrNull<TestEnum, string>(source);
+            TypeConversionExtensions.MapToStructOrNull<TestEnum, string>(source);
         }
         #endregion
     }

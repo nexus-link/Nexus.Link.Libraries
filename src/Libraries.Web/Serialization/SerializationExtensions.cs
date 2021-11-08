@@ -44,6 +44,8 @@ namespace Nexus.Link.Libraries.Web.Serialization
 
             await source.Content.LoadIntoBufferAsync();
             target.BodyAsString = source.Content == null ? null : await source.Content.ReadAsStringAsync();
+            target.ContentType = source.Content.Headers.ContentType.ToString();
+            target.ContentLength = source.Content.Headers.ContentLength;
             return target;
         }
 
@@ -51,6 +53,8 @@ namespace Nexus.Link.Libraries.Web.Serialization
         {
             target.StatusCode = HttpStatusCode.InternalServerError;
             target.BodyAsString = JsonConvert.SerializeObject($"{source}");
+            target.ContentType = "application/json";
+            target.ContentLength = target.BodyAsString.Length;
             return target;
         }
 
@@ -80,6 +84,22 @@ namespace Nexus.Link.Libraries.Web.Serialization
                     System.Net.Http.Headers.MediaTypeHeaderValue.Parse(source.ContentType);
             }
             return requestMessage;
+        }
+
+        /// <summary>
+        /// Deserialize to a <see cref="HttpResponseMessage"/>.
+        /// </summary>
+        public static HttpResponseMessage ToHttpResponseMessage(this ResponseData source, HttpRequestMessage request)
+        {
+            var target = request.CreateResponse(source.StatusCode);
+            foreach (var header in source.Headers)
+            {
+                if (header.Key.ToLowerInvariant().StartsWith("content-")) continue;
+                target.Headers.Add(header.Key, header.Value.ToArray());
+            }
+
+            target.Content = source.BodyAsString == null ? null : new StringContent(source.BodyAsString, System.Text.Encoding.UTF8, source.ContentType);
+            return target;
         }
     }
 }
