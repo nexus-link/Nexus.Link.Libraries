@@ -9,10 +9,10 @@ namespace Nexus.Link.Libraries.Core.Misc
     /// </summary>
     public static class TypeConversionExtensions
     {
+        [Obsolete("Use source?.ToGuid(). Obsolete warning since 2021-11-08.")]
         public static Guid? ToNullableGuid(this string source)
         {
-            if (source == null) return null;
-            return source.ToGuid();
+            return source?.ToGuid();
         }
         public static Guid ToGuid(this string source)
         {
