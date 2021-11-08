@@ -9,6 +9,11 @@ namespace Nexus.Link.Libraries.Core.Misc
     /// </summary>
     public static class TypeConversionExtensions
     {
+        public static Guid? ToNullableGuid(this string source)
+        {
+            if (source == null) return null;
+            return source.ToGuid();
+        }
         public static Guid ToGuid(this string source)
         {
             InternalContract.RequireNotNull(source, nameof(source));
