@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
@@ -11,7 +10,6 @@ using Nexus.Link.Libraries.Core.Json;
 using Nexus.Link.Libraries.Core.Misc;
 using Nexus.Link.Libraries.Core.Storage.Model;
 using Nexus.Link.Libraries.Crud.Interfaces;
-using Nexus.Link.Libraries.Crud.PassThrough;
 
 namespace Nexus.Link.Libraries.Crud.Helpers
 {
@@ -164,7 +162,12 @@ namespace Nexus.Link.Libraries.Crud.Helpers
                     }
                     else
                     {
-                        InternalContract.Require(false, $"The CRUD service must implement {nameof(ICreateWithSpecifiedIdAndReturn<TModelCreate, TModel, TId>)} or {nameof(ICreateWithSpecifiedId<TModelCreate, TModel, TId>)}");
+                        InternalContract.Require(false,
+                            "The CRUD service must implement"
+                            + $" {nameof(ICreateWithSpecifiedIdAndReturn<TModelCreate, TModel, TId>)}"
+                            + $" or {nameof(ICreateWithSpecifiedId<TModelCreate, TModel, TId>)}"
+                            + $" or {nameof(ICreateAndReturn<TModelCreate, TModel, TId>)}"
+                        + $" or {nameof(ICreate<TModelCreate, TModel, TId>)}");
                     }
 
                     AddOrUpdateWithCopy(id, result, true);
@@ -185,7 +188,7 @@ namespace Nexus.Link.Libraries.Crud.Helpers
                     }
                     else
                     {
-                        InternalContract.Require(false, $"The CRUD service must implement {nameof(ICreateWithSpecifiedIdAndReturn<TModelCreate, TModel, TId>)} or {nameof(ICreateWithSpecifiedId<TModelCreate, TModel, TId>)}");
+                        InternalContract.Require(false, $"The CRUD service must implement {nameof(IUpdateAndReturn<TModel, TId>)} or {nameof(IUpdate<TModel, TId>)}");
                     }
                     AddOrUpdateWithCopy(id, result, true);
                     return result;
@@ -222,7 +225,8 @@ namespace Nexus.Link.Libraries.Crud.Helpers
         private void AddOrUpdateWithCopy(TId id, TModel item, bool copyAsStored)
         {
             InternalContract.RequireNotNull(item, nameof(item));
-            _currentDictionary.AddOrUpdate(id, i => {
+            _currentDictionary.AddOrUpdate(id, i =>
+            {
                 _currentInOrder.Add(id);
                 return item;
             }, (i, oldValue) => item);

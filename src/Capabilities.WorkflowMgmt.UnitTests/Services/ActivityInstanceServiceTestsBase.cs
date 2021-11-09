@@ -79,7 +79,7 @@ namespace Nexus.Link.Capabilities.WorkflowMgmt.UnitTests.Services
 
             // Act
             itemToUpdate.FinishedAt = DateTimeOffset.Now;
-            itemToUpdate.ExceptionCategory = ActivityExceptionCategoryEnum.Technical;
+            itemToUpdate.ExceptionCategory = ActivityExceptionCategoryEnum.TechnicalError;
             itemToUpdate.ExceptionFriendlyMessage =  Guid.NewGuid().ToString();
             itemToUpdate.ExceptionTechnicalMessage = Guid.NewGuid().ToString();
             var updatedItem = await _service.UpdateAndReturnAsync(created.Id, itemToUpdate);

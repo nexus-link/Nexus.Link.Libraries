@@ -7,16 +7,24 @@ namespace Nexus.Link.Capabilities.WorkflowMgmt.Abstract.Entities.State
     public enum ActivityExceptionCategoryEnum 
     {
         /// <summary>
-        /// The exception for this activity was of category "technical problems", e.g. a programmers error
+        /// The exception for this activity was of category "technical problems" and should probably be inspected by a technician.
         /// </summary>
         /// <remarks>
         /// The default value for this enumeration
         /// </remarks>
-        Technical,
+        TechnicalError,
         /// <summary>
-        /// The exception for this activity was of category "business problem".
+        /// The exception for this activity was due to an error in the Workflow mgmt capability. Please inform the implementor of the capability.
         /// </summary>
-        Business
+        WorkflowCapabilityError,
+        /// <summary>
+        /// The exception for this activity was due to an error in implementation of the workflow, i.e. a programmers error.
+        /// </summary>
+        WorkflowImplementationError,
+        /// <summary>
+        /// The exception for this activity was of category "business problem" and should probably be inspected by a business person.
+        /// </summary>
+        BusinessError
     };
     public enum ActivityStateEnum 
     {
