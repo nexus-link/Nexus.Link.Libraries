@@ -26,7 +26,7 @@
 
   <PropertyGroup>
     <PackageId>Nexus.Link.Libraries.Azure</PackageId>
-    <Version>3.5.2</Version>
+    <Version>3.5.3</Version>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <PackageTags>nexus;link;fulcrum;lever</PackageTags>
     <Authors>XLENT Link</Authors>
@@ -36,35 +36,36 @@
     <Copyright>Copyright ©2019 Xlent Link AB</Copyright>
     <IncludeSymbols>true</IncludeSymbols>
     <PackageReleaseNotes>
-      3.5.2 Fix: Catch exception if could not access Azure queue
-      3.5.1 Symbols
-      3.5.0 Added CancellationToken where it was missing. Old obsolete stuff with errors has been deleted and old with warning has been updated to error.
-      3.4.0 Added ClaimTransactionLockAndReadAsycn()
-      3.3.0 Added Crud ISearch and ISearchChildren
-      3.2.0 New lock interfaces.
-      3.1.3 Now sets RecordUpdatedAt to DateTimeOffset.UtcNow and bump Libraries.Core.
-      3.1.2 Bump
-      3.1.1 Better validation when creating items.
-      3.1.0 AzureStorageQueue now implements ICountableQueue
-      3.0.7 Bump
-      3.0.6 Bump
-      3.0.5 Fix: Delete from Table Storage (required ETag property)
-      3.0.3 Bump
-      3.0.0 Reverted 2.1.0 to keep AzureStorageQueue to only implement our standard interfaces.
-      2.1.2 Bump
-      2.1.1 Fixed an issue where AzureStorageQueue implemented multiple dynamically typed interfaces
-      2.1.0 Added IAzureStorageQueue interface which demands T to be IAzureStorageQueueMessage. When using an Azure CloudQueue a message needs to be deleted. These changes adds that functionallity
-      2.0.7 Fix: PackageProjectUrl for this nuget package
-      2.0.6 Bump
-      2.0.1 Safe deserializing.
-      2.0.0 Depends on major change in Libraries.Core
-      1.0.8 Bumped version
-      1.0.7 Move Nexus.Link.Libraries.Azure.Core.File to Nexus.Link.Libraries.Azure.Storage.File
-      1.0.6 Bumped version. New solution and build pipeline.
-      1.0.5 Updated dependencies
-      1.0.0 Core lib with support for .net standard
-      0.1.0 Release candidate with support for .net standard
-    </PackageReleaseNotes>
+			3.5.3 Bump nuget version for missing methods
+			3.5.2 Fix: Catch exception if could not access Azure queue
+			3.5.1 Symbols
+			3.5.0 Added CancellationToken where it was missing. Old obsolete stuff with errors has been deleted and old with warning has been updated to error.
+			3.4.0 Added ClaimTransactionLockAndReadAsycn()
+			3.3.0 Added Crud ISearch and ISearchChildren
+			3.2.0 New lock interfaces.
+			3.1.3 Now sets RecordUpdatedAt to DateTimeOffset.UtcNow and bump Libraries.Core.
+			3.1.2 Bump
+			3.1.1 Better validation when creating items.
+			3.1.0 AzureStorageQueue now implements ICountableQueue
+			3.0.7 Bump
+			3.0.6 Bump
+			3.0.5 Fix: Delete from Table Storage (required ETag property)
+			3.0.3 Bump
+			3.0.0 Reverted 2.1.0 to keep AzureStorageQueue to only implement our standard interfaces.
+			2.1.2 Bump
+			2.1.1 Fixed an issue where AzureStorageQueue implemented multiple dynamically typed interfaces
+			2.1.0 Added IAzureStorageQueue interface which demands T to be IAzureStorageQueueMessage. When using an Azure CloudQueue a message needs to be deleted. These changes adds that functionallity
+			2.0.7 Fix: PackageProjectUrl for this nuget package
+			2.0.6 Bump
+			2.0.1 Safe deserializing.
+			2.0.0 Depends on major change in Libraries.Core
+			1.0.8 Bumped version
+			1.0.7 Move Nexus.Link.Libraries.Azure.Core.File to Nexus.Link.Libraries.Azure.Storage.File
+			1.0.6 Bumped version. New solution and build pipeline.
+			1.0.5 Updated dependencies
+			1.0.0 Core lib with support for .net standard
+			0.1.0 Release candidate with support for .net standard
+		</PackageReleaseNotes>
     <RootNamespace>Nexus.Link.Libraries.Azure.Storage</RootNamespace>
     <AssemblyName>Nexus.Link.Libraries.Azure.Storage</AssemblyName>
   </PropertyGroup>
