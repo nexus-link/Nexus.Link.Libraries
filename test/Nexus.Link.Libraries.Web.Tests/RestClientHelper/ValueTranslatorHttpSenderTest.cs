@@ -225,6 +225,12 @@ namespace Nexus.Link.Libraries.Web.Tests.RestClientHelper
             {
                 throw new NotImplementedException();
             }
+
+            /// <inheritdoc />
+            public string GetAbsoluteUrl(string relativeUrl)
+            {
+                throw new NotImplementedException();
+            }
         }
 
         private class Foo : IUniquelyIdentifiable<string>

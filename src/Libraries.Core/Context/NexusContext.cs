@@ -8,8 +8,10 @@ namespace Nexus.Link.Libraries.Core.Context
     public class NexusContext
     {
         public IContextValueProvider ValueProvider { get; }
-
+        
         private readonly OneValueProvider<string> _correlationId;
+        private readonly OneValueProvider<string> _parentExecutionId;
+        private readonly OneValueProvider<string> _executionId;
         private readonly OneValueProvider<string> _callingClientName;
         private readonly OneValueProvider<Tenant> _clientTenant;
         private readonly OneValueProvider<ILeverConfiguration> _leverConfiguration;
@@ -17,11 +19,14 @@ namespace Nexus.Link.Libraries.Core.Context
         private readonly OneValueProvider<IPrincipal> _userPrincipal;
         private readonly OneValueProvider<bool> _isInBatchLogger;
         private readonly OneValueProvider<string> _nexusTestContext;
+        private readonly OneValueProvider<string> _managedAsynchronousRequestId;
 
         public NexusContext(IContextValueProvider valueProvider)
         {
             ValueProvider = valueProvider;
             _correlationId = new OneValueProvider<string>(ValueProvider, "NexusCorrelationId");
+            _parentExecutionId = new OneValueProvider<string>(ValueProvider, "NexusParentExecutionId");
+            _executionId = new OneValueProvider<string>(ValueProvider, "NexusExecutionId");
             _callingClientName = new OneValueProvider<string>(ValueProvider, "CallingClientName");
             _clientTenant = new OneValueProvider<Tenant>(ValueProvider, "TenantId");
             _leverConfiguration = new OneValueProvider<ILeverConfiguration>(ValueProvider, "LeverConfigurationId");
@@ -29,6 +34,7 @@ namespace Nexus.Link.Libraries.Core.Context
             _userPrincipal = new OneValueProvider<IPrincipal>(ValueProvider, "UserPrincipal");
             _isInBatchLogger = new OneValueProvider<bool>(ValueProvider, "IsInBatchLogger");
             _nexusTestContext = new OneValueProvider<string>(ValueProvider, "NexusTestContext");
+            _managedAsynchronousRequestId = new OneValueProvider<string>(ValueProvider, "ManagedAsynchronousRequestId");
         }
 
         /// <summary>
@@ -43,6 +49,24 @@ namespace Nexus.Link.Libraries.Core.Context
         {
             get => _correlationId.GetValue();
             set => _correlationId.SetValue(value);
+        }
+
+        /// <summary>
+        /// The parent execution id.
+        /// </summary>
+        public string ParentExecutionId
+        {
+            get => _executionId.GetValue();
+            set => _executionId.SetValue(value);
+        }
+
+        /// <summary>
+        /// The execution id.
+        /// </summary>
+        public string ExecutionId
+        {
+            get => _parentExecutionId.GetValue();
+            set => _parentExecutionId.SetValue(value);
         }
 
         /// <summary>
@@ -107,6 +131,15 @@ namespace Nexus.Link.Libraries.Core.Context
         {
             get => _nexusTestContext.GetValue();
             set => _nexusTestContext.SetValue(value);
+        }
+
+        /// <summary>
+        /// If non-null, the current request is managed by an async management capailiby.
+        /// </summary>
+        public string ManagedAsynchronousRequestId
+        {
+            get => _managedAsynchronousRequestId.GetValue();
+            set => _managedAsynchronousRequestId.SetValue(value);
         }
 
     }

@@ -60,9 +60,13 @@ namespace Nexus.Link.Libraries.Web.Pipe.Outbound
                     await response.Content.LoadIntoBufferAsync();
                     var content = await response.Content.ReadAsStringAsync();
                     var acceptInfo = JsonHelper.SafeDeserializeObject<RequestAcceptedContent>(content);
-                    if (acceptInfo?.UrlWhereResponseWillBeMadeAvailable != null)
+                    if (acceptInfo?.RequestId != null)
                     {
-                        throw new RequestAcceptedException(acceptInfo.UrlWhereResponseWillBeMadeAvailable);
+                        throw new RequestAcceptedException(acceptInfo.RequestId)
+                        {
+                            PollingUrl = acceptInfo.PollingUrl,
+                            RegisterCallbackUrl = acceptInfo.RegisterCallbackUrl
+                        };
                     }
                     var postponeInfo = JsonHelper.SafeDeserializeObject<RequestPostponedContent>(content);
                     if (postponeInfo?.WaitingForRequestIds != null)

@@ -157,7 +157,7 @@ namespace Nexus.Link.Libraries.Web.RestClientHelper
         {
             InternalContract.RequireNotNull(relativeUrl, nameof(relativeUrl));
 
-            var newUri = ConcatenateBaseUrlAndRelativeUrl(relativeUrl);
+            var newUri = GetAbsoluteUrl(relativeUrl);
             return new HttpSender(newUri, Credentials)
             {
                 HttpClient = HttpClient
@@ -195,7 +195,7 @@ namespace Nexus.Link.Libraries.Web.RestClientHelper
 
         private async Task<HttpRequestMessage> CreateRequest(HttpMethod method, string relativeUrl, Dictionary<string, List<string>> customHeaders)
         {
-            var url = ConcatenateBaseUrlAndRelativeUrl(relativeUrl);
+            var url = GetAbsoluteUrl(relativeUrl);
             var request = new HttpRequestMessage(method, url);
             request.Headers.TryAddWithoutValidation("Accept", new List<string> { "application/json" });
             if (customHeaders != null)
@@ -308,7 +308,7 @@ namespace Nexus.Link.Libraries.Web.RestClientHelper
             return null;
         }
 
-        private string ConcatenateBaseUrlAndRelativeUrl(string relativeUrl)
+        public string GetAbsoluteUrl(string relativeUrl)
         {
             string baseUri = BaseUri?.OriginalString ?? HttpClient.ActualHttpClient?.BaseAddress?.OriginalString ?? "";
 

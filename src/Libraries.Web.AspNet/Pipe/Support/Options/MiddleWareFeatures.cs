@@ -13,40 +13,50 @@ namespace Nexus.Link.Libraries.Web.AspNet.Pipe.Support.Options
         /// then all the logs within that batch will be logged, regardless of the value of
         /// <see cref="ApplicationSetup.LogSeverityLevelThreshold"/>.
         /// </summary>
-        public BatchLogOptions BatchLog { get; } = new BatchLogOptions();
+        public BatchLogOptions BatchLog { get; } = new();
 
         /// <summary>
         /// The prefix before the "/{organization}/{environment}/" part of the path. This is used to pattern match where we would find the organization and environment.
         /// Here are some common patterns: <see cref="SaveClientTenantOptions.LegacyVersion"/>, <see cref="SaveClientTenantOptions.LegacyApiVersion"/>,
         /// <see cref="SaveClientTenantOptions.ApiVersionTenant"/>
         /// </summary>
-        public SaveClientTenantOptions SaveClientTenant { get; } = new SaveClientTenantOptions();
+        public SaveClientTenantOptions SaveClientTenant { get; } = new();
 
         /// <summary>
         /// Log request and response
         /// </summary>
-        public LogRequestAndResponseOptions LogRequestAndResponse { get; } = new LogRequestAndResponseOptions();
+        public LogRequestAndResponseOptions LogRequestAndResponse { get; } = new();
 
         /// <summary>
         /// If an API method throws an exception, then this feature will convert it into a regular HTTP response.
         /// </summary>
-        public ConvertExceptionToHttpResponseOptions ConvertExceptionToHttpResponse { get; } = new ConvertExceptionToHttpResponseOptions();
+        public ConvertExceptionToHttpResponseOptions ConvertExceptionToHttpResponse { get; } = new();
 
         /// <summary>
         /// This feature retrieves the tenant configuration and saves it to the <see cref="FulcrumApplication.Context"/>.
         /// </summary>
-        public SaveTenantConfigurationOptions SaveTenantConfiguration { get; } = new SaveTenantConfigurationOptions();
+        public SaveTenantConfigurationOptions SaveTenantConfiguration { get; } = new();
 
         /// <summary>
         /// This feature gets the first found <see cref="Constants.FulcrumCorrelationIdHeaderName"/> header from the request and saves it to the <see cref="FulcrumApplication.Context"/>.
         /// </summary>
-        public SaveCorrelationIdOptions SaveCorrelationId { get; } = new SaveCorrelationIdOptions();
+        public SaveCorrelationIdOptions SaveCorrelationId { get; } = new();
+
+        /// <summary>
+        /// This feature gets the first found <see cref="Constants.ExecutionIdHeaderName"/> header from the request and saves it to the <see cref="FulcrumApplication.Context"/>.
+        /// </summary>
+        public SaveExecutionIdOptions SaveExecutionId { get; } = new();
+
+        /// <summary>
+        /// This feature gets the first found <see cref="Constants.ExecutionIdHeaderName"/> header from the request and saves it to the <see cref="FulcrumApplication.Context"/>.
+        /// </summary>
+        public RedirectAsynchronousRequestsOptions RedirectAsynchronousRequests{ get; } = new();
 
 
         /// <summary>
         /// This feature reads the <see cref="Constants.NexusTestContextHeaderName"/> header from the request and save it to the execution context.
         /// </summary>
-        public SaveNexusTestContextOptions SaveNexusTestContext { get; } = new SaveNexusTestContextOptions();
+        public SaveNexusTestContextOptions SaveNexusTestContext { get; } = new();
 
         /// <inheritdoc />
         public virtual void Validate(string errorLocation, string propertyPath = "")
@@ -57,7 +67,9 @@ namespace Nexus.Link.Libraries.Web.AspNet.Pipe.Support.Options
             FulcrumValidate.IsValidated(ConvertExceptionToHttpResponse, propertyPath, nameof(ConvertExceptionToHttpResponse), errorLocation);
             FulcrumValidate.IsValidated(SaveTenantConfiguration, propertyPath, nameof(SaveTenantConfiguration), errorLocation);
             FulcrumValidate.IsValidated(SaveCorrelationId, propertyPath, nameof(SaveCorrelationId), errorLocation);
+            FulcrumValidate.IsValidated(SaveExecutionId, propertyPath, nameof(SaveCorrelationId), errorLocation);
             FulcrumValidate.IsValidated(SaveNexusTestContext, propertyPath, nameof(SaveNexusTestContext), errorLocation);
+            FulcrumValidate.IsValidated(RedirectAsynchronousRequests, propertyPath, nameof(SaveNexusTestContext), errorLocation);
         }
     }
 }

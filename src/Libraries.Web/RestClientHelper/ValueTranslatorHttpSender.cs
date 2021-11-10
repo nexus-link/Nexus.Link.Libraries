@@ -73,6 +73,12 @@ namespace Nexus.Link.Libraries.Web.RestClientHelper
         }
 
         /// <inheritdoc />
+        public string GetAbsoluteUrl(string relativeUrl)
+        {
+            return HttpSender.GetAbsoluteUrl(relativeUrl);
+        }
+
+        /// <inheritdoc />
         public async Task<HttpResponseMessage> SendRequestAsync<TBody>(HttpMethod method, string relativeUrl,
             TBody body = default, Dictionary<string, List<string>> customHeaders = null,
             CancellationToken cancellationToken = default)

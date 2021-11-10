@@ -7,12 +7,22 @@ namespace Nexus.Link.Libraries.Web.Pipe
         /// <summary>
         /// Standard correlation id header
         /// </summary>
-        public static string FulcrumCorrelationIdHeaderName = "X-Correlation-ID";       
+        public static string FulcrumCorrelationIdHeaderName = "X-Correlation-ID";      
         
         /// <summary>
         /// The header for the Async Manager execution id
         /// </summary>
-        public static string ExecutionIdHeaderName = "X-Nexus-Async-ExecutionId";     
+        public static string ExecutionIdHeaderName = "X-Nexus-Execution-Id";         
+        
+        /// <summary>
+        /// The header for the Async Manager execution id
+        /// </summary>
+        public static string ManagedAsynchronousRequestId = "X-Nexus-Managed-Asynchronous-Request-Id";      
+        
+        /// <summary>
+        /// The header for the Async Manager execution id
+        /// </summary>
+        public static string ParentExecutionIdHeaderName = "X-Nexus-Parent-Execution-Id";     
         
         /// <summary>
         /// The header for the Async Manager reentry authentication, <see cref="RequestPostponedContent.ReentryAuthentication"/>.

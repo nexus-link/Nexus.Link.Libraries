@@ -64,7 +64,9 @@ namespace Nexus.Link.Libraries.Web.AspNet.Error.Logic
             {
                 var acceptedContent = new RequestAcceptedContent()
                 {
-                    UrlWhereResponseWillBeMadeAvailable = acceptedException.UrlWhereResponseWillBeMadeAvailable,
+                    RequestId = acceptedException.RequestId,
+                    PollingUrl = acceptedException.PollingUrl,
+                    RegisterCallbackUrl = acceptedException.RegisterCallbackUrl
                 };
                 FulcrumAssert.IsValidated(acceptedContent, CodeLocation.AsString());
                 return new StatusAndContent

@@ -35,7 +35,7 @@
   
   <PropertyGroup>
     <PackageId>Nexus.Link.Capabilities.WorkflowMgmt.UnitTests</PackageId>
-    <Version>1.0.2-rc01</Version>
+    <Version>1.0.2</Version>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <PackageTags>nexus;link;fulcrum;lever</PackageTags>
     <Authors>XLENT Link</Authors>

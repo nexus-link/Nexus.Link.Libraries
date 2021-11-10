@@ -223,6 +223,13 @@ namespace Nexus.Link.Libraries.Web.RestClientHelper
         {
             return HttpSender.SendAsync(request, cancellationToken);
         }
+
+        /// <inheritdoc />
+        public string GetAbsoluteUrl(string relativeUrl)
+        {
+            return HttpSender.GetAbsoluteUrl(relativeUrl);
+        }
+
         #endregion
 
         #region Helpers

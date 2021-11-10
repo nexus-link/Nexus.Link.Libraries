@@ -70,5 +70,10 @@ namespace Nexus.Link.Libraries.Web.RestClientHelper
         /// <param name="cancellationToken">Optional cancellation token.</param>
         /// <returns></returns>
         Task<HttpResponseMessage> SendAsync(HttpRequestMessage requestMessage, CancellationToken cancellationToken = default);
+
+        /// <summary>
+        /// Return the absolute Url by concatenating the base url with the <paramref name="relativeUrl"/>.
+        /// </summary>
+        string GetAbsoluteUrl(string relativeUrl);
     }
 }

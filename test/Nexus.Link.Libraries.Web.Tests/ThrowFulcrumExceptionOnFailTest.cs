@@ -104,9 +104,12 @@ namespace Nexus.Link.Libraries.Web.Tests
         private static Task<HttpResponseMessage> SendAsyncRequestAcceptedException(HttpRequestMessage request,
             CancellationToken cancellationToken)
         {
+            var requestId = Guid.NewGuid().ToString();
             var accept = new RequestAcceptedContent()
             {
-                UrlWhereResponseWillBeMadeAvailable = Guid.NewGuid().ToString()
+                RequestId = requestId,
+                PollingUrl = $"Polling url for {requestId}",
+                RegisterCallbackUrl = $"Register callback url for {requestId}"
             };
             var response = new HttpResponseMessage(HttpStatusCode.Accepted)
             {

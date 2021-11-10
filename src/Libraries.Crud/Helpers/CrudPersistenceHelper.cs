@@ -89,7 +89,8 @@ namespace Nexus.Link.Libraries.Crud.Helpers
         public async Task SaveAsync(Func<TId, TModel, CancellationToken, Task> handleResultMethod, CancellationToken cancellationToken = default)
         {
             var itemTaskList = new List<Task<TModel>>();
-            foreach (var id in _currentInOrder)
+            var array = _currentInOrder.ToArray();
+            foreach (var id in array)
             {
                 if (!_currentDictionary.TryGetValue(id, out var item)) continue;
                 var itemTask = SaveAsync(id, item, cancellationToken);

@@ -50,6 +50,18 @@ namespace Nexus.Link.Libraries.Core.Misc
             return valueAsEnum;
         }
 
+        public static T ToEnum<T>(this int source) where T : struct
+        {
+            InternalContract.Require(typeof(T).IsEnum, $"The generic type {typeof(T).Name} must be an enum.");
+            if (!Enum.IsDefined(typeof(T), source))
+            {
+                throw new FulcrumContractException(
+                    $"The value {source} is not defined in the enumeration {nameof(T)}.");
+            }
+
+            return (T)Enum.ToObject(typeof(T), source);
+        }
+
         /// <summary>
         /// Map an id between two types.
         /// </summary>
