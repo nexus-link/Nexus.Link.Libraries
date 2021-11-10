@@ -260,9 +260,9 @@ namespace Nexus.Link.Libraries.Web.RestClientHelper
         private async Task VerifySuccessAsync(HttpResponseMessage response, CancellationToken cancellationToken)
         {
             InternalContract.RequireNotNull(response, nameof(response));
-            InternalContract.RequireNotNull(response.RequestMessage, $"{nameof(response)}.{nameof(response.RequestMessage)}");
             if (!response.IsSuccessStatusCode)
             {
+                InternalContract.RequireNotNull(response.RequestMessage, $"{nameof(response)}.{nameof(response.RequestMessage)}");
                 var requestContent = await TryGetContentAsString(response.RequestMessage?.Content, true, cancellationToken);
                 var responseContent = await TryGetContentAsString(response.Content, true, cancellationToken);
                 var message = $"{response.StatusCode} {responseContent}";
