@@ -1,5 +1,6 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
+using Newtonsoft.Json.Linq;
 using Nexus.Link.Capabilities.WorkflowMgmt.Abstract.Entities.State;
 using Nexus.Link.Libraries.Crud.Interfaces;
 
@@ -10,5 +11,6 @@ namespace Nexus.Link.Capabilities.WorkflowMgmt.Abstract.Services.State
 
         Task SuccessAsync(string id, ActivityInstanceSuccessResult result, CancellationToken cancellationToken = default);
         Task FailedAsync(string id, ActivityInstanceFailedResult result, CancellationToken cancellationToken = default);
+        Task SetContextAsync(string id, string key, JToken content, CancellationToken cancellationToken = default);
     }
 }

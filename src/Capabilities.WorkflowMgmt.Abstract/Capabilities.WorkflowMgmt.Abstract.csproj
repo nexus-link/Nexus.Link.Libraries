@@ -35,7 +35,7 @@
 
   <PropertyGroup>
     <PackageId>Nexus.Link.Capabilities.WorkflowMgmt.Abstract</PackageId>
-    <Version>3.2.1</Version>
+    <Version>3.3.0</Version>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <PackageTags>nexus;link;fulcrum;lever</PackageTags>
     <Authors>XLENT Link</Authors>
@@ -45,6 +45,7 @@
     <Copyright>Copyright ©2021 Xlent Link AB</Copyright>
     <IncludeSymbols>true</IncludeSymbols>
     <PackageReleaseNotes>
+      3.3.0 Added ActivityInstanceCreate.ContextDictionary and IActivityInstanceService.SetContextAsync()
       3.2.1 Bump
       3.2.0 Refactored ActivityExceptionCategoryEnum
       3.1.0 WorkflowInstance now supports distributed lock.

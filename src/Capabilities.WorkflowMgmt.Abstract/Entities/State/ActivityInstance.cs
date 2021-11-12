@@ -1,4 +1,7 @@
 ﻿using System;
+using System.Collections;
+using System.Collections.Generic;
+using Newtonsoft.Json.Linq;
 using Nexus.Link.Libraries.Core.Assert;
 using Nexus.Link.Libraries.Core.Storage.Model;
 
@@ -85,12 +88,15 @@ namespace Nexus.Link.Capabilities.WorkflowMgmt.Abstract.Entities.State
 
         public string ExceptionFriendlyMessage { get; set; }
 
+        public IDictionary<string, JToken> ContextDictionary { get; set; } = new Dictionary<string, JToken>();
+
         /// <inheritdoc />
         public virtual void Validate(string errorLocation, string propertyPath = "")
         {
             FulcrumValidate.IsNotNullOrWhiteSpace(WorkflowInstanceId, nameof(WorkflowInstanceId), errorLocation);
             FulcrumValidate.IsNotNullOrWhiteSpace(ActivityVersionId, nameof(ActivityVersionId), errorLocation);
             if (ParentIteration.HasValue) FulcrumValidate.IsGreaterThanOrEqualTo(1, ParentIteration.Value, nameof(ParentIteration), errorLocation);
+            FulcrumValidate.IsNotNull(ContextDictionary, nameof(ContextDictionary), errorLocation);
 
             if (State == ActivityStateEnum.Failed)
             {
@@ -98,7 +104,6 @@ namespace Nexus.Link.Capabilities.WorkflowMgmt.Abstract.Entities.State
                 FulcrumValidate.IsNotNullOrWhiteSpace(ExceptionTechnicalMessage, nameof(ExceptionTechnicalMessage), errorLocation);
                 FulcrumValidate.IsNotNullOrWhiteSpace(ExceptionFriendlyMessage, nameof(ExceptionFriendlyMessage), errorLocation);
             }
-            
 
             if (ExceptionCategory != null)
             {
@@ -117,6 +122,7 @@ namespace Nexus.Link.Capabilities.WorkflowMgmt.Abstract.Entities.State
                 FulcrumValidate.AreEqual(ActivityStateEnum.Failed, State, nameof(State), errorLocation,
                     $"Inconsistency: {nameof(State)} can't have value {State} if {nameof(ExceptionFriendlyMessage)} is not null.");
             }
+
         }
 
         /// <inheritdoc />
