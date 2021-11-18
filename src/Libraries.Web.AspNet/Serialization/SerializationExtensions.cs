@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
@@ -65,9 +66,18 @@ namespace Nexus.Link.Libraries.Web.AspNet.Serialization
             target.Method = requestData.Method;
             target.Url = requestData.EncodedUrl;
             target.Metadata.Priority = priority;
-            target.Headers = requestData.Headers;
+            target.Headers = RemoveContentHeaders(source.Headers);
+            foreach (var () in source.Headers)
+            {
+                
+            }
             target.Content = requestData.BodyAsString;
             return target;
+        }
+
+        private static Dictionary<string, StringValues> RemoveContentHeaders(IHeaderDictionary sourceHeaders)
+        {
+            return sourceHeaders.Where(h => !h.Key.StartsWith("Content-")).ToDictionary(v => v.Key, v => v.Value);
         }
 
         // https://www.programmersought.com/article/49936898629/
