@@ -31,7 +31,7 @@
 
   <PropertyGroup>
     <PackageId>Nexus.Link.Libraries.Web</PackageId>
-    <Version>2.24.1</Version>
+    <Version>2.24.2</Version>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <PackageTags>nexus;link;fulcrum;lever</PackageTags>
     <Authors>XLENT Link</Authors>
@@ -41,6 +41,7 @@
     <Copyright>Copyright ©2021 Xlent Link AB</Copyright>
     <IncludeSymbols>true</IncludeSymbols>
     <PackageReleaseNotes>
+      2.24.2 Added IValidated for RequestData
       2.24.1 Breaking change for RequestAcceptedException and RequestAcceptedContent, but since it is only used internally we don't see it as breaking. Added IHttpSender.GetAbsoluteUrl()
       Breaking change for Constants.ExecutionIdHeaderName to make it more conformant to standard header names.
       2.23.0 Added ToHttpResponseMessage(). Added ResponseData.ContentType and ContentLength.

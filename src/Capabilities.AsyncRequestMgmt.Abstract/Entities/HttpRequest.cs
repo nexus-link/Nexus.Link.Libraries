@@ -61,6 +61,11 @@ namespace Nexus.Link.Capabilities.AsyncRequestMgmt.Abstract.Entities
         public string Content { get; set; }
 
         /// <summary>
+        /// The HTTP content type, e.g. "application/json"
+        /// </summary>
+        public string ContentType { get; set; }
+
+        /// <summary>
         /// The HTTP headers
         /// </summary>
         public Dictionary<string, StringValues> Headers { get; set; }
@@ -113,6 +118,8 @@ namespace Nexus.Link.Capabilities.AsyncRequestMgmt.Abstract.Entities
                         {
                             return false;
                         }
+
+                        if (header.Key.StartsWith("Content-")) return false;
                     }
                 }
 

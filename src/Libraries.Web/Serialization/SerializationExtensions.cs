@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Primitives;
@@ -23,14 +24,17 @@ namespace Nexus.Link.Libraries.Web.Serialization
             target.Headers = new Dictionary<string, StringValues>();
             target.ContentType = source.Content.Headers.ContentType.ToString();
             target.ContentLength = source.Content.Headers.ContentLength;
-            foreach (var header in source.Headers)
-            {
-                target.Headers[header.Key] = header.Value.ToArray();
-            }
+            target.Headers = CopyWithoutContentHeaders(source.Headers);
 
             target.BodyAsString = await source.GetRequestBodyAsync();
 
             return target;
+        }
+
+        private static Dictionary<string, StringValues> CopyWithoutContentHeaders(HttpRequestHeaders sourceHeaders)
+        {
+            return sourceHeaders.Where(h => !h.Key.ToLowerInvariant().StartsWith("content-"))
+                .ToDictionary(v => v.Key, v => new StringValues(v.Value.ToArray()));
         }
 
         public static async Task<ResponseData> FromAsync(this ResponseData target, HttpResponseMessage source)
@@ -73,7 +77,6 @@ namespace Nexus.Link.Libraries.Web.Serialization
             var requestMessage = new HttpRequestMessage(httpMethod, source.EncodedUrl);
             foreach (var header in source.Headers)
             {
-                if (header.Key.ToLowerInvariant().StartsWith("content-")) continue;
                 requestMessage.Headers.Add(header.Key, header.Value.ToArray());
             }
 

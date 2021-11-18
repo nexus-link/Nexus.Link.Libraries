@@ -33,10 +33,7 @@ namespace Nexus.Link.Libraries.Web.AspNet.Serialization
             target.Headers = new Dictionary<string, StringValues>();
             target.ContentType = source.ContentType;
             target.ContentLength = source.ContentLength;
-            foreach (var requestHeader in source.Headers)
-            {
-                target.Headers[requestHeader.Key] = requestHeader.Value;
-            }
+            target.Headers = CopyWithoutContentHeaders(source.Headers);
 
 
             target.BodyAsString = await source.GetRequestBodyAsync();
@@ -66,18 +63,15 @@ namespace Nexus.Link.Libraries.Web.AspNet.Serialization
             target.Method = requestData.Method;
             target.Url = requestData.EncodedUrl;
             target.Metadata.Priority = priority;
-            target.Headers = RemoveContentHeaders(source.Headers);
-            foreach (var () in source.Headers)
-            {
-                
-            }
+            target.Headers = CopyWithoutContentHeaders(source.Headers);
             target.Content = requestData.BodyAsString;
+            target.ContentType = requestData.ContentType;
             return target;
         }
 
-        private static Dictionary<string, StringValues> RemoveContentHeaders(IHeaderDictionary sourceHeaders)
+        private static Dictionary<string, StringValues> CopyWithoutContentHeaders(IHeaderDictionary sourceHeaders)
         {
-            return sourceHeaders.Where(h => !h.Key.StartsWith("Content-")).ToDictionary(v => v.Key, v => v.Value);
+            return sourceHeaders.Where(h => !h.Key.ToLowerInvariant().StartsWith("content-")).ToDictionary(v => v.Key, v => v.Value);
         }
 
         // https://www.programmersought.com/article/49936898629/
