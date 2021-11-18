@@ -9,11 +9,12 @@ namespace Nexus.Link.Capabilities.WorkflowMgmt.Abstract
     public interface IWorkflowMgmtCapability
     {
         IWorkflowFormService WorkflowForm { get; }
-        IWorkflowVersionService WorkflowVersion{ get; }
+        IWorkflowVersionService WorkflowVersion { get; }
         IWorkflowParameterService WorkflowParameter { get; }
         IActivityFormService ActivityForm { get; }
         IActivityVersionService ActivityVersion { get; }
-        IActivityInstanceService ActivityInstance{ get; }
+        IActivityInstanceService ActivityInstance { get; }
+        ILogService Log { get; }
         ITransitionService Transition { get; }
         IActivityParameterService ActivityParameter { get; }
         IWorkflowInstanceService WorkflowInstance { get; }
