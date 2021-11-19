@@ -16,5 +16,8 @@ namespace Nexus.Link.Capabilities.WorkflowMgmt.Abstract.Services.State
         Task<PageEnvelope<Log>> ReadActivityChildrenWithPagingAsync(string activityInstanceId, int offset,
             int? limit = null,
             CancellationToken cancellationToken = default);
+        
+        Task DeleteWorkflowChildrenAsync(string workflowInstanceId, CancellationToken cancellationToken = default);
+        Task DeleteActivityChildrenAsync(string activityInstanceId, CancellationToken cancellationToken = default);
     }
 }
