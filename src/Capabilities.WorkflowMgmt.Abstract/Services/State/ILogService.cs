@@ -13,11 +13,11 @@ namespace Nexus.Link.Capabilities.WorkflowMgmt.Abstract.Services.State
             bool alsoActivityChildren, int offset, int? limit = null,
             CancellationToken cancellationToken = default);
 
-        Task<PageEnvelope<Log>> ReadActivityChildrenWithPagingAsync(string activityInstanceId, int offset,
+        Task<PageEnvelope<Log>> ReadActivityChildrenWithPagingAsync(string activityFormId, int offset,
             int? limit = null,
             CancellationToken cancellationToken = default);
         
         Task DeleteWorkflowChildrenAsync(string workflowInstanceId, CancellationToken cancellationToken = default);
-        Task DeleteActivityChildrenAsync(string activityInstanceId, CancellationToken cancellationToken = default);
+        Task DeleteActivityChildrenAsync(string activityFormId, CancellationToken cancellationToken = default);
     }
 }
