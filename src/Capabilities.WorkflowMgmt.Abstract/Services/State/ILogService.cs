@@ -2,8 +2,10 @@
 using System.Threading;
 using System.Threading.Tasks;
 using Nexus.Link.Capabilities.WorkflowMgmt.Abstract.Entities.State;
+using Nexus.Link.Libraries.Core.Logging;
 using Nexus.Link.Libraries.Core.Storage.Model;
 using Nexus.Link.Libraries.Crud.Interfaces;
+using Log = Nexus.Link.Capabilities.WorkflowMgmt.Abstract.Entities.State.Log;
 
 namespace Nexus.Link.Capabilities.WorkflowMgmt.Abstract.Services.State
 {
@@ -13,11 +15,11 @@ namespace Nexus.Link.Capabilities.WorkflowMgmt.Abstract.Services.State
             bool alsoActivityChildren, int offset, int? limit = null,
             CancellationToken cancellationToken = default);
 
-        Task<PageEnvelope<Log>> ReadActivityChildrenWithPagingAsync(string activityFormId, int offset,
+        Task<PageEnvelope<Log>> ReadActivityChildrenWithPagingAsync(string workflowInstanceId, string activityFormId, int offset,
             int? limit = null,
             CancellationToken cancellationToken = default);
         
-        Task DeleteWorkflowChildrenAsync(string workflowInstanceId, CancellationToken cancellationToken = default);
-        Task DeleteActivityChildrenAsync(string activityFormId, CancellationToken cancellationToken = default);
+        Task DeleteWorkflowChildrenAsync(string workflowInstanceId, LogSeverityLevel? threshold = null, CancellationToken cancellationToken = default);
+        Task DeleteActivityChildrenAsync(string workflowInstanceId, string activityFormId, LogSeverityLevel? threshold = null, CancellationToken cancellationToken = default);
     }
 }
