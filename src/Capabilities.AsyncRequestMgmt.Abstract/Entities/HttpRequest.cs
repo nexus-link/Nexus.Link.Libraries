@@ -82,7 +82,7 @@ namespace Nexus.Link.Capabilities.AsyncRequestMgmt.Abstract.Entities
                 FulcrumValidate.IsTrue(JsonHelper.TryDeserializeObject(Content, out JToken _), errorLocation,
                     $"{propertyPath}.{nameof(Content)} must be JSON.");
             }
-            FulcrumValidate.IsTrue(ValidHeaders(), errorLocation, "One or more headers are invalid.");
+            ValidateHeaders();
             FulcrumValidate.IsNotNull(Metadata, propertyPath, nameof(Metadata), errorLocation);
             FulcrumValidate.IsValidated(Metadata, propertyPath, nameof(Metadata), errorLocation);
 
@@ -105,25 +105,26 @@ namespace Nexus.Link.Capabilities.AsyncRequestMgmt.Abstract.Entities
                 return result;
             }
 
-            bool ValidHeaders()
+            void ValidateHeaders()
             {
                 if (Headers != null && Headers.Any())
                 {
+                    var index = 0;
                     foreach (var header in Headers)
                     {
-                        if (string.IsNullOrWhiteSpace(header.Key) || header.Value.ToString() == null || !header.Value.Any())
-                            return false;
-
-                        if (header.Value.Any(string.IsNullOrWhiteSpace))
-                        {
-                            return false;
-                        }
-
-                        if (header.Key.StartsWith("Content-")) return false;
+                        index++;
+                        FulcrumValidate.IsNotNullOrWhiteSpace(header.Key, "ignore", errorLocation,
+                            $"Header {index} in {propertyPath}.{nameof(Headers)} had an empty key.");
+                        FulcrumValidate.IsTrue(!header.Key.StartsWith("Content-"), errorLocation,
+                            $"Header {header.Key} is not allowed, as it is a content header.");
+                        FulcrumValidate.IsNotNullOrWhiteSpace(header.Value.ToString(), "ignore", errorLocation,
+                            $"Header {header.Key} had an empty value.");
+                        FulcrumValidate.IsTrue(header.Value.Any(), errorLocation,
+                            $"Header {header.Key} had no values.");
+                        FulcrumValidate.IsTrue(!header.Value.Any(string.IsNullOrWhiteSpace), errorLocation,
+                            $"Header {header.Key} had an empty value.");
                     }
                 }
-
-                return true;
             }
         }
     }
@@ -186,7 +187,7 @@ namespace Nexus.Link.Capabilities.AsyncRequestMgmt.Abstract.Entities
         public void Validate(string errorLocation, string propertyPath = "")
         {
             FulcrumValidate.IsTrue(IsValidUri(Url), errorLocation, $"{propertyPath}.{nameof(Url)} is not a valid URL.");
-            FulcrumValidate.IsTrue(ValidHeaders(), errorLocation, "One or more headers are invalid.");
+            ValidateHeaders();
 
             bool IsValidUri(string url)
             {
@@ -195,23 +196,26 @@ namespace Nexus.Link.Capabilities.AsyncRequestMgmt.Abstract.Entities
                 return result;
             }
 
-            bool ValidHeaders()
+            void ValidateHeaders()
             {
                 if (Headers != null && Headers.Any())
                 {
+                    var index = 0;
                     foreach (var header in Headers)
                     {
-                        if (string.IsNullOrWhiteSpace(header.Key) || header.Value.ToString() == null || !header.Value.Any())
-                            return false;
-
-                        if (header.Value.Any(string.IsNullOrWhiteSpace))
-                        {
-                            return false;
-                        }
+                        index++;
+                        FulcrumValidate.IsNotNullOrWhiteSpace(header.Key, "ignore", errorLocation,
+                            $"Header {index} in {propertyPath}.{nameof(Headers)} had an empty key.");
+                        FulcrumValidate.IsTrue(!header.Key.StartsWith("Content-"), errorLocation,
+                            $"Header {header.Key} is not allowed, as it is a content header.");
+                        FulcrumValidate.IsNotNullOrWhiteSpace(header.Value.ToString(), "ignore", errorLocation,
+                            $"Header {header.Key} had an empty value.");
+                        FulcrumValidate.IsTrue(header.Value.Any(), errorLocation,
+                            $"Header {header.Key} had no values.");
+                        FulcrumValidate.IsTrue(!header.Value.Any(string.IsNullOrWhiteSpace), errorLocation,
+                            $"Header {header.Key} had an empty value.");
                     }
                 }
-
-                return true;
             }
         }
     }

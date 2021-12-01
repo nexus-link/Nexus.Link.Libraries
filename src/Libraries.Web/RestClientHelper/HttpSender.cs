@@ -143,7 +143,7 @@ namespace Nexus.Link.Libraries.Web.RestClientHelper
             HttpRequestMessage request = null;
             try
             {
-                request = await CreateRequest(method, relativeUrl, body, customHeaders, cancellationToken);
+                request = await CreateRequestAsync(method, relativeUrl, body, customHeaders, cancellationToken);
                 return await SendAsync(request, cancellationToken);
             }
             finally
@@ -172,7 +172,7 @@ namespace Nexus.Link.Libraries.Web.RestClientHelper
             HttpRequestMessage request = null;
             try
             {
-                request = await CreateRequest(method, relativeUrl, customHeaders);
+                request = await CreateRequestAsync(method, relativeUrl, customHeaders);
                 return await SendAsync(request, cancellationToken);
             }
             finally
@@ -193,22 +193,18 @@ namespace Nexus.Link.Libraries.Web.RestClientHelper
 
         #region Helpers
 
-        private async Task<HttpRequestMessage> CreateRequest(HttpMethod method, string relativeUrl, Dictionary<string, List<string>> customHeaders)
+        protected async Task<HttpRequestMessage> CreateRequestAsync(HttpMethod method, string relativeUrl, Dictionary<string, List<string>> customHeaders)
         {
             var url = GetAbsoluteUrl(relativeUrl);
             var request = new HttpRequestMessage(method, url);
-            request.Headers.TryAddWithoutValidation("Accept", new List<string> { "application/json" });
             if (customHeaders != null)
             {
                 foreach (var header in customHeaders)
                 {
-                    if (request.Headers.Contains(header.Key))
-                    {
-                        request.Headers.Remove(header.Key);
-                    }
                     request.Headers.TryAddWithoutValidation(header.Key, header.Value);
                 }
             }
+            request.Headers.TryAddWithoutValidation("Accept", new List<string> { "application/json" });
 
             if (Credentials == null) return request;
 
@@ -216,11 +212,11 @@ namespace Nexus.Link.Libraries.Web.RestClientHelper
             return request;
         }
 
-        private async Task<HttpRequestMessage> CreateRequest<TBody>(HttpMethod method, string relativeUrl, TBody instance, Dictionary<string, List<string>> customHeaders,
+        private async Task<HttpRequestMessage> CreateRequestAsync<TBody>(HttpMethod method, string relativeUrl, TBody instance, Dictionary<string, List<string>> customHeaders,
             CancellationToken cancellationToken)
         {
             InternalContract.RequireNotNull(relativeUrl, nameof(relativeUrl));
-            var request = await CreateRequest(method, relativeUrl, customHeaders);
+            var request = await CreateRequestAsync(method, relativeUrl, customHeaders);
 
             if (instance != null)
             {

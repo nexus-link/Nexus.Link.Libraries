@@ -26,7 +26,7 @@
 
   <PropertyGroup>
     <PackageId>Nexus.Link.Libraries.Azure</PackageId>
-    <Version>3.5.4</Version>
+    <Version>3.5.5</Version>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <PackageTags>nexus;link;fulcrum;lever</PackageTags>
     <Authors>XLENT Link</Authors>
@@ -36,6 +36,7 @@
     <Copyright>Copyright ©2019 Xlent Link AB</Copyright>
     <IncludeSymbols>true</IncludeSymbols>
     <PackageReleaseNotes>
+      3.5.5 Now throws FulcrumConflictException if a file alread exists when trying to create it
       3.5.4 Bump
 			3.5.3 Bump nuget version for missing methods
 			3.5.2 Fix: Catch exception if could not access Azure queue

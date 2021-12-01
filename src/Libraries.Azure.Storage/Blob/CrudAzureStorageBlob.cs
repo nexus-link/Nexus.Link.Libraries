@@ -73,7 +73,10 @@ namespace Nexus.Link.Libraries.Azure.Storage.Blob
             StorageHelper.MaybeSetId(id, dbItem);
             InternalContract.RequireValidated(dbItem, nameof(item));
             var content = JsonConvert.SerializeObject(dbItem);
-            FulcrumAssert.IsTrue(!await fileExistsTask, null, $"File ({fileName}) unexpectedly already existed in directory {Directory.Name}");
+            if (await fileExistsTask)
+            {
+                throw new FulcrumConflictException($"File ({fileName}) already existed in directory {Directory.Name}");
+            }
             await file.UploadAsync(content, "application/json", token);
         }
 

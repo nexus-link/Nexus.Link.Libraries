@@ -76,7 +76,8 @@ namespace Nexus.Link.Capabilities.AsyncRequestMgmt.Abstract.Entities
                 {
                     FulcrumValidate.IsGreaterThan(0, HttpStatus.Value, nameof(HttpStatus), errorLocation);
                 }
-                FulcrumValidate.IsTrue(ValidHeaders(), errorLocation, $"At least one header in {propertyPath}.{nameof(Headers)} are invalid.");
+
+                ValidateHeaders();
             }
 
             if (Metadata.RequestHasCompleted)
@@ -87,22 +88,24 @@ namespace Nexus.Link.Capabilities.AsyncRequestMgmt.Abstract.Entities
 
             }
 
-            bool ValidHeaders()
+            void ValidateHeaders()
             {
                 if (Headers != null && Headers.Any())
                 {
+                    var index = 0;
                     foreach (var header in Headers)
                     {
-                        if (string.IsNullOrWhiteSpace(header.Key) || header.Value.ToString() == null || !header.Value.Any())
-                            return false;
-
-                        if (header.Value.Any(string.IsNullOrWhiteSpace))
-                        {
-                            return false;
-                        }
+                        index++;
+                        FulcrumValidate.IsNotNullOrWhiteSpace(header.Key, "ignore", errorLocation,
+                            $"Header {index} in {propertyPath}.{nameof(Headers)} had an empty key.");
+                        FulcrumValidate.IsNotNullOrWhiteSpace(header.Value.ToString(), "ignore", errorLocation,
+                            $"Header {header.Key} had an empty value.");
+                        FulcrumValidate.IsTrue(header.Value.Any(), errorLocation,
+                            $"Header {header.Key} had no values.");
+                        FulcrumValidate.IsTrue(!header.Value.Any(string.IsNullOrWhiteSpace), errorLocation,
+                            $"Header {header.Key} had an empty value.");
                     }
                 }
-                return true;
             }
         }
     }
