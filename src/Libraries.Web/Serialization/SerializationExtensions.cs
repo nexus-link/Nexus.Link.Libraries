@@ -77,7 +77,7 @@ namespace Nexus.Link.Libraries.Web.Serialization
             var requestMessage = new HttpRequestMessage(httpMethod, source.EncodedUrl);
             foreach (var header in source.Headers)
             {
-                requestMessage.Headers.Add(header.Key, header.Value.ToArray());
+                requestMessage.Headers.TryAddWithoutValidation(header.Key, header.Value.ToArray());
             }
 
             requestMessage.Content = source.BodyAsString == null ? null : new StringContent(source.BodyAsString, System.Text.Encoding.UTF8);
