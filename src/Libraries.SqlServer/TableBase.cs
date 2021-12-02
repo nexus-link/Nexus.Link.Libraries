@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using Dapper;
 using Newtonsoft.Json;
 using Nexus.Link.Libraries.Core.Assert;
+using Nexus.Link.Libraries.Core.Error.Logic;
 using Nexus.Link.Libraries.Core.Logging;
 using Nexus.Link.Libraries.Core.Storage.Model;
 using Nexus.Link.Libraries.SqlServer.Logic;
@@ -288,7 +289,16 @@ namespace Nexus.Link.Libraries.SqlServer
         {
             if (item is IRecordVersion r && item is IOptimisticConcurrencyControlByETag o)
             {
-                r.RecordVersion = Convert.FromBase64String(o.Etag);
+                try
+                {
+                    r.RecordVersion = Convert.FromBase64String(o.Etag);
+                }
+                catch (Exception)
+                {
+                    var valueAsString = o.Etag == null ? "null" : o.Etag;
+                    throw new FulcrumConflictException(
+                        $"The value in field {nameof(o.Etag)} ({valueAsString}) was not a proper value for field {nameof(r.RecordVersion)} of type RowVersion.");
+                }
             }
         }
     }
