@@ -5,7 +5,6 @@ using Nexus.Link.Libraries.Web.Pipe;
 
 namespace Nexus.Link.Libraries.Web.AspNet.Pipe.Support.Options
 {
-    // TODO: Move all features into a class, Feature
     public class MiddlewareFeatures : IValidatable
     {
         /// <summary>
@@ -48,12 +47,6 @@ namespace Nexus.Link.Libraries.Web.AspNet.Pipe.Support.Options
         public SaveExecutionIdOptions SaveExecutionId { get; } = new();
 
         /// <summary>
-        /// This feature gets the first found <see cref="Constants.ExecutionIdHeaderName"/> header from the request and saves it to the <see cref="FulcrumApplication.Context"/>.
-        /// </summary>
-        public RedirectAsynchronousRequestsOptions RedirectAsynchronousRequests{ get; } = new();
-
-
-        /// <summary>
         /// This feature reads the <see cref="Constants.NexusTestContextHeaderName"/> header from the request and save it to the execution context.
         /// </summary>
         public SaveNexusTestContextOptions SaveNexusTestContext { get; } = new();
@@ -69,7 +62,6 @@ namespace Nexus.Link.Libraries.Web.AspNet.Pipe.Support.Options
             FulcrumValidate.IsValidated(SaveCorrelationId, propertyPath, nameof(SaveCorrelationId), errorLocation);
             FulcrumValidate.IsValidated(SaveExecutionId, propertyPath, nameof(SaveCorrelationId), errorLocation);
             FulcrumValidate.IsValidated(SaveNexusTestContext, propertyPath, nameof(SaveNexusTestContext), errorLocation);
-            FulcrumValidate.IsValidated(RedirectAsynchronousRequests, propertyPath, nameof(SaveNexusTestContext), errorLocation);
         }
     }
 }

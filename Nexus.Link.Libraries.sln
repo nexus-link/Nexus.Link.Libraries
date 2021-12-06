@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.29025.244
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31912.275
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Libraries.Azure.Storage", "src\Libraries.Azure.Storage\Libraries.Azure.Storage.csproj", "{463C8B34-0D3A-4B63-8F29-A24C74E29FDA}"
 EndProject
@@ -47,12 +47,6 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Libraries.Azure.Web.AspNet", "src\Libraries.Azure.Web.AspNet\Libraries.Azure.Web.AspNet.csproj", "{BBFC4379-E3B0-4D94-9007-34C1D3DE284F}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Libraries.Azure.Web.AspNet.Tests", "test\Nexus.Link.Libraries.Azure.Web.AspNet.Tests\Libraries.Azure.Web.AspNet.Tests.csproj", "{6EAC43DD-86FF-4166-ADBB-14420F28C95C}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Capabilities.WorkflowMgmt.Abstract", "src\Capabilities.WorkflowMgmt.Abstract\Capabilities.WorkflowMgmt.Abstract.csproj", "{690A88B8-8072-4DC8-ADA9-E1AC45C833F8}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Capabilities.AsyncRequestMgmt.Abstract", "src\Capabilities.AsyncRequestMgmt.Abstract\Capabilities.AsyncRequestMgmt.Abstract.csproj", "{37A4BE08-9DC1-4500-8D08-E955011FEAE7}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Capabilities.WorkflowMgmt.UnitTests", "src\Capabilities.WorkflowMgmt.UnitTests\Capabilities.WorkflowMgmt.UnitTests.csproj", "{A28D42BB-9123-4976-AC01-1DFC1A6BB1C7}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -243,36 +237,6 @@ Global
 		{6EAC43DD-86FF-4166-ADBB-14420F28C95C}.prdsim|Any CPU.Build.0 = Release|Any CPU
 		{6EAC43DD-86FF-4166-ADBB-14420F28C95C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6EAC43DD-86FF-4166-ADBB-14420F28C95C}.Release|Any CPU.Build.0 = Release|Any CPU
-		{690A88B8-8072-4DC8-ADA9-E1AC45C833F8}.ci|Any CPU.ActiveCfg = Debug|Any CPU
-		{690A88B8-8072-4DC8-ADA9-E1AC45C833F8}.ci|Any CPU.Build.0 = Debug|Any CPU
-		{690A88B8-8072-4DC8-ADA9-E1AC45C833F8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{690A88B8-8072-4DC8-ADA9-E1AC45C833F8}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{690A88B8-8072-4DC8-ADA9-E1AC45C833F8}.prd|Any CPU.ActiveCfg = Debug|Any CPU
-		{690A88B8-8072-4DC8-ADA9-E1AC45C833F8}.prd|Any CPU.Build.0 = Debug|Any CPU
-		{690A88B8-8072-4DC8-ADA9-E1AC45C833F8}.prdsim|Any CPU.ActiveCfg = Debug|Any CPU
-		{690A88B8-8072-4DC8-ADA9-E1AC45C833F8}.prdsim|Any CPU.Build.0 = Debug|Any CPU
-		{690A88B8-8072-4DC8-ADA9-E1AC45C833F8}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{690A88B8-8072-4DC8-ADA9-E1AC45C833F8}.Release|Any CPU.Build.0 = Release|Any CPU
-		{37A4BE08-9DC1-4500-8D08-E955011FEAE7}.ci|Any CPU.ActiveCfg = ci|Any CPU
-		{37A4BE08-9DC1-4500-8D08-E955011FEAE7}.ci|Any CPU.Build.0 = ci|Any CPU
-		{37A4BE08-9DC1-4500-8D08-E955011FEAE7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{37A4BE08-9DC1-4500-8D08-E955011FEAE7}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{37A4BE08-9DC1-4500-8D08-E955011FEAE7}.prd|Any CPU.ActiveCfg = prd|Any CPU
-		{37A4BE08-9DC1-4500-8D08-E955011FEAE7}.prd|Any CPU.Build.0 = prd|Any CPU
-		{37A4BE08-9DC1-4500-8D08-E955011FEAE7}.prdsim|Any CPU.ActiveCfg = prdsim|Any CPU
-		{37A4BE08-9DC1-4500-8D08-E955011FEAE7}.prdsim|Any CPU.Build.0 = prdsim|Any CPU
-		{37A4BE08-9DC1-4500-8D08-E955011FEAE7}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{37A4BE08-9DC1-4500-8D08-E955011FEAE7}.Release|Any CPU.Build.0 = Release|Any CPU
-		{A28D42BB-9123-4976-AC01-1DFC1A6BB1C7}.ci|Any CPU.ActiveCfg = Debug|Any CPU
-		{A28D42BB-9123-4976-AC01-1DFC1A6BB1C7}.ci|Any CPU.Build.0 = Debug|Any CPU
-		{A28D42BB-9123-4976-AC01-1DFC1A6BB1C7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{A28D42BB-9123-4976-AC01-1DFC1A6BB1C7}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{A28D42BB-9123-4976-AC01-1DFC1A6BB1C7}.prd|Any CPU.ActiveCfg = Debug|Any CPU
-		{A28D42BB-9123-4976-AC01-1DFC1A6BB1C7}.prd|Any CPU.Build.0 = Debug|Any CPU
-		{A28D42BB-9123-4976-AC01-1DFC1A6BB1C7}.prdsim|Any CPU.ActiveCfg = Debug|Any CPU
-		{A28D42BB-9123-4976-AC01-1DFC1A6BB1C7}.prdsim|Any CPU.Build.0 = Debug|Any CPU
-		{A28D42BB-9123-4976-AC01-1DFC1A6BB1C7}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{A28D42BB-9123-4976-AC01-1DFC1A6BB1C7}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -38,14 +38,13 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Capabilities.AsyncRequestMgmt.Abstract\Capabilities.AsyncRequestMgmt.Abstract.csproj" />
     <ProjectReference Include="..\Libraries.Crud\Libraries.Crud.csproj" />
     <ProjectReference Include="..\Libraries.Web\Libraries.Web.csproj" />
   </ItemGroup>
 
   <PropertyGroup>
     <PackageId>Nexus.Link.Libraries.Web.AspNet</PackageId>
-    <Version>2.30.3</Version>
+    <Version>3.0.0</Version>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <PackageTags>nexus;link;fulcrum;lever</PackageTags>
     <Authors>XLENT Link</Authors>
@@ -55,6 +54,7 @@
     <Copyright>Copyright ©2019 Xlent Link AB</Copyright>
     <IncludeSymbols>true</IncludeSymbols>
     <PackageReleaseNotes>
+      3.0.0 Moved Workflow specific middleware to the WorkflowEngine SDK
       2.30.3 Bump
       2.30.2 Now removes headers that starts with "Content-" when serializing HttpRequests
       2.30.1 Refactored RequestAcceptedException

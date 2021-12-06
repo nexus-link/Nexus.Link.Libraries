@@ -10,7 +10,6 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
-using Nexus.Link.Capabilities.AsyncRequestMgmt.Abstract.Entities;
 using Nexus.Link.Libraries.Core.Application;
 using Nexus.Link.Libraries.Core.Assert;
 using Nexus.Link.Libraries.Core.Error.Logic;
@@ -106,12 +105,6 @@ namespace Nexus.Link.Libraries.Web.AspNet.Pipe
                     FulcrumApplication.Context.ExecutionId = executionId;
                 }
 
-                if (Options.Features.RedirectAsynchronousRequests.Enabled)
-                {
-                    var parentExecutionId = ExtractManagedAsynchronousRequestIdFromHeader(context);
-                    FulcrumApplication.Context.ManagedAsynchronousRequestId = parentExecutionId;
-                }
-
                 if (Options.Features.SaveTenantConfiguration.Enabled)
                 {
                     var tenantConfiguration = await GetTenantConfigurationAsync(FulcrumApplication.Context.ClientTenant, context, cancellationToken);
@@ -139,19 +132,7 @@ namespace Nexus.Link.Libraries.Web.AspNet.Pipe
                 }
                 catch (Exception exception)
                 {
-
                     var shouldThrow = true;
-                    if (Options.Features.RedirectAsynchronousRequests.Enabled)
-                    {
-                        if (exception is RequestPostponedException)
-                        {
-                            if (FulcrumApplication.Context.ManagedAsynchronousRequestId == null)
-                            {
-                                exception = await RerouteToAsyncRequestMgmtAndCreateExceptionAsync(context);
-                            }
-                        }
-
-                    }
                     if (Options.Features.ConvertExceptionToHttpResponse.Enabled)
                     {
                         await ConvertExceptionToResponseAsync(context, exception, cancellationToken);
@@ -177,46 +158,6 @@ namespace Nexus.Link.Libraries.Web.AspNet.Pipe
                 if (Options.Features.BatchLog.Enabled) BatchLogger.EndBatch();
             }
         }
-
-        #region RedirectAsynchronousRequests
-        protected static string ExtractManagedAsynchronousRequestIdFromHeader(HttpContext context)
-        {
-            var request = context?.Request;
-
-            FulcrumAssert.IsNotNull(request, CodeLocation.AsString());
-            if (request == null) return null;
-            if (!request.Headers.TryGetValue(Constants.ManagedAsynchronousRequestId, out var executionIds))
-            {
-                return null;
-            }
-            var executionsArray = executionIds.ToArray();
-            if (!executionsArray.Any()) return null;
-            if (executionsArray.Length == 1) return executionsArray[0];
-            var message =
-                $"There was more than one execution id in the header: {string.Join(", ", executionsArray)}. The first one was picked as the Fulcrum execution id from here on.";
-            Log.LogWarning(message);
-            return executionsArray[0];
-        }
-        private async Task<Exception> RerouteToAsyncRequestMgmtAndCreateExceptionAsync(HttpContext context)
-        {
-            var requestService = Options.Features.RedirectAsynchronousRequests.RequestService;
-            FulcrumAssert.IsNotNull(requestService, CodeLocation.AsString());
-            var cancellationToken = context.RequestAborted;
-            var requestCreate = await new HttpRequestCreate().FromAsync(context.Request, 0.5, cancellationToken);
-            FulcrumAssert.IsNotNull(requestCreate, CodeLocation.AsString());
-            FulcrumAssert.IsValidated(requestCreate, CodeLocation.AsString());
-            var requestId = await requestService.CreateAsync(requestCreate, cancellationToken);
-            FulcrumAssert.IsNotNullOrWhiteSpace(requestId, CodeLocation.AsString());
-            var urls = requestService .GetEndpoints(requestId);
-            FulcrumAssert.IsNotNull(urls, CodeLocation.AsString());
-            FulcrumAssert.IsValidated(urls, CodeLocation.AsString());
-            return new RequestAcceptedException(requestId)
-            {
-                PollingUrl = urls.PollingUrl,
-                RegisterCallbackUrl = urls.RegisterCallbackUrl
-            };
-        }
-        #endregion
 
         #region SaveNexusTestContextToContext
         /// <summary>
