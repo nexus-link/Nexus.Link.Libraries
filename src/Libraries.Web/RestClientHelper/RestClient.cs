@@ -280,6 +280,7 @@ namespace Nexus.Link.Libraries.Web.RestClientHelper
             if (content == null) return null;
             try
             {
+                await content.LoadIntoBufferAsync();
                 return await content.ReadAsStringAsync().ConfigureAwait(false);
             }
             catch (Exception e)

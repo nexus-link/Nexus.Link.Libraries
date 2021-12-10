@@ -31,7 +31,7 @@
 
   <PropertyGroup>
     <PackageId>Nexus.Link.Libraries.Web</PackageId>
-    <Version>2.24.4</Version>
+    <Version>2.24.5</Version>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <PackageTags>nexus;link;fulcrum;lever</PackageTags>
     <Authors>XLENT Link</Authors>
@@ -41,6 +41,7 @@
     <Copyright>Copyright ©2021 Xlent Link AB</Copyright>
     <IncludeSymbols>true</IncludeSymbols>
     <PackageReleaseNotes>
+      2.24.5 Bug: We were reading content without buffering it first
       2.24.4 Bug: Another spot where badly formatted header names bit us.
       2.24.3 Bug: Problem with badly formatted header names. Better messages for header validation
       2.24.2 Added IValidated for RequestData

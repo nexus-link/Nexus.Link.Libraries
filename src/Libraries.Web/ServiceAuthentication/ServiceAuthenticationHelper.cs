@@ -224,6 +224,7 @@ namespace Nexus.Link.Libraries.Web.ServiceAuthentication
                     return null;
                 }
                 FulcrumAssert.IsNotNull(httpResponse.Content);
+                await httpResponse.Content.LoadIntoBufferAsync();
                 response = await httpResponse.Content.ReadAsStringAsync();
                 var result = JToken.Parse(response);
                 FulcrumAssert.IsNotNull(result);
