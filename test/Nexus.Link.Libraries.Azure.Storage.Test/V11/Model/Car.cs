@@ -1,7 +1,7 @@
 ﻿using Nexus.Link.Libraries.Core.Assert;
 using Nexus.Link.Libraries.Core.Storage.Model;
 
-namespace Nexus.Link.Libraries.Azure.Storage.Test.Model
+namespace Nexus.Link.Libraries.Azure.Storage.Test.V11.Model
 {
     public class Car : IUniquelyIdentifiable<string>, IValidatable, IOptimisticConcurrencyControlByETag
     {

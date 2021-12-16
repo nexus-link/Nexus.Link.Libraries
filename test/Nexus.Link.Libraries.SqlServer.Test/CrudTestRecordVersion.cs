@@ -37,7 +37,10 @@ namespace Nexus.Link.Libraries.SqlServer.Test
                 CustomColumnNames = new[] { "Value" },
                 OrderBy = new string[] { }
             };
-            _storage = new CrudSql<TestItemBare, TestRecordVersion>(connectionString, tableMetadata);
+            _storage = new CrudSql<TestItemBare, TestRecordVersion>(new DatabaseOptions
+            {
+                ConnectionString = connectionString
+            }, tableMetadata);
         }
 
         /// <summary>

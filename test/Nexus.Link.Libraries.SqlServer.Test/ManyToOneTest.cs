@@ -33,7 +33,10 @@ namespace Nexus.Link.Libraries.SqlServer.Test
                 CustomColumnNames = new[] { "Value" },
                 OrderBy = new string[] { }
             };
-            _oneStorage = new CrudSql<TestItemId<Guid>>(connectionString, oneTableMetadata);
+            _oneStorage = new CrudSql<TestItemId<Guid>>(new DatabaseOptions
+            {
+                ConnectionString = connectionString
+            }, oneTableMetadata);
             _manyStorage = new ManyToOneSql<TestItemManyToOneCreate<Guid, Guid?>, TestItemManyToOne<Guid, Guid?>, TestItemId<Guid>>(connectionString, manyTableMetadata, "ParentId", _oneStorage);
         }
 

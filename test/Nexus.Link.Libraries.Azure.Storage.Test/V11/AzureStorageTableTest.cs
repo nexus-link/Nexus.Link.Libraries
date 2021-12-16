@@ -2,10 +2,10 @@
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Nexus.Link.Libraries.Azure.Storage.Table;
-using Nexus.Link.Libraries.Azure.Storage.Test.Model;
+using Nexus.Link.Libraries.Azure.Storage.Test.V11.Model;
 using Nexus.Link.Libraries.Core.Application;
 
-namespace Nexus.Link.Libraries.Azure.Storage.Test
+namespace Nexus.Link.Libraries.Azure.Storage.Test.V11
 {
     [TestClass]
     public class AzureStorageTableTest

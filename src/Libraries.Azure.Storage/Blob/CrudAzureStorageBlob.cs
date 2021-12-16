@@ -17,6 +17,7 @@ using Nexus.Link.Libraries.Crud.Helpers;
 
 namespace Nexus.Link.Libraries.Azure.Storage.Blob
 {
+    [Obsolete("Please use CrudAzureStorageContainer for Azure Storage V12. Warning since 2021-12-13.")]
     public class CrudAzureStorageBlob<TItem, TId> :
         CrudAzureStorageBlob<TItem, TItem, TId>,
         ICrud<TItem, TId>
@@ -27,6 +28,7 @@ namespace Nexus.Link.Libraries.Azure.Storage.Blob
         }
     }
 
+    [Obsolete("Please use CrudAzureStorageContainer for Azure Storage V12. Warning since 2021-12-13.")]
     public class CrudAzureStorageBlob<TModelCreate, TModel, TId> :
         ICrud<TModelCreate, TModel, TId>
         where TModel : TModelCreate

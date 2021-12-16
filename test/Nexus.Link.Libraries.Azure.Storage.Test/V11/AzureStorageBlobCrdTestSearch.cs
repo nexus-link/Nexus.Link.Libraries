@@ -5,10 +5,10 @@ using Nexus.Link.Libraries.Azure.Storage.Blob;
 using Nexus.Link.Libraries.Core.Application;
 using Nexus.Link.Libraries.Crud.Interfaces;
 using Nexus.Link.Libraries.Crud.UnitTests.Crd;
-using Nexus.Link.Libraries.Crud.UnitTests.Crud;
 using Nexus.Link.Libraries.Crud.UnitTests.Model;
+#pragma warning disable CS0618
 
-namespace Nexus.Link.Libraries.Azure.Storage.Test
+namespace Nexus.Link.Libraries.Azure.Storage.Test.V11
 {
     [TestClass]
     public class AzureStorageBlobCrdTestSearch: TestICrdSearch<Guid>

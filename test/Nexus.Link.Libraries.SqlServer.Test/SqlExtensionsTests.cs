@@ -5,7 +5,6 @@ using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using Nexus.Link.Libraries.Core.Error.Logic;
-using Nexus.Link.Libraries.Core.Misc;
 using Nexus.Link.Libraries.Core.Misc.Models;
 using Nexus.Link.Libraries.SqlServer.Logic;
 

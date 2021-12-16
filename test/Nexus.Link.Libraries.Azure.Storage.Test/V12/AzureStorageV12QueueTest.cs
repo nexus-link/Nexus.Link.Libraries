@@ -1,24 +1,24 @@
 ﻿using System;
 using System.Diagnostics;
 using System.Threading.Tasks;
+using Azure.Storage.Queues;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Microsoft.WindowsAzure.Storage.Queue;
-using Nexus.Link.Libraries.Azure.Storage.Queue;
-using Nexus.Link.Libraries.Azure.Storage.Test.Model;
+using Nexus.Link.Libraries.Azure.Storage.Test.V12.Model;
+using Nexus.Link.Libraries.Azure.Storage.V12.Queue;
 using Nexus.Link.Libraries.Core.Application;
 using Nexus.Link.Libraries.Core.Error.Logic;
 
-namespace Nexus.Link.Libraries.Azure.Storage.Test
+namespace Nexus.Link.Libraries.Azure.Storage.Test.V12
 {
     [TestClass]
-    public class AzureStorageQueueTest
+    public class AzureStorageV12QueueTest
     {
         private AzureStorageQueue<Message> _queue;
 
         [TestInitialize]
         public async Task InitializeAsync()
         {
-            FulcrumApplicationHelper.UnitTestSetup(nameof(AzureStorageQueueTest));
+            FulcrumApplicationHelper.UnitTestSetup(nameof(AzureStorageV12QueueTest));
             var connectionString = TestSettings.ConnectionString;
             Assert.IsNotNull(connectionString);
             _queue = new AzureStorageQueue<Message>(connectionString, "test-queue");
@@ -31,9 +31,9 @@ namespace Nexus.Link.Libraries.Azure.Storage.Test
         {
             var connectionString = TestSettings.ConnectionStringNonExisting;
             Assert.IsNotNull(connectionString);
-            var queue = new AzureStorageQueue<Message>(connectionString, "test-queue", new QueueRequestOptions
+            var queue = new AzureStorageQueue<Message>(connectionString, "test-queue", new QueueClientOptions
             {
-                MaximumExecutionTime = TimeSpan.FromMilliseconds(500)
+                Retry = { MaxRetries = 0}
             });
             await queue.ClearAsync();
         }
@@ -41,8 +41,8 @@ namespace Nexus.Link.Libraries.Azure.Storage.Test
         [TestMethod]
         public async Task GetDoesNotBlockAsync()
         {
-            var getTask = _queue.GetOneMessageNoBlockAsync();
             var stopwatch = new Stopwatch();
+            var getTask = _queue.GetOneMessageNoBlockAsync();
             stopwatch.Start();
             while (!getTask.IsCompleted)
             {
@@ -55,8 +55,14 @@ namespace Nexus.Link.Libraries.Azure.Storage.Test
         [TestMethod]
         public async Task PeekDoesNotBlockAsync()
         {
+            var stopwatch = new Stopwatch();
             var getTask = _queue.PeekNoBlockAsync();
-            await Task.Delay(TimeSpan.FromMilliseconds(100));
+            stopwatch.Start();
+            while (!getTask.IsCompleted)
+            {
+                Assert.IsTrue(stopwatch.Elapsed < TimeSpan.FromSeconds(1), "Expected the method to finish quickly.");
+                await Task.Delay(TimeSpan.FromMilliseconds(10));
+            }
             Assert.IsTrue(getTask.IsCompleted, "Expected the method to finish quickly.");
             Assert.IsNull(await getTask);
         }

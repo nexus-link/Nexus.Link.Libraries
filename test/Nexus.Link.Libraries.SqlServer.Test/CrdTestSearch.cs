@@ -4,9 +4,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Nexus.Link.Libraries.Core.Application;
 using Nexus.Link.Libraries.Core.Assert;
 using Nexus.Link.Libraries.Crud.Interfaces;
-using Nexus.Link.Libraries.Crud.MemoryStorage;
 using Nexus.Link.Libraries.Crud.UnitTests.Crd;
-using Nexus.Link.Libraries.Crud.UnitTests.Crud;
 using Nexus.Link.Libraries.Crud.UnitTests.Model;
 using Nexus.Link.Libraries.SqlServer.Model;
 
@@ -29,7 +27,10 @@ namespace Nexus.Link.Libraries.SqlServer.Test
                 CustomColumnNames = new[] { "Value", "IncreasingNumber", "NumberModulo", "DecreasingString" },
                 OrderBy = new string[] {}
             };
-            _storage = new CrudSql<TestItemSort<Guid>, TestItemSort<Guid>>(connectionString, tableMetadata);
+            _storage = new CrudSql<TestItemSort<Guid>, TestItemSort<Guid>>(new DatabaseOptions
+            {
+                ConnectionString = connectionString
+            }, tableMetadata);
             await _storage.DeleteAllAsync();
         }
 

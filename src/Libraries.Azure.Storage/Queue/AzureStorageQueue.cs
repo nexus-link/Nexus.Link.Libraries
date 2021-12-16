@@ -14,6 +14,7 @@ using Nexus.Link.Libraries.Core.Queue.Model;
 
 namespace Nexus.Link.Libraries.Azure.Storage.Queue
 {
+    [Obsolete("Please use V12.Queue.AzureStorageQueue for Azure Storage V12. Warning since 2021-12-13.")]
     public class AzureStorageQueue<T> : ICompleteQueue<T>
     {
         public string Name { get; }

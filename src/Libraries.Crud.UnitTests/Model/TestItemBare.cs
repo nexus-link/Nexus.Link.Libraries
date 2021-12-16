@@ -53,13 +53,21 @@ namespace Nexus.Link.Libraries.Crud.UnitTests.Model
                     throw new ArgumentOutOfRangeException(nameof(typeOfTestData), typeOfTestData, null);
             }
 
-            if (this is TestItemSort<Guid> sortItem)
+            switch (this)
             {
-                sortItem.IncreasingNumber = Count;
-                sortItem.NumberModulo = Count % Modulo;
-                sortItem.DecreasingString = (short.MaxValue-Count).ToString();
-                Count++;
-            } 
+                case TestItemSort<Guid> sortItem:
+                    sortItem.IncreasingNumber = Count;
+                    sortItem.NumberModulo = Count % Modulo;
+                    sortItem.DecreasingString = (short.MaxValue - Count).ToString();
+                    Count++;
+                    break;
+                case TestItemSort<string> sortItem:
+                    sortItem.IncreasingNumber = Count;
+                    sortItem.NumberModulo = Count % Modulo;
+                    sortItem.DecreasingString = (short.MaxValue - Count).ToString();
+                    Count++;
+                    break;
+            }
         }
 
         public virtual void ChangeDataToNotEqualForTesting()
