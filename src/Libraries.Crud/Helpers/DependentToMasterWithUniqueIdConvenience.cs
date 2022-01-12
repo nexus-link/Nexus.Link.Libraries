@@ -165,7 +165,7 @@ namespace Nexus.Link.Libraries.Crud.Helpers
             InternalContract.RequireNotDefaultValue(masterId, nameof(masterId));
             InternalContract.RequireNotDefaultValue(dependentId, nameof(dependentId));
             var uniqueId = await GetDependentUniqueIdAsync(masterId, dependentId, cancellationToken );
-            await _uniqueIdTable.ReleaseLockAsync(uniqueId, lockId, cancellationToken );
+            await _uniqueIdTable.ReleaseDistributedLockAsync(uniqueId, lockId, cancellationToken );
         }
 
         /// <inheritdoc />

@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Nexus.Link.Libraries.Core.Assert;
+using Nexus.Link.Libraries.Core.Misc;
 using Nexus.Link.Libraries.Core.Storage.Model;
 using Nexus.Link.Libraries.Crud.Helpers;
 using Nexus.Link.Libraries.Crud.Interfaces;
@@ -51,7 +52,7 @@ namespace Nexus.Link.Libraries.Crud.Mappers
             var record = _mapper.MapToServer(item);
             var serverId = await _service.CreateAsync(record, cancellationToken );
             FulcrumAssert.IsNotDefaultValue(serverId);
-            return MapperHelper.MapToType<TClientId, TServerId>(serverId);
+            return TypeConversionExtensions.MapToType<TClientId, TServerId>(serverId);
         }
 
         /// <inheritdoc />
@@ -66,7 +67,7 @@ namespace Nexus.Link.Libraries.Crud.Mappers
         /// <inheritdoc />
         public virtual Task CreateWithSpecifiedIdAsync(TClientId id, TClientModelCreate item, CancellationToken cancellationToken  = default)
         {
-            var serverId = MapperHelper.MapToType<TServerId, TClientId>(id);
+            var serverId = TypeConversionExtensions.MapToType<TServerId, TClientId>(id);
             var record = _mapper.MapToServer(item);
             return _service.CreateWithSpecifiedIdAsync(serverId, record, cancellationToken );
         }
@@ -75,7 +76,7 @@ namespace Nexus.Link.Libraries.Crud.Mappers
         public virtual async Task<TClientModel> CreateWithSpecifiedIdAndReturnAsync(TClientId id, TClientModelCreate item,
             CancellationToken cancellationToken  = default)
         {
-            var serverId = MapperHelper.MapToType<TServerId, TClientId>(id);
+            var serverId = TypeConversionExtensions.MapToType<TServerId, TClientId>(id);
             var record = _mapper.MapToServer(item);
             record = await _service.CreateWithSpecifiedIdAndReturnAsync(serverId, record, cancellationToken );
             return _mapper.MapFromServer(record);
@@ -84,7 +85,7 @@ namespace Nexus.Link.Libraries.Crud.Mappers
         /// <inheritdoc />
         public virtual async Task<TClientModel> ReadAsync(TClientId id, CancellationToken cancellationToken  = default)
         {
-            var serverId = MapperHelper.MapToType<TServerId, TClientId>(id);
+            var serverId = TypeConversionExtensions.MapToType<TServerId, TClientId>(id);
             var record = await _service.ReadAsync(serverId, cancellationToken );
             return _mapper.MapFromServer(record);
         }
@@ -109,7 +110,7 @@ namespace Nexus.Link.Libraries.Crud.Mappers
         /// <inheritdoc />
         public virtual Task UpdateAsync(TClientId id, TClientModel item, CancellationToken cancellationToken  = default)
         {
-            var serverId = MapperHelper.MapToType<TServerId, TClientId>(id);
+            var serverId = TypeConversionExtensions.MapToType<TServerId, TClientId>(id);
             var record = _mapper.MapToServer(item);
             return _service.UpdateAsync(serverId, record, cancellationToken );
         }
@@ -117,7 +118,7 @@ namespace Nexus.Link.Libraries.Crud.Mappers
         /// <inheritdoc />
         public virtual async Task<TClientModel> UpdateAndReturnAsync(TClientId id, TClientModel item, CancellationToken cancellationToken  = default)
         {
-            var serverId = MapperHelper.MapToType<TServerId, TClientId>(id);
+            var serverId = TypeConversionExtensions.MapToType<TServerId, TClientId>(id);
             var record = _mapper.MapToServer(item);
             record = await _service.UpdateAndReturnAsync(serverId, record, cancellationToken );
             return _mapper.MapFromServer(record);
@@ -126,7 +127,7 @@ namespace Nexus.Link.Libraries.Crud.Mappers
         /// <inheritdoc />
         public virtual Task DeleteAsync(TClientId id, CancellationToken cancellationToken  = default)
         {
-            var serverId = MapperHelper.MapToType<TServerId, TClientId>(id);
+            var serverId = TypeConversionExtensions.MapToType<TServerId, TClientId>(id);
             return _service.DeleteAsync(serverId, cancellationToken );
         }
 
@@ -137,18 +138,20 @@ namespace Nexus.Link.Libraries.Crud.Mappers
         }
 
         /// <inheritdoc />
+        [Obsolete("Use IDistributedLock. Obsolete warning since 2021-04-29")]
         public async Task<Lock<TClientId>> ClaimLockAsync(TClientId id, CancellationToken cancellationToken  = default)
         {
-            var serverId = MapperHelper.MapToType<TServerId, TClientId>(id);
+            var serverId = TypeConversionExtensions.MapToType<TServerId, TClientId>(id);
             var @lock = await _service.ClaimLockAsync(serverId, cancellationToken );
             return MapperHelper.MapToType<TClientId, TServerId>(@lock);
         }
 
         /// <inheritdoc />
+        [Obsolete("Use IDistributedLock. Obsolete warning since 2021-04-29")]
         public Task ReleaseLockAsync(TClientId id, TClientId lockId, CancellationToken cancellationToken  = default)
         {
-            var serverId = MapperHelper.MapToType<TServerId, TClientId>(id);
-            var serverLockId = MapperHelper.MapToType<TServerId, TClientId>(lockId);
+            var serverId = TypeConversionExtensions.MapToType<TServerId, TClientId>(id);
+            var serverLockId = TypeConversionExtensions.MapToType<TServerId, TClientId>(lockId);
             return _service.ReleaseLockAsync(serverId, serverLockId, cancellationToken );
         }
 

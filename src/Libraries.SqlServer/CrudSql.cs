@@ -191,7 +191,7 @@ namespace Nexus.Link.Libraries.SqlServer
         public Task<TDatabaseItem> ReadAsync(Guid id, CancellationToken token = default)
         {
             InternalContract.RequireNotDefaultValue(id, nameof(id));
-            return SearchWhereSingle("Id = @Id", new { Id = id }, token);
+            return SearchSingleWhereAsync("Id = @Id", new { Id = id }, token);
         }
 
         /// <inheritdoc />
@@ -301,9 +301,7 @@ namespace Nexus.Link.Libraries.SqlServer
         /// <inheritdoc />
         public async Task ClaimTransactionLockAsync(Guid id, CancellationToken token = default)
         {
-            var selectStatement =
-                $"SELECT {SqlHelper.ReadColumnList(TableMetadata)} FROM [{TableMetadata.TableName}] WITH (ROWLOCK, UPDLOCK, READPAST) WHERE Id=@Id";
-            var result = await SearchAdvancedSingleAsync(selectStatement, new { Id = id }, token);
+            var result = await SearchSingleAndLockWhereAsync("Id=@Id", new { Id = id }, token);
             if (result == null)
             {
                 throw new FulcrumTryAgainException(
@@ -317,7 +315,7 @@ namespace Nexus.Link.Libraries.SqlServer
         /// <inheritdoc />
         public Task<TDatabaseItem> ClaimTransactionLockAndReadAsync(Guid id, CancellationToken token = default)
         {
-            return _convenience.ClaimTransactionLockAndReadAsync(id, token);
+            return SearchSingleAndLockWhereAsync("Id=@Id", new { Id = id }, token);
         }
     }
 }

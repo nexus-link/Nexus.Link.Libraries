@@ -283,7 +283,7 @@ namespace Nexus.Link.Libraries.Crud.MemoryStorage
         {
             InternalContract.RequireNotDefaultValue(id, nameof(id));
 
-            var key = MapperHelper.MapToType<string, TId>(id);
+            var key = TypeConversionExtensions.MapToType<string, TId>(id);
             var newLock = new Lock<TId>
             {
                 LockId = CreateNewId<TId>(),
@@ -355,8 +355,8 @@ namespace Nexus.Link.Libraries.Crud.MemoryStorage
             CancellationToken cancellationToken = default)
         {
             lockTimeSpan = lockTimeSpan ?? TimeSpan.FromSeconds(30);
-            var key = MapperHelper.MapToType<string, TId>(id);
-            var newLockId = MapperHelper.MapToType<TId, Guid>(Guid.NewGuid());
+            var key = TypeConversionExtensions.MapToType<string, TId>(id);
+            var newLockId = TypeConversionExtensions.MapToType<TId, Guid>(Guid.NewGuid());
             while (true)
             {
                 var newLock = new Lock<TId>

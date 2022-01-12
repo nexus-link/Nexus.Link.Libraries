@@ -15,18 +15,20 @@ namespace Nexus.Link.Libraries.Core.Assert
         [StackTraceHidden]
         public static void ThrowException(string message, string errorLocation = null)
         {
+            if (errorLocation != null)
+            {
+                message += $"\rat {errorLocation}";
+            }
             var exception = (TException)Activator.CreateInstance(typeof(TException), message);
             exception.ErrorLocation = errorLocation;
             if (exception is FulcrumAssertionFailedException ||
                 exception is FulcrumContractException)
             {
-                var logMessage = "An unexpected internal error resulted in an exception";
+                var logMessage = $"An unexpected internal error resulted in an exception: {message}";
                 if (!string.IsNullOrWhiteSpace(errorLocation))
                 {
-                    logMessage += $" in {errorLocation}";
+                    logMessage += $"\rat {errorLocation}";
                 }
-
-                logMessage += ".";
 
                 // Special case when there is something wrong in the ApplicationSetup, we do not log,
                 // because that would trigger a validation of the ApplicationSetup,

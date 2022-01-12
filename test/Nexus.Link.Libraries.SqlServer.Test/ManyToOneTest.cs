@@ -37,7 +37,11 @@ namespace Nexus.Link.Libraries.SqlServer.Test
             {
                 ConnectionString = connectionString
             }, oneTableMetadata);
-            _manyStorage = new ManyToOneSql<TestItemManyToOneCreate<Guid, Guid?>, TestItemManyToOne<Guid, Guid?>, TestItemId<Guid>>(connectionString, manyTableMetadata, "ParentId", _oneStorage);
+            _manyStorage = new ManyToOneSql<TestItemManyToOneCreate<Guid, Guid?>, TestItemManyToOne<Guid, Guid?>, TestItemId<Guid>>(
+                new DatabaseOptions
+                {
+                    ConnectionString = connectionString
+                }, manyTableMetadata, "ParentId", _oneStorage);
         }
 
         /// <inheritdoc />

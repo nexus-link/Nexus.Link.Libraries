@@ -22,15 +22,32 @@ namespace Nexus.Link.Libraries.Core.Misc
             return valueAsGuid;
         }
 
+        [Obsolete("Please use ToGuidString. NOTE!: Breaking change; ToGuidString uses upper case. Obsolete since 2022-01-05")]
         public static string ToLowerCaseString(this Guid source)
         {
             return source.ToString().ToLowerInvariant();
         }
 
+        public static string ToGuidString(this Guid source)
+        {
+            return source.ToString().ToUpperInvariant();
+        }
+
+        public static string ToGuidString(this string source)
+        {
+            return source.ToGuid().ToGuidString();
+        }
+
+        [Obsolete("Please use ToGuidString. NOTE!: Breaking change; ToGuidString uses upper case. Obsolete since 2022-01-05")]
         public static string ToLowerCaseString(this Guid? source)
         {
             if (source == null) return null;
             return source.ToString().ToLowerInvariant();
+        }
+        public static string ToGuidString(this Guid? source)
+        {
+            if (source == null) return null;
+            return source.ToString().ToUpperInvariant();
         }
 
         public static int ToInt(this string source)

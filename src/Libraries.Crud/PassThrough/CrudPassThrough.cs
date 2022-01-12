@@ -135,6 +135,7 @@ namespace Nexus.Link.Libraries.Crud.PassThrough
         }
 
         /// <inheritdoc />
+        [Obsolete("Use IDistributedLock. Obsolete warning since 2021-04-29")]
         public virtual Task<Lock<TId>> ClaimLockAsync(TId id, CancellationToken cancellationToken  = default)
         {
 #pragma warning disable 618
@@ -144,6 +145,7 @@ namespace Nexus.Link.Libraries.Crud.PassThrough
         }
 
         /// <inheritdoc />
+        [Obsolete("Use IDistributedLock. Obsolete warning since 2021-04-29")]
         public Task ReleaseLockAsync(TId id, TId lockId, CancellationToken cancellationToken  = default)
         {
 #pragma warning disable 618

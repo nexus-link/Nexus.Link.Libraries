@@ -206,7 +206,7 @@ namespace Nexus.Link.Libraries.Azure.Storage.V12.Blob
             InternalContract.RequireNotNull(item, nameof(item));
             InternalContract.RequireValidated(item, nameof(item));
 
-            var id = TypeConversionExtensions.ToLowerCaseString(Guid.NewGuid());
+            var id = Guid.NewGuid().ToGuidString();
             await CreateWithSpecifiedIdAsync(id, item, cancellationToken);
             return id;
         }

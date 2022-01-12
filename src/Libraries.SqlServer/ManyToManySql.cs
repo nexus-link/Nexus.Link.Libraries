@@ -27,10 +27,27 @@ namespace Nexus.Link.Libraries.SqlServer
         /// <param name="referenceHandler1"></param>
         /// <param name="groupColumnName2"></param>
         /// <param name="referenceHandler2"></param>
+        [Obsolete("Use ManyToManySql(IDatabaseOptions, ISqlTableMetadata, ...) instead. Obsolete since 2021-01-07.", error: false)]
         public ManyToManySql(string connectionString, ISqlTableMetadata tableMetadata, string groupColumnName1,
             CrudSql<TReferenceModel1> referenceHandler1, string groupColumnName2,
             CrudSql<TReferenceModel2> referenceHandler2)
             : base(connectionString, tableMetadata, groupColumnName1, referenceHandler1, groupColumnName2, referenceHandler2)
+        {
+        }
+
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        /// <param name="options"></param>
+        /// <param name="tableMetadata"></param>
+        /// <param name="groupColumnName1"></param>
+        /// <param name="referenceHandler1"></param>
+        /// <param name="groupColumnName2"></param>
+        /// <param name="referenceHandler2"></param>
+        public ManyToManySql(IDatabaseOptions options, ISqlTableMetadata tableMetadata, string groupColumnName1,
+            CrudSql<TReferenceModel1> referenceHandler1, string groupColumnName2,
+            CrudSql<TReferenceModel2> referenceHandler2)
+            : base(options, tableMetadata, groupColumnName1, referenceHandler1, groupColumnName2, referenceHandler2)
         {
         }
     }
@@ -54,11 +71,28 @@ namespace Nexus.Link.Libraries.SqlServer
         /// <param name="referenceHandler1"></param>
         /// <param name="groupColumnName2"></param>
         /// <param name="referenceHandler2"></param>
+        [Obsolete("Use ManyToManySql(IDatabaseOptions, ISqlTableMetadata, ...) instead. Obsolete since 2021-01-07.", error: false)]
         public ManyToManySql(string connectionString, ISqlTableMetadata tableMetadata, string groupColumnName1, CrudSql<TReferenceModel1> referenceHandler1, string groupColumnName2, CrudSql<TReferenceModel2> referenceHandler2)
             : base(connectionString, tableMetadata)
         {
             OneTableHandler1 = new ManyToOneSql<TManyToManyModel, TReferenceModel1>(connectionString, tableMetadata, groupColumnName1, referenceHandler1);
             OneTableHandler2 = new ManyToOneSql<TManyToManyModel, TReferenceModel2>(connectionString, tableMetadata, groupColumnName2, referenceHandler2);
+        }
+
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        /// <param name="options"></param>
+        /// <param name="tableMetadata"></param>
+        /// <param name="groupColumnName1"></param>
+        /// <param name="referenceHandler1"></param>
+        /// <param name="groupColumnName2"></param>
+        /// <param name="referenceHandler2"></param>
+        public ManyToManySql(IDatabaseOptions options, ISqlTableMetadata tableMetadata, string groupColumnName1, CrudSql<TReferenceModel1> referenceHandler1, string groupColumnName2, CrudSql<TReferenceModel2> referenceHandler2)
+            : base(options, tableMetadata)
+        {
+            OneTableHandler1 = new ManyToOneSql<TManyToManyModel, TReferenceModel1>(options, tableMetadata, groupColumnName1, referenceHandler1);
+            OneTableHandler2 = new ManyToOneSql<TManyToManyModel, TReferenceModel2>(options, tableMetadata, groupColumnName2, referenceHandler2);
         }
 
         #region The reference table (the many-to-many table)
@@ -91,7 +125,7 @@ namespace Nexus.Link.Libraries.SqlServer
             InternalContract.RequireNotDefaultValue(reference1Id, nameof(reference1Id));
             InternalContract.RequireNotDefaultValue(reference2Id, nameof(reference2Id));
             var param = new { Reference1Id = reference1Id, Reference2Id = reference2Id };
-            return await SearchWhereSingle($"{OneTableHandler1.ParentColumnName} = @Reference1Id AND {OneTableHandler2.ParentColumnName}= @Reference2Id", param, token);
+            return await SearchSingleWhereAsync($"{OneTableHandler1.ParentColumnName} = @Reference1Id AND {OneTableHandler2.ParentColumnName}= @Reference2Id", param, token);
         }
 
         /// <inheritdoc />

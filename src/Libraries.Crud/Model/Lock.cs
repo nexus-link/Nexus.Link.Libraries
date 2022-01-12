@@ -1,6 +1,6 @@
 ﻿using System;
 using Nexus.Link.Libraries.Core.Assert;
-using Nexus.Link.Libraries.Crud.Helpers;
+using Nexus.Link.Libraries.Core.Misc;
 
 namespace Nexus.Link.Libraries.Crud.Model
 {
@@ -53,8 +53,8 @@ namespace Nexus.Link.Libraries.Crud.Model
         {
             InternalContract.RequireNotNull(source, nameof(source));
             InternalContract.RequireNotNull(target, nameof(target));
-            target.LockId = source.LockId.ToLowerCaseString();
-            target.ItemId = source.ItemId.ToLowerCaseString();
+            target.LockId = source.LockId.ToGuidString();
+            target.ItemId = source.ItemId.ToGuidString();
             target.ValidUntil = source.ValidUntil;
             return target;
         }

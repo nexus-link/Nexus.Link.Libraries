@@ -5,8 +5,10 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Caching.Memory;
 using Nexus.Link.Libraries.Core.Error.Logic;
+using Nexus.Link.Libraries.Core.Logging;
 using Nexus.Link.Libraries.Core.Misc;
 using Nexus.Link.Libraries.Core.Misc.Models;
+using Nexus.Link.Libraries.Core.Threads;
 
 namespace Nexus.Link.Libraries.SqlServer.Logic
 {
@@ -34,12 +36,20 @@ namespace Nexus.Link.Libraries.SqlServer.Logic
 
             await CircuitBreakerCollection.ExecuteOrThrowAsync(
                 connection.ConnectionString,
-                (t) => ConnectAsync(connection, connectTimeout, t),
+                (t) => ConnectThreadSafeAsync(connection, connectTimeout, t),
                 cancellationToken);
+        }
+
+        private static async Task ConnectThreadSafeAsync(IDbConnection connection, TimeSpan? connectTimeout, CancellationToken cancellationToken)
+        {
+            if (connection.State == ConnectionState.Open) return;
+            var semaphore = new NexusAsyncSemaphore();
+            await semaphore.ExecuteAsync(ct => ConnectAsync(connection, connectTimeout, ct), cancellationToken);
         }
 
         private static async Task ConnectAsync(IDbConnection connection, TimeSpan? connectTimeout, CancellationToken cancellationToken)
         {
+            if (connection.State == ConnectionState.Open) return;
             var originalConnectionString = connection.ConnectionString;
             try
             {
@@ -47,25 +57,35 @@ namespace Nexus.Link.Libraries.SqlServer.Logic
                 {
                     var connStringBuilder = new SqlConnectionStringBuilder(connection.ConnectionString)
                     {
-                        ConnectTimeout = (int) connectTimeout.Value.TotalSeconds
+                        ConnectTimeout = (int)connectTimeout.Value.TotalSeconds
                     };
                     connection.ConnectionString = connStringBuilder.ConnectionString;
                 }
-
-                if (connection is SqlConnection sqlConnection) await sqlConnection.OpenAsync(cancellationToken);
-                else connection.Open();
+                
+                if (connection is SqlConnection sqlConnection)
+                {
+                    await sqlConnection.OpenAsync(cancellationToken);
+                    var a = sqlConnection.ClientConnectionId;
+                }
+                else
+                {
+                    connection.Open();
+                }
             }
             catch (Exception e)
             {
                 var sqlConnection = connection as SqlConnection;
                 var database = connection.Database ?? "(unknown database)";
                 var dataSource = sqlConnection?.DataSource ?? "(unknown data source)";
-                var exception = new FulcrumResourceException($"Could not open database connection to {database} on {dataSource}", e);
+                var exception =
+                    new FulcrumResourceException(
+                        $"Could not open database connection to {database} on {dataSource}", e);
                 throw new CircuitBreakerException(exception);
             }
             finally
             {
-                if (connection.State != ConnectionState.Open) connection.ConnectionString = originalConnectionString;
+                if (connection.State != ConnectionState.Open)
+                    connection.ConnectionString = originalConnectionString;
             }
         }
 
@@ -94,7 +114,7 @@ namespace Nexus.Link.Libraries.SqlServer.Logic
                 {
                     var connStringBuilder = new SqlConnectionStringBuilder(connection.ConnectionString)
                     {
-                        ConnectTimeout = (int) connectTimeout.Value.TotalSeconds
+                        ConnectTimeout = (int)connectTimeout.Value.TotalSeconds
                     };
                     connection.ConnectionString = connStringBuilder.ConnectionString;
                 }

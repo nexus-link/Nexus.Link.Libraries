@@ -199,9 +199,7 @@ namespace Nexus.Link.Libraries.SqlServer
         /// <inheritdoc />
         public async Task ClaimTransactionLockAsync(Guid masterId, Guid slaveId, CancellationToken token = default)
         {
-            var selectStatement =
-                $"SELECT {SqlHelper.ReadColumnNames(TableMetadata)} FROM [{TableMetadata.TableName}] WITH (ROWLOCK, UPDLOCK, READPAST) WHERE Id=@Id";
-            var result = await SearchAdvancedSingleAsync(selectStatement, new { Id = slaveId }, token);
+            var result = await SearchSingleAndLockWhereAsync("Id=@Id", new { Id = slaveId }, token);
             if (result == null)
             {
                 throw new FulcrumTryAgainException(

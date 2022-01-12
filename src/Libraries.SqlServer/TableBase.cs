@@ -9,7 +9,9 @@ using Newtonsoft.Json;
 using Nexus.Link.Libraries.Core.Assert;
 using Nexus.Link.Libraries.Core.Error.Logic;
 using Nexus.Link.Libraries.Core.Logging;
+using Nexus.Link.Libraries.Core.Misc;
 using Nexus.Link.Libraries.Core.Storage.Model;
+using Nexus.Link.Libraries.Crud.Interfaces;
 using Nexus.Link.Libraries.SqlServer.Logic;
 using Nexus.Link.Libraries.SqlServer.Model;
 
@@ -92,6 +94,29 @@ namespace Nexus.Link.Libraries.SqlServer
         }
 
         /// <inheritdoc />
+        public async Task<PageEnvelope<TDatabaseItem>> SearchAndLockWhereAsync(string where = null, string orderBy = null, object param = null, int offset = 0, int? limit = null, CancellationToken token = default)
+        {
+            limit = limit ?? PageInfo.DefaultLimit;
+            InternalContract.RequireGreaterThanOrEqualTo(0, offset, nameof(offset));
+            InternalContract.RequireGreaterThanOrEqualTo(0, limit.Value, nameof(limit));
+            var total = await CountItemsWhereAsync(where, param, token);
+            var data = await InternalSearchAndLockWhereAsync(param, where, orderBy, offset, limit.Value, token);
+            var dataAsArray = data as TDatabaseItem[] ?? data.ToArray();
+            return new PageEnvelope<TDatabaseItem>
+            {
+                Data = dataAsArray,
+                PageInfo = new PageInfo
+                {
+
+                    Offset = offset,
+                    Limit = limit.Value,
+                    Returned = dataAsArray.Length,
+                    Total = total
+                }
+            };
+        }
+
+        /// <inheritdoc />
         public async Task<int> CountItemsWhereAsync(string where = null, object param = null, CancellationToken token = default)
         {
             where = where ?? "1=1";
@@ -105,29 +130,35 @@ namespace Nexus.Link.Libraries.SqlServer
             InternalContract.RequireNotNullOrWhiteSpace(selectRest, nameof(selectRest));
             if (selectRest == null) return 0;
             var selectStatement = $"{selectFirst} {selectRest}";
-            using (IDbConnection db = await Database.NewSqlConnectionAsync(cancellationToken))
-            {
-                try
-                {
-                    var items = await db.QueryAsync<int>(selectStatement, param);
-                    var paramAsString = param == null ? "NULL" : JsonConvert.SerializeObject(param);
-                    Log.LogVerbose($"{selectStatement} {JsonConvert.SerializeObject(paramAsString)}");
-                    return items.SingleOrDefault();
-                }
-                catch (Exception e)
-                {
-                    var paramAsString = param == null ? "NULL" : JsonConvert.SerializeObject(param);
-                    Log.LogError($"Query failed:\r{selectStatement}\rwith param:\r{paramAsString}:\r{e.Message}");
-                    throw;
-                }
-            }
+            var result = await InternalQueryAsync<int>(selectStatement, param, cancellationToken);
+            FulcrumAssert.IsNotNull(result, CodeLocation.AsString());
+            return result.SingleOrDefault();
         }
 
         /// <inheritdoc />
-        public async Task<TDatabaseItem> SearchWhereSingle(string where, object param = null, CancellationToken token = default)
+        [Obsolete("Please use SearchSingleWhereAsync. Obsolete since 2022-01-03.")]
+        public Task<TDatabaseItem> SearchWhereSingle(string where, object param = null, CancellationToken token = default)
+        {
+            return SearchSingleWhereAsync(where, param, token);
+        }
+
+        public Task<TDatabaseItem> SearchSingleWhereAsync(string @where, object param = null, CancellationToken token = default)
         {
             if (where == null) where = "1=1";
-            return await SearchAdvancedSingleAsync($"SELECT * FROM [{TableMetadata.TableName}] WHERE ({where})", param, token);
+            return SearchAdvancedSingleAsync($"SELECT * FROM [{TableMetadata.TableName}] WHERE ({where})", param, token);
+        }
+        
+        public async Task<TDatabaseItem> SearchSingleAndLockWhereAsync(string @where, object param = null, CancellationToken token = default)
+        {
+            if (where == null) where = "1=1";
+            var item = await SearchAdvancedSingleAsync($"SELECT * FROM [{TableMetadata.TableName}] WITH (ROWLOCK, UPDLOCK, READPAST) WHERE ({where})", param, token);
+            if (item != null) return item;
+            var count = await CountItemsWhereAsync(where, param, token);
+            if (count == 0) return default;
+            throw new FulcrumTryAgainException($"The specified row in table {TableMetadata.TableName} was already locked")
+            {
+                RecommendedWaitTimeInSeconds = 1.0
+            };
         }
 
         /// <inheritdoc />
@@ -141,6 +172,13 @@ namespace Nexus.Link.Libraries.SqlServer
         public async Task<TDatabaseItem> SearchFirstWhereAsync(string where = null, string orderBy = null, object param = null, CancellationToken token = default)
         {
             var result = await InternalSearchWhereAsync(param, where, orderBy, 0, 1, token);
+            return result.SingleOrDefault();
+        }
+
+        public async Task<TDatabaseItem> SearchAndLockFirstWhereAsync(string @where = null, string orderBy = null, object param = null,
+            CancellationToken token = default)
+        {
+            var result = await InternalSearchAndLockWhereAsync(param, where, orderBy, 0, 1, token);
             return result.SingleOrDefault();
         }
 
@@ -191,7 +229,34 @@ namespace Nexus.Link.Libraries.SqlServer
             InternalContract.RequireGreaterThanOrEqualTo(0, offset, nameof(offset));
             InternalContract.RequireGreaterThanOrEqualTo(0, limit, nameof(limit));
             where = where ?? "1=1";
-            return await InternalSearchAsync(param, $"SELECT * FROM [{TableMetadata.TableName}] WHERE ({where})", orderBy, offset, limit, cancellationToken);
+            return await InternalSearchAsync(param, 
+                $"SELECT *" +
+                $" FROM [{TableMetadata.TableName}]" +
+                $" WHERE ({where})", 
+                orderBy, offset, limit, cancellationToken);
+        }
+
+        /// <summary>
+        /// Find and lock the items specified by the <paramref name="where"/> clause.
+        /// </summary>
+        /// <param name="param">The fields for the <paramref name="where"/> condition.</param>
+        /// <param name="where">The search condition for the SELECT statement.</param>
+        /// <param name="orderBy">An expression for how to order the result.</param>
+        /// <param name="offset">The number of items that will be skipped in result.</param>
+        /// <param name="limit">The maximum number of items to return.</param>
+        /// <returns>The found items.</returns>
+        protected async Task<IEnumerable<TDatabaseItem>> InternalSearchAndLockWhereAsync(object param, string where, string orderBy,
+            int offset, int limit, CancellationToken cancellationToken = default)
+        {
+            InternalContract.RequireGreaterThanOrEqualTo(0, offset, nameof(offset));
+            InternalContract.RequireGreaterThanOrEqualTo(0, limit, nameof(limit));
+            where = where ?? "1=1";
+            return await InternalSearchAsync(param, 
+                $"SELECT *" +
+                $" FROM [{TableMetadata.TableName}]" +
+                " WITH (ROWLOCK, UPDLOCK, READPAST)" +
+                $" WHERE ({where})",
+                orderBy, offset, limit, cancellationToken);
         }
 
         /// <summary>
@@ -246,16 +311,22 @@ namespace Nexus.Link.Libraries.SqlServer
 
         }
 
-        protected internal async Task<IEnumerable<TDatabaseItem>> QueryAsync(string statement, object param = null, CancellationToken cancellationToken = default)
+        protected internal Task<IEnumerable<TDatabaseItem>> QueryAsync(string statement, object param = null, CancellationToken cancellationToken = default)
+        {
+            InternalContract.RequireNotNullOrWhiteSpace(statement, nameof(statement));
+            return InternalQueryAsync<TDatabaseItem>(statement, param, cancellationToken);
+        }
+
+        protected internal async Task<IEnumerable<T>> InternalQueryAsync<T>(string statement, object param = null, CancellationToken cancellationToken = default)
         {
             InternalContract.RequireNotNullOrWhiteSpace(statement, nameof(statement));
             using (var db = await Database.NewSqlConnectionAsync(cancellationToken))
             {
                 await db.VerifyAvailabilityAsync(null, cancellationToken);
-                IEnumerable<TDatabaseItem> items;
+                IEnumerable<T> items;
                 try
                 {
-                    items = await db.QueryAsync<TDatabaseItem>(statement, param);
+                    items = await db.QueryAsync<T>(statement, param);
                     var paramAsString = param == null ? "NULL" : JsonConvert.SerializeObject(param);
                     Log.LogVerbose($"{statement} {JsonConvert.SerializeObject(paramAsString)}");
                 }

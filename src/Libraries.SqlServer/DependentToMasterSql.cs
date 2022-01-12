@@ -32,9 +32,24 @@ namespace Nexus.Link.Libraries.SqlServer
         /// <param name="tableMetadata"></param>
         /// <param name="dependentTableHandler"></param>
         /// <param name="masterTableHandler"></param>
+        [Obsolete("Use DependentToMasterSql(IDatabaseOptions, ISqlTableMetadata, ...) instead. Obsolete since 2021-01-07.", error: false)]
         public DependentToMasterSql(string connectionString, ISqlTableMetadata tableMetadata,
             CrudSql<TDependentModel> dependentTableHandler, CrudSql<TMasterModel> masterTableHandler)
             : base(connectionString, tableMetadata, dependentTableHandler, masterTableHandler)
+        {
+        }
+
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        /// <param name="options"></param>
+        /// <param name="tableMetadata"></param>
+        /// <param name="dependentTableHandler"></param>
+        /// <param name="masterTableHandler"></param>
+        [Obsolete("Use DependentToMasterSql(IDatabaseOptions, ISqlTableMetadata, ...) instead. Obsolete since 2021-01-07.", error: false)]
+        public DependentToMasterSql(IDatabaseOptions options, ISqlTableMetadata tableMetadata,
+            CrudSql<TDependentModel> dependentTableHandler, CrudSql<TMasterModel> masterTableHandler)
+            : base(options, tableMetadata, dependentTableHandler, masterTableHandler)
         {
         }
     }
@@ -55,8 +70,21 @@ namespace Nexus.Link.Libraries.SqlServer
         /// <summary>
         /// Constructor
         /// </summary>
+        [Obsolete("Use DependentToMasterSql(IDatabaseOptions, ISqlTableMetadata, ...) instead. Obsolete since 2021-01-07.", error: false)]
         public DependentToMasterSql(string connectionString, ISqlTableMetadata tableMetadata, CrudSql<TDependentModelCreate, TDependentModel> dependentTableHandler, CrudSql<TMasterModel> masterTableHandler)
-        :base(connectionString, tableMetadata)
+            : base(connectionString, tableMetadata)
+        {
+            ParentColumnName = nameof(IUniquelyIdentifiableDependent<Guid, TDependentId>.MasterId);
+            DependentTableHandler = dependentTableHandler;
+            MasterTableHandler = masterTableHandler;
+            _convenience = new DependentToMasterConvenience<TDependentModelCreate, TDependentModel, Guid, TDependentId>(this);
+        }
+
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        public DependentToMasterSql(IDatabaseOptions options, ISqlTableMetadata tableMetadata, CrudSql<TDependentModelCreate, TDependentModel> dependentTableHandler, CrudSql<TMasterModel> masterTableHandler)
+            : base(options, tableMetadata)
         {
             ParentColumnName = nameof(IUniquelyIdentifiableDependent<Guid, TDependentId>.MasterId);
             DependentTableHandler = dependentTableHandler;
@@ -190,9 +218,7 @@ namespace Nexus.Link.Libraries.SqlServer
         public async Task<TDependentModel> ClaimTransactionLockAndReadAsync(Guid masterId, TDependentId dependentId,
             CancellationToken token = default)
         {
-            var selectStatement =
-                $"SELECT {SqlHelper.ReadColumnNames(TableMetadata)} FROM [{TableMetadata.TableName}] WITH (ROWLOCK, UPDLOCK, READPAST) WHERE Id=@Id";
-            var result = await SearchAdvancedSingleAsync(selectStatement, new { MasterId = masterId, DependentId = dependentId }, token);
+            var result = await SearchSingleAndLockWhereAsync("MasterId=@MasterId AND DependentId=@DependentId", new { MasterId = masterId, DependentId = dependentId }, token);
             if (result == null)
             {
                 throw new FulcrumTryAgainException(

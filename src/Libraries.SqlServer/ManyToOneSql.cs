@@ -24,7 +24,7 @@ namespace Nexus.Link.Libraries.SqlServer
         private readonly ManyToOneConvenience<TManyModel, TManyModel, Guid> _convenience;
 
         public string ParentColumnName { get; }
-        protected CrudSql<TOneModel> OneTableHandler { get; }
+        protected CrudSql<TOneModel> ParentTable { get; }
 
         /// <summary>
         /// Constructor
@@ -32,13 +32,30 @@ namespace Nexus.Link.Libraries.SqlServer
         /// <param name="connectionString"></param>
         /// <param name="tableMetadata"></param>
         /// <param name="parentColumnName"></param>
-        /// <param name="oneTableHandler"></param>
+        /// <param name="parentTable"></param>
+        [Obsolete("Use ManyToOneSql(IDatabaseOptions, ISqlTableMetadata, ...) instead. Obsolete since 2021-01-07.", error: false)]
         public ManyToOneSql(string connectionString, ISqlTableMetadata tableMetadata, string parentColumnName,
-            CrudSql<TOneModel> oneTableHandler)
+            CrudSql<TOneModel> parentTable)
             : base(connectionString, tableMetadata)
         {
             ParentColumnName = parentColumnName;
-            OneTableHandler = oneTableHandler;
+            ParentTable = parentTable;
+            _convenience = new ManyToOneConvenience<TManyModel, TManyModel, Guid>(this);
+        }
+
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        /// <param name="options">Options for this table</param>
+        /// <param name="tableMetadata">The configuration for this table</param>
+        /// <param name="parentColumnName">The name of the column that points out an id in the parent table.</param>
+        /// <param name="parentTable">The parent table </param>
+        public ManyToOneSql(IDatabaseOptions options, ISqlTableMetadata tableMetadata, string parentColumnName,
+            CrudSql<TOneModel> parentTable)
+            : base(options, tableMetadata)
+        {
+            ParentColumnName = parentColumnName;
+            ParentTable = parentTable;
             _convenience = new ManyToOneConvenience<TManyModel, TManyModel, Guid>(this);
         }
 
@@ -55,9 +72,9 @@ namespace Nexus.Link.Libraries.SqlServer
         internal async Task<PageEnvelope<TOneModel>> ReadAllParentsInGroupAsync(string groupColumnName, Guid groupColumnValue, int offset, int? limit = null, CancellationToken token = default)
         {
             var selectRest = $"FROM [{TableMetadata.TableName}] AS many" +
-                             $" JOIN [{OneTableHandler.TableName}] AS one ON (one.Id = many.[{ParentColumnName}])" +
+                             $" JOIN [{ParentTable.TableName}] AS one ON (one.Id = many.[{ParentColumnName}])" +
                              $" WHERE [{groupColumnName}] = @ColumnValue";
-            return await OneTableHandler.SearchAdvancedAsync("SELECT COUNT(one.[Id])", "SELECT one.*", selectRest, TableMetadata.GetOrderBy("many"), new { ColumnValue = groupColumnValue }, offset, limit, token);
+            return await ParentTable.SearchAdvancedAsync("SELECT COUNT(one.[Id])", "SELECT one.*", selectRest, TableMetadata.GetOrderBy("many"), new { ColumnValue = groupColumnValue }, offset, limit, token);
         }
 
         /// <summary>
@@ -72,9 +89,9 @@ namespace Nexus.Link.Libraries.SqlServer
         {
             var deleteStatement = "DELETE one" +
                              $" FROM [{TableMetadata.TableName}] AS many" +
-                             $" JOIN [{OneTableHandler.TableName}] AS one ON (one.Id = many.[{ParentColumnName}])" +
+                             $" JOIN [{ParentTable.TableName}] AS one ON (one.Id = many.[{ParentColumnName}])" +
                              $" WHERE [{groupColumnName}] = @ColumnValue";
-            await OneTableHandler.ExecuteAsync(deleteStatement, new { ColumnValue = groupColumnValue }, token);
+            await ParentTable.ExecuteAsync(deleteStatement, new { ColumnValue = groupColumnValue }, token);
         }
 
         /// <inheritdoc />
@@ -157,7 +174,7 @@ namespace Nexus.Link.Libraries.SqlServer
         private readonly ManyToOneConvenience<TManyModelCreate, TManyModel, Guid> _convenience;
 
         public string ParentColumnName { get; }
-        protected CrudSql<TOneModel> OneTableHandler { get; }
+        protected CrudSql<TOneModel> ParentTable { get; }
 
         /// <summary>
         /// Constructor
@@ -165,12 +182,28 @@ namespace Nexus.Link.Libraries.SqlServer
         /// <param name="connectionString"></param>
         /// <param name="tableMetadata"></param>
         /// <param name="parentColumnName"></param>
-        /// <param name="oneTableHandler"></param>
-        public ManyToOneSql(string connectionString, ISqlTableMetadata tableMetadata, string parentColumnName, CrudSql<TOneModel> oneTableHandler)
+        /// <param name="parentTable"></param>
+        [Obsolete("Use ManyToOneSql(IDatabaseOptions, ISqlTableMetadata, ...) instead. Obsolete since 2021-01-07.", error: false)]
+        public ManyToOneSql(string connectionString, ISqlTableMetadata tableMetadata, string parentColumnName, CrudSql<TOneModel> parentTable)
             : base(connectionString, tableMetadata)
         {
             ParentColumnName = parentColumnName;
-            OneTableHandler = oneTableHandler;
+            ParentTable = parentTable;
+            _convenience = new ManyToOneConvenience<TManyModelCreate, TManyModel, Guid>(this);
+        }
+
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        /// <param name="options">Options for this table</param>
+        /// <param name="tableMetadata">The configuration for this table</param>
+        /// <param name="parentColumnName">The name of the column that points out an id in the parent table.</param>
+        /// <param name="parentTable">The parent table </param>
+        public ManyToOneSql(IDatabaseOptions options, ISqlTableMetadata tableMetadata, string parentColumnName, CrudSql<TOneModel> parentTable)
+            : base(options, tableMetadata)
+        {
+            ParentColumnName = parentColumnName;
+            ParentTable = parentTable;
             _convenience = new ManyToOneConvenience<TManyModelCreate, TManyModel, Guid>(this);
         }
 
@@ -187,9 +220,9 @@ namespace Nexus.Link.Libraries.SqlServer
         internal async Task<PageEnvelope<TOneModel>> ReadAllParentsInGroupAsync(string groupColumnName, Guid groupColumnValue, int offset, int? limit = null, CancellationToken token = default)
         {
             var selectRest = $"FROM [{TableMetadata.TableName}] AS many" +
-                             $" JOIN [{OneTableHandler.TableName}] AS one ON (one.Id = many.[{ParentColumnName}])" +
+                             $" JOIN [{ParentTable.TableName}] AS one ON (one.Id = many.[{ParentColumnName}])" +
                              $" WHERE [{groupColumnName}] = @ColumnValue";
-            return await OneTableHandler.SearchAdvancedAsync("SELECT COUNT(one.[Id])", "SELECT one.*", selectRest, TableMetadata.GetOrderBy("many"), new { ColumnValue = groupColumnValue }, offset, limit, token);
+            return await ParentTable.SearchAdvancedAsync("SELECT COUNT(one.[Id])", "SELECT one.*", selectRest, TableMetadata.GetOrderBy("many"), new { ColumnValue = groupColumnValue }, offset, limit, token);
         }
 
         /// <summary>
@@ -204,9 +237,9 @@ namespace Nexus.Link.Libraries.SqlServer
         {
             var deleteStatement = "DELETE one" +
                              $" FROM [{TableMetadata.TableName}] AS many" +
-                             $" JOIN [{OneTableHandler.TableName}] AS one ON (one.Id = many.[{ParentColumnName}])" +
+                             $" JOIN [{ParentTable.TableName}] AS one ON (one.Id = many.[{ParentColumnName}])" +
                              $" WHERE [{groupColumnName}] = @ColumnValue";
-            await OneTableHandler.ExecuteAsync(deleteStatement, new { ColumnValue = groupColumnValue }, token);
+            await ParentTable.ExecuteAsync(deleteStatement, new { ColumnValue = groupColumnValue }, token);
         }
 
         /// <inheritdoc />

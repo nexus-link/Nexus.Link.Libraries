@@ -211,12 +211,14 @@ namespace Nexus.Link.Libraries.Crud.Cache
         }
 
         /// <inheritdoc />
+        [Obsolete("Use IDistributedLock. Obsolete warning since 2021-04-29")]
         public Task<Lock<TId>> ClaimLockAsync(TId id, CancellationToken cancellationToken  = default)
         {
             return _service.ClaimLockAsync(id, cancellationToken );
         }
 
         /// <inheritdoc />
+        [Obsolete("Use IDistributedLock. Obsolete warning since 2021-04-29")]
         public Task ReleaseLockAsync(TId id, TId lockId, CancellationToken cancellationToken  = default)
         {
             return _service.ReleaseLockAsync(id, lockId, cancellationToken );

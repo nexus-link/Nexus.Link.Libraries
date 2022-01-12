@@ -29,7 +29,7 @@
 
   <PropertyGroup>
     <PackageId>Nexus.Link.Libraries.SqlServer</PackageId>
-    <Version>2.12.2</Version>
+    <Version>2.13.2</Version>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <PackageTags>nexus;link;fulcrum;lever</PackageTags>
     <Authors>XLENT Link</Authors>
@@ -39,6 +39,9 @@
     <Copyright>Copyright ©2019 Xlent Link AB</Copyright>
     <IncludeSymbols>true</IncludeSymbols>
     <PackageReleaseNotes>
+      2.13.2 SearchSingleAndLockWhereAsync() now throws FulcrumTryAgainException() if the item is already locked
+      2.13.1 ClaimTransactionLockAndReadAsync() now does this in one operation instead of Lock + Read
+      2.13.0 Added SearchAndLock and InternalQueryAsync. Made SqlExtensions.ConnectAsync thread safe
       2.12.2 Bad Etag is now considered a FulcrumConflictException
       2.12.1 Bump
       2.12.0 Added support for IDistributedLock

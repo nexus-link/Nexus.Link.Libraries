@@ -41,7 +41,7 @@
 
   <PropertyGroup>
     <PackageId>Nexus.Link.Libraries.Azure.Web.AspNet</PackageId>
-    <Version>1.4.5</Version>
+    <Version>1.4.6</Version>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <PackageTags>nexus;link;fulcrum;lever</PackageTags>
     <Authors>XLENT Link</Authors>
@@ -51,7 +51,7 @@
     <Copyright>Copyright ©2020 Xlent Link AB</Copyright>
     <IncludeSymbols>true</IncludeSymbols>
     <PackageReleaseNotes>
-      1.4.5 Bump
+      1.4.6 Bump
       1.4.4 Symbols
       1.4.3 Bump
       1.4.1 Old obsolete stuff with errors has been deleted and old with warning has been updated to error.

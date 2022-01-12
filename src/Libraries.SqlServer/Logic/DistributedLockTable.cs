@@ -52,7 +52,7 @@ namespace Nexus.Link.Libraries.SqlServer.Logic
             for (var i = 0; i < 2; i++)
             {
                 var where = $"{nameof(DistributedLockRecord.LockedRecordId)} = @{nameof(DistributedLockRecord.LockedRecordId)}";
-                distributedLock = await SearchWhereSingle(where, new { LockedRecordId = recordToLockId}, cancellationToken);
+                distributedLock = await SearchSingleWhereAsync(where, new { LockedRecordId = recordToLockId}, cancellationToken);
                 if (distributedLock != null) break;
                 try
                 {
