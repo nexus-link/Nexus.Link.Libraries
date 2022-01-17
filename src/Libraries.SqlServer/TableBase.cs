@@ -99,7 +99,7 @@ namespace Nexus.Link.Libraries.SqlServer
             limit = limit ?? PageInfo.DefaultLimit;
             InternalContract.RequireGreaterThanOrEqualTo(0, offset, nameof(offset));
             InternalContract.RequireGreaterThanOrEqualTo(0, limit.Value, nameof(limit));
-            var total = await CountItemsWhereAsync(where, param, token);
+            var total = await CountItemsAdvancedAsync("SELECT COUNT(*)", $"FROM [{TableMetadata.TableName}] WITH (NOLOCK) WHERE ({@where})", param, token);
             var data = await InternalSearchAndLockWhereAsync(param, where, orderBy, offset, limit.Value, token);
             var dataAsArray = data as TDatabaseItem[] ?? data.ToArray();
             return new PageEnvelope<TDatabaseItem>
@@ -153,7 +153,7 @@ namespace Nexus.Link.Libraries.SqlServer
             if (where == null) where = "1=1";
             var item = await SearchAdvancedSingleAsync($"SELECT * FROM [{TableMetadata.TableName}] WITH (ROWLOCK, UPDLOCK, READPAST) WHERE ({where})", param, token);
             if (item != null) return item;
-            var count = await CountItemsWhereAsync(where, param, token);
+            var count = await CountItemsAdvancedAsync("SELECT COUNT(*)", $"FROM [{TableMetadata.TableName}] WITH (NOLOCK) WHERE ({@where})", param, token);
             if (count == 0) return default;
             throw new FulcrumTryAgainException($"The specified row in table {TableMetadata.TableName} was already locked")
             {
