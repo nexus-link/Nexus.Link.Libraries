@@ -55,6 +55,7 @@ namespace Nexus.Link.Libraries.Core.Queue.Logic
         private readonly ConcurrentQueue<MessageEnvelope<T>> _queue;
         private QueueItemActionDelegate _queueItemAction;
         private Thread _backgroundWorkerThread;
+        private bool _abortBackgroundThread;
 
         public TimeSpan KeepQueueAliveTimeSpan { get; set; }
 
@@ -134,10 +135,38 @@ namespace Nexus.Link.Libraries.Core.Queue.Logic
         }
 
         /// <summary>
+        ///     This is a specifically for unit testing. Stop the background thread.
+        /// </summary>
+        // ReSharper disable once InconsistentNaming
+        public void OnlyForUnitTest_AbortBackgroundWorker()
+        {
+            AbortBackgroundWorker();
+        }
+        
+        private void AbortBackgroundWorker()
+        {
+            lock (_queue)
+            {
+                if (_backgroundWorkerThread == null) return;
+                _abortBackgroundThread = true;
+                while (HasAliveBackgroundWorker && _abortBackgroundThread) Thread.Sleep(1);
+            }
+        }
+
+        /// <summary>
         ///     This is a property specifically for unit testing.
         /// </summary>
         // ReSharper disable once InconsistentNaming
-        private bool HasAliveBackgroundWorker => _backgroundWorkerThread != null && _backgroundWorkerThread.IsAlive;
+        private bool HasAliveBackgroundWorker
+        {
+            get
+            {
+                lock (_queue)
+                {
+                    return _backgroundWorkerThread != null && _backgroundWorkerThread.IsAlive;
+                }
+            }
+        }
 
         /// <inheritdoc />
         public string Name { get; }
@@ -152,8 +181,7 @@ namespace Nexus.Link.Libraries.Core.Queue.Logic
             while (_queue.TryDequeue(out _))
             {
             }
-
-            await Task.Yield();
+            await Task.CompletedTask;
         }
 
         /// <inheritdoc />
@@ -184,6 +212,7 @@ namespace Nexus.Link.Libraries.Core.Queue.Logic
             {
                 if (_queue.IsEmpty || HasAliveBackgroundWorker) return;
                 _backgroundWorkerThread = null;
+                _abortBackgroundThread = false;
                 _backgroundWorkerThread =
                     ThreadHelper.FireAndForgetResetContext(async () =>
                         await BackgroundWorkerAsync(CancellationToken.None).ConfigureAwait(false));
@@ -194,6 +223,14 @@ namespace Nexus.Link.Libraries.Core.Queue.Logic
         {
             while (!_queue.IsEmpty)
             {
+                if (_abortBackgroundThread)
+                {
+                    lock (_queue)
+                    {
+                        _abortBackgroundThread = false;
+                        return;
+                    }
+                }
                 if (_actionsCanExecuteWithoutIndividualAwait)
                     await CallCallbackUntilQueueIsEmptyWithCollectionAwaitAsync(cancellationToken);
                 else
@@ -215,6 +252,7 @@ namespace Nexus.Link.Libraries.Core.Queue.Logic
             while (!_queue.IsEmpty)
             {
                 var message = await GetOneMessageWithPossibleDelayAsync(cancellationToken);
+                if (_abortBackgroundThread) break;
                 if (Equals(message, default(T))) continue;
                 try
                 {
@@ -243,6 +281,10 @@ namespace Nexus.Link.Libraries.Core.Queue.Logic
             var currentTasksCount = 0;
             while (!_queue.IsEmpty)
             {
+                if (_abortBackgroundThread)
+                {
+                    break;
+                }
                 var message = await GetOneMessageNoBlockAsync(cancellationToken);
                 if (Equals(message, default(T)))
                 {
@@ -304,7 +346,7 @@ namespace Nexus.Link.Libraries.Core.Queue.Logic
         private async Task WaitForAdditionalItemsAsync(TimeSpan timeSpan, CancellationToken cancellationToken)
         {
             var deadline = DateTimeOffset.Now.Add(timeSpan);
-            while (DateTimeOffset.Now < deadline)
+            while (DateTimeOffset.Now < deadline && !_abortBackgroundThread)
             {
                 if (!_queue.IsEmpty) return;
                 await Task.Delay(TimeSpan.FromMilliseconds(10), cancellationToken);
