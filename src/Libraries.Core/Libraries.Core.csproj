@@ -48,7 +48,7 @@
 
   <PropertyGroup>
     <PackageId>Nexus.Link.Libraries.Core</PackageId>
-    <Version>5.11.0-alfa02</Version>
+    <Version>5.11.0</Version>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <PackageTags>nexus;link;fulcrum;lever</PackageTags>
     <Authors>XLENT Link</Authors>
@@ -58,7 +58,7 @@
     <Copyright>Copyright ©2021 Xlent Link AB</Copyright>
     <IncludeSymbols>true</IncludeSymbols>
     <PackageReleaseNotes>
-      5.11.0 Added a method for MemoryQueue to abort the background worker.
+      5.11.0 Added a method for MemoryQueue to abort the background worker
       5.10.0 Added extension Guid.ToGuidString(). Added error location to the exception message for assertions. Added TaskHelper
       5.9.3 Added TypeConversionExtensions. Added constants.
       5.8.0 Added AnnotatedId
