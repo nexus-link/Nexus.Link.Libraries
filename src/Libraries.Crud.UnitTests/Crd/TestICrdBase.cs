@@ -37,7 +37,7 @@ namespace Nexus.Link.Libraries.Crud.UnitTests.Crd
             return readItem;
         }
 
-        protected async Task<TModel> UpdateItemAsync(TId id, TypeOfTestDataEnum type, CancellationToken cancellationToken = default)
+        protected async Task<TModel> UpdateAndReturnItemAsync(TId id, TypeOfTestDataEnum type, CancellationToken cancellationToken = default)
         {
             var updatedItem = await ReadItemAsync(id, cancellationToken);
             updatedItem.InitializeWithDataForTesting(type);
@@ -45,8 +45,7 @@ namespace Nexus.Link.Libraries.Crud.UnitTests.Crd
             {
                 itemWithId.Id = id;
             }
-            await CrudStorage.UpdateAsync(id, updatedItem, cancellationToken);
-            return await ReadItemAsync(id, cancellationToken);
+            return await CrudStorage.UpdateAndReturnAsync(id, updatedItem, cancellationToken);
         }
     }
 }

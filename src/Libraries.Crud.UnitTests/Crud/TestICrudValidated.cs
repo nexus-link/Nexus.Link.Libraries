@@ -37,7 +37,7 @@ namespace Nexus.Link.Libraries.Crud.UnitTests.Crud
         public async Task Update_Read_Validated_Async()
         {
             var id = await CreateItemAsync(TypeOfTestDataEnum.Variant1);
-            var updatedItem = await UpdateItemAsync(id, TypeOfTestDataEnum.Variant2);
+            var updatedItem = await UpdateAndReturnItemAsync(id, TypeOfTestDataEnum.Variant2);
             var readItem = await ReadItemAsync(id);
             readItem.Validate(null);
             Assert.AreEqual(updatedItem, readItem);

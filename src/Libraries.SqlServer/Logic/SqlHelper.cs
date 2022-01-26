@@ -7,7 +7,8 @@ namespace Nexus.Link.Libraries.SqlServer.Logic
 {
     internal static class SqlHelper
     {
-        public static string Create(ISqlTableMetadata tableMetadata) => $"INSERT INTO dbo.[{tableMetadata.TableName}] ({CreateColumnList(tableMetadata)}) values ({CreateArgumentList(tableMetadata)})";
+        public static string Create(ISqlTableMetadata tableMetadata) => $"INSERT INTO dbo.[{tableMetadata.TableName}] ({CreateColumnList(tableMetadata)}) VALUES ({CreateArgumentList(tableMetadata)})";
+        public static string CreateAndRead(ISqlTableMetadata tableMetadata) => $"INSERT INTO dbo.[{tableMetadata.TableName}] ({CreateColumnList(tableMetadata)}) OUTPUT {ReadColumnList(tableMetadata, "INSERTED")} VALUES ({CreateArgumentList(tableMetadata)})";
 
         public static string Read(ISqlTableMetadata tableMetadata, string where) => $"SELECT {ReadColumnList(tableMetadata)} FROM [{tableMetadata.TableName}] WHERE {where}";
 
@@ -17,10 +18,13 @@ namespace Nexus.Link.Libraries.SqlServer.Logic
         public static string Update(ISqlTableMetadata tableMetadata, string oldEtag) => $"UPDATE [{tableMetadata.TableName}] SET {UpdateList(tableMetadata)} WHERE Id = @Id AND Etag = '{oldEtag}'";
 
         public static string UpdateIfSameEtag(ISqlTableMetadata tableMetadata, string oldEtag) => $"UPDATE [{tableMetadata.TableName}] SET {UpdateList(tableMetadata)} WHERE Id = @Id AND {tableMetadata.EtagColumnName} = '{oldEtag}'";
+        public static string UpdateIfSameEtagAndRead(ISqlTableMetadata tableMetadata, string oldEtag) => $"UPDATE [{tableMetadata.TableName}] SET {UpdateList(tableMetadata)} OUTPUT {ReadColumnList(tableMetadata, "INSERTED")} WHERE Id = @Id AND {tableMetadata.EtagColumnName} = '{oldEtag}'";
 
         public static string UpdateIfSameRowVersion(ISqlTableMetadata tableMetadata) => $"UPDATE [{tableMetadata.TableName}] SET {UpdateList(tableMetadata)} WHERE Id = @Id AND {tableMetadata.RowVersionColumnName} = @{tableMetadata.RowVersionColumnName}";
+        public static string UpdateIfSameRowVersionAndRead(ISqlTableMetadata tableMetadata) => $"UPDATE [{tableMetadata.TableName}] SET {UpdateList(tableMetadata)} OUTPUT {ReadColumnList(tableMetadata, "INSERTED")} WHERE Id = @Id AND {tableMetadata.RowVersionColumnName} = @{tableMetadata.RowVersionColumnName}";
 
         public static string Update(ISqlTableMetadata tableMetadata) => $"UPDATE [{tableMetadata.TableName}] SET {UpdateList(tableMetadata)} WHERE Id = @Id";
+        public static string UpdateAndRead(ISqlTableMetadata tableMetadata) => $"UPDATE [{tableMetadata.TableName}] SET {UpdateList(tableMetadata)} OUTPUT {ReadColumnList(tableMetadata, "INSERTED")} WHERE Id = @Id";
 
         public static string Delete(ISqlTableMetadata tableMetadata, string where) => $"DELETE FROM [{tableMetadata.TableName}] WHERE {where}"; 
         
@@ -29,8 +33,9 @@ namespace Nexus.Link.Libraries.SqlServer.Logic
 
         public static string CreateColumnList(ISqlTableMetadata tableMetadata) => string.Join(", ", CreateColumnNames(tableMetadata).Select(name => $"[{name}]"));
 
+        public static string ReadColumnList(ISqlTableMetadata tableMetadata, string alias) => string.Join(", ", ReadColumnNames(tableMetadata).Select(name => $"{alias}.[{name}]"));
         public static string ReadColumnList(ISqlTableMetadata tableMetadata) => string.Join(", ", ReadColumnNames(tableMetadata).Select(name => $"[{name}]"));
-        
+
         [Obsolete("Please use CreateArgumentList(). Obsolete warning since 2020-01-12., error since 2021-06-09.", true)]
         public static string ArgumentList(ISqlTableMetadata tableMetadata) => string.Join(", ", AllColumnNames(tableMetadata).Select(name => $"@{name}"));
 

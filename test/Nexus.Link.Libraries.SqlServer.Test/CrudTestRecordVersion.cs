@@ -116,7 +116,7 @@ namespace Nexus.Link.Libraries.SqlServer.Test
         public async Task Update_Read_Etag_Async()
         {
             var id = await CreateItemAsync(TypeOfTestDataEnum.Variant1);
-            var updateItem = await UpdateItemAsync(id, TypeOfTestDataEnum.Variant2);
+            var updateItem = await UpdateAndReturnItemAsync(id, TypeOfTestDataEnum.Variant2);
             Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsNotNull(updateItem);
             var readItem = await ReadItemAsync(id);
             Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsNotNull(readItem);
