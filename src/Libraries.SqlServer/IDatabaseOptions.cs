@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
+using Nexus.Link.Libraries.SqlServer.Logic;
 using Nexus.Link.Libraries.SqlServer.Model;
 
 namespace Nexus.Link.Libraries.SqlServer
@@ -34,6 +35,11 @@ namespace Nexus.Link.Libraries.SqlServer
         /// These delegates will be called before we connect to a database. For instance to patch the database schema.
         /// </summary>
         OnBeforeNewSqlConnectionAsync OnBeforeNewSqlConnectionAsync { get; }
+
+        /// <summary>
+        /// This is the number that the database implementor has used as error number from triggers that are advanced constraints.
+        /// </summary>
+        int? TriggerConstraintSqlExceptionErrorNumber { get; set;  }
     }
 
     public class DatabaseOptions : IDatabaseOptions
@@ -52,5 +58,8 @@ namespace Nexus.Link.Libraries.SqlServer
 
         /// <inheritdoc />
         public OnBeforeNewSqlConnectionAsync OnBeforeNewSqlConnectionAsync { get; set; }
+
+        /// <inheritdoc />
+        public int? TriggerConstraintSqlExceptionErrorNumber { get; set; }
     }
 }

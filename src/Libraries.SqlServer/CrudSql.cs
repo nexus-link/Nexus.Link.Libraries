@@ -119,10 +119,18 @@ namespace Nexus.Link.Libraries.SqlServer
             catch (SqlException e)
             {
                 // https://stackoverflow.com/questions/6483699/unique-key-violation-in-sql-server-is-it-safe-to-assume-error-2627
-                if (e.Class == 14 && (e.Number == 2627 || e.Number == 2601))
+                if (e.Number == (int) SqlConstants.SqlErrorEnum.DuplicateKey || e.Number == (int)SqlConstants.SqlErrorEnum.UniqueConstraint)
                 {
                     // Unique constraint
-                    throw new FulcrumConflictException("The new item must be unique.", e);
+                    throw new FulcrumConflictException($"The new {TableMetadata.TableName} item must be unique: {e.Message}", e);
+                }
+
+                if (e.Number == (int)SqlConstants.SqlErrorEnum.ConstraintFailed 
+                    || e.Number == (int)SqlConstants.SqlErrorEnum.CheckConstraintFailed 
+                    || e.Number == Database.Options.TriggerConstraintSqlExceptionErrorNumber)
+                {
+                    // A complex constraint in the form of a trigger
+                    throw new FulcrumContractException($"A {TableMetadata.TableName} trigger on table with a constraint failed during insert: {e.Message}", e);
                 }
 
                 throw;
@@ -239,10 +247,18 @@ namespace Nexus.Link.Libraries.SqlServer
             catch (SqlException e)
             {
                 // https://stackoverflow.com/questions/6483699/unique-key-violation-in-sql-server-is-it-safe-to-assume-error-2627
-                if (e.Class == 14 && (e.Number == 2627 || e.Number == 2601))
+                if (e.Number == (int)SqlConstants.SqlErrorEnum.DuplicateKey || e.Number == (int)SqlConstants.SqlErrorEnum.UniqueConstraint)
                 {
                     // Unique constraint
-                    throw new FulcrumConflictException("The new item must be unique.", e);
+                    throw new FulcrumConflictException($"The updated {TableMetadata.TableName} item must be unique: {e.Message}", e);
+                }
+
+                if (e.Number == (int)SqlConstants.SqlErrorEnum.ConstraintFailed 
+                    || e.Number == (int)SqlConstants.SqlErrorEnum.CheckConstraintFailed 
+                    || e.Number == Database.Options.TriggerConstraintSqlExceptionErrorNumber)
+                {
+                    // A complex constraint in the form of a trigger
+                    throw new FulcrumContractException($"A {TableMetadata.TableName} trigger on table with a constraint failed during update: {e.Message}", e);
                 }
 
                 throw;

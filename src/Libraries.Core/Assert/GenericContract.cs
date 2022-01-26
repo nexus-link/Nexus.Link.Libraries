@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Linq.Expressions;
 using System.Text.RegularExpressions;
+using Newtonsoft.Json.Linq;
 using Nexus.Link.Libraries.Core.Error.Logic;
 using Nexus.Link.Libraries.Core.Misc;
 
@@ -190,6 +191,24 @@ namespace Nexus.Link.Libraries.Core.Assert
             if (parameterValue == null) return;
             var message = customMessage ?? $"ContractViolation: {parameterName} ({parameterValue}) must represent one of the enumeration values for ({enumerationType.FullName}).";
             Require(Enum.IsDefined(enumerationType, parameterValue), message);
+        }
+
+        /// <summary>
+        /// Verify that <paramref name="parameterValue"/> is null or in JSON format.
+        /// </summary>
+        [StackTraceHidden]
+        public static void RequireJson(string parameterValue, string parameterName, string customMessage = null)
+        {
+            if (parameterValue == null) return;
+            try
+            {
+                JToken.Parse(parameterValue);
+            }
+            catch (Exception e)
+            {
+                var message = customMessage ?? $"ContractViolation: {parameterName} ({parameterValue}) must be null or in JSON format: {e.Message}";
+                Require(false, message);
+            }
         }
 
         /// <summary>

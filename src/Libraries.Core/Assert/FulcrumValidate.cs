@@ -195,11 +195,31 @@ namespace Nexus.Link.Libraries.Core.Assert
         /// Verify that <paramref name="propertyValue"/> is null or has one of the values in <paramref name="enumerationType"/>.
         /// </summary>
         [StackTraceHidden]
+        [Obsolete("Please use IsInEnumeration(). Obsolete since 2022-01-26.")]
         public static void InEnumeration(Type enumerationType, string propertyValue, string propertyName, string errorLocation, string customMessage = null)
+        {
+            IsInEnumeration(enumerationType, propertyValue, propertyName, errorLocation, customMessage);
+        }
+
+        /// <summary>
+        /// Verify that <paramref name="propertyValue"/> is null or has one of the values in <paramref name="enumerationType"/>.
+        /// </summary>
+        [StackTraceHidden]
+        public static void IsInEnumeration(Type enumerationType, string propertyValue, string propertyName, string errorLocation, string customMessage = null)
         {
             InternalContract.RequireNotNull(enumerationType, nameof(enumerationType));
             var message = customMessage ?? $"Expected property {propertyName} ({propertyValue}) to represent one of the enumeration values for ({enumerationType.FullName}).";
-            GenericAssert<ValidationException>.InEnumeration(enumerationType, propertyValue, errorLocation, message);
+            GenericAssert<ValidationException>.IsInEnumeration(enumerationType, propertyValue, errorLocation, message);
+        }
+
+        /// <summary>
+        /// Verify that <paramref name="propertyValue"/> null or a JSON expression.
+        /// </summary>
+        [StackTraceHidden]
+        public static void IsJson(string propertyValue, string propertyName, string errorLocation, string customMessage = null)
+        {
+            var message = customMessage ?? $"Expected property {propertyName} ({propertyValue}) to be null or a JSON expression.";
+            GenericAssert<ValidationException>.IsJson(propertyValue, errorLocation, customMessage);
         }
     }
 }

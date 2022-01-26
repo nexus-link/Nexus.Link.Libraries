@@ -185,6 +185,15 @@ namespace Nexus.Link.Libraries.Core.Assert
         }
 
         /// <summary>
+        /// Verify that <paramref name="parameterValue"/> is null or in JSON format.
+        /// </summary>
+        [StackTraceHidden]
+        public static void RequireJson(string parameterValue, string parameterName, string customMessage = null)
+        {
+            GenericContract<FulcrumServiceContractException>.RequireJson(parameterValue, parameterName, customMessage);
+        }
+
+        /// <summary>
         /// Always fail, with the given <paramref name="message"/>.
         /// </summary>
         [StackTraceHidden]

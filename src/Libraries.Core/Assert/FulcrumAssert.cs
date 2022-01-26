@@ -169,10 +169,29 @@ namespace Nexus.Link.Libraries.Core.Assert
         /// Verify that <paramref name="value"/> is null or has one of the values in <paramref name="enumerationType"/>.
         /// </summary>
         [StackTraceHidden]
+        [Obsolete("Please use IsInEnumeration(). Obsolete since 2022-01-26.")]
         public static void InEnumeration(Type enumerationType, string value, string errorLocation = null, string customMessage = null)
         {
+            IsInEnumeration(enumerationType, value, errorLocation, customMessage);
+        }
+
+        /// <summary>
+        /// Verify that <paramref name="value"/> is null or has one of the values in <paramref name="enumerationType"/>.
+        /// </summary>
+        [StackTraceHidden]
+        public static void IsInEnumeration(Type enumerationType, string value, string errorLocation = null, string customMessage = null)
+        {
             InternalContract.RequireNotNull(enumerationType, nameof(enumerationType));
-            GenericAssert<FulcrumAssertionFailedException>.InEnumeration(enumerationType, value, errorLocation, customMessage);
+            GenericAssert<FulcrumAssertionFailedException>.IsInEnumeration(enumerationType, value, errorLocation, customMessage);
+        }
+
+        /// <summary>
+        /// Verify that <paramref name="value"/> null or a JSON expression.
+        /// </summary>
+        [StackTraceHidden]
+        public static void IsJson(string value, string errorLocation = null, string customMessage = null)
+        {
+            GenericAssert<FulcrumAssertionFailedException>.IsJson(value, errorLocation, customMessage);
         }
 
         /// <summary>
