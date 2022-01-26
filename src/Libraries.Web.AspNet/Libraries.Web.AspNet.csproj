@@ -44,7 +44,7 @@
 
   <PropertyGroup>
     <PackageId>Nexus.Link.Libraries.Web.AspNet</PackageId>
-    <Version>3.0.1</Version>
+    <Version>3.0.2</Version>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <PackageTags>nexus;link;fulcrum;lever</PackageTags>
     <Authors>XLENT Link</Authors>
@@ -54,46 +54,47 @@
     <Copyright>Copyright ©2019 Xlent Link AB</Copyright>
     <IncludeSymbols>true</IncludeSymbols>
     <PackageReleaseNotes>
-      3.0.1 Bump
-      3.0.0 Moved Workflow specific middleware to the WorkflowEngine SDK
-      2.30.3 Bump
-      2.30.2 Now removes headers that starts with "Content-" when serializing HttpRequests
-      2.30.1 Refactored RequestAcceptedException
-      2.29.6 Fix: Swagger grouping
-      2.29.5 Bump
-      2.29.1 Added ReentryAuthentication to postpone.
-      2.29.0 Can convert RequestAcceptedException and RequestPostponedException to response with HttpStatusCode Accepted
-      2.28.0 Added Serialization for RequestData and ResponseData.
-      2.27.1 Symbols
-      2.27.0 Removed code related to asynchronous processes
-      2.26.3 Enable buffering in NexusLinkMiddleware
-      2.26.1 Now uses RequestData earlier
-      2.25.10 Now buffers body in transform from HttpRequest to RequestData
-      2.25.1 RespondAsyncFilter now swallows PostponeException if running asynchronously.
-      2.25.0 Added ReqeustData.FromAsync(HttpReqeustMessage) overload
-      2.24.4 Some adjustments to RespondAsyncFilter. Breaking change, but no customer is using it yet so...
-      2.24.0 Added a filter for executing a request async when the client prefers it (RepondAsync).
-      2.23.0 Consolidated all .NET middleware into one class, NexusLinkMiddleware
-      2.22.1 Added CancellationToken where it was missing. Old obsolete stuff with errors has been deleted and old with warning has been updated to error.
-      2.21.0 Deprecated NexusWebApiApplication (We don't use Fundamentals for configuration for service tenants anymore)
-      2.20.0 (netcoreapp) Swagger UI helper methods for grouping by capability and expand/collapse sections
-      2.19.4 ValueTranslatorFilter fix: Don't crash if null is returned from controller method
-      2.19.3 Bump
-      2.19.1 Fix: SaveTenantConfiguration now throws an exception if unauthorized
-      2.19.0 Support for setting FulcrumApplication.Context.NexusTestContext from header "X-nexus-test-context"
-      2.18.0 (Configuration error)
-      2.17.4 Bump
-      2.17.3 Instance id in startup logs from NexusWebApiApplication
-      2.17.2 Pipe handlers assert that they have not yet been started
-      2.17.1 Bump
-      2.17.0 Added support for better initialization of the ValueTranslatorFilter.
-      2.16.5 Bump
-      2.16.0 Support for ASP.NET WebApi in Translation filter
-      2.15.14 Bump
-      2.15.13 Refactored translation.
-      2.14.0: Override release that was released by mistake.
-      2.12.7 Fix: PackageProjectUrl for this nuget package
-      2.12.6 Support more local hosts. Also LoadConfiguration =&gt; LoadConfigurationAsync in NexusWebApiApplication.
+			3.0.2 Now supports multiple userId concepts
+			3.0.1 Bump
+			3.0.0 Moved Workflow specific middleware to the WorkflowEngine SDK
+			2.30.3 Bump
+			2.30.2 Now removes headers that starts with "Content-" when serializing HttpRequests
+			2.30.1 Refactored RequestAcceptedException
+			2.29.6 Fix: Swagger grouping
+			2.29.5 Bump
+			2.29.1 Added ReentryAuthentication to postpone.
+			2.29.0 Can convert RequestAcceptedException and RequestPostponedException to response with HttpStatusCode Accepted
+			2.28.0 Added Serialization for RequestData and ResponseData.
+			2.27.1 Symbols
+			2.27.0 Removed code related to asynchronous processes
+			2.26.3 Enable buffering in NexusLinkMiddleware
+			2.26.1 Now uses RequestData earlier
+			2.25.10 Now buffers body in transform from HttpRequest to RequestData
+			2.25.1 RespondAsyncFilter now swallows PostponeException if running asynchronously.
+			2.25.0 Added ReqeustData.FromAsync(HttpReqeustMessage) overload
+			2.24.4 Some adjustments to RespondAsyncFilter. Breaking change, but no customer is using it yet so...
+			2.24.0 Added a filter for executing a request async when the client prefers it (RepondAsync).
+			2.23.0 Consolidated all .NET middleware into one class, NexusLinkMiddleware
+			2.22.1 Added CancellationToken where it was missing. Old obsolete stuff with errors has been deleted and old with warning has been updated to error.
+			2.21.0 Deprecated NexusWebApiApplication (We don't use Fundamentals for configuration for service tenants anymore)
+			2.20.0 (netcoreapp) Swagger UI helper methods for grouping by capability and expand/collapse sections
+			2.19.4 ValueTranslatorFilter fix: Don't crash if null is returned from controller method
+			2.19.3 Bump
+			2.19.1 Fix: SaveTenantConfiguration now throws an exception if unauthorized
+			2.19.0 Support for setting FulcrumApplication.Context.NexusTestContext from header "X-nexus-test-context"
+			2.18.0 (Configuration error)
+			2.17.4 Bump
+			2.17.3 Instance id in startup logs from NexusWebApiApplication
+			2.17.2 Pipe handlers assert that they have not yet been started
+			2.17.1 Bump
+			2.17.0 Added support for better initialization of the ValueTranslatorFilter.
+			2.16.5 Bump
+			2.16.0 Support for ASP.NET WebApi in Translation filter
+			2.15.14 Bump
+			2.15.13 Refactored translation.
+			2.14.0: Override release that was released by mistake.
+			2.12.7 Fix: PackageProjectUrl for this nuget package
+			2.12.6 Support more local hosts. Also LoadConfiguration =&gt; LoadConfigurationAsync in NexusWebApiApplication.
       2.12.4 Bump
       2.12.3 Better logging messages for converting exceptions into HTTP responses.
       2.12.2 Added CodeLocation for FulcrumAssert.

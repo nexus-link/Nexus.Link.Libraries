@@ -25,6 +25,7 @@ namespace Nexus.Link.Libraries.Web.Tests.RestClientHelper
         private const string ConsumerId = "in-1";
         private const string ProducerId = "out-1";
         private string _decoratedConsumerId;
+        private List<string> DecoratedConsumerIds => new List<string> { _decoratedConsumerId };
         private string _decoratedProducerId;
 
         [TestInitialize]
@@ -87,7 +88,7 @@ namespace Nexus.Link.Libraries.Web.Tests.RestClientHelper
         [TestMethod]
         public async Task TranslateUserId()
         {
-            FulcrumApplication.Context.ValueProvider.SetValue("DecoratedUserId", _decoratedConsumerId);
+            FulcrumApplication.Context.ValueProvider.SetValue("DecoratedUserIds", DecoratedConsumerIds);
 
             var httpSenderMock = new HttpSenderMock();
             var sender = new ValueTranslatorHttpSender(httpSenderMock, "producer");
