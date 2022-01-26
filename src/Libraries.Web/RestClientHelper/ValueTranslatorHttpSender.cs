@@ -148,7 +148,7 @@ namespace Nexus.Link.Libraries.Web.RestClientHelper
 
             if (translatedUserId != null)
             {
-                FulcrumApplication.Context.ValueProvider.SetValue(Constants.TranslatedUserIdKey, translator.Translate(userId));
+                FulcrumApplication.Context.ValueProvider.SetValue(Constants.TranslatedUserIdKey, translator.Translate(translatedUserId));
                 TranslatedUserId_OnlyForUnitTests = FulcrumApplication.Context.ValueProvider.GetValue<string>(Constants.TranslatedUserIdKey);
             }
         }
