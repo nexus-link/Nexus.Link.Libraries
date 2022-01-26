@@ -66,7 +66,10 @@ namespace Nexus.Link.Libraries.Web.RestClientHelper
 
             await translator.ExecuteAsync(cancellationToken);
 
-            SetupTranslatedUserId(translator, userIds);
+            if (userIds != null && userIds.Any())
+            {
+                SetupTranslatedUserId(translator, userIds);
+            }
 
             var result = await HttpSender.SendRequestAsync<TResponse, TBody>(
                 method,
@@ -110,7 +113,10 @@ namespace Nexus.Link.Libraries.Web.RestClientHelper
 
             await translator.ExecuteAsync(cancellationToken);
 
-            SetupTranslatedUserId(translator, userIds);
+            if (userIds != null && userIds.Any())
+            {
+                SetupTranslatedUserId(translator, userIds);
+            }
 
             var result = await HttpSender.SendRequestAsync(
                 method,
@@ -128,6 +134,8 @@ namespace Nexus.Link.Libraries.Web.RestClientHelper
             var userIds = FulcrumApplication.Context.ValueProvider.GetValue<List<string>>("DecoratedUserIds");
 
             var translator = CreateTranslator();
+            translator.AddSubStrings(relativeUrl);
+
             if (userIds != null && userIds.Any())
             {
                 foreach (var decoratedUserId in userIds)
@@ -137,14 +145,26 @@ namespace Nexus.Link.Libraries.Web.RestClientHelper
             }
 
             await translator.ExecuteAsync(cancellationToken);
-            SetupTranslatedUserId(translator, userIds);
+
+            if (userIds != null && userIds.Any())
+            {
+                SetupTranslatedUserId(translator, userIds);
+            }
 
             return await HttpSender.SendRequestAsync(method, translator.Translate(relativeUrl), customHeaders, cancellationToken);
         }
 
         private void SetupTranslatedUserId(ITranslator translator, List<string> userIds)
         {
-            var translatedUserId = userIds.FirstOrDefault(userId => !userId.Contains("!~"));
+            string translatedUserId = null;
+            foreach (var userId in userIds)
+            {
+                var translated = translator.Translate(userId);
+                if (!translated.Contains("!~"))
+                {
+                    translatedUserId = translated;
+                }
+            }
 
             if (translatedUserId != null)
             {

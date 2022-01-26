@@ -44,16 +44,21 @@ namespace Nexus.Link.Libraries.Web.AspNet.Pipe.Inbound
         /// <summary>
         /// The concepts which we want to try to translate the UserId to
         /// </summary>
-        public static List<string> UserIdConcepts { get; }
+        public static List<string> UserIdConcepts = new();
 
         private readonly Func<string> _getClientNameMethod;
 
-        public ValueTranslatorFilter(ITranslatorService translatorService, Func<string> getClientNameMethod)
+        public ValueTranslatorFilter(ITranslatorService translatorService, Func<string> getClientNameMethod, IEnumerable<string> userIdConcepts = null)
         {
             InternalContract.RequireNotNull(translatorService, nameof(translatorService));
             InternalContract.RequireNotNull(getClientNameMethod, nameof(getClientNameMethod));
             TranslatorService = translatorService;
             _getClientNameMethod = getClientNameMethod;
+
+            if (userIdConcepts != null)
+            {
+                UserIdConcepts.AddRange(userIdConcepts);
+            }
         }
 
 #if NETCOREAPP
