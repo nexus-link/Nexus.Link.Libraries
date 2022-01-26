@@ -2,6 +2,7 @@
 using Nexus.Link.Libraries.Core.Logging;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
@@ -39,6 +40,11 @@ namespace Nexus.Link.Libraries.Web.AspNet.Pipe.Inbound
         /// The service that does the actual translation.
         /// </summary>
         public ITranslatorService TranslatorService { get; }
+
+        /// <summary>
+        /// The concepts which we want to try to translate the UserId to
+        /// </summary>
+        public static List<string> UserIdConcepts { get; }
 
         private readonly Func<string> _getClientNameMethod;
 
@@ -226,11 +232,21 @@ namespace Nexus.Link.Libraries.Web.AspNet.Pipe.Inbound
 
         private static void DecorateUserId(ITranslator translator)
         {
-            var userId = FulcrumApplication.Context.ValueProvider.GetValue<string>("UserId");
-            if (!string.IsNullOrWhiteSpace(userId))
+            if (UserIdConcepts != null && UserIdConcepts.Any())
             {
-                var decoratedUserId = translator.Decorate("nexus-userid", userId);
-                FulcrumApplication.Context.ValueProvider.SetValue("DecoratedUserId", decoratedUserId);
+                var userId = FulcrumApplication.Context.ValueProvider.GetValue<string>("UserId");
+                if (!string.IsNullOrWhiteSpace(userId))
+                {
+                    var decoratedUserIds = new List<string>();
+                    foreach (var concept in UserIdConcepts)
+                    {
+                        var decoratedUserId = translator.Decorate(concept, userId);
+                        decoratedUserIds.Add(decoratedUserId);
+                    }
+
+                    FulcrumApplication.Context.ValueProvider.SetValue("DecoratedUserIds", decoratedUserIds);
+                }
+
             }
         }
 
