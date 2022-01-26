@@ -42,7 +42,6 @@ namespace Nexus.Link.Libraries.SqlServer.Logic
         ///If a <see cref="IDatabaseOptions"/> is provided, its <<see cref="IDatabaseOptions.OnBeforeNewSqlConnectionAsync"/> is invoked.
         /// </remarks>
         /// <returns>A new <see cref="SqlConnection"/></returns>
-        [Obsolete("Use NewSqlConnectionAsync instead. Obsolete since 2021-10-21.", error: false)]
         public virtual SqlConnection NewSqlConnection()
         {
             if (Options?.OnBeforeNewSqlConnectionAsync != null)
