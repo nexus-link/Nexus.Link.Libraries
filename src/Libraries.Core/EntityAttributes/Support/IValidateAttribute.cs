@@ -5,7 +5,7 @@ namespace Nexus.Link.Libraries.Core.EntityAttributes.Support
 {
     public interface IValidateAttribute
     {
-        ValidationResult Validate(Type entityType, object entityValue, PropertyInfo propertyInfo, object propertyValue);
+        ValidationResult Validate(Type entityType, object entityValue, PropertyInfo propertyInfo, object propertyValue, string errorLocation);
     }
 
     public class ValidationResult

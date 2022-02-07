@@ -1,4 +1,5 @@
-﻿using System.Text.RegularExpressions;
+﻿using System.Collections.Generic;
+using System.Text.RegularExpressions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Nexus.Link.Libraries.Core.Assert;
 using Nexus.Link.Libraries.Core.EntityAttributes;
@@ -428,9 +429,41 @@ namespace Nexus.Link.Libraries.Core.Tests.EntityAttributes
 
             FulcrumAssert.IsValidated(entity);
         }
+
+        [TestMethod]
+        public void Validate_Given_NoSubValidation_Gives_Ok()
+        {
+            // Arrange
+            var entity = new TestEntity();
+            entity.SubEntityWithoutValidation.NotNull = null;
+            FulcrumAssert.IsValidated(entity);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(FulcrumAssertionFailedException))]
+        public void Validate_Given_SubValidation_Gives_Exception()
+        {
+            // Arrange
+            var entity = new TestEntity();
+            entity.SubEntityWithValidation.NotNull = null;
+            FulcrumAssert.IsValidated(entity);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(FulcrumAssertionFailedException))]
+        public void Validate_Given_SubValidations_Gives_Exception()
+        {
+            // Arrange
+            var entity = new TestEntity();
+            entity.SubEntitiesWithValidation.Add(new SubTestEntity
+            {
+                NotNull = null
+            });
+            FulcrumAssert.IsValidated(entity);
+        }
     }
 
-    public class TestEntity
+    internal class TestEntity
     {
         [Validation.NotNull]
         public string NotNull { get; set; } = "";
@@ -493,6 +526,21 @@ namespace Nexus.Link.Libraries.Core.Tests.EntityAttributes
 
         [Validation.UpperCase]
         public string UpperCase { get; set; } = "UPPER CASE";
+
+        public SubTestEntity SubEntityWithoutValidation { get; set; } = new SubTestEntity();
+
+        [Validation.Validate]
+        public SubTestEntity SubEntityWithValidation { get; set; } = new SubTestEntity();
+
+        [Validation.Validate]
+        public List<SubTestEntity> SubEntitiesWithValidation { get; set; } =
+            new List<SubTestEntity>() {new SubTestEntity()};
+    }
+
+    internal class SubTestEntity
+    {
+        [Validation.NotNull]
+        public string NotNull { get; set; } = "not null";
     }
 
     public enum ColorEnum

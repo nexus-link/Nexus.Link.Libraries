@@ -10,11 +10,11 @@ namespace Nexus.Link.Libraries.Core.EntityAttributes.Support
         public bool IsValid(Type entityType, object entityValue, PropertyInfo propertyInfo,
             object propertyValue)
         {
-            var result = Validate(entityType, entityValue, propertyInfo, propertyValue);
+            var result = Validate(entityType, entityValue, propertyInfo, propertyValue, null);
             return result.IsValid;
         }
 
         public abstract ValidationResult Validate(Type entityType, object entityValue, PropertyInfo propertyInfo,
-            object propertyValue);
+            object propertyValue, string errorLocation);
     }
 }

@@ -44,7 +44,8 @@ namespace Nexus.Link.Libraries.Core.EntityAttributes
             typeof(InEnumerationAttribute),
             typeof(JSonStringAttribute),
             typeof(LowerCaseAttribute),
-            typeof(UpperCaseAttribute)
+            typeof(UpperCaseAttribute),
+            typeof(ValidateAttribute)
         };
 
         /// <summary>
@@ -53,7 +54,7 @@ namespace Nexus.Link.Libraries.Core.EntityAttributes
         public class NotNullAttribute : PropertyValidationAttribute
         {
             public override ValidationResult Validate(Type entityType, object entityValue, PropertyInfo propertyInfo,
-                object propertyValue)
+                object propertyValue, string errorLocation)
             {
                 return propertyValue != null
                     ? new ValidationResult()
@@ -67,7 +68,7 @@ namespace Nexus.Link.Libraries.Core.EntityAttributes
         public class NotNullOrEmptyAttribute : PropertyValidationAttribute
         {
             public override ValidationResult Validate(Type entityType, object entityValue, PropertyInfo propertyInfo,
-                object propertyValue)
+                object propertyValue, string errorLocation)
             {
                 return propertyValue != null && propertyValue is string valueAsString && !string.IsNullOrEmpty(valueAsString)
                     ? new ValidationResult()
@@ -81,7 +82,7 @@ namespace Nexus.Link.Libraries.Core.EntityAttributes
         public class NotNullOrWhitespaceAttribute : PropertyValidationAttribute
         {
             public override ValidationResult Validate(Type entityType, object entityValue, PropertyInfo propertyInfo,
-                object propertyValue)
+                object propertyValue, string errorLocation)
             {
                 return propertyValue != null && propertyValue is string valueAsString && !string.IsNullOrWhiteSpace(valueAsString)
                     ? new ValidationResult()
@@ -95,7 +96,7 @@ namespace Nexus.Link.Libraries.Core.EntityAttributes
         public class NotDefaultAttribute : PropertyValidationAttribute
         {
             public override ValidationResult Validate(Type entityType, object entityValue, PropertyInfo propertyInfo,
-                object propertyValue)
+                object propertyValue, string errorLocation)
             {
                 InternalContract.RequireNotNull(propertyInfo, nameof(propertyInfo));
                 var defaultValue = Activator.CreateInstance(propertyInfo.PropertyType);
@@ -118,7 +119,7 @@ namespace Nexus.Link.Libraries.Core.EntityAttributes
             }
 
             public override ValidationResult Validate(Type entityType, object entityValue, PropertyInfo propertyInfo,
-                object propertyValue)
+                object propertyValue, string errorLocation)
             {
                 return !Equals(propertyValue, ReferenceValue)
                     ? new ValidationResult()
@@ -139,7 +140,7 @@ namespace Nexus.Link.Libraries.Core.EntityAttributes
             }
 
             public override ValidationResult Validate(Type entityType, object entityValue, PropertyInfo propertyInfo,
-                object propertyValue)
+                object propertyValue, string errorLocation)
             {
                 InternalContract.RequireNotNull(entityType, nameof(entityType));
                 InternalContract.RequireNotNull(entityValue, nameof(entityValue));
@@ -171,7 +172,7 @@ namespace Nexus.Link.Libraries.Core.EntityAttributes
             }
 
             public override ValidationResult Validate(Type entityType, object entityValue, PropertyInfo propertyInfo,
-                object propertyValue)
+                object propertyValue, string errorLocation)
             {
                 if (propertyValue == null) return new ValidationResult();
 
@@ -198,7 +199,7 @@ namespace Nexus.Link.Libraries.Core.EntityAttributes
             }
 
             public override ValidationResult Validate(Type entityType, object entityValue, PropertyInfo propertyInfo,
-                object propertyValue)
+                object propertyValue, string errorLocation)
             {
                 if (propertyValue == null) return new ValidationResult();
 
@@ -226,7 +227,7 @@ namespace Nexus.Link.Libraries.Core.EntityAttributes
             }
 
             public override ValidationResult Validate(Type entityType, object entityValue, PropertyInfo propertyInfo,
-                object propertyValue)
+                object propertyValue, string errorLocation)
             {
                 if (propertyValue == null) return new ValidationResult();
 
@@ -265,7 +266,7 @@ namespace Nexus.Link.Libraries.Core.EntityAttributes
             }
 
             public override ValidationResult Validate(Type entityType, object entityValue, PropertyInfo propertyInfo,
-                object propertyValue)
+                object propertyValue, string errorLocation)
             {
                 if (propertyValue == null) return new ValidationResult();
 
@@ -304,7 +305,7 @@ namespace Nexus.Link.Libraries.Core.EntityAttributes
             }
 
             public override ValidationResult Validate(Type entityType, object entityValue, PropertyInfo propertyInfo,
-                object propertyValue)
+                object propertyValue, string errorLocation)
             {
                 if (propertyValue == null) return new ValidationResult();
 
@@ -331,7 +332,7 @@ namespace Nexus.Link.Libraries.Core.EntityAttributes
             }
 
             public override ValidationResult Validate(Type entityType, object entityValue, PropertyInfo propertyInfo,
-                object propertyValue)
+                object propertyValue, string errorLocation)
             {
                 if (propertyValue == null) return new ValidationResult();
 
@@ -359,7 +360,7 @@ namespace Nexus.Link.Libraries.Core.EntityAttributes
             }
 
             public override ValidationResult Validate(Type entityType, object entityValue, PropertyInfo propertyInfo,
-                object propertyValue)
+                object propertyValue, string errorLocation)
             {
                 if (propertyValue == null) return new ValidationResult();
 
@@ -398,7 +399,7 @@ namespace Nexus.Link.Libraries.Core.EntityAttributes
             }
 
             public override ValidationResult Validate(Type entityType, object entityValue, PropertyInfo propertyInfo,
-                object propertyValue)
+                object propertyValue, string errorLocation)
             {
                 if (propertyValue == null) return new ValidationResult();
 
@@ -437,7 +438,7 @@ namespace Nexus.Link.Libraries.Core.EntityAttributes
             }
 
             public override ValidationResult Validate(Type entityType, object entityValue, PropertyInfo propertyInfo,
-                object propertyValue)
+                object propertyValue, string errorLocation)
             {
                 if (propertyValue == null) return new ValidationResult();
                 if (!(propertyValue is string s)) s = propertyValue.ToString();
@@ -461,7 +462,7 @@ namespace Nexus.Link.Libraries.Core.EntityAttributes
             }
 
             public override ValidationResult Validate(Type entityType, object entityValue, PropertyInfo propertyInfo,
-                object propertyValue)
+                object propertyValue, string errorLocation)
             {
                 if (propertyValue == null) return new ValidationResult();
                 if (!(propertyValue is string s)) s = propertyValue.ToString();
@@ -487,7 +488,7 @@ namespace Nexus.Link.Libraries.Core.EntityAttributes
             }
 
             public override ValidationResult Validate(Type entityType, object entityValue, PropertyInfo propertyInfo,
-                object propertyValue)
+                object propertyValue, string errorLocation)
             {
                 if (propertyValue == null) return new ValidationResult();
 
@@ -503,7 +504,7 @@ namespace Nexus.Link.Libraries.Core.EntityAttributes
         public class JSonStringAttribute : PropertyValidationAttribute
         {
             public override ValidationResult Validate(Type entityType, object entityValue, PropertyInfo propertyInfo,
-                object propertyValue)
+                object propertyValue, string errorLocation)
             {
                 if (propertyValue == null) return new ValidationResult();
                 try
@@ -526,7 +527,7 @@ namespace Nexus.Link.Libraries.Core.EntityAttributes
             public CultureInfo CultureInfo { get; set; } = CultureInfo.InvariantCulture;
 
             public override ValidationResult Validate(Type entityType, object entityValue, PropertyInfo propertyInfo,
-                object propertyValue)
+                object propertyValue, string errorLocation)
             {
                 if (propertyValue == null) return new ValidationResult();
                 var valueAsString = propertyValue.ToString();
@@ -544,13 +545,37 @@ namespace Nexus.Link.Libraries.Core.EntityAttributes
             public CultureInfo CultureInfo { get; set; } = CultureInfo.InvariantCulture;
 
             public override ValidationResult Validate(Type entityType, object entityValue, PropertyInfo propertyInfo,
-                object propertyValue)
+                object propertyValue, string errorLocation)
             {
                 if (propertyValue == null) return new ValidationResult();
                 var valueAsString = propertyValue.ToString();
                 return valueAsString == valueAsString.ToUpper(CultureInfo)
                     ? new ValidationResult()
                     : new ValidationResult($"{propertyInfo.Name} ({propertyValue}) must be in upper case.");
+            }
+        }
+
+        /// <summary>
+        /// The property value is expected to be an object or an enumeration of objects that should be validated
+        /// </summary>
+        public class ValidateAttribute : PropertyValidationAttribute
+        {
+            public CultureInfo CultureInfo { get; set; } = CultureInfo.InvariantCulture;
+
+            public override ValidationResult Validate(Type entityType, object entityValue, PropertyInfo propertyInfo,
+                object propertyValue, string errorLocation)
+            {
+                if (propertyValue == null) return new ValidationResult();
+                if (propertyValue is IEnumerable<object> enumerable)
+                {
+                    foreach (var o in enumerable)
+                    {
+                        var result = Validation.Validate(o, errorLocation);
+                        if (!result.IsValid) return result;
+                    }
+                    return new ValidationResult();
+                }
+                return Validation.Validate(propertyValue, errorLocation);
             }
         }
 
@@ -567,7 +592,7 @@ namespace Nexus.Link.Libraries.Core.EntityAttributes
                     if (customAttribute is IValidateAttribute requireAttribute)
                     {
                         var propertyValue = propertyInfo.GetValue(entityValue);
-                        var validationResult = requireAttribute.Validate(entityType, entityValue, propertyInfo, propertyValue);
+                        var validationResult = requireAttribute.Validate(entityType, entityValue, propertyInfo, propertyValue, errorLocation);
                         if (validationResult.IsValid) continue;
                         return validationResult;
                     }
