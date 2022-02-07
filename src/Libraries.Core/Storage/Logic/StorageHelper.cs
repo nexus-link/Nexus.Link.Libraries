@@ -1,9 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 using Nexus.Link.Libraries.Core.Assert;
+using Nexus.Link.Libraries.Core.EntityAttributes;
+using Nexus.Link.Libraries.Core.EntityAttributes.Support;
+using Nexus.Link.Libraries.Core.Error.Logic;
+using Nexus.Link.Libraries.Core.Misc;
 using Nexus.Link.Libraries.Core.Storage.Model;
 
 namespace Nexus.Link.Libraries.Core.Storage.Logic
@@ -64,21 +70,130 @@ namespace Nexus.Link.Libraries.Core.Storage.Logic
         /// If <paramref name="item"/> implements <see cref="IOptimisticConcurrencyControlByETag"/>
         /// then the Etag of the item is set to a new value.
         /// </summary>
+        [Obsolete("Please use the extension method TrySetOptimisticConcurrencyControl(), i.e. item.TrySetOptimisticConcurrencyControl(). Obsolete since 2022-01-28.")]
         public static void MaybeCreateNewEtag<TModel>(TModel item)
         {
-            if (item is IOptimisticConcurrencyControlByETag eTaggable) eTaggable.Etag = Guid.NewGuid().ToString();
+            item.TrySetOptimisticConcurrencyControl();
+        }
+
+        /// <summary>
+        /// If <paramref name="item"/> implements <see cref="IOptimisticConcurrencyControlByETag"/>
+        /// then the Etag of the item is set to a new value.
+        /// </summary>
+        public static bool TrySetOptimisticConcurrencyControl<TModel>(this TModel item, string value = null)
+        {
+            if (value == null) value = Guid.NewGuid().ToString();
+            if (item is IOptimisticConcurrencyControlByETag optimistic)
+            {
+                optimistic.Etag = value;
+                return true;
+            }
+
+            return item.TrySetValueForPropertyWithCustomAttribute<Hint.OptimisticConcurrencyControlAttribute>(value);
         }
 
         /// <summary>
         /// If <paramref name="item"/> implements <see cref="IUniquelyIdentifiable{TId}"/>
         /// then the Id of the item is set.
         /// </summary>
+        [Obsolete("Please use the extension method TrySetPrimaryKey(), i.e. item.MaybeSetPrimaryId(id). Obsolete since 2022-01-28.")]
         public static void MaybeSetId<TId, TModel>(TId id, TModel item)
+        {
+            item.TrySetPrimaryKey(id);
+        }
+
+        /// <summary>
+        /// Try to find a way to set the primary key property for the <paramref name="item"/>.
+        /// </summary>
+        public static bool TrySetPrimaryKey<TModel, TId>(this TModel item, TId id)
         {
             if (item is IUniquelyIdentifiable<TId> identifiable)
             {
                 identifiable.Id = id;
+                return true;
             }
+
+            return item.TrySetValueForPropertyWithCustomAttribute<Hint.PrimaryKeyAttribute>(id);
+        }
+
+        /// <summary>
+        /// Try to find a way to set the updated-at property for the <paramref name="item"/>.
+        /// </summary>
+        public static bool TrySetUpdatedAt<TModel>(this TModel item, DateTimeOffset timeStamp)
+        {
+            if (item is ITimeStamped timeStamped)
+            {
+                timeStamped.RecordUpdatedAt = timeStamp;
+                return true;
+            }
+
+            return item.TrySetValueForPropertyWithCustomAttribute<Hint.RecordUpdatedAtAttribute>(timeStamp);
+        }
+
+        /// <summary>
+        /// Try to find a way to set the created-at property for the <paramref name="item"/>.
+        /// </summary>
+        public static bool TrySetCreatedAt<TModel>(this TModel item, DateTimeOffset timeStamp)
+        {
+            if (item is ITimeStamped timeStamped)
+            {
+                timeStamped.RecordCreatedAt = timeStamp;
+                return true;
+            }
+
+            return item.TrySetValueForPropertyWithCustomAttribute<Hint.RecordCreatedAtAttribute>(timeStamp);
+        }
+
+        /// <summary>
+        /// If <paramref name="item"/> implements <see cref="IUniquelyIdentifiable{TId}"/>
+        /// then the Id of the item is set.
+        /// </summary>
+        public static TId GetPrimaryKey<TModel, TId>(this TModel item)
+        {
+            item.TryGetPrimaryKey<TModel, TId>(out var id);
+            return id;
+        }
+
+        /// <summary>
+        /// Returns true if a primary key could be found and the value is put into <paramref name="id"/>.
+        /// </summary>
+        public static bool TryGetPrimaryKey<TModel, TId>(this TModel item, out TId id)
+        {
+            if (item is IUniquelyIdentifiable<TId> identifiable)
+            {
+                id = identifiable.Id;
+                return true;
+            }
+
+            var isSuccess = item.TryGetValueForPropertyWithCustomAttribute<Hint.PrimaryKeyAttribute>(out var idAsObject);
+            id = isSuccess ? (TId)idAsObject : default;
+            return isSuccess;
+        }
+
+        /// <summary>
+        /// Returns true if a primary key could be found and the value is put into <paramref name="id"/>.
+        /// </summary>
+        public static bool TryGetOptimisticConcurrencyControl<TModel>(this TModel item, out string eTag)
+        {
+            if (item is IOptimisticConcurrencyControlByETag optimistic)
+            {
+                eTag = optimistic.Etag;
+                return true;
+            }
+
+            var isSuccess = item.TryGetValueForPropertyWithCustomAttribute<Hint.OptimisticConcurrencyControlAttribute>(out var eTagAsObject);
+            eTag = isSuccess ? (string)eTagAsObject: null;
+            return isSuccess;
+        }
+
+        public static PropertyInfo GetPrimaryKeyProperty<TModel, TId>()
+        {
+            if (typeof(IUniquelyIdentifiable<TId>).IsAssignableFrom(typeof(TModel)))
+            {
+                return typeof(IUniquelyIdentifiable<TId>).GetProperty(nameof(IUniquelyIdentifiable<TId>.Id));
+            }
+            if (!typeof(TModel).IsClass) return null;
+            return typeof(TModel).GetPropertyWithCustomAttribute<Hint.PrimaryKeyAttribute>();
         }
 
         /// <summary>
@@ -105,10 +220,9 @@ namespace Nexus.Link.Libraries.Core.Storage.Logic
         /// <see cref="DateTimeOffset.Now"/> will be used.</param>
         public static void MaybeUpdateTimeStamps<TModel>(TModel item, bool updateCreatedToo, DateTimeOffset? timeStamp = null)
         {
-            if (!(item is ITimeStamped timeStamped)) return;
             timeStamp = timeStamp ?? DateTimeOffset.UtcNow;
-            timeStamped.RecordUpdatedAt = timeStamp.Value;
-            if (updateCreatedToo) timeStamped.RecordCreatedAt = timeStamp.Value;
+            item.TrySetUpdatedAt(timeStamp.Value);
+            if (updateCreatedToo) item.TrySetCreatedAt(timeStamp.Value);
         }
 
         /// <summary>

@@ -87,20 +87,13 @@ namespace Nexus.Link.Libraries.Crud.Helpers
         /// <inheritdoc />
         public async Task<TId> GetDependentUniqueIdAsync(TId masterId, TDependentId dependentId, CancellationToken cancellationToken  = default)
         {
-            InternalContract.Require(typeof(IUniquelyIdentifiable<TId>).IsAssignableFrom(typeof(TModel)), 
-                $"The method {nameof(GetDependentUniqueIdAsync)} requires that the type {typeof(TModel).Name} implements {typeof(IUniquelyIdentifiable<TId>).Name}.");
             var item = await _service.ReadAsync(masterId, dependentId, cancellationToken );
             if (item == null)
             {
                 throw new FulcrumNotFoundException($"Could not find a dependent object of type {typeof(TModel).Name} with master id {masterId} and dependent id {dependentId}.");
             }
 
-            if (!(item is IUniquelyIdentifiable<TId> uniquelyIdentifiable))
-            {
-                FulcrumAssert.Fail(CodeLocation.AsString());
-                return default;
-            }
-            return uniquelyIdentifiable.Id;
+            return item.GetPrimaryKey<TModel,TId>();
         }
     }
 }

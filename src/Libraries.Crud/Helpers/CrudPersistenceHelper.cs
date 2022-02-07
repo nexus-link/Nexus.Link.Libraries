@@ -8,6 +8,7 @@ using Nexus.Link.Libraries.Core.Assert;
 using Nexus.Link.Libraries.Core.Error.Logic;
 using Nexus.Link.Libraries.Core.Json;
 using Nexus.Link.Libraries.Core.Misc;
+using Nexus.Link.Libraries.Core.Storage.Logic;
 using Nexus.Link.Libraries.Core.Storage.Model;
 using Nexus.Link.Libraries.Crud.Interfaces;
 
@@ -215,11 +216,7 @@ namespace Nexus.Link.Libraries.Crud.Helpers
         public Task<TModel> SaveAsync(TModel item, CancellationToken cancellationToken = default)
         {
             InternalContract.RequireNotNull(item, nameof(item));
-            TId id = default;
-            if (item is IUniquelyIdentifiable<TId> uniquelyIdentifiable)
-            {
-                id = uniquelyIdentifiable.Id;
-            }
+            var id = item.GetPrimaryKey<TModel,TId>();
             return SaveAsync(id, item, cancellationToken);
         }
 

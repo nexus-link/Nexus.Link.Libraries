@@ -1,11 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Net.Http;
+using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Rest;
 using Newtonsoft.Json.Linq;
 using Nexus.Link.Libraries.Core.Assert;
+using Nexus.Link.Libraries.Core.EntityAttributes;
+using Nexus.Link.Libraries.Core.EntityAttributes.Support;
+using Nexus.Link.Libraries.Core.Storage.Logic;
 using Nexus.Link.Libraries.Core.Storage.Model;
 using Nexus.Link.Libraries.Core.Translation;
 using Nexus.Link.Libraries.Crud.Helpers;
@@ -108,24 +112,25 @@ namespace Nexus.Link.Libraries.Crud.Web.RestClient
         public virtual async Task<TId> CreateAsync(TModelCreate item, CancellationToken token = default)
         {
             // TODO: PostAndDecorateResultAsync
-            var invoiceId = await PostAsync<TId, TModelCreate>("", item, cancellationToken: token);
-            return MaybeDecorate(invoiceId);
+            var id = await PostAsync<TId, TModelCreate>("", item, cancellationToken: token);
+            return MaybeDecorate(id);
         }
 
-        private TId MaybeDecorate(TId invoiceId)
+        private TId MaybeDecorate(TId id)
         {
-            if (typeof(TId) != typeof(string)) return invoiceId;
-            if (!(HttpSender is ITranslationClientName translationTargetClientName)) return invoiceId;
-            if (!typeof(IUniquelyIdentifiable<string>).IsAssignableFrom(typeof(TModel))) return invoiceId;
+            if (typeof(TId) != typeof(string)) return id;
+            if (!(HttpSender is ITranslationClientName translationTargetClientName)) return id;
 
-            var idPropertyInfo = typeof(TModel).GetProperty(nameof(IUniquelyIdentifiable<string>.Id));
+            var idPropertyInfo = StorageHelper.GetPrimaryKeyProperty<TModel,TId>();
+            if (idPropertyInfo == null) return id;
+
             var translationConcept = Translator.GetConceptAttribute(idPropertyInfo);
-            if (translationConcept == null) return invoiceId;
+            if (translationConcept == null) return id;
 
             return (TId)(object) Translator.Decorate(
                 translationConcept.ConceptName,
                 translationTargetClientName.TranslationClientName, 
-                (string)(object)invoiceId);
+                (string)(object)id);
         }
 
         /// <inheritdoc />

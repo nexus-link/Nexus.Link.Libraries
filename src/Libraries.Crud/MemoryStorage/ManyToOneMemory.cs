@@ -107,14 +107,13 @@ namespace Nexus.Link.Libraries.Crud.MemoryStorage
         {
             InternalContract.RequireNotNull(masterId, nameof(masterId));
             InternalContract.RequireNotDefaultValue(masterId, nameof(masterId));
-            var errorMessage = $"{typeof(TModel).Name} must implement the interface {nameof(IUniquelyIdentifiable<TId>)} for this method to work.";
-            InternalContract.Require(typeof(IUniquelyIdentifiable<TId>).IsAssignableFrom(typeof(TModel)), errorMessage);
             var items = new PageEnvelopeEnumerableAsync<TModel>((o, t) => ReadChildrenWithPagingAsync(masterId, o, null, t), cancellationToken );
             var enumerator = items.GetEnumerator();
             while (await enumerator.MoveNextAsync())
             {
-                if (!(enumerator.Current is IUniquelyIdentifiable<TId> item)) continue;
-                await DeleteAsync(item.Id, cancellationToken );
+                InternalContract.Require(enumerator.Current.TryGetPrimaryKey<TModel, TId>(out var id),
+                    $"The type {typeof(TModel).FullName} doesn't seem to have a primary key, which is required for the method {nameof(DeleteChildrenAsync)}.");
+                await DeleteAsync(id, cancellationToken );
             }
         }
 

@@ -6,6 +6,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Nexus.Link.Libraries.Core.Assert;
 using Nexus.Link.Libraries.Core.Crud.Model;
+using Nexus.Link.Libraries.Core.EntityAttributes;
 using Nexus.Link.Libraries.Core.Error.Logic;
 using Nexus.Link.Libraries.Core.Misc;
 using Nexus.Link.Libraries.Core.Storage.Logic;
@@ -61,10 +62,7 @@ namespace Nexus.Link.Libraries.Crud.MemoryStorage
             FulcrumAssert.IsTrue(masterPersistence.MemoryItems.ContainsKey(dependentId), CodeLocation.AsString());
             var memoryItem = masterPersistence.MemoryItems[dependentId];
             StorageHelper.MaybeSetMasterAndDependentId(masterId, dependentId, memoryItem);
-            if (memoryItem is IUniquelyIdentifiable<TId> uniqueId)
-            {
-                uniqueId.Id = StorageHelper.CreateNewId<TId>();
-            }
+            memoryItem.TrySetPrimaryKey(StorageHelper.CreateNewId<TId>());
         }
 
         /// <inheritdoc />
@@ -84,10 +82,7 @@ namespace Nexus.Link.Libraries.Crud.MemoryStorage
             FulcrumAssert.IsTrue(masterPersistence.MemoryItems.ContainsKey(dependentId), CodeLocation.AsString());
             var memoryItem = masterPersistence.MemoryItems[dependentId];
             StorageHelper.MaybeSetMasterAndDependentId(masterId, dependentId, memoryItem);
-            if (memoryItem is IUniquelyIdentifiable<TId> uniqueId)
-            {
-                uniqueId.Id = StorageHelper.CreateNewId<TId>();
-            }
+            memoryItem.TrySetPrimaryKey(StorageHelper.CreateNewId<TId>());
 
             return await ReadAsync(masterId, dependentId, cancellationToken );
         }
@@ -136,14 +131,13 @@ namespace Nexus.Link.Libraries.Crud.MemoryStorage
                 InternalContract.RequireAreEqual(dependentId, combinedId.DependentId, $"{nameof(item)}.{nameof(combinedId.DependentId)}");
             }
             var groupPersistence = GetStorage(masterId);
-            if (item is IUniquelyIdentifiable<TId> uniquelyIdentifiable)
+            if (item.TryGetPrimaryKey<TModel, TId>(out var primaryKey))
             {
-                var oldItem = await groupPersistence.ReadAsync(dependentId, cancellationToken );
-                if (oldItem is IUniquelyIdentifiable<TId> oldUniquelyIdentifiable)
+                var oldItem = await groupPersistence.ReadAsync(dependentId, cancellationToken);
+                if (item.TryGetPrimaryKey<TModel, TId>(out var oldPrimaryKey))
                 {
-
-                    InternalContract.RequireAreEqual(oldUniquelyIdentifiable.Id, uniquelyIdentifiable.Id,
-                        $"{nameof(item)}.{nameof(uniquelyIdentifiable.Id)}");
+                    InternalContract.RequireAreEqual(oldPrimaryKey, primaryKey,
+                        $"{nameof(item)}.{item.GetPrimaryKeyPropertyName()}");
                 }
             }
             await groupPersistence.UpdateAsync(dependentId, item, cancellationToken );
@@ -162,14 +156,13 @@ namespace Nexus.Link.Libraries.Crud.MemoryStorage
                 InternalContract.RequireAreEqual(dependentId, combinedId.DependentId, $"{nameof(item)}.{nameof(combinedId.DependentId)}");
             }
             var groupPersistence = GetStorage(masterId);
-            if (item is IUniquelyIdentifiable<TId> uniquelyIdentifiable)
+            if (item.TryGetPrimaryKey<TModel, TId>(out var primaryKey))
             {
                 var oldItem = await groupPersistence.ReadAsync(dependentId, cancellationToken );
-                if (oldItem is IUniquelyIdentifiable<TId> oldUniquelyIdentifiable)
+                if (item.TryGetPrimaryKey<TModel, TId>(out var oldPrimaryKey))
                 {
-
-                    InternalContract.RequireAreEqual(oldUniquelyIdentifiable.Id, uniquelyIdentifiable.Id,
-                        $"{nameof(item)}.{nameof(uniquelyIdentifiable.Id)}");
+                    InternalContract.RequireAreEqual(oldPrimaryKey, primaryKey,
+                        $"{nameof(item)}.{item.GetPrimaryKeyPropertyName()}");
                 }
             }
             return await groupPersistence.UpdateAndReturnAsync(dependentId, item, cancellationToken );

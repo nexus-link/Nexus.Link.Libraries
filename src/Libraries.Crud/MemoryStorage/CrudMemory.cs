@@ -446,9 +446,9 @@ namespace Nexus.Link.Libraries.Crud.MemoryStorage
                 if (page == null || page.PageInfo.Returned <= 0) continue;
                 var foundItem = page.Data.First();
                 FulcrumAssert.IsNotNull(foundItem, CodeLocation.AsString());
-                if (!(foundItem is IUniquelyIdentifiable<TId> foundItemWithId)) continue;
-                if (foundItemWithId.Id.Equals(id)) continue;
-                throw new FulcrumConflictException($"The new item of type {typeof(TModelCreate).Name} must be unique.");
+                if (!foundItem.TryGetPrimaryKey<TModel, TId>(out var foundId)) continue;
+                if (foundId.Equals(id)) continue;
+                throw new FulcrumConflictException($"The new item of type {typeof(TModelCreate).Name} must be unique, but an item with primary key = {id} already exists.");
             }
         }
     }

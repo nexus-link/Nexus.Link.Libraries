@@ -29,7 +29,7 @@
 
   <PropertyGroup>
     <PackageId>Nexus.Link.Libraries.SqlServer</PackageId>
-    <Version>2.13.6</Version>
+    <Version>2.14.0</Version>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <PackageTags>nexus;link;fulcrum;lever</PackageTags>
     <Authors>XLENT Link</Authors>
@@ -39,6 +39,7 @@
     <Copyright>Copyright ©2019 Xlent Link AB</Copyright>
     <IncludeSymbols>true</IncludeSymbols>
     <PackageReleaseNotes>
+      2.14.0 Support for entity attributes such as PrimaryKeyAttribute
       2.13.6 Optimizations. CreateAndReturn and UpdateAndReturn now does their jobb in one SQL query instead of two
       2.13.5 SqlCrud now throws FulcrumContractException when constraints fail
       2.13.4 Database.NewSqlConnection() is no longer obsolete

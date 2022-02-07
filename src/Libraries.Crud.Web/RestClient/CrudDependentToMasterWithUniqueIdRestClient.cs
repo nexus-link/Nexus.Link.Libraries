@@ -2,6 +2,7 @@
 using System.Threading;
 using System.Threading.Tasks;
 using Nexus.Link.Libraries.Core.Assert;
+using Nexus.Link.Libraries.Core.Storage.Logic;
 using Nexus.Link.Libraries.Core.Storage.Model;
 using Nexus.Link.Libraries.Crud.Interfaces;
 using Nexus.Link.Libraries.Web.RestClientHelper;
@@ -54,9 +55,9 @@ namespace Nexus.Link.Libraries.Crud.Web.RestClient
             InternalContract.RequireNotDefaultValue(id, nameof(id));
             InternalContract.RequireNotNull(item, nameof(item));
             InternalContract.RequireValidated(item, nameof(item));
-            if (item is IUniquelyIdentifiable<TId> uniquelyIdentifiable)
+            if (item.TryGetPrimaryKey<TManyModel, TId>(out var propertyId))
             {
-                InternalContract.RequireAreEqual(id, uniquelyIdentifiable.Id, $"{nameof(item)}.{nameof(uniquelyIdentifiable.Id)}");
+                InternalContract.RequireAreEqual(propertyId, id, $"{nameof(id)}");
             }
             return PutNoResponseContentAsync($"{ChildrenName}/{id}", item, null, token);
         }
@@ -67,9 +68,9 @@ namespace Nexus.Link.Libraries.Crud.Web.RestClient
             InternalContract.RequireNotDefaultValue(id, nameof(id));
             InternalContract.RequireNotNull(item, nameof(item));
             InternalContract.RequireValidated(item, nameof(item));
-            if (item is IUniquelyIdentifiable<TId> uniquelyIdentifiable)
+            if (item.TryGetPrimaryKey<TManyModel, TId>(out var propertyId))
             {
-                InternalContract.RequireAreEqual(id, uniquelyIdentifiable.Id, $"{nameof(item)}.{nameof(uniquelyIdentifiable.Id)}");
+                InternalContract.RequireAreEqual(propertyId, id, $"{nameof(id)}");
             }
             return PutAndReturnUpdatedObjectAsync($"{ChildrenName}/{id}", item, null, token);
         }

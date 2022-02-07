@@ -45,30 +45,30 @@ namespace Nexus.Link.Libraries.Azure.Storage.Blob
         public IDirectory Directory { get; }
 
         /// <inheritdoc />
-        public async Task<TId> CreateAsync(TModelCreate item, CancellationToken token = default)
+        public async Task<TId> CreateAsync(TModelCreate item, CancellationToken cancellationToken = default)
         {
             var id = StorageHelper.CreateNewId<TId>();
-            await CreateWithSpecifiedIdAsync(id, item, token);
+            await CreateWithSpecifiedIdAsync(id, item, cancellationToken);
             return id;
         }
 
         /// <inheritdoc />
-        public async Task<TModel> CreateAndReturnAsync(TModelCreate item, CancellationToken token = default)
+        public async Task<TModel> CreateAndReturnAsync(TModelCreate item, CancellationToken cancellationToken = default)
         {
-            var id = await CreateAsync(item, token);
-            return await ReadAsync(id, token);
+            var id = await CreateAsync(item, cancellationToken);
+            return await ReadAsync(id, cancellationToken);
         }
 
-        public async Task CreateWithSpecifiedIdAsync(TId id, TModelCreate item, CancellationToken token = default)
+        public async Task CreateWithSpecifiedIdAsync(TId id, TModelCreate item, CancellationToken cancellationToken = default)
         {
             InternalContract.RequireNotDefaultValue(id, nameof(id));
             InternalContract.RequireNotDefaultValue(item, nameof(item));
             InternalContract.RequireValidated(item, nameof(item));
-            var createTask = Directory.CreateIfNotExistsAsync(token);
+            var createTask = Directory.CreateIfNotExistsAsync(cancellationToken);
             var fileName = CreateFileName(id);
             await createTask;
             var file = Directory.CreateFile(fileName);
-            var fileExistsTask = file.ExistsAsync(token);
+            var fileExistsTask = file.ExistsAsync(cancellationToken);
             var dbItem = StorageHelper.DeepCopy<TModel, TModelCreate>(item);
             StorageHelper.MaybeCreateNewEtag(dbItem);
             StorageHelper.MaybeUpdateTimeStamps(dbItem, true);
@@ -79,53 +79,53 @@ namespace Nexus.Link.Libraries.Azure.Storage.Blob
             {
                 throw new FulcrumConflictException($"File ({fileName}) already existed in directory {Directory.Name}");
             }
-            await file.UploadAsync(content, "application/json", token);
+            await file.UploadAsync(content, "application/json", cancellationToken);
         }
 
         /// <inheritdoc />
-        public async Task<TModel> CreateWithSpecifiedIdAndReturnAsync(TId id, TModelCreate item, CancellationToken token = default)
+        public async Task<TModel> CreateWithSpecifiedIdAndReturnAsync(TId id, TModelCreate item, CancellationToken cancellationToken = default)
         {
-            await CreateWithSpecifiedIdAsync(id, item, token);
-            return await ReadAsync(id, token);
+            await CreateWithSpecifiedIdAsync(id, item, cancellationToken);
+            return await ReadAsync(id, cancellationToken);
         }
 
         /// <inheritdoc />
-        public Task<Lock<TId>> ClaimLockAsync(TId id, CancellationToken token = default)
-        {
-            throw new FulcrumNotImplementedException();
-        }
-
-        /// <inheritdoc />
-        public Task ReleaseLockAsync(TId id, TId itemId, CancellationToken token = default)
+        public Task<Lock<TId>> ClaimLockAsync(TId id, CancellationToken cancellationToken = default)
         {
             throw new FulcrumNotImplementedException();
         }
 
-        public async Task<TModel> ReadAsync(TId id, CancellationToken token = default)
+        /// <inheritdoc />
+        public Task ReleaseLockAsync(TId id, TId itemId, CancellationToken cancellationToken = default)
+        {
+            throw new FulcrumNotImplementedException();
+        }
+
+        public async Task<TModel> ReadAsync(TId id, CancellationToken cancellationToken = default)
         {
             InternalContract.RequireNotDefaultValue(id, nameof(id));
-            if (!await Directory.ExistsAsync(token)) return default;
+            if (!await Directory.ExistsAsync(cancellationToken)) return default;
             var fileName = CreateFileName(id);
             var file = Directory.CreateFile(fileName);
-            if (!await file.ExistsAsync(token)) return default;
-            var content = await file.DownloadTextAsync(token);
+            if (!await file.ExistsAsync(cancellationToken)) return default;
+            var content = await file.DownloadTextAsync(cancellationToken);
             var dbItem = JsonHelper.SafeDeserializeObject<TModel>(content);
             FulcrumAssert.IsNotNull(dbItem, CodeLocation.AsString());
             FulcrumAssert.IsValidated(dbItem, CodeLocation.AsString());
             return dbItem;
         }
 
-        public async Task DeleteAsync(TId id, CancellationToken token = default)
+        public async Task DeleteAsync(TId id, CancellationToken cancellationToken = default)
         {
             InternalContract.RequireNotDefaultValue(id, nameof(id));
-            if (!await Directory.ExistsAsync(token)) return;
+            if (!await Directory.ExistsAsync(cancellationToken)) return;
             var fileName = CreateFileName(id);
             var file = Directory.CreateFile(fileName);
-            if (!await file.ExistsAsync(token)) return;
-            await file.DeleteAsync(token);
+            if (!await file.ExistsAsync(cancellationToken)) return;
+            await file.DeleteAsync(cancellationToken);
         }
 
-        public async Task<PageEnvelope<TModel>> ReadAllWithPagingAsync(int offset, int? limit = null, CancellationToken token = default)
+        public async Task<PageEnvelope<TModel>> ReadAllWithPagingAsync(int offset, int? limit = null, CancellationToken cancellationToken = default)
         {
             InternalContract.RequireGreaterThanOrEqualTo(0, offset, nameof(offset));
             limit = limit ?? int.MaxValue;
@@ -134,7 +134,7 @@ namespace Nexus.Link.Libraries.Azure.Storage.Blob
             var list = new List<TModel>();
             var skipped = 0;
             var found = 0;
-            var directoryItems = await Directory.ListContentAsync(token);
+            var directoryItems = await Directory.ListContentAsync(cancellationToken);
             var directoryItemList = directoryItems as IList<IDirectoryListItem> ?? directoryItems.ToList();
             foreach (var item in directoryItemList)
             {
@@ -147,7 +147,7 @@ namespace Nexus.Link.Libraries.Azure.Storage.Blob
                 var file = item as IFile;
                 FulcrumAssert.IsNotNull(file, $"Expected {item.ToLogString()} to be a file.");
                 if (file == null) continue;
-                var content = await file.DownloadTextAsync(token);
+                var content = await file.DownloadTextAsync(cancellationToken);
                 var o = JsonHelper.SafeDeserializeObject<TModel>(content);
                 list.Add(o);
                 found++;
@@ -156,10 +156,10 @@ namespace Nexus.Link.Libraries.Azure.Storage.Blob
         }
 
         /// <inheritdoc />
-        public Task<IEnumerable<TModel>> ReadAllAsync(int limit = 2147483647, CancellationToken token = default)
+        public Task<IEnumerable<TModel>> ReadAllAsync(int limit = 2147483647, CancellationToken cancellationToken = default)
         {
             InternalContract.RequireGreaterThan(0, limit, nameof(limit));
-            return StorageHelper.ReadPagesAsync((offset, ct) => ReadAllWithPagingAsync(offset, null, ct), limit, token);
+            return StorageHelper.ReadPagesAsync((offset, ct) => ReadAllWithPagingAsync(offset, null, ct), limit, cancellationToken);
         }
 
         /// <inheritdoc />
@@ -188,21 +188,21 @@ namespace Nexus.Link.Libraries.Azure.Storage.Blob
             return _convenience.FindUniqueAsync(details, cancellationToken);
         }
 
-        public async Task DeleteAllAsync(CancellationToken token = default)
+        public async Task DeleteAllAsync(CancellationToken cancellationToken = default)
         {
-            if (!await Directory.ExistsAsync(token)) return;
-            await Directory.DeleteAsync(token);
+            if (!await Directory.ExistsAsync(cancellationToken)) return;
+            await Directory.DeleteAsync(cancellationToken);
         }
 
         private static string CreateFileName(TId itemId) => $"{itemId}.json";
 
-        public async Task UpdateAsync(TId id, TModel item, CancellationToken token = default)
+        public async Task UpdateAsync(TId id, TModel item, CancellationToken cancellationToken = default)
         {
             InternalContract.RequireNotDefaultValue(id, nameof(id));
             InternalContract.RequireNotNull(item, nameof(item));
             InternalContract.RequireValidated(item, nameof(item));
-            if (!await Directory.ExistsAsync(token)) throw new FulcrumNotFoundException($"Could not find the item with id {id}.");
-            var verifyEtagTask = MaybeVerifyEtagForUpdateAsync(id, item, token);
+            if (!await Directory.ExistsAsync(cancellationToken)) throw new FulcrumNotFoundException($"Could not find the item with id {id}.");
+            var verifyEtagTask = MaybeVerifyEtagForUpdateAsync(id, item, cancellationToken);
             var fileName = CreateFileName(id);
             var file = Directory.CreateFile(fileName);
             await verifyEtagTask;
@@ -210,15 +210,15 @@ namespace Nexus.Link.Libraries.Azure.Storage.Blob
             StorageHelper.MaybeSetId(id, item);
             StorageHelper.MaybeUpdateTimeStamps(item, false);
             var content = JsonConvert.SerializeObject(item);
-            if (!await file.ExistsAsync(token)) throw new FulcrumNotFoundException($"Could not find the item with id {id}.");
-            await file.UploadAsync(content, "application/json", token);
+            if (!await file.ExistsAsync(cancellationToken)) throw new FulcrumNotFoundException($"Could not find the item with id {id}.");
+            await file.UploadAsync(content, "application/json", cancellationToken);
         }
 
         /// <inheritdoc />
-        public async Task<TModel> UpdateAndReturnAsync(TId id, TModel item, CancellationToken token = default)
+        public async Task<TModel> UpdateAndReturnAsync(TId id, TModel item, CancellationToken cancellationToken = default)
         {
-            await UpdateAsync(id, item, token);
-            return await ReadAsync(id, token);
+            await UpdateAsync(id, item, cancellationToken);
+            return await ReadAsync(id, cancellationToken);
         }
 
         /// <summary>
@@ -228,45 +228,36 @@ namespace Nexus.Link.Libraries.Azure.Storage.Blob
         /// </summary>
         /// <param name="id"></param>
         /// <param name="item"></param>
-        /// <param name="token">Propagates notification that operations should be canceled</param>
+        /// <param name="cancellationToken">Propagates notification that operations should be canceled</param>
         /// <returns></returns>
-        protected virtual async Task MaybeVerifyEtagForUpdateAsync(TId id, TModel item, CancellationToken token = default)
+        protected virtual async Task MaybeVerifyEtagForUpdateAsync(TId id, TModel item, CancellationToken cancellationToken = default)
         {
-            if (item is IOptimisticConcurrencyControlByETag etaggable)
-            {
-                var oldItem = await ReadAsync(id, token);
-                if (oldItem != null)
-                {
-                    var oldEtag = (oldItem as IOptimisticConcurrencyControlByETag)?.Etag;
-                    if (oldEtag?.ToLowerInvariant() != etaggable.Etag?.ToLowerInvariant())
-                        throw new FulcrumConflictException($"The updated item ({item}) had an old ETag value.");
-                }
-            }
+            await item.ValidateEtagAsync(id, this, cancellationToken);
         }
 
         /// <inheritdoc />
         public Task<Lock<TId>> ClaimDistributedLockAsync(TId id, TimeSpan? lockTimeSpan = null, TId currentLockId = default,
-            CancellationToken token = default)
+            CancellationToken cancellationToken = default)
         {
             throw new System.NotImplementedException();
         }
 
         /// <inheritdoc />
-        public Task ReleaseDistributedLockAsync(TId id, TId lockId, CancellationToken token = default)
+        public Task ReleaseDistributedLockAsync(TId id, TId lockId, CancellationToken cancellationToken = default)
         {
             throw new System.NotImplementedException();
         }
 
         /// <inheritdoc />
-        public Task ClaimTransactionLockAsync(TId id, CancellationToken token = default)
+        public Task ClaimTransactionLockAsync(TId id, CancellationToken cancellationToken = default)
         {
             throw new System.NotImplementedException();
         }
 
         /// <inheritdoc />
-        public Task<TModel> ClaimTransactionLockAndReadAsync(TId id, CancellationToken token = default)
+        public Task<TModel> ClaimTransactionLockAndReadAsync(TId id, CancellationToken cancellationToken = default)
         {
-            return _convenience.ClaimTransactionLockAndReadAsync(id, token);
+            return _convenience.ClaimTransactionLockAndReadAsync(id, cancellationToken);
         }
     }
 }

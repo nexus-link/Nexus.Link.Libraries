@@ -1,6 +1,7 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Nexus.Link.Libraries.Core.Storage.Logic;
 using Nexus.Link.Libraries.Core.Storage.Model;
 using Nexus.Link.Libraries.Crud.Interfaces;
 using Nexus.Link.Libraries.Crud.UnitTests.Model;
@@ -41,10 +42,7 @@ namespace Nexus.Link.Libraries.Crud.UnitTests.Crd
         {
             var updatedItem = await ReadItemAsync(id, cancellationToken);
             updatedItem.InitializeWithDataForTesting(type);
-            if (updatedItem is IUniquelyIdentifiable<TId> itemWithId)
-            {
-                itemWithId.Id = id;
-            }
+            updatedItem.TrySetPrimaryKey(id);
             return await CrudStorage.UpdateAndReturnAsync(id, updatedItem, cancellationToken);
         }
     }

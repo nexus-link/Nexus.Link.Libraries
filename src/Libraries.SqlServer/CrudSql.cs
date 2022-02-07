@@ -138,7 +138,7 @@ namespace Nexus.Link.Libraries.SqlServer
         {
             var dbItem = StorageHelper.DeepCopy<TDatabaseItem, TDatabaseItemCreate>(item);
             dbItem.Id = id;
-            if (dbItem is IOptimisticConcurrencyControlByETag)
+            if (dbItem.TryGetOptimisticConcurrencyControl(out var eTag))
             {
                 if (dbItem is IRecordVersion r)
                 {
@@ -148,7 +148,7 @@ namespace Nexus.Link.Libraries.SqlServer
                 }
                 else
                 {
-                    StorageHelper.MaybeCreateNewEtag(dbItem);
+                    dbItem.TrySetOptimisticConcurrencyControl();
                 }
             }
             StorageHelper.MaybeUpdateTimeStamps(dbItem, true);
@@ -265,13 +265,17 @@ namespace Nexus.Link.Libraries.SqlServer
                 case IRecordVersion _:
                     sql = SqlHelper.UpdateIfSameRowVersion(TableMetadata);
                     break;
-                case IOptimisticConcurrencyControlByETag o:
-                    var oldEtag = o.Etag;
-                    StorageHelper.MaybeCreateNewEtag(o);
-                    sql = SqlHelper.UpdateIfSameEtag(TableMetadata, oldEtag);
-                    break;
                 default:
-                    sql = SqlHelper.Update(TableMetadata);
+                    if (item.TryGetOptimisticConcurrencyControl(out var oldEtag))
+                    {
+                        item.TrySetOptimisticConcurrencyControl();
+                        sql = SqlHelper.UpdateIfSameEtag(TableMetadata, oldEtag);
+                    }
+                    else
+                    {
+                        sql = SqlHelper.Update(TableMetadata);
+                    }
+
                     break;
             }
 
@@ -309,13 +313,16 @@ namespace Nexus.Link.Libraries.SqlServer
                 case IRecordVersion _:
                     sql = SqlHelper.UpdateIfSameRowVersionAndRead(TableMetadata);
                     break;
-                case IOptimisticConcurrencyControlByETag o:
-                    var oldEtag = o.Etag;
-                    StorageHelper.MaybeCreateNewEtag(o);
-                    sql = SqlHelper.UpdateIfSameEtagAndRead(TableMetadata, oldEtag);
-                    break;
                 default:
-                    sql = SqlHelper.UpdateAndRead(TableMetadata);
+                    if (item.TryGetOptimisticConcurrencyControl(out var oldEtag))
+                    {
+                        item.TrySetOptimisticConcurrencyControl();
+                        sql = SqlHelper.UpdateIfSameEtagAndRead(TableMetadata, oldEtag);
+                    }
+                    else
+                    {
+                        sql = SqlHelper.UpdateAndRead(TableMetadata);
+                    }
                     break;
             }
 
@@ -333,7 +340,7 @@ namespace Nexus.Link.Libraries.SqlServer
             }
             if (array.Length == 0)
             {
-                if (item is IRecordVersion || item is IOptimisticConcurrencyControlByETag)
+                if (item is IRecordVersion || item.TryGetOptimisticConcurrencyControl(out _))
                 {
                     throw new FulcrumConflictException(
                         "Could not update. Your data was stale. Please reread the data and try to update it again.");

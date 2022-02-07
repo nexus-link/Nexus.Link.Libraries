@@ -69,7 +69,7 @@ namespace Nexus.Link.Libraries.Azure.Storage.Table
             InternalContract.RequireValidated(item, nameof(item));
 
             var key = id.ToString();
-            if (item is IUniquelyIdentifiable<TId> identifiable) identifiable.Id = id;
+            item.TrySetPrimaryKey(id);
             await Table.CreateAsync(key, key, item, token);
         }
 

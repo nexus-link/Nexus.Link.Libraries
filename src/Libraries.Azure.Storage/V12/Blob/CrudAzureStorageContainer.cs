@@ -275,15 +275,7 @@ namespace Nexus.Link.Libraries.Azure.Storage.V12.Blob
                 throw new FulcrumNotFoundException($"Could not find blob {id}.");
             }
 
-            if (item is IOptimisticConcurrencyControlByETag etaggable)
-            {
-                if (oldItem != null)
-                {
-                    var oldEtag = (oldItem as IOptimisticConcurrencyControlByETag)?.Etag;
-                    if (oldEtag?.ToLowerInvariant() != etaggable.Etag?.ToLowerInvariant())
-                        throw new FulcrumConflictException($"The update for blob {id} had an old ETag value.");
-                }
-            }
+            await item.ValidateEtagAsync(id, this, cancellationToken);
 
             await DeleteAsync(id, cancellationToken);
             await CreateOrUpdateAsync(id, item, cancellationToken);

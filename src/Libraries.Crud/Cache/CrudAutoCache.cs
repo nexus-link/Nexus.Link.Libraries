@@ -5,6 +5,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Caching.Distributed;
 using Nexus.Link.Libraries.Core.Assert;
+using Nexus.Link.Libraries.Core.Storage.Logic;
 using Nexus.Link.Libraries.Core.Storage.Model;
 using Nexus.Link.Libraries.Crud.Helpers;
 using Nexus.Link.Libraries.Crud.Interfaces;
@@ -27,7 +28,7 @@ namespace Nexus.Link.Libraries.Crud.Cache
         /// <param name="options"></param>
         public CrudAutoCache(ICrudable<TModel, TId> service, IDistributedCache cache,
             FlushCacheDelegateAsync flushCacheDelegateAsync = null, AutoCacheOptions options = null)
-            : this(service, item => ((IUniquelyIdentifiable<TId>)item).Id, cache, flushCacheDelegateAsync, options)
+            : this(service, item => item.GetPrimaryKey<TModel,TId>(), cache, flushCacheDelegateAsync, options)
         {
         }
 
@@ -65,7 +66,7 @@ namespace Nexus.Link.Libraries.Crud.Cache
         /// <param name="flushCacheDelegateAsync"></param>
         /// <param name="options"></param>
         public CrudAutoCache(ICrudable<TModel, TId> service, IDistributedCache cache, FlushCacheDelegateAsync flushCacheDelegateAsync = null, AutoCacheOptions options = null)
-        : this(service, item => ((IUniquelyIdentifiable<TId>)item).Id, cache, flushCacheDelegateAsync, options)
+        : this(service, item => item.GetPrimaryKey<TModel,TId>(), cache, flushCacheDelegateAsync, options)
         {
         }
 

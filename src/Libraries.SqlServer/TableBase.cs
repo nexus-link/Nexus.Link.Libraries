@@ -7,9 +7,11 @@ using System.Threading.Tasks;
 using Dapper;
 using Newtonsoft.Json;
 using Nexus.Link.Libraries.Core.Assert;
+using Nexus.Link.Libraries.Core.EntityAttributes;
 using Nexus.Link.Libraries.Core.Error.Logic;
 using Nexus.Link.Libraries.Core.Logging;
 using Nexus.Link.Libraries.Core.Misc;
+using Nexus.Link.Libraries.Core.Storage.Logic;
 using Nexus.Link.Libraries.Core.Storage.Model;
 using Nexus.Link.Libraries.Crud.Interfaces;
 using Nexus.Link.Libraries.SqlServer.Logic;
@@ -350,25 +352,26 @@ namespace Nexus.Link.Libraries.SqlServer
 
         protected void MaybeTransformRecordVersionToEtag(object item)
         {
-            if (item is IRecordVersion r && item is IOptimisticConcurrencyControlByETag o)
+            if (item is IRecordVersion r)
             {
-                o.Etag = Convert.ToBase64String(r.RecordVersion);
+                item.TrySetOptimisticConcurrencyControl(Convert.ToBase64String(r.RecordVersion));
             }
         }
 
         protected void MaybeTransformEtagToRecordVersion(object item)
         {
-            if (item is IRecordVersion r && item is IOptimisticConcurrencyControlByETag o)
+            if (item is IRecordVersion r && item.TryGetOptimisticConcurrencyControl(out var eTag))
             {
                 try
                 {
-                    r.RecordVersion = Convert.FromBase64String(o.Etag);
+                    r.RecordVersion = Convert.FromBase64String(eTag);
                 }
                 catch (Exception)
                 {
-                    var valueAsString = o.Etag == null ? "null" : o.Etag;
+                    var valueAsString = eTag == null ? "null" : eTag;
+                    // TODO: Get the proper name for the eTag field
                     throw new FulcrumConflictException(
-                        $"The value in field {nameof(o.Etag)} ({valueAsString}) was not a proper value for field {nameof(r.RecordVersion)} of type RowVersion.");
+                        $"The value in the eTag field ({valueAsString}) was not a proper value for field {nameof(r.RecordVersion)} of type RowVersion.");
                 }
             }
         }

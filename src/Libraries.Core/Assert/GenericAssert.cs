@@ -2,6 +2,8 @@
 using System.Linq.Expressions;
 using System.Text.RegularExpressions;
 using Newtonsoft.Json.Linq;
+using Nexus.Link.Libraries.Core.EntityAttributes;
+using Nexus.Link.Libraries.Core.EntityAttributes.Support;
 using Nexus.Link.Libraries.Core.Error.Logic;
 using Nexus.Link.Libraries.Core.Misc;
 
@@ -227,10 +229,16 @@ namespace Nexus.Link.Libraries.Core.Assert
         public static void IsValidated(object value, string customMessage = null)
         {
             if (value == null) return;
-            if (!(value is IValidatable validatable)) return;
+            var result = Validation.Validate(value, null);
+            if (!result.IsValid)
+            {
+                GenericBase<TException>.ThrowException(result.Message);
+            }
             try
             {
-                validatable.Validate(null, value.GetType().Name);
+
+                if (!(value is IValidatable validate)) return;
+                validate.Validate(null, value.GetType().Name);
             }
             catch (ValidationException e)
             {

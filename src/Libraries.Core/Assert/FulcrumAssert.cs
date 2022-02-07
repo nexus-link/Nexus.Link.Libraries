@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using Nexus.Link.Libraries.Core.EntityAttributes;
+using Nexus.Link.Libraries.Core.EntityAttributes.Support;
 using Nexus.Link.Libraries.Core.Error.Logic;
 using Nexus.Link.Libraries.Core.Misc;
 
@@ -201,8 +203,7 @@ namespace Nexus.Link.Libraries.Core.Assert
         public static void IsValidated(object value, string errorLocation = null)
         {
             if (value == null) return;
-            if (!(value is IValidatable validatable)) return;
-            GenericAssert<FulcrumAssertionFailedException>.IsValidated(validatable, errorLocation);
+            GenericAssert<FulcrumAssertionFailedException>.IsValidated(value, errorLocation);
         }
 
         /// <summary>

@@ -251,11 +251,9 @@ namespace Nexus.Link.Libraries.Crud.MemoryStorage
             while (await enumerator.MoveNextAsync())
             {
                 var item = enumerator.Current;
-                var itemWithId = item as IUniquelyIdentifiable<TId>;
-                InternalContract.Require(itemWithId != null,
-                    $"The type {typeof(TManyToManyModel).FullName} must implement {typeof(IUniquelyIdentifiable<TId>).Name} for this method to work.");
-                if (itemWithId == null) break;
-                var task = DeleteAsync(itemWithId.Id, cancellationToken );
+                InternalContract.Require(item.TryGetPrimaryKey<TManyToManyModel, TId>(out var id),
+                    $"The type {typeof(TManyToManyModel).FullName} doesn't seem to have a primary key, which is required for the method {nameof(DeleteItemsAsync)}.");
+                var task = DeleteAsync(id, cancellationToken );
                 tasks.Add(task);
             }
 
@@ -320,11 +318,9 @@ namespace Nexus.Link.Libraries.Crud.MemoryStorage
         {
             var item = await ReadAsync(masterId, slaveId, cancellationToken );
             if (item == null) return default;
-            var itemWithId = item as IUniquelyIdentifiable<TId>;
-            InternalContract.Require(itemWithId != null,
-                $"The type {typeof(TManyToManyModel).FullName} must implement {typeof(IUniquelyIdentifiable<TId>).Name} for this method to work.");
-            if (itemWithId == null) return default;
-            return itemWithId.Id;
+            InternalContract.Require(item.TryGetPrimaryKey<TManyToManyModel, TId>(out var id),
+                $"The type {typeof(TManyToManyModel).FullName} doesn't seem to have a primary key, which is required for the method {nameof(DeleteItemsAsync)}.");
+            return id;
         }
     }
 }

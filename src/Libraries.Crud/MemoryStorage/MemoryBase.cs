@@ -5,6 +5,7 @@ using Nexus.Link.Libraries.Core.Assert;
 using Nexus.Link.Libraries.Core.Error.Logic;
 using Nexus.Link.Libraries.Core.Storage.Logic;
 using Nexus.Link.Libraries.Core.Storage.Model;
+using Nexus.Link.Libraries.Crud.Helpers;
 using Nexus.Link.Libraries.Crud.Interfaces;
 using Nexus.Link.Libraries.Crud.Model;
 
@@ -36,60 +37,71 @@ namespace Nexus.Link.Libraries.Crud.MemoryStorage
         /// <param name="item"></param>
         /// <param name="cancellationToken">Propagates notification that operations should be canceled</param>
         /// <returns></returns>
-        protected virtual TModel MaybeVerifyEtagForUpdate(TId id, TModel item, CancellationToken cancellationToken  = default)
+        protected virtual TModel MaybeVerifyEtagForUpdate(TId id, TModel item, CancellationToken cancellationToken = default)
         {
             var oldItem = GetMemoryItem(id);
-            if (!(item is IOptimisticConcurrencyControlByETag eTaggable)) return oldItem;
-            if (Equals(oldItem, default(TModel))) return default;
-            var oldEtag = (oldItem as IOptimisticConcurrencyControlByETag)?.Etag;
-            if (oldEtag?.ToLowerInvariant() != eTaggable.Etag?.ToLowerInvariant())
+            string eTag;
+            string oldEtag;
+            if (item is IOptimisticConcurrencyControlByETag eTaggable)
+            {
+                eTag = eTaggable.Etag;
+                if (Equals(oldItem, default(TModel))) return default;
+                oldEtag = (oldItem as IOptimisticConcurrencyControlByETag)?.Etag;
+            }
+            else if (!item.TryGetOptimisticConcurrencyControl(out eTag) 
+                     || !oldItem.TryGetOptimisticConcurrencyControl(out oldEtag))
+            {
+                return oldItem;
+            }
+
+            if (oldEtag?.ToLowerInvariant() != eTag?.ToLowerInvariant())
                 throw new FulcrumConflictException($"The updated item ({item}) had an old ETag value.");
 
             return oldItem;
         }
 
-        /// <summary>
-        /// Return true if an item with id <paramref name="id"/> exists
-        /// </summary>
-        protected bool Exists(TId id)
-        {
-            // ReSharper disable once InconsistentlySynchronizedField
-            return (MemoryItems.ContainsKey(id));
-        }
-
-        /// <summary>
-        /// Copy an item into a new instance.
-        /// </summary>
-        /// <exception cref="FulcrumAssertionFailedException"></exception>
-        protected static TModel CopyItem(TModel source)
-        {
-            InternalContract.RequireNotNull(source, nameof(source));
-            var itemCopy = StorageHelper.DeepCopy(source);
-            if (itemCopy == null)
-                throw new FulcrumAssertionFailedException("Could not copy an item.");
-            return itemCopy;
-        }
-
-        /// <summary>
-        /// Get an item from the memory.
-        /// </summary>
-        /// <param name="id"></param>
-        /// <param name="okIfNotExists">If false, we will throw an exception if the id is not found.</param>
-        /// <returns></returns>
-        /// <exception cref="FulcrumNotFoundException"></exception>
-        protected TModel GetMemoryItem(TId id, bool okIfNotExists = false)
-        {
-            InternalContract.RequireNotDefaultValue(id, nameof(id));
-            if (!Exists(id))
-            {
-                if (!okIfNotExists)
-                    throw new FulcrumNotFoundException(
-                        $"Could not find an item of type {typeof(TModel).Name} with id \"{id}\".");
-                return default;
-            }
-            var item = MemoryItems[id];
-            FulcrumAssert.IsNotNull(item);
-            return CopyItem(item);
-        }
+    /// <summary>
+    /// Return true if an item with id <paramref name="id"/> exists
+    /// </summary>
+    protected bool Exists(TId id)
+    {
+        // ReSharper disable once InconsistentlySynchronizedField
+        return (MemoryItems.ContainsKey(id));
     }
+
+    /// <summary>
+    /// Copy an item into a new instance.
+    /// </summary>
+    /// <exception cref="FulcrumAssertionFailedException"></exception>
+    protected static TModel CopyItem(TModel source)
+    {
+        InternalContract.RequireNotNull(source, nameof(source));
+        var itemCopy = StorageHelper.DeepCopy(source);
+        if (itemCopy == null)
+            throw new FulcrumAssertionFailedException("Could not copy an item.");
+        return itemCopy;
+    }
+
+    /// <summary>
+    /// Get an item from the memory.
+    /// </summary>
+    /// <param name="id"></param>
+    /// <param name="okIfNotExists">If false, we will throw an exception if the id is not found.</param>
+    /// <returns></returns>
+    /// <exception cref="FulcrumNotFoundException"></exception>
+    protected TModel GetMemoryItem(TId id, bool okIfNotExists = false)
+    {
+        InternalContract.RequireNotDefaultValue(id, nameof(id));
+        if (!Exists(id))
+        {
+            if (!okIfNotExists)
+                throw new FulcrumNotFoundException(
+                    $"Could not find an item of type {typeof(TModel).Name} with id \"{id}\".");
+            return default;
+        }
+        var item = MemoryItems[id];
+        FulcrumAssert.IsNotNull(item);
+        return CopyItem(item);
+    }
+}
 }

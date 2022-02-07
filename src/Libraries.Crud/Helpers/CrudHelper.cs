@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
 using Nexus.Link.Libraries.Core.Assert;
 using Nexus.Link.Libraries.Core.Error.Logic;
+using Nexus.Link.Libraries.Core.Storage.Logic;
 using Nexus.Link.Libraries.Crud.Interfaces;
 using Nexus.Link.Libraries.Crud.Mappers;
 using Nexus.Link.Libraries.Crud.Model;
@@ -74,6 +75,28 @@ namespace Nexus.Link.Libraries.Crud.Helpers
             if (service is T implemented) return implemented;
             throw new FulcrumNotImplementedException(
                 $"The service {service.GetType()} does not implement {typeof(T).Name}");
+        }
+
+        /// <summary>
+        /// Read the old item from the storage and compare the Etag values. Throws <see cref="FulcrumConflictException"/> if the etags are different.
+        /// </summary>
+        /// <typeparam name="TModel"></typeparam>
+        /// <typeparam name="TId"></typeparam>
+        /// <exception cref="FulcrumConflictException"></exception>
+        public static async Task ValidateEtagAsync<TModel, TId>(this TModel item, TId id, IRead<TModel, TId> readable, CancellationToken cancellationToken)
+        {
+            InternalContract.RequireNotNull(item, nameof(item));
+            InternalContract.RequireNotNull(readable, nameof(readable));
+            if (item.TryGetOptimisticConcurrencyControl(out var eTag))
+            {
+                var oldItem = await readable.ReadAsync(id, cancellationToken);
+                if (oldItem != null
+                    && item.TryGetOptimisticConcurrencyControl(out var oldEtag)
+                    && oldEtag?.ToLowerInvariant() != eTag?.ToLowerInvariant())
+                {
+                    throw new FulcrumConflictException($"The item ({item}) had an old ETag value.");
+                }
+            }
         }
     }
 }
