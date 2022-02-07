@@ -49,7 +49,7 @@
 
   <PropertyGroup>
     <PackageId>Nexus.Link.Libraries.Core</PackageId>
-    <Version>5.12.0</Version>
+    <Version>5.12.1</Version>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <PackageTags>nexus;link;fulcrum;lever</PackageTags>
     <Authors>XLENT Link</Authors>
@@ -59,7 +59,8 @@
     <Copyright>Copyright ©2021 Xlent Link AB</Copyright>
     <IncludeSymbols>true</IncludeSymbols>
     <PackageReleaseNotes>
-      5.12.0 Added entity attributs, such as PrimaryKeyAttribute and OfficialCapabilityAttribute
+      5.12.1 Added many Validation entity attributes
+      5.12.0 Added entity attributes, such as PrimaryKeyAttribute and OfficialCapabilityAttribute
       5.11.1 Renamed assertions InEnumeration to IsInEnumeration. Added assertion for JSON strings
       5.11.0 Added a method for MemoryQueue to abort the background worker
       5.10.0 Added extension Guid.ToGuidString(). Added error location to the exception message for assertions. Added TaskHelper
