@@ -28,6 +28,12 @@ namespace Nexus.Link.Libraries.SqlServer.Model
         public IEnumerable<string> OrderBy { get; set; }
 
         /// <inheritdoc />
+        public bool HasInsertTrigger { get; set; }
+
+        /// <inheritdoc />
+        public bool HasUpdateTrigger { get; set; }
+
+        /// <inheritdoc />
         public string GetOrderBy(string columnPrefix = null)
         {
             var prefix = string.IsNullOrWhiteSpace(columnPrefix) ? "" : $"{columnPrefix}.";

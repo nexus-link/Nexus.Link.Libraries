@@ -116,9 +116,15 @@ namespace Nexus.Link.Libraries.SqlServer
         {
             InternalContract.RequireNotDefaultValue(id, nameof(id));
             InternalContract.RequireNotNull(item, nameof(item));
+            if (TableMetadata.HasInsertTrigger)
+            {
+                await CreateWithSpecifiedIdAsync(id, item, token);
+                return await ReadAsync(id, token);
+            }
             var dbItem = PrepareDbItem(id, item);
             InternalContract.RequireValidated(dbItem, nameof(item));
             var sql = SqlHelper.CreateAndRead(TableMetadata);
+
             try
             {
                 var items = await QueryAsync(sql, dbItem, token);
@@ -158,16 +164,16 @@ namespace Nexus.Link.Libraries.SqlServer
         private void MaybeThrowInsertExceptionAsFulcrumException(SqlException e)
         {
             // https://stackoverflow.com/questions/6483699/unique-key-violation-in-sql-server-is-it-safe-to-assume-error-2627
-            if (e.Number == (int) SqlConstants.SqlErrorEnum.DuplicateKey ||
-                e.Number == (int) SqlConstants.SqlErrorEnum.UniqueConstraint)
+            if (e.Number == (int)SqlConstants.SqlErrorEnum.DuplicateKey ||
+                e.Number == (int)SqlConstants.SqlErrorEnum.UniqueConstraint)
             {
                 // Unique constraint
                 throw new FulcrumConflictException($"The new {TableMetadata.TableName} item must be unique: {e.Message}",
                     e);
             }
 
-            if (e.Number == (int) SqlConstants.SqlErrorEnum.ConstraintFailed
-                || e.Number == (int) SqlConstants.SqlErrorEnum.CheckConstraintFailed
+            if (e.Number == (int)SqlConstants.SqlErrorEnum.ConstraintFailed
+                || e.Number == (int)SqlConstants.SqlErrorEnum.CheckConstraintFailed
                 || e.Number == Database.Options.TriggerConstraintSqlExceptionErrorNumber)
             {
                 // A complex constraint in the form of a trigger
@@ -307,6 +313,13 @@ namespace Nexus.Link.Libraries.SqlServer
         {
             InternalContract.RequireNotNull(item, nameof(item));
             InternalContract.RequireValidated(item, nameof(item));
+
+            if (TableMetadata.HasUpdateTrigger)
+            {
+                await UpdateAsync(id, item, token);
+                return await ReadAsync(id, token);
+            }
+
             string sql;
             switch (item)
             {

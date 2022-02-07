@@ -51,6 +51,20 @@ namespace Nexus.Link.Libraries.SqlServer.Model
         IEnumerable<string> OrderBy { get; }
 
         /// <summary>
+        /// Set this to true if the table has at least one insert trigger.
+        /// If this is true, then we can't use OUTPUT when inserting
+        /// https://stackoverflow.com/questions/13198476/cannot-use-update-with-output-clause-when-a-trigger-is-on-the-table
+        /// </summary>
+        bool HasInsertTrigger { get; }
+
+        /// <summary>
+        /// Set this to true if the table has at least one update trigger.
+        /// If this is true, then we can't use OUTPUT when updating a row
+        /// https://stackoverflow.com/questions/13198476/cannot-use-update-with-output-clause-when-a-trigger-is-on-the-table
+        /// </summary>
+        bool HasUpdateTrigger { get; }
+
+        /// <summary>
         /// Will be used as "ORDER BY {OrderBy}" when selecting multiple rows from the table.
         /// </summary>
         string GetOrderBy(string columnPrefix = null);
