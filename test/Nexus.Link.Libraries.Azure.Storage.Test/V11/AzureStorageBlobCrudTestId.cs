@@ -32,25 +32,25 @@ namespace Nexus.Link.Libraries.Azure.Storage.Test.V11
         protected override ICrud<TestItemBare, TestItemId<Guid>, Guid> CrudStorage => _storage;
 
         [Ignore]
-        public new Task ClaimLock()
+        public new Task ClaimDistributedLock()
         {
             return Task.CompletedTask;
         }
 
         [Ignore]
-        public new Task ClaimLock_Given_AlreadyLocked_GivesException()
+        public new Task ClaimDistributedLock_Given_AlreadyLocked_GivesException()
         {
             return Task.CompletedTask;
         }
 
         [Ignore]
-        public new Task Claim_Release_Claim()
+        public new Task ClaimDistributedLock_Release_Claim()
         {
             return Task.CompletedTask;
         }
 
         [Ignore]
-        public new Task Claim_Reclaim()
+        public new Task ClaimDistributedLock_Reclaim()
         {
             return Task.CompletedTask;
         }

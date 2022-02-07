@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
+using System.Transactions;
 using Nexus.Link.Libraries.SqlServer.Model;
 
 namespace Nexus.Link.Libraries.SqlServer.Logic

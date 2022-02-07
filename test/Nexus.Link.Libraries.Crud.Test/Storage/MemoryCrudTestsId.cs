@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Nexus.Link.Libraries.Crud.Interfaces;
 using Nexus.Link.Libraries.Crud.MemoryStorage;
@@ -19,5 +20,16 @@ namespace Nexus.Link.Libraries.Crud.Test.Storage
         }
 
         protected override ICrud<TestItemBare, TestItemId<Guid>, Guid> CrudStorage => _storage;
+
+        /// <summary>
+        /// Memory storage has no support for transactions
+        /// </summary>
+        /// <returns></returns>
+        [Ignore]
+        [TestMethod]
+        public new Task ClaimTransactionLock_Given_AlreadyLocked_Gives_FulcrumTryAgainException()
+        {
+            return Task.CompletedTask;
+        }
     }
 }
