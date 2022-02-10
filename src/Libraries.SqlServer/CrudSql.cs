@@ -115,11 +115,12 @@ namespace Nexus.Link.Libraries.SqlServer
         {
             InternalContract.RequireNotDefaultValue(id, nameof(id));
             InternalContract.RequireNotNull(item, nameof(item));
-            if (TableMetadata.HasInsertTrigger)
+            if (!TableMetadata.InsertCanUseOutput)
             {
                 await CreateWithSpecifiedIdAsync(id, item, token);
                 return await ReadAsync(id, token);
             }
+
             var dbItem = PrepareDbItem(id, item);
             InternalContract.RequireValidated(dbItem, nameof(item));
             var sql = SqlHelper.CreateAndRead(TableMetadata);
@@ -313,7 +314,7 @@ namespace Nexus.Link.Libraries.SqlServer
             InternalContract.RequireNotNull(item, nameof(item));
             InternalContract.RequireValidated(item, nameof(item));
 
-            if (TableMetadata.HasUpdateTrigger)
+            if (!TableMetadata.UpdateCanUseOutput)
             {
                 await UpdateAsync(id, item, token);
                 return await ReadAsync(id, token);

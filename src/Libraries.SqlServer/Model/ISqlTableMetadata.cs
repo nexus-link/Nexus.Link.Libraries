@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Nexus.Link.Libraries.Core.Assert;
 using Nexus.Link.Libraries.Core.Storage.Model;
 
@@ -51,17 +52,39 @@ namespace Nexus.Link.Libraries.SqlServer.Model
         IEnumerable<string> OrderBy { get; }
 
         /// <summary>
+        /// Set this to true if we can use OUTPUT when inserting rows in this table.
+        /// </summary>
+        /// <remarks>
+        /// This makes CreateAndReturn methods atomic and more efficient.
+        /// If the table has insert triggers, this must be false.
+        /// https://stackoverflow.com/questions/13198476/cannot-use-update-with-output-clause-when-a-trigger-is-on-the-table
+        /// </remarks>
+        bool InsertCanUseOutput { get; }
+
+        /// <summary>
         /// Set this to true if the table has at least one insert trigger.
         /// If this is true, then we can't use OUTPUT when inserting
         /// https://stackoverflow.com/questions/13198476/cannot-use-update-with-output-clause-when-a-trigger-is-on-the-table
         /// </summary>
+        [Obsolete("Use InsertCanUseOutput. HasInsertTrigger = !InsertCanUseOutput. Obsolete since 2022-02-10.")]
         bool HasInsertTrigger { get; }
+
+        /// <summary>
+        /// Set this to true if we can use OUTPUT when updating rows in this table.
+        /// </summary>
+        /// <remarks>
+        /// This makes UpdateAndReturn methods atomic and more efficient.
+        /// If the table has insert triggers, this must be false.
+        /// https://stackoverflow.com/questions/13198476/cannot-use-update-with-output-clause-when-a-trigger-is-on-the-table
+        /// </remarks>
+        bool UpdateCanUseOutput { get; }
 
         /// <summary>
         /// Set this to true if the table has at least one update trigger.
         /// If this is true, then we can't use OUTPUT when updating a row
         /// https://stackoverflow.com/questions/13198476/cannot-use-update-with-output-clause-when-a-trigger-is-on-the-table
         /// </summary>
+        [Obsolete("Use UpdateCanUseOutput. HasUpdateTrigger = !UpdateCanUseOutput. Obsolete since 2022-02-10.")]
         bool HasUpdateTrigger { get; }
 
         /// <summary>

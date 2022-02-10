@@ -28,10 +28,16 @@ namespace Nexus.Link.Libraries.SqlServer.Model
         public IEnumerable<string> OrderBy { get; set; }
 
         /// <inheritdoc />
-        public bool HasInsertTrigger { get; set; }
+        public bool InsertCanUseOutput { get; set; }
 
         /// <inheritdoc />
-        public bool HasUpdateTrigger { get; set; }
+        public bool HasInsertTrigger => !InsertCanUseOutput;
+
+        /// <inheritdoc />
+        public bool UpdateCanUseOutput { get; set; }
+
+        /// <inheritdoc />
+        public bool HasUpdateTrigger => UpdateCanUseOutput;
 
         /// <inheritdoc />
         public string GetOrderBy(string columnPrefix = null)
