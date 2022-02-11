@@ -14,20 +14,33 @@ namespace Nexus.Link.Libraries.Crud.Test.Storage
         private ICrud<TestItemBare, TestItemId<Guid>, Guid> _storage;
 
         [TestInitialize]
-        public void Inititalize()
+        public void Initialize()
         {
             _storage = new CrudMemory<TestItemBare, TestItemId<Guid>, Guid>();
         }
 
         protected override ICrud<TestItemBare, TestItemId<Guid>, Guid> CrudStorage => _storage;
 
-        /// <summary>
-        /// Memory storage has no support for transactions
-        /// </summary>
-        /// <returns></returns>
         [Ignore]
-        [TestMethod]
-        public new Task ClaimTransactionLock_Given_AlreadyLocked_Gives_FulcrumTryAgainException()
+        public new Task ClaimDistributedLock()
+        {
+            return Task.CompletedTask;
+        }
+
+        [Ignore]
+        public new Task ClaimDistributedLock_Given_AlreadyLocked_GivesException()
+        {
+            return Task.CompletedTask;
+        }
+
+        [Ignore]
+        public new Task ClaimDistributedLock_Release_Claim()
+        {
+            return Task.CompletedTask;
+        }
+
+        [Ignore]
+        public new Task ClaimDistributedLock_Reclaim()
         {
             return Task.CompletedTask;
         }

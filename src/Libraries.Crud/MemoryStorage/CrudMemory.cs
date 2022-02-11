@@ -101,8 +101,7 @@ namespace Nexus.Link.Libraries.Crud.MemoryStorage
             InternalContract.RequireValidated(item, nameof(item));
 
             var itemCopy = CopyItem(item);
-
-            StorageHelper.MaybeCreateNewEtag(itemCopy);
+            itemCopy.TrySetOptimisticConcurrencyControl();
             StorageHelper.MaybeUpdateTimeStamps(itemCopy, true);
 
             await _semaphore.ExecuteAsync((ct) => InternalCreateAsync(id, itemCopy, ct), cancellationToken);
@@ -113,7 +112,7 @@ namespace Nexus.Link.Libraries.Crud.MemoryStorage
             ValidateNotExists(id);
             await VerifyUniqueForCreateAsync(item, cancellationToken);
 
-            StorageHelper.MaybeSetId(id, item);
+            item.TrySetPrimaryKey(id);
             var success = MemoryItems.TryAdd(id, item);
             if (!success) throw new FulcrumConflictException($"Item with id {id} already exists.");
         }
@@ -227,7 +226,7 @@ namespace Nexus.Link.Libraries.Crud.MemoryStorage
             var oldValue = MaybeVerifyEtagForUpdate(id, item, cancellationToken);
             var itemCopy = CopyItem(item);
             StorageHelper.MaybeUpdateTimeStamps(itemCopy, false);
-            StorageHelper.MaybeCreateNewEtag(itemCopy);
+            itemCopy.TrySetOptimisticConcurrencyControl();
             await _semaphore.ExecuteAsync(async () =>
             {
                 await VerifyUniqueForUpdateAsync(id, item, cancellationToken);

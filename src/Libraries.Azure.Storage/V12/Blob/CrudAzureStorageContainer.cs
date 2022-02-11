@@ -316,9 +316,9 @@ namespace Nexus.Link.Libraries.Azure.Storage.V12.Blob
             InternalContract.RequireNotDefaultValue(item, nameof(item));
             InternalContract.RequireValidated(item, nameof(item));
             var finalItem = StorageHelper.DeepCopy<TModel, TModelCreate>(item);
-            StorageHelper.MaybeCreateNewEtag(finalItem);
+            finalItem.TrySetOptimisticConcurrencyControl();
             StorageHelper.MaybeUpdateTimeStamps(finalItem, true);
-            StorageHelper.MaybeSetId(id, finalItem);
+            finalItem.TrySetPrimaryKey(id);
             InternalContract.RequireValidated(finalItem, nameof(item));
             var blob = Client.GetBlobClient(id);
             await blob.UploadAsync(BinaryData.FromString(JsonConvert.SerializeObject(finalItem)),

@@ -191,7 +191,7 @@ namespace Nexus.Link.Libraries.Core.Tests.TestAssert
         [TestMethod]
         public void InEnumAssertionOk()
         {
-            FulcrumAssert.InEnumeration(typeof(TestEnum), "Value1");
+            FulcrumAssert.IsInEnumeration(typeof(TestEnum), "Value1");
         }
 
         [TestMethod]
@@ -199,7 +199,7 @@ namespace Nexus.Link.Libraries.Core.Tests.TestAssert
         {
             try
             {
-                FulcrumAssert.InEnumeration(typeof(TestEnum), "Unknown");
+                FulcrumAssert.IsInEnumeration(typeof(TestEnum), "Unknown");
                 UT.Assert.Fail("An exception should have been thrown");
             }
             catch (FulcrumAssertionFailedException)

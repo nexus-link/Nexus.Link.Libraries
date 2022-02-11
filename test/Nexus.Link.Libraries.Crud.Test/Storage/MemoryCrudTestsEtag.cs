@@ -13,7 +13,7 @@ namespace Nexus.Link.Libraries.Crud.Test.Storage
         private ICrud<TestItemBare, TestItemEtag<Guid>, Guid> _storage;
 
         [TestInitialize]
-        public void Inititalize()
+        public void Initialize()
         {
             _storage = new CrudMemory<TestItemBare, TestItemEtag<Guid>, Guid>();
         }
