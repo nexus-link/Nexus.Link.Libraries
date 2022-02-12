@@ -586,20 +586,45 @@ namespace Nexus.Link.Libraries.Core.EntityAttributes
             var properties = entityType.GetProperties();
             foreach (var propertyInfo in properties)
             {
-                foreach (var requireAttributeType in Validation.AllPropertyValidationAttributes)
+                var customAttributes = propertyInfo.GetCustomAttributes();
+                foreach (var customAttribute in customAttributes)
                 {
-                    var customAttribute = propertyInfo.GetCustomAttribute(requireAttributeType);
-                    if (customAttribute is IValidateAttribute requireAttribute)
-                    {
-                        var propertyValue = propertyInfo.GetValue(entityValue);
-                        var validationResult = requireAttribute.Validate(entityType, entityValue, propertyInfo, propertyValue, errorLocation);
-                        if (validationResult.IsValid) continue;
-                        return validationResult;
-                    }
+                    if (!(customAttribute is IValidateAttribute requireAttribute)) continue;
+                    if (TriggerSaysSkipValidation(requireAttribute)) continue;
+                    var propertyValue = propertyInfo.GetValue(entityValue);
+                    var validationResult = requireAttribute.Validate(entityType, entityValue, propertyInfo, propertyValue, errorLocation);
+                    if (validationResult.IsValid) continue;
+                    return validationResult;
                 }
             }
 
             return new ValidationResult();
+
+            bool TriggerSaysSkipValidation(IValidateAttribute requireAttribute)
+            {
+                if (!(requireAttribute is PropertyValidationAttribute propertyValidationAttribute))
+                {
+                    return false;
+                }
+                var triggerPropertyName = propertyValidationAttribute.TriggerPropertyName;
+                if (triggerPropertyName == null)
+                {
+                    return false;
+                }
+                var otherProperty = entityType.GetProperty(triggerPropertyName);
+                if (otherProperty == null)
+                {
+                    InternalContract.Fail($"Expected entity type {entityType.Name} to have a property named {triggerPropertyName}.");
+                    return false;
+                }
+
+                if (!(otherProperty.GetValue(entityValue) is bool triggerValue))
+                {
+                    return false;
+                }
+                return triggerValue && propertyValidationAttribute.InvertedTrigger 
+                       || !triggerValue && !propertyValidationAttribute.InvertedTrigger;
+            }
         }
 
         private static bool TryCompare(object expectedValue, object propertyValue, out int? compareValue)

@@ -461,6 +461,56 @@ namespace Nexus.Link.Libraries.Core.Tests.EntityAttributes
             });
             FulcrumAssert.IsValidated(entity);
         }
+
+        [TestMethod]
+        [ExpectedException(typeof(FulcrumAssertionFailedException))]
+        public void NotNullTriggerProperty_Given_NullAndTrue_Gives_Exception()
+        {
+            // Arrange
+            var entity = new TestEntity
+            {
+                Flag = true,
+                NotNullIfFlag = null,
+            };
+            FulcrumAssert.IsValidated(entity);
+        }
+
+        [TestMethod]
+        public void NotNullTriggerProperty_Given_NullAndFalse_Gives_Ok()
+        {
+            // Arrange
+            var entity = new TestEntity
+            {
+                Flag = false,
+                NotNullIfFlag = null,
+            };
+            FulcrumAssert.IsValidated(entity);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(FulcrumAssertionFailedException))]
+        public void NotNullInvertedTriggerProperty_Given_NullAndFalse_Gives_Exception()
+        {
+            // Arrange
+            var entity = new TestEntity
+            {
+                Flag = false,
+                NotNullIfNotFlag = null,
+            };
+            FulcrumAssert.IsValidated(entity);
+        }
+
+        [TestMethod]
+        public void NotNullInvertedTriggerProperty_Given_NullAndTrue_Gives_Ok()
+        {
+            // Arrange
+            var entity = new TestEntity
+            {
+                Flag = true,
+                NotNullIfNotFlag = null,
+            };
+            FulcrumAssert.IsValidated(entity);
+        }
     }
 
     internal class TestEntity
@@ -535,6 +585,14 @@ namespace Nexus.Link.Libraries.Core.Tests.EntityAttributes
         [Validation.Validate]
         public List<SubTestEntity> SubEntitiesWithValidation { get; set; } =
             new List<SubTestEntity>() {new SubTestEntity()};
+
+        public bool Flag { get; set; }
+
+        [Validation.NotNull(TriggerPropertyName = nameof(Flag))]
+        public string NotNullIfFlag { get; set; } = "not null";
+
+        [Validation.NotNull(TriggerPropertyName = nameof(Flag), InvertedTrigger = true)]
+        public string NotNullIfNotFlag { get; set; } = "not null";
     }
 
     internal class SubTestEntity
