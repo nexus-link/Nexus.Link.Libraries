@@ -17,7 +17,7 @@ namespace Nexus.Link.Libraries.Core.EntityAttributes
     /// <remarks>
     /// Inspired by https://docs.microsoft.com/en-us/dotnet/api/system.componentmodel.dataannotation
     /// </remarks>
-    public partial class Validation
+    public class Validation
     {
         /// <summary>
         /// The list of all property validation attributes

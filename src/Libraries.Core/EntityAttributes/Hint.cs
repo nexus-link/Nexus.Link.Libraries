@@ -4,12 +4,12 @@ using Nexus.Link.Libraries.Core.EntityAttributes.Support;
 
 namespace Nexus.Link.Libraries.Core.EntityAttributes
 {
-    public static partial class Hint
+    public static class Hint
     {
         [AttributeUsage(AttributeTargets.Interface)]
         public class OfficialCapabilityAttribute : OfficialAttribute
         {
-            public OfficialCapabilityAttribute(string name, Guid id) : base(name, id)
+            public OfficialCapabilityAttribute(string name, string id) : base(name, id)
             {
             }
         }
@@ -17,7 +17,7 @@ namespace Nexus.Link.Libraries.Core.EntityAttributes
         [AttributeUsage(AttributeTargets.Interface)]
         public class OfficialEntityAttribute : OfficialAttribute
         {
-            public OfficialEntityAttribute(string name, Guid id) : base(name, id)
+            public OfficialEntityAttribute(string name, string id) : base(name, id)
             {
             }
         }
@@ -25,7 +25,7 @@ namespace Nexus.Link.Libraries.Core.EntityAttributes
         [AttributeUsage(AttributeTargets.Property)]
         public class OfficialPropertyAttribute : OfficialAttribute
         {
-            public OfficialPropertyAttribute(string name, Guid id) : base(name, id)
+            public OfficialPropertyAttribute(string name, string id) : base(name, id)
             {
             }
         }
