@@ -13,8 +13,21 @@ namespace Nexus.Link.Libraries.Core.EntityAttributes
             {
             }
         }
-
         [AttributeUsage(AttributeTargets.Interface)]
+        public class OfficialServiceAttribute : OfficialAttribute
+        {
+            public OfficialServiceAttribute(string name, string id) : base(name, id)
+            {
+            }
+        }
+        [AttributeUsage(AttributeTargets.Method)]
+        public class OfficialMethodAttribute : OfficialAttribute
+        {
+            public OfficialMethodAttribute(string name, string id) : base(name, id)
+            {
+            }
+        }
+        [AttributeUsage(AttributeTargets.Class)]
         public class OfficialEntityAttribute : OfficialAttribute
         {
             public OfficialEntityAttribute(string name, string id) : base(name, id)
@@ -29,7 +42,16 @@ namespace Nexus.Link.Libraries.Core.EntityAttributes
             {
             }
         }
+        [AttributeUsage(AttributeTargets.Method | AttributeTargets.Property)]
+        public class SortOrderAttribute : Attribute
+        {
+            public int OrderNumber { get; }
 
+            public SortOrderAttribute(int orderNumber)
+            {
+                OrderNumber = orderNumber;
+            }
+        }
         [AttributeUsage(AttributeTargets.Property)]
         public class OptimisticConcurrencyControlAttribute : Attribute
         {

@@ -2,6 +2,7 @@
 using System.Threading.Tasks;
 using Nexus.Link.Libraries.Core.Error.Logic;
 using Nexus.Link.Libraries.Core.Storage.Model;
+using Nexus.Link.Libraries.Crud.EntityAttributes;
 
 namespace Nexus.Link.Libraries.Crud.Interfaces
 {
@@ -20,6 +21,7 @@ namespace Nexus.Link.Libraries.Crud.Interfaces
         /// <param name="cancellationToken">Propagates notification that operations should be canceled</param>
         /// <exception cref="FulcrumNotFoundException">Thrown if the <paramref name="id"/> could not be found.</exception>
         /// <exception cref="FulcrumConflictException">Thrown if the <see cref="IOptimisticConcurrencyControlByETag.Etag"/> for <paramref name="item"/> was outdated.</exception>
+        [CrudHint.OfficialMethod("update", CrudMethodEnum.UpdateAsync, "8ED68F5C-7108-4075-B06C-12609B52F15B")]
         Task UpdateAsync(TId id, TModel item, CancellationToken cancellationToken  = default);
     }
 }
