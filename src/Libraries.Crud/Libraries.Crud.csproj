@@ -20,7 +20,7 @@
 
   <PropertyGroup>
     <PackageId>Nexus.Link.Libraries.Crud</PackageId>
-    <Version>3.12.0</Version>
+    <Version>3.12.1</Version>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <PackageTags>nexus;link;fulcrum;lever</PackageTags>
     <Authors>XLENT Link</Authors>
@@ -30,56 +30,57 @@
     <Copyright>Copyright ©2019 Xlent Link AB</Copyright>
     <IncludeSymbols>true</IncludeSymbols>
     <PackageReleaseNotes>
-      3.12.0 Added CrudHint
-      3.11.0 Support for entity attributes such as PrimaryKeyAttribute
-      3.10.4 Fixed a bug in SearchHelper.IsMatch() that made null search criteria match always
-      3.10.3 Took care of warnings about obsolete code
-      3.10.2 Took care of bugs in CrudPersistenceHelper
-      3.10.0 Moved most of MapperHelper to Core.
-      3.9.0 Refactored IDistributedLock.
-      3.8.0 Added ICreateWithSpecifiedIdNoReturn. More specific ICrudable for ICreate*. Modified CrudPersistenceHelper to put less constraints on the CRUD service. Added Guid.ToLowerCaseString().
-      3.7.1 Added CrudPersistenceHelper
-      3.6.0 Added ICreateWithSpecifiedIdAndReturn
-      3.5.2 Guids to strings are now lowercase
-      3.5.1 MapperHelper can map enums
-      3.4.1 Better implementation of unique constaints.Now also verifies uniqueness constraint for update
-      3.4.0 CrudMemory now supports uniqueness constraints
-      3.3.4 SearchHelper now can search for null values
-      3.3.3 Added support for nullable types in MapperHelper.MapToType()
-      3.3.2 Added ICreateChild and ICreateChildAndReturn
-      3.2.2 Removed two obsolete Dependent interfaces
-      3.2.1 Now verifies that no Id, MasterId or DependentId are changed in an update of a CrudDependentToMaster
-      3.2.0 Added DependentToMasterWithUniqueId
-      3.1.1 Symbols
-      3.1.0 Added DependentToMaster
-      3.0.3 Added missing cancellation support
-      3.0.1 Old obsolete stuff with errors has been deleted and old with warning has been updated to error.
-      3.0.0 Breaking change. Added cancellation support where it was missing. A "nice" breaking change; you may get some compilation errors, but that is only due to some interfaces that now requires a CancellationToken parameter.
-      2.6.0 Added ClaimTransactionLockAndReadAsycn()
-      2.5.0 Added Crud ISearch and ISearchChildren
-      2.4.0 Added new lock interfaces.
-      2.3.9 Using Microsoft.Extensions.Caching.Abstractions
-      2.3.7 Now sets RecordUpdatedAt to DateTimeOffset.UTCNOW. Bump Libraries.Core.
-      2.3.6 Added some Obsolete attributes
-      2.3.5 Added some Obsolete attributes
-      2.3.4 Bump
-      2.3.1 Refactored translation.
-      2.2.0: Override release that was released by mistake.
-      2.0.10 Fix: AutoCache delete timing issue
-      2.0.9 Fix: PackageProjectUrl for this nuget package
-      2.0.8 Added missing "virtual" on methods
-      2.0.6 Bump
-      2.0.2 Safe deserializing.
-      2.0.0 Depends on major change in Libraries.Core
-      1.0.7 Bumped version
-      1.0.6 Bumped version. New solution and build pipeline.
-      1.0.5 Updated dependencies
-      1.0.2 Bug: CrudClientTranslator.Create() did not translate the resulting id.
-      1.0.1 Updated dependencies
-      1.0.0 First release
-      0.2.2 Bump
-      0.1.0 Release candidate with support for .net standard
-    </PackageReleaseNotes>
+			3.12.1 Reference issue
+			3.12.0 Added CrudHint
+			3.11.0 Support for entity attributes such as PrimaryKeyAttribute
+			3.10.4 Fixed a bug in SearchHelper.IsMatch() that made null search criteria match always
+			3.10.3 Took care of warnings about obsolete code
+			3.10.2 Took care of bugs in CrudPersistenceHelper
+			3.10.0 Moved most of MapperHelper to Core.
+			3.9.0 Refactored IDistributedLock.
+			3.8.0 Added ICreateWithSpecifiedIdNoReturn. More specific ICrudable for ICreate*. Modified CrudPersistenceHelper to put less constraints on the CRUD service. Added Guid.ToLowerCaseString().
+			3.7.1 Added CrudPersistenceHelper
+			3.6.0 Added ICreateWithSpecifiedIdAndReturn
+			3.5.2 Guids to strings are now lowercase
+			3.5.1 MapperHelper can map enums
+			3.4.1 Better implementation of unique constaints.Now also verifies uniqueness constraint for update
+			3.4.0 CrudMemory now supports uniqueness constraints
+			3.3.4 SearchHelper now can search for null values
+			3.3.3 Added support for nullable types in MapperHelper.MapToType()
+			3.3.2 Added ICreateChild and ICreateChildAndReturn
+			3.2.2 Removed two obsolete Dependent interfaces
+			3.2.1 Now verifies that no Id, MasterId or DependentId are changed in an update of a CrudDependentToMaster
+			3.2.0 Added DependentToMasterWithUniqueId
+			3.1.1 Symbols
+			3.1.0 Added DependentToMaster
+			3.0.3 Added missing cancellation support
+			3.0.1 Old obsolete stuff with errors has been deleted and old with warning has been updated to error.
+			3.0.0 Breaking change. Added cancellation support where it was missing. A "nice" breaking change; you may get some compilation errors, but that is only due to some interfaces that now requires a CancellationToken parameter.
+			2.6.0 Added ClaimTransactionLockAndReadAsycn()
+			2.5.0 Added Crud ISearch and ISearchChildren
+			2.4.0 Added new lock interfaces.
+			2.3.9 Using Microsoft.Extensions.Caching.Abstractions
+			2.3.7 Now sets RecordUpdatedAt to DateTimeOffset.UTCNOW. Bump Libraries.Core.
+			2.3.6 Added some Obsolete attributes
+			2.3.5 Added some Obsolete attributes
+			2.3.4 Bump
+			2.3.1 Refactored translation.
+			2.2.0: Override release that was released by mistake.
+			2.0.10 Fix: AutoCache delete timing issue
+			2.0.9 Fix: PackageProjectUrl for this nuget package
+			2.0.8 Added missing "virtual" on methods
+			2.0.6 Bump
+			2.0.2 Safe deserializing.
+			2.0.0 Depends on major change in Libraries.Core
+			1.0.7 Bumped version
+			1.0.6 Bumped version. New solution and build pipeline.
+			1.0.5 Updated dependencies
+			1.0.2 Bug: CrudClientTranslator.Create() did not translate the resulting id.
+			1.0.1 Updated dependencies
+			1.0.0 First release
+			0.2.2 Bump
+			0.1.0 Release candidate with support for .net standard
+		</PackageReleaseNotes>
     <RootNamespace>Nexus.Link.Libraries.Crud</RootNamespace>
     <AssemblyName>Nexus.Link.Libraries.Crud</AssemblyName>
   </PropertyGroup>
