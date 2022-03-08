@@ -13,11 +13,11 @@ namespace Nexus.Link.Libraries.Crud.EntityAttributes
     public static class CrudHint
     {
         [AttributeUsage(AttributeTargets.Method)]
-        public class OfficialMethodAttribute : OfficialAttribute
+        public class CentralMethodAttribute : MetaModelAttribute
         {
             public CrudMethodEnum CrudMethod { get; }
 
-            public OfficialMethodAttribute(string name, CrudMethodEnum crudMethod, string id) : base(name, id)
+            public CentralMethodAttribute(string name, CrudMethodEnum crudMethod, string id) : base(name, id)
             {
                 CrudMethod = crudMethod;
             }
