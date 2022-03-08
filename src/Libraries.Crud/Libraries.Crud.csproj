@@ -20,7 +20,7 @@
 
   <PropertyGroup>
     <PackageId>Nexus.Link.Libraries.Crud</PackageId>
-    <Version>3.12.1</Version>
+    <Version>3.12.2</Version>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <PackageTags>nexus;link;fulcrum;lever</PackageTags>
     <Authors>XLENT Link</Authors>
@@ -30,7 +30,8 @@
     <Copyright>Copyright ©2019 Xlent Link AB</Copyright>
     <IncludeSymbols>true</IncludeSymbols>
     <PackageReleaseNotes>
-			3.12.1 Reference issue
+			3.12.2 Bump
+      3.12.1 Reference issue
 			3.12.0 Added CrudHint
 			3.11.0 Support for entity attributes such as PrimaryKeyAttribute
 			3.10.4 Fixed a bug in SearchHelper.IsMatch() that made null search criteria match always
