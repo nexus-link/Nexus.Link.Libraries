@@ -17,10 +17,13 @@
     <PackageReference Include="Microsoft.Extensions.Caching.Abstractions" Version="2.1.2" />
     <ProjectReference Include="..\Libraries.Core\Libraries.Core.csproj" />
   </ItemGroup>
+  <ItemGroup>
+    <Folder Include="EntityAttributes\" />
+  </ItemGroup>
 
   <PropertyGroup>
     <PackageId>Nexus.Link.Libraries.Crud</PackageId>
-    <Version>3.12.2</Version>
+    <Version>3.12.3</Version>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <PackageTags>nexus;link;fulcrum;lever</PackageTags>
     <Authors>XLENT Link</Authors>
@@ -30,7 +33,8 @@
     <Copyright>Copyright ©2019 Xlent Link AB</Copyright>
     <IncludeSymbols>true</IncludeSymbols>
     <PackageReleaseNotes>
-			3.12.2 Bump
+			3.12.3 Removed CrudHints
+      3.12.2 Bump
       3.12.1 Reference issue
 			3.12.0 Added CrudHint
 			3.11.0 Support for entity attributes such as PrimaryKeyAttribute

@@ -1,6 +1,5 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
-using Nexus.Link.Libraries.Crud.EntityAttributes;
 
 namespace Nexus.Link.Libraries.Crud.Interfaces
 {
@@ -15,7 +14,6 @@ namespace Nexus.Link.Libraries.Crud.Interfaces
         /// Returns the item uniquely identified by <paramref name="id"/> from storage.
         /// </summary>
         /// <returns>The found item or null.</returns>
-        [CrudHint.CentralMethod("read", CrudMethodEnum.ReadAsync, "E266ADF1-E224-4F26-B0D1-3622A1146B19")]
         Task<TModel> ReadAsync(TId id, CancellationToken cancellationToken  = default);
     }
 }

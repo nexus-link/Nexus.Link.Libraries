@@ -1,7 +1,6 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
 using Nexus.Link.Libraries.Core.Storage.Model;
-using Nexus.Link.Libraries.Crud.EntityAttributes;
 
 namespace Nexus.Link.Libraries.Crud.Interfaces
 {
@@ -29,7 +28,6 @@ namespace Nexus.Link.Libraries.Crud.Interfaces
         /// <param name="item">The item to store.</param>
         /// <param name="cancellationToken">Propagates notification that operations should be canceled</param>
         /// <returns>The new id for the created object.</returns>
-        [CrudHint.CentralMethod("create", CrudMethodEnum.CreateAsync, "8E1A0931-E1EB-4F06-A733-FB1669B324A5")]
         Task<TId> CreateAsync(TModelCreate item, CancellationToken cancellationToken  = default);
     }
 }

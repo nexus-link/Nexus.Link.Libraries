@@ -60,7 +60,7 @@
     <Copyright>Copyright ©2021 Xlent Link AB</Copyright>
     <IncludeSymbols>true</IncludeSymbols>
     <PackageReleaseNotes>
-			5.15.5 Working on MetaModel attributes.
+			5.15.5 Refactoring MetaModel entity attributes
       5.15.4 Reference issue
 			5.15.3 Added more Hints
 			5.15.1 Changed OfficialAttribute.Id from Guid to string
