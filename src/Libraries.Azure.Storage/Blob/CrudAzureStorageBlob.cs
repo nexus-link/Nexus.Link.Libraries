@@ -55,11 +55,18 @@ namespace Nexus.Link.Libraries.Azure.Storage.Blob
         /// <inheritdoc />
         public async Task<TModel> CreateAndReturnAsync(TModelCreate item, CancellationToken cancellationToken = default)
         {
-            var id = await CreateAsync(item, cancellationToken);
-            return await ReadAsync(id, cancellationToken);
+            var id = StorageHelper.CreateNewId<TId>();
+            var dbItem = await CreateWithSpecifiedIdAndReturnAsync(id, item, cancellationToken);
+            return dbItem;
         }
 
         public async Task CreateWithSpecifiedIdAsync(TId id, TModelCreate item, CancellationToken cancellationToken = default)
+        {
+            await CreateWithSpecifiedIdAndReturnAsync(id, item, cancellationToken);
+        }
+
+        /// <inheritdoc />
+        public async Task<TModel> CreateWithSpecifiedIdAndReturnAsync(TId id, TModelCreate item, CancellationToken cancellationToken = default)
         {
             InternalContract.RequireNotDefaultValue(id, nameof(id));
             InternalContract.RequireNotDefaultValue(item, nameof(item));
@@ -80,13 +87,8 @@ namespace Nexus.Link.Libraries.Azure.Storage.Blob
                 throw new FulcrumConflictException($"File ({fileName}) already existed in directory {Directory.Name}");
             }
             await file.UploadAsync(content, "application/json", cancellationToken);
-        }
 
-        /// <inheritdoc />
-        public async Task<TModel> CreateWithSpecifiedIdAndReturnAsync(TId id, TModelCreate item, CancellationToken cancellationToken = default)
-        {
-            await CreateWithSpecifiedIdAsync(id, item, cancellationToken);
-            return await ReadAsync(id, cancellationToken);
+            return dbItem;
         }
 
         /// <inheritdoc />

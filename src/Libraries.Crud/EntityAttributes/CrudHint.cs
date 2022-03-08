@@ -1,5 +1,6 @@
 ﻿using System;
 using Nexus.Link.Libraries.Core.EntityAttributes;
+using Nexus.Link.Libraries.Core.EntityAttributes.Support;
 
 namespace Nexus.Link.Libraries.Crud.EntityAttributes
 {
@@ -12,7 +13,7 @@ namespace Nexus.Link.Libraries.Crud.EntityAttributes
     public static class CrudHint
     {
         [AttributeUsage(AttributeTargets.Method)]
-        public class OfficialMethodAttribute : Hint.OfficialMethodAttribute
+        public class OfficialMethodAttribute : OfficialAttribute
         {
             public CrudMethodEnum CrudMethod { get; }
 
