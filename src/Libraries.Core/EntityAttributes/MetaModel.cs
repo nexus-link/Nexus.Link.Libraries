@@ -15,8 +15,11 @@ namespace Nexus.Link.Libraries.Core.EntityAttributes
         [AttributeUsage(AttributeTargets.Interface)]
         public class ServiceAttribute : MetaModelAttribute
         {
-            public ServiceAttribute(string businessName, string id) : base(businessName, id)
+            public Type EntityType { get; }
+
+            public ServiceAttribute(string businessName, Type entityType, string id) : base(businessName, id)
             {
+                EntityType = entityType;
             }
         }
         [AttributeUsage(AttributeTargets.Method)]
@@ -108,12 +111,12 @@ namespace Nexus.Link.Libraries.Core.EntityAttributes
             }
         }
 
-        public class CentralEntityPropertyReferralAttribute : Attribute
+        public class CentralEntityAttributeReferralAttribute : Attribute
         {
             public Type CentralEntityType { get; }
             public string CentralPropertyName { get; }
 
-            public CentralEntityPropertyReferralAttribute(Type centralEntityType, string centralPropertyName)
+            public CentralEntityAttributeReferralAttribute(Type centralEntityType, string centralPropertyName)
             {
                 CentralEntityType = centralEntityType;
                 CentralPropertyName = centralPropertyName;
@@ -121,18 +124,18 @@ namespace Nexus.Link.Libraries.Core.EntityAttributes
         }
 
         [AttributeUsage(AttributeTargets.Parameter)]
-        public class EntityPropertyParameterAttribute : CentralEntityPropertyReferralAttribute
+        public class EntityAttributeParameterAttribute : CentralEntityAttributeReferralAttribute
         {
-            public EntityPropertyParameterAttribute(Type centralEntityType, string centralPropertyName)
+            public EntityAttributeParameterAttribute(Type centralEntityType, string centralPropertyName)
                 : base(centralEntityType, centralPropertyName)
             {
             }
         }
 
         [AttributeUsage(AttributeTargets.ReturnValue)]
-        public class EntityPropertyReturnValueAttribute : CentralEntityPropertyReferralAttribute
+        public class EntityAttributeReturnValueAttribute : CentralEntityAttributeReferralAttribute
         {
-            public EntityPropertyReturnValueAttribute(Type centralEntityType, string centralPropertyName)
+            public EntityAttributeReturnValueAttribute(Type centralEntityType, string centralPropertyName)
                 : base(centralEntityType, centralPropertyName)
             {
             }
