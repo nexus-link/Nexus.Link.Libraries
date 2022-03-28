@@ -50,7 +50,7 @@
 
   <PropertyGroup>
     <PackageId>Nexus.Link.Libraries.Core</PackageId>
-    <Version>5.16.0</Version>
+    <Version>5.16.1-rk-beta-01</Version>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <PackageTags>nexus;link;fulcrum;lever</PackageTags>
     <Authors>XLENT Link</Authors>
@@ -60,114 +60,115 @@
     <Copyright>Copyright ©2021 Xlent Link AB</Copyright>
     <IncludeSymbols>true</IncludeSymbols>
     <PackageReleaseNotes>
-			5.16.0 Support for capability contracts
+      5.16.1 Added FulcrumResourceLockedException
+      5.16.0 Support for capability contracts
       5.15.5 Refactoring MetaModel entity attributes
       5.15.4 Reference issue
-			5.15.3 Added more Hints
-			5.15.1 Changed OfficialAttribute.Id from Guid to string
-			5.15.0 Added PropertyValidationAttribute.TriggerPropertyName
-			5.14.0 Added JetBrains.Annotations to give Resharper better information about assertions
-			5.13.0 Added JsonExtensions.SetAsNexusLink
-			5.12.2 Added Validation.Validate entity attribute to mark objects and enumerations of objects for validation
-			5.12.1 Added many Validation entity attributes
-			5.12.0 Added entity attributes, such as PrimaryKeyAttribute and OfficialCapabilityAttribute
-			5.11.1 Renamed assertions InEnumeration to IsInEnumeration. Added assertion for JSON strings
-			5.11.0 Added a method for MemoryQueue to abort the background worker
-			5.10.0 Added extension Guid.ToGuidString(). Added error location to the exception message for assertions. Added TaskHelper
-			5.9.3 Added TypeConversionExtensions. Added constants.
-			5.8.0 Added AnnotatedId
-			5.7.1 Bump
-			5.7.0 Added FulcrumCancelledException
-			5.6.1 NexusAsyncSemaphore now can support nested locks
-			5.6.0 Added JSON StringValuesConverter and JsonExtensions. Added ChannelQueue.
-			5.5.2 Symbols
-			5.5.1 Added DependentToMaster
-			5.4.0 Removed code related to asynchronous processes
-			5.3.2 Fix: ILeverServiceConfiguration had two versions of GetConfigurationAsync()
-			5.3.1 Added the attribute CurrentRequest to AsyncExecutionContext
-			5.3.0 Added FulcrumApplication.Context.AsyncExecutionContext
-			5.2.1 The InternalContract and ServiceContract now accepts null for parameterName if there is a custom message.
-			5.2.0 Added Context.ExecutionIsAsynchronous
-			5.1.0 Added DelegateHelper
-			5.0.3 Corrected missing CancellationToken
-			5.0.1 Old obsolete stuff with errors has been deleted and old with warning has been updated to error.
-			5.0.0 Breaking change. Added cancellation support where it was missing. A "nice" breaking change; you may get some compilation errors, but that is only due to some interfaces that now requires a CancellationToken parameter.
-			4.24.2 Removed restriction for RequireEqual.
-			4.24.0 Added assertion function for RequireEqual.
-			4.23.0 Added assertion function for InEnumeration.
-			4.22.1 Added synchronous CircuitBreaker.
-			4.22.0 Added CircuitBreaker functionality.
-			4.21.0 Added Tenant to ILeverConfiguration.
-			4.20.2 StorageHelper.MaybeUpdateTimeStamps now sets time to DateTimeOffset.UtcNow
-			4.20.1 Fixed FulcrumApplication bootstrap problem where when we logged an error about e.g. RunTimeLevel.None, we required all properties of ApplicationSetup being setup, but the logging happened before we could set them
-			4.20.0 MemoryQueue now has a separate set method for item actions.
-			4.19.1 Fix: ITranslatorService is not called on return in in-pipe if no translations are present
-			4.19.0 Added setters on Tenant (for deserialization)
-			4.18.0 Added interface ICountableQueue which ICompleteQueue now inherits. Updated MemoryQueue to meet the new demands of ICompleteQueue
-			4.17.0 Updated contract for KeyAssociations, now supports MainKeyAsMergeWinner
-			4.16.0 Support for FulcrumApplication.Context.NexusTestContext
-			4.15.4 Remove dependency on FulcrumApplication.Context.ContextId from BatchLogger
-			4.15.3 Bug in BatchLogger resulting in "Collection was modified; enumeration operation may not execute"
-			4.15.2 Made the FulcrumException.IsRetryMeaningFul set operation public.
-			4.15.1 Introduced FulcrumApplication.Setup.TelemetryHandler
-			4.14.1 Introduced ValueTranslator.ValueOrLockId and Services.IControllerInjector.
-			4.13.4 Bug in translation decoration that resulted in an exception
-			4.13.3 Bug in translation decoration that could lead to infinite loops
-			4.13.0 Refactoring of translation. Removed the TranslatorFactory and did a number of simplifications.
-			4.12.2 Updated contract for KeyAssociations
-			4.12.0 Refactored Translator and based it on ITranslator.
-			4.11.0 Added KeyAssociations model for Data Sync Engine
-			4.10.0 Override release that was released by mistake.
-			4.8.1 Fix: PackageProjectUrl for this nuget package
-			4.8.0 More overloads in JsonHelper.
-			4.7.1 Bump
-			4.7.0 Access to IConfiguration on in NETCOREAPP
-			4.6.0 Added DebugTraceLogger.
-			4.5.4 Added extensions AsQueuedSyncLogger and AsBatchLogger for chained creation of logger.
-			4.5.3 Added overloads of CallAsyncFromSync.
-			4.5.1 Added NexusAsyncSemaphore.
-			4.4.3 Added overloads of SchemaParser methods.
-			4.4.2 Added overloads of JsonHelper methods.
-			4.4.1 Added support for IConfiguration.
-			4.3.3 Added missing empty constructor for Tenant.
-			4.3.2 VersionedSchema is now not nullable.
-			4.3.0 FulcrumApplication.Setup.LogSeverityLevelThreshold is back. It will be set to an initial value that depends on the runtime level.
-			4.2.0 InstanceId in response for ServiceMetas and Health
-			4.1.0 JsonHelper for safe deserializing.
-			4.0.0 Support refactored Authentication
-			3.7.1 Bumped version
-			3.7.0 Added functionality for NamedSchema and VersionedSchema.
-			3.6.4 Reworked how a FulcrumException should copy fields from its inner exception and from FulcrumError. Renamed ParentInstanceId to InnerInstanceId.
-			3.6.3 Optimized memory queue task handling.
-			3.6.2 Added IFulcrumError.ParentInstanceId
-			3.6.1 Added IFulcrumError.ParentInstanceId
-			3.5.0 Added FulcrumResourceException
-			3.4.5 BUG: StackTrace was used in obsolete situations when logging
-			3.4.4 BUG: ErrorLocation must not be set to StackTrace
-			3.4.3 FulcrumException now sets CorrelationId from context if error exists but correlationid is null
-			3.4.2 FulcrumException now sets CorrelationId from context if error is null
-			3.4.1 Bumped version. New solution and build pipeline.
-			3.4.0 Support in ConfigurationManagerAppSettings for reading local.settings.json and use for app settings.
-			3.3.0 Log methods now accepts an additional data parameter that will be part of the LogRecord.
-			3.2.5 BUG: Incorrect messages for FulcrumValidate.IsGreaterThan() and FulcrumValidate.IsGreaterThanOrEqualTo()
-			3.2.4 BUG: BatchLogger was only logging logs below the threshold if outside a batch.
-			3.2.3 LogSeverityLevelThreshold is now obsolete.
-			3.2.2 LogRecord no longer handles SavedContext. It is now hidden in QueueToAsyncLogger.
-			3.2.1 BUG: ThreadHandler.FireAndForgetResetContext() also resets context on top level.
-			3.2.0 Added UserPrincipal and ClientPrincipal to FulcrumApplication.Context.
-			3.1.0 FulcrumApplication.Context now consolidates our context classes, such as CorrelationIdValueProvider, into one class.
-			3.0.1 Refactored Logger, Context and Threads.
-			2.0.0 Renamed context Tenant to ClientTenant. Now doesn't set it to the value of the application tenant when client tenant is null.
-			1.2.0 Refactored the value providers to better support .NET Core.
-			1.1.3 Safer logging within MemoryQueue and ThreadHelper.
-			1.1.2 Bug: FireAndForget thread could end before async job had ended.
-			1.1.1 Renamed IQueueStatistics to IQueueMetrics
-			1.1.0 Refactored the MemoryQueue. Added IQueueStatistics.
-			1.0.4 Bumped
-			1.0.1 Moved cache related code to Crud
-			1.0.0 Core lib with support for .net standard
-			0.1.0 Release candidate with support for .net standard
-		</PackageReleaseNotes>
+      5.15.3 Added more Hints
+      5.15.1 Changed OfficialAttribute.Id from Guid to string
+      5.15.0 Added PropertyValidationAttribute.TriggerPropertyName
+      5.14.0 Added JetBrains.Annotations to give Resharper better information about assertions
+      5.13.0 Added JsonExtensions.SetAsNexusLink
+      5.12.2 Added Validation.Validate entity attribute to mark objects and enumerations of objects for validation
+      5.12.1 Added many Validation entity attributes
+      5.12.0 Added entity attributes, such as PrimaryKeyAttribute and OfficialCapabilityAttribute
+      5.11.1 Renamed assertions InEnumeration to IsInEnumeration. Added assertion for JSON strings
+      5.11.0 Added a method for MemoryQueue to abort the background worker
+      5.10.0 Added extension Guid.ToGuidString(). Added error location to the exception message for assertions. Added TaskHelper
+      5.9.3 Added TypeConversionExtensions. Added constants.
+      5.8.0 Added AnnotatedId
+      5.7.1 Bump
+      5.7.0 Added FulcrumCancelledException
+      5.6.1 NexusAsyncSemaphore now can support nested locks
+      5.6.0 Added JSON StringValuesConverter and JsonExtensions. Added ChannelQueue.
+      5.5.2 Symbols
+      5.5.1 Added DependentToMaster
+      5.4.0 Removed code related to asynchronous processes
+      5.3.2 Fix: ILeverServiceConfiguration had two versions of GetConfigurationAsync()
+      5.3.1 Added the attribute CurrentRequest to AsyncExecutionContext
+      5.3.0 Added FulcrumApplication.Context.AsyncExecutionContext
+      5.2.1 The InternalContract and ServiceContract now accepts null for parameterName if there is a custom message.
+      5.2.0 Added Context.ExecutionIsAsynchronous
+      5.1.0 Added DelegateHelper
+      5.0.3 Corrected missing CancellationToken
+      5.0.1 Old obsolete stuff with errors has been deleted and old with warning has been updated to error.
+      5.0.0 Breaking change. Added cancellation support where it was missing. A "nice" breaking change; you may get some compilation errors, but that is only due to some interfaces that now requires a CancellationToken parameter.
+      4.24.2 Removed restriction for RequireEqual.
+      4.24.0 Added assertion function for RequireEqual.
+      4.23.0 Added assertion function for InEnumeration.
+      4.22.1 Added synchronous CircuitBreaker.
+      4.22.0 Added CircuitBreaker functionality.
+      4.21.0 Added Tenant to ILeverConfiguration.
+      4.20.2 StorageHelper.MaybeUpdateTimeStamps now sets time to DateTimeOffset.UtcNow
+      4.20.1 Fixed FulcrumApplication bootstrap problem where when we logged an error about e.g. RunTimeLevel.None, we required all properties of ApplicationSetup being setup, but the logging happened before we could set them
+      4.20.0 MemoryQueue now has a separate set method for item actions.
+      4.19.1 Fix: ITranslatorService is not called on return in in-pipe if no translations are present
+      4.19.0 Added setters on Tenant (for deserialization)
+      4.18.0 Added interface ICountableQueue which ICompleteQueue now inherits. Updated MemoryQueue to meet the new demands of ICompleteQueue
+      4.17.0 Updated contract for KeyAssociations, now supports MainKeyAsMergeWinner
+      4.16.0 Support for FulcrumApplication.Context.NexusTestContext
+      4.15.4 Remove dependency on FulcrumApplication.Context.ContextId from BatchLogger
+      4.15.3 Bug in BatchLogger resulting in "Collection was modified; enumeration operation may not execute"
+      4.15.2 Made the FulcrumException.IsRetryMeaningFul set operation public.
+      4.15.1 Introduced FulcrumApplication.Setup.TelemetryHandler
+      4.14.1 Introduced ValueTranslator.ValueOrLockId and Services.IControllerInjector.
+      4.13.4 Bug in translation decoration that resulted in an exception
+      4.13.3 Bug in translation decoration that could lead to infinite loops
+      4.13.0 Refactoring of translation. Removed the TranslatorFactory and did a number of simplifications.
+      4.12.2 Updated contract for KeyAssociations
+      4.12.0 Refactored Translator and based it on ITranslator.
+      4.11.0 Added KeyAssociations model for Data Sync Engine
+      4.10.0 Override release that was released by mistake.
+      4.8.1 Fix: PackageProjectUrl for this nuget package
+      4.8.0 More overloads in JsonHelper.
+      4.7.1 Bump
+      4.7.0 Access to IConfiguration on in NETCOREAPP
+      4.6.0 Added DebugTraceLogger.
+      4.5.4 Added extensions AsQueuedSyncLogger and AsBatchLogger for chained creation of logger.
+      4.5.3 Added overloads of CallAsyncFromSync.
+      4.5.1 Added NexusAsyncSemaphore.
+      4.4.3 Added overloads of SchemaParser methods.
+      4.4.2 Added overloads of JsonHelper methods.
+      4.4.1 Added support for IConfiguration.
+      4.3.3 Added missing empty constructor for Tenant.
+      4.3.2 VersionedSchema is now not nullable.
+      4.3.0 FulcrumApplication.Setup.LogSeverityLevelThreshold is back. It will be set to an initial value that depends on the runtime level.
+      4.2.0 InstanceId in response for ServiceMetas and Health
+      4.1.0 JsonHelper for safe deserializing.
+      4.0.0 Support refactored Authentication
+      3.7.1 Bumped version
+      3.7.0 Added functionality for NamedSchema and VersionedSchema.
+      3.6.4 Reworked how a FulcrumException should copy fields from its inner exception and from FulcrumError. Renamed ParentInstanceId to InnerInstanceId.
+      3.6.3 Optimized memory queue task handling.
+      3.6.2 Added IFulcrumError.ParentInstanceId
+      3.6.1 Added IFulcrumError.ParentInstanceId
+      3.5.0 Added FulcrumResourceException
+      3.4.5 BUG: StackTrace was used in obsolete situations when logging
+      3.4.4 BUG: ErrorLocation must not be set to StackTrace
+      3.4.3 FulcrumException now sets CorrelationId from context if error exists but correlationid is null
+      3.4.2 FulcrumException now sets CorrelationId from context if error is null
+      3.4.1 Bumped version. New solution and build pipeline.
+      3.4.0 Support in ConfigurationManagerAppSettings for reading local.settings.json and use for app settings.
+      3.3.0 Log methods now accepts an additional data parameter that will be part of the LogRecord.
+      3.2.5 BUG: Incorrect messages for FulcrumValidate.IsGreaterThan() and FulcrumValidate.IsGreaterThanOrEqualTo()
+      3.2.4 BUG: BatchLogger was only logging logs below the threshold if outside a batch.
+      3.2.3 LogSeverityLevelThreshold is now obsolete.
+      3.2.2 LogRecord no longer handles SavedContext. It is now hidden in QueueToAsyncLogger.
+      3.2.1 BUG: ThreadHandler.FireAndForgetResetContext() also resets context on top level.
+      3.2.0 Added UserPrincipal and ClientPrincipal to FulcrumApplication.Context.
+      3.1.0 FulcrumApplication.Context now consolidates our context classes, such as CorrelationIdValueProvider, into one class.
+      3.0.1 Refactored Logger, Context and Threads.
+      2.0.0 Renamed context Tenant to ClientTenant. Now doesn't set it to the value of the application tenant when client tenant is null.
+      1.2.0 Refactored the value providers to better support .NET Core.
+      1.1.3 Safer logging within MemoryQueue and ThreadHelper.
+      1.1.2 Bug: FireAndForget thread could end before async job had ended.
+      1.1.1 Renamed IQueueStatistics to IQueueMetrics
+      1.1.0 Refactored the MemoryQueue. Added IQueueStatistics.
+      1.0.4 Bumped
+      1.0.1 Moved cache related code to Crud
+      1.0.0 Core lib with support for .net standard
+      0.1.0 Release candidate with support for .net standard
+    </PackageReleaseNotes>
     <RootNamespace>Nexus.Link.Libraries.Core</RootNamespace>
     <AssemblyName>Nexus.Link.Libraries.Core</AssemblyName>
   </PropertyGroup>

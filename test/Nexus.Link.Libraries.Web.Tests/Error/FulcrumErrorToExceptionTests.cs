@@ -29,14 +29,16 @@ namespace Nexus.Link.Libraries.Web.Tests.Error
         }
 
         [TestMethod]
-        public void ConvertToSameType()
+        [DataRow(FulcrumBusinessRuleException.ExceptionType)]
+        [DataRow(FulcrumConflictException.ExceptionType)]
+        [DataRow(FulcrumForbiddenAccessException.ExceptionType)]
+        [DataRow(FulcrumResourceLockedException.ExceptionType)]
+        [DataRow(FulcrumNotFoundException.ExceptionType)]
+        [DataRow(FulcrumTryAgainException.ExceptionType)]
+        [DataRow(FulcrumUnauthorizedException.ExceptionType)]
+        public void ConvertToSameType(string exceptionType)
         {
-            Verify(FulcrumBusinessRuleException.ExceptionType);
-            Verify(FulcrumConflictException.ExceptionType);
-            Verify(FulcrumForbiddenAccessException.ExceptionType);
-            Verify(FulcrumNotFoundException.ExceptionType);
-            Verify(FulcrumTryAgainException.ExceptionType);
-            Verify(FulcrumUnauthorizedException.ExceptionType);
+            Verify(exceptionType);
         }
 
         [TestMethod]
@@ -58,12 +60,13 @@ namespace Nexus.Link.Libraries.Web.Tests.Error
         }
 
         [TestMethod]
-        public void ConvertedTypeNoInnerError()
+        [DataRow(FulcrumAssertionFailedException.ExceptionType)]
+        public void ConvertedTypeNoInnerError(string exceptionType)
         {
             FulcrumApplication.Context.CorrelationId = Guid.NewGuid().ToString();
             var fulcrumError = new FulcrumError
             {
-                Type = FulcrumAssertionFailedException.ExceptionType,
+                Type = exceptionType,
                 TechnicalMessage = Guid.NewGuid().ToString(),
                 FriendlyMessage = Guid.NewGuid().ToString(),
                 InstanceId = Guid.NewGuid().ToString(),
@@ -114,7 +117,8 @@ namespace Nexus.Link.Libraries.Web.Tests.Error
         }
 
         [TestMethod]
-        public void ConvertedTypeInnerErrorOfFulcrumType()
+        [DataRow(FulcrumAssertionFailedException.ExceptionType)]
+        public void ConvertedTypeInnerErrorOfFulcrumType(string exceptionType)
         {
             FulcrumApplication.Context.CorrelationId = Guid.NewGuid().ToString();
             var innerFulcrumError = new FulcrumError
@@ -125,7 +129,7 @@ namespace Nexus.Link.Libraries.Web.Tests.Error
             };
             var fulcrumError = new FulcrumError
             {
-                Type = FulcrumAssertionFailedException.ExceptionType,
+                Type = exceptionType,
                 TechnicalMessage = Guid.NewGuid().ToString(),
                 FriendlyMessage = Guid.NewGuid().ToString(),
                 InstanceId = Guid.NewGuid().ToString(),
@@ -156,7 +160,8 @@ namespace Nexus.Link.Libraries.Web.Tests.Error
         }
 
         [TestMethod]
-        public void ConvertedTypeInnerErrorOfNonFulcrumType()
+        [DataRow(FulcrumAssertionFailedException.ExceptionType)]
+        public void ConvertedTypeInnerErrorOfNonFulcrumType(string exceptionType)
         {
             FulcrumApplication.Context.CorrelationId = Guid.NewGuid().ToString();
             var innerFulcrumError = new FulcrumError
@@ -167,7 +172,7 @@ namespace Nexus.Link.Libraries.Web.Tests.Error
             };
             var fulcrumError = new FulcrumError
             {
-                Type = FulcrumAssertionFailedException.ExceptionType,
+                Type = exceptionType,
                 TechnicalMessage = Guid.NewGuid().ToString(),
                 FriendlyMessage = Guid.NewGuid().ToString(),
                 InstanceId = Guid.NewGuid().ToString(),
@@ -195,12 +200,19 @@ namespace Nexus.Link.Libraries.Web.Tests.Error
         }
 
         [TestMethod]
-        public void SameTypeNoInnerError()
+        [DataRow(FulcrumBusinessRuleException.ExceptionType)]
+        [DataRow(FulcrumConflictException.ExceptionType)]
+        [DataRow(FulcrumForbiddenAccessException.ExceptionType)]
+        [DataRow(FulcrumResourceLockedException.ExceptionType)]
+        [DataRow(FulcrumNotFoundException.ExceptionType)]
+        [DataRow(FulcrumTryAgainException.ExceptionType)]
+        [DataRow(FulcrumUnauthorizedException.ExceptionType)]
+        public void SameTypeNoInnerError(string exceptionType)
         {
             FulcrumApplication.Context.CorrelationId = Guid.NewGuid().ToString();
             var fulcrumError = new FulcrumError
             {
-                Type = FulcrumConflictException.ExceptionType,
+                Type = exceptionType,
                 TechnicalMessage = Guid.NewGuid().ToString(),
                 FriendlyMessage = Guid.NewGuid().ToString(),
                 InstanceId = Guid.NewGuid().ToString(),
@@ -236,7 +248,14 @@ namespace Nexus.Link.Libraries.Web.Tests.Error
         }
 
         [TestMethod]
-        public void SameTypeInnerErrorOfFulcrumType()
+        [DataRow(FulcrumBusinessRuleException.ExceptionType)]
+        [DataRow(FulcrumConflictException.ExceptionType)]
+        [DataRow(FulcrumForbiddenAccessException.ExceptionType)]
+        [DataRow(FulcrumResourceLockedException.ExceptionType)]
+        [DataRow(FulcrumNotFoundException.ExceptionType)]
+        [DataRow(FulcrumTryAgainException.ExceptionType)]
+        [DataRow(FulcrumUnauthorizedException.ExceptionType)]
+        public void SameTypeInnerErrorOfFulcrumType(string exceptionType)
         {
             FulcrumApplication.Context.CorrelationId = Guid.NewGuid().ToString();
             var innerFulcrumError = new FulcrumError
@@ -247,7 +266,7 @@ namespace Nexus.Link.Libraries.Web.Tests.Error
             };
             var fulcrumError = new FulcrumError
             {
-                Type = FulcrumConflictException.ExceptionType,
+                Type = exceptionType,
                 TechnicalMessage = Guid.NewGuid().ToString(),
                 FriendlyMessage = Guid.NewGuid().ToString(),
                 InstanceId = Guid.NewGuid().ToString(),
@@ -271,7 +290,14 @@ namespace Nexus.Link.Libraries.Web.Tests.Error
         }
 
         [TestMethod]
-        public void SameTypeInnerErrorOfNonFulcrumType()
+        [DataRow(FulcrumBusinessRuleException.ExceptionType)]
+        [DataRow(FulcrumConflictException.ExceptionType)]
+        [DataRow(FulcrumForbiddenAccessException.ExceptionType)]
+        [DataRow(FulcrumResourceLockedException.ExceptionType)]
+        [DataRow(FulcrumNotFoundException.ExceptionType)]
+        [DataRow(FulcrumTryAgainException.ExceptionType)]
+        [DataRow(FulcrumUnauthorizedException.ExceptionType)]
+        public void SameTypeInnerErrorOfNonFulcrumType(string exceptionType)
         {
             FulcrumApplication.Context.CorrelationId = Guid.NewGuid().ToString();
             var innerFulcrumError = new FulcrumError
@@ -282,7 +308,7 @@ namespace Nexus.Link.Libraries.Web.Tests.Error
             };
             var fulcrumError = new FulcrumError
             {
-                Type = FulcrumConflictException.ExceptionType,
+                Type = exceptionType,
                 TechnicalMessage = Guid.NewGuid().ToString(),
                 FriendlyMessage = Guid.NewGuid().ToString(),
                 InstanceId = Guid.NewGuid().ToString(),
