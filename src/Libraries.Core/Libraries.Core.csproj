@@ -50,7 +50,7 @@
 
   <PropertyGroup>
     <PackageId>Nexus.Link.Libraries.Core</PackageId>
-    <Version>5.16.1-rk-beta-01</Version>
+    <Version>5.17.0-alpha-01</Version>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <PackageTags>nexus;link;fulcrum;lever</PackageTags>
     <Authors>XLENT Link</Authors>
@@ -60,7 +60,7 @@
     <Copyright>Copyright ©2021 Xlent Link AB</Copyright>
     <IncludeSymbols>true</IncludeSymbols>
     <PackageReleaseNotes>
-      5.16.1 Added FulcrumResourceLockedException
+      5.17.0 Added FulcrumResourceLockedException
       5.16.0 Support for capability contracts
       5.15.5 Refactoring MetaModel entity attributes
       5.15.4 Reference issue
