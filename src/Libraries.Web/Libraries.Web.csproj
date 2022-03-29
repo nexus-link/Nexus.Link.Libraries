@@ -31,7 +31,7 @@
 
   <PropertyGroup>
     <PackageId>Nexus.Link.Libraries.Web</PackageId>
-    <Version>2.24.7</Version>
+    <Version>5.24.8-rk-beta-01</Version>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <PackageTags>nexus;link;fulcrum;lever</PackageTags>
     <Authors>XLENT Link</Authors>
@@ -41,109 +41,110 @@
     <Copyright>Copyright ©2021 Xlent Link AB</Copyright>
     <IncludeSymbols>true</IncludeSymbols>
     <PackageReleaseNotes>
-			2.24.7 Now supports multiple userId concepts
-			2.24.6 Bump
-			2.24.5 Bug: We were reading content without buffering it first
-			2.24.4 Bug: Another spot where badly formatted header names bit us.
-			2.24.3 Bug: Problem with badly formatted header names. Better messages for header validation
-			2.24.2 Added IValidated for RequestData
-			2.24.1 Breaking change for RequestAcceptedException and RequestAcceptedContent, but since it is only used internally we don't see it as breaking. Added IHttpSender.GetAbsoluteUrl()
-			Breaking change for Constants.ExecutionIdHeaderName to make it more conformant to standard header names.
-			2.23.0 Added ToHttpResponseMessage(). Added ResponseData.ContentType and ContentLength.
-			2.22.1 Added TryAgain to ReqeustPostponed
-			2.21.3 Bump
-			2.21.1 Added converter for FulcrumCancelledException
-			2.20.3 Added ReentryAuthentication to postpone and Constants.ReentryAuthenticationHeaderName
-			2.20.0 Added SendAsync() to IHttpSender. Can convert HttpStatus Accepted to RequestAcceptedException and RequestPostponedException
-			2.19.0 Added new constants for HTTP headers. Added Serialization; RequestData and ResponseData
-			2.18.0 Added outbound handlers targeted at Business APIs, including propagating end user authentication and translated user id
-			2.17.2 Symbols
-			2.17.1 A RestClient with null BaseUri will now use the BaseUri of the HttpClient
-			2.17.0 Added AuthorizationTypeEnum.NexusPlatformService to enable intra-Nexus authentication
-			2.16.0 Added IServiceAuthenticationHelper.GetAuthorizationForClientAsync which takes a ClientAuthorizationSettings
-			2.15.0 Removed code related to asynchronous processes
-			2.14.0 Added FulcrumAcceptedException
-			2.13.2 Corrected code documentation
-			2.13.1 HttpSender can now handle HttpStatus.NoContent
-			2.13.0 Added PreferRespondAsync as an outbound pipe
-			2.12.0 Added CancellationToken where it was missing. Old obsolete stuff with errors has been deleted and old with warning has been updated to error.
-			2.11.4 Bump
-			2.11.2 HttpSender can now be created without baseUrl
-			2.11.1 Fix: "Authentication" property of "ClientConfiguration" is no longer required
-			2.11.0 Support for propagating header "X-nexus-test-context" in RestClient
-			2.10.2 Bump
-			2.10.1 Request headers in Client configuration
-			2.9.18 Bump
-			2.9.17 Fix: Patch method never returned any content
-			2.9.16 Fix: ExceptionConverter failed in rare situations when converting responses to FulcrumError
-			2.9.15 Fix: Requests that did not have a body did not process credentials if they existed, in other words did not add a token to the outgoing request.
-			2.9.14 Bump
-			2.9.10 RestClient now respects HttpClient parameter in the obsolete constructors to be backwards compatible.
-			2.9.9 Bump
-			2.9.7 Refactored translation.
-			2.8.0: Override release that was released by mistake.
-			2.6.4 Fix: PackageProjectUrl for this nuget package
-			2.6.3 Now logs when creating a REST client.
-			2.6.0 Added PATCH for REST.
-			2.5.2 Now accepts HTTP status code 201 (Created) for HTTP POST responses.
-			2.5.1 Bump
-			2.5.0 Support in ClientAuthorizationSettings for PostContentType
-			2.4.0 RestClient now handles null HttpClient when in Development run level.
-			2.3.8 Bump
-			2.3.5 Removed ISyncLogger for StackifyLogger.
-			2.3.4 RestClient now adds an Accept head for "application/json". Will be overridden if a custom Accept headers is added.
-			2.3.3 Now handles responses that contains a Type, but is not Validated as a FulcrumError.
-			2.3.1 Better message when converting HTTP StatusCode to FulcrumError.
-			2.3.0 Removed long-time obsolete RestClient constructors and added tests on incoming parameters.
-			2.2.6 Bump
-			2.2.5 Added HTTP Status Code 429 (Too many requests).
-			2.2.4 Changed format for Stackify logging message.
-			2.2.3 LogRequestAndResponse is now unique for INBOUND.
-			2.2.2 Changed format for Stackify logging message.
-			2.2.0 Conversion from exception to FulcrumError is now fully recursive.
-			2.1.0 Added a StackifyLogger that can be used in client business api.
-			2.0.5 ThrowFulcrumExceptionOnFail now catches HttpRequestException
-			2.0.4 Bump to get the 1.8.14 changes.
-			2.0.2 BUG: Logging of non-success HTTP response failed for non-JSON content, e.g. HTML response page.
-			2.0.1 Safe deserializing.
-			2.0.0 Support refactored Authentication
-			1.8.14 BUG: Log level Warning and Error was mixed up when logging non-successful response in outbound pipe ThrowFulcrumExceptionOnFail.
-			1.8.13 Bumped version
-			1.8.12 BUG: RestClient responses with status code 404 resulted in a FulcrumAssertionFailedException. (Same thing could happen for other status codes other than 400 or 500).
-			1.8.11 New strategy for converting FulcrumError to FulcrumException when it comes to inner errors.
-			1.8.10 RestClient now uses Newtonsoft serializer instead of Microsofts due to performance issues.
-			1.8.9 Request-response logging now has elapsed time in seconds and logs Type and Message when the response is a FulcrumError.
-			1.8.8 Better formatting of logs for outbound pipe.
-			1.8.7 The errors FulcrumForbiddenAccess and FulcrumUnauthorized now converts to the corresponding FulcrumExceptions
-			1.8.6 The errors FulcrumForbiddenAccess and FulcrumUnauthorized now converts to the corresponding FulcrumExceptions
-			1.8.5 BUG: ThrowFulcrumExceptionOnFail failed for successful messages
-			1.8.4 Refactored field copy strategy for FulcrumError to FulcrumException
-			1.8.2 More consistent logging in the out pipe error to exception conversion
-			1.8.0 Refactored conversion between FulcrumError and FulcrumException
-			1.7.9 Better exception handling in handler ThrowFulcrumExceptionOnFail
-			1.7.7 Smaller log message when logging request exceptions
-			1.7.6 FulcrumError now doesn't carry a StackTrace over app boundaries, i.e. we will not return stack trace in the HTTP response body.
-			1.7.5 Now considers failure in getting a client token as a critical error
-			1.7.4 Removed authentication details from log message
-			1.7.3 More logging for authentication
-			1.7.1 Fixed a mistake where the assembly was named Libraries.Web instead of Nexus.Link.Libraries.Web
-			1.7.0 Support for shared client authentication in ServiceAuthenticationHelper
-			1.6.5 Bumped version. New solution and build pipeline
-			1.6.4 Bumped nugets
-			1.6.3 Added ServiceAuthenticationHelper to help with authorization on outgoing requests, based on credentials for each client
-			1.5.0 Now can convert non-fulcrum exceptions into FulcrumError, i.e. fulcrum exceptions with a non-fulcrum inner exception will result in information also about the inner exception
-			1.4.6 Updated nexus nugets
-			1.4.1 Bumped
-			1.4.0 RestClient now supports HttpClient argument.
-			1.3.1 Bumped
-			1.3.0 Moved inbound pipe classes to Nexus.Link.Libraries.Web.AspNet
-			1.2.1 Bumped
-			1.2.0 Moved all things dependent on choice between ASP.NET or ASP.NET Core into a separate package.
-			1.1.0 Now supports both ASP.NET and ASP.NET Core in the same NuGet package.
-			1.0.2 Bumped
-			1.0.1 Core lib with support for .net standard
-			0.1.0 Release candidate with support for .net standard
-		</PackageReleaseNotes>
+      5.24.8 Added conversion of FulcrumResourceLockedException
+      2.24.7 Now supports multiple userId concepts
+      2.24.6 Bump
+      2.24.5 Bug: We were reading content without buffering it first
+      2.24.4 Bug: Another spot where badly formatted header names bit us.
+      2.24.3 Bug: Problem with badly formatted header names. Better messages for header validation
+      2.24.2 Added IValidated for RequestData
+      2.24.1 Breaking change for RequestAcceptedException and RequestAcceptedContent, but since it is only used internally we don't see it as breaking. Added IHttpSender.GetAbsoluteUrl()
+      Breaking change for Constants.ExecutionIdHeaderName to make it more conformant to standard header names.
+      2.23.0 Added ToHttpResponseMessage(). Added ResponseData.ContentType and ContentLength.
+      2.22.1 Added TryAgain to ReqeustPostponed
+      2.21.3 Bump
+      2.21.1 Added converter for FulcrumCancelledException
+      2.20.3 Added ReentryAuthentication to postpone and Constants.ReentryAuthenticationHeaderName
+      2.20.0 Added SendAsync() to IHttpSender. Can convert HttpStatus Accepted to RequestAcceptedException and RequestPostponedException
+      2.19.0 Added new constants for HTTP headers. Added Serialization; RequestData and ResponseData
+      2.18.0 Added outbound handlers targeted at Business APIs, including propagating end user authentication and translated user id
+      2.17.2 Symbols
+      2.17.1 A RestClient with null BaseUri will now use the BaseUri of the HttpClient
+      2.17.0 Added AuthorizationTypeEnum.NexusPlatformService to enable intra-Nexus authentication
+      2.16.0 Added IServiceAuthenticationHelper.GetAuthorizationForClientAsync which takes a ClientAuthorizationSettings
+      2.15.0 Removed code related to asynchronous processes
+      2.14.0 Added FulcrumAcceptedException
+      2.13.2 Corrected code documentation
+      2.13.1 HttpSender can now handle HttpStatus.NoContent
+      2.13.0 Added PreferRespondAsync as an outbound pipe
+      2.12.0 Added CancellationToken where it was missing. Old obsolete stuff with errors has been deleted and old with warning has been updated to error.
+      2.11.4 Bump
+      2.11.2 HttpSender can now be created without baseUrl
+      2.11.1 Fix: "Authentication" property of "ClientConfiguration" is no longer required
+      2.11.0 Support for propagating header "X-nexus-test-context" in RestClient
+      2.10.2 Bump
+      2.10.1 Request headers in Client configuration
+      2.9.18 Bump
+      2.9.17 Fix: Patch method never returned any content
+      2.9.16 Fix: ExceptionConverter failed in rare situations when converting responses to FulcrumError
+      2.9.15 Fix: Requests that did not have a body did not process credentials if they existed, in other words did not add a token to the outgoing request.
+      2.9.14 Bump
+      2.9.10 RestClient now respects HttpClient parameter in the obsolete constructors to be backwards compatible.
+      2.9.9 Bump
+      2.9.7 Refactored translation.
+      2.8.0: Override release that was released by mistake.
+      2.6.4 Fix: PackageProjectUrl for this nuget package
+      2.6.3 Now logs when creating a REST client.
+      2.6.0 Added PATCH for REST.
+      2.5.2 Now accepts HTTP status code 201 (Created) for HTTP POST responses.
+      2.5.1 Bump
+      2.5.0 Support in ClientAuthorizationSettings for PostContentType
+      2.4.0 RestClient now handles null HttpClient when in Development run level.
+      2.3.8 Bump
+      2.3.5 Removed ISyncLogger for StackifyLogger.
+      2.3.4 RestClient now adds an Accept head for "application/json". Will be overridden if a custom Accept headers is added.
+      2.3.3 Now handles responses that contains a Type, but is not Validated as a FulcrumError.
+      2.3.1 Better message when converting HTTP StatusCode to FulcrumError.
+      2.3.0 Removed long-time obsolete RestClient constructors and added tests on incoming parameters.
+      2.2.6 Bump
+      2.2.5 Added HTTP Status Code 429 (Too many requests).
+      2.2.4 Changed format for Stackify logging message.
+      2.2.3 LogRequestAndResponse is now unique for INBOUND.
+      2.2.2 Changed format for Stackify logging message.
+      2.2.0 Conversion from exception to FulcrumError is now fully recursive.
+      2.1.0 Added a StackifyLogger that can be used in client business api.
+      2.0.5 ThrowFulcrumExceptionOnFail now catches HttpRequestException
+      2.0.4 Bump to get the 1.8.14 changes.
+      2.0.2 BUG: Logging of non-success HTTP response failed for non-JSON content, e.g. HTML response page.
+      2.0.1 Safe deserializing.
+      2.0.0 Support refactored Authentication
+      1.8.14 BUG: Log level Warning and Error was mixed up when logging non-successful response in outbound pipe ThrowFulcrumExceptionOnFail.
+      1.8.13 Bumped version
+      1.8.12 BUG: RestClient responses with status code 404 resulted in a FulcrumAssertionFailedException. (Same thing could happen for other status codes other than 400 or 500).
+      1.8.11 New strategy for converting FulcrumError to FulcrumException when it comes to inner errors.
+      1.8.10 RestClient now uses Newtonsoft serializer instead of Microsofts due to performance issues.
+      1.8.9 Request-response logging now has elapsed time in seconds and logs Type and Message when the response is a FulcrumError.
+      1.8.8 Better formatting of logs for outbound pipe.
+      1.8.7 The errors FulcrumForbiddenAccess and FulcrumUnauthorized now converts to the corresponding FulcrumExceptions
+      1.8.6 The errors FulcrumForbiddenAccess and FulcrumUnauthorized now converts to the corresponding FulcrumExceptions
+      1.8.5 BUG: ThrowFulcrumExceptionOnFail failed for successful messages
+      1.8.4 Refactored field copy strategy for FulcrumError to FulcrumException
+      1.8.2 More consistent logging in the out pipe error to exception conversion
+      1.8.0 Refactored conversion between FulcrumError and FulcrumException
+      1.7.9 Better exception handling in handler ThrowFulcrumExceptionOnFail
+      1.7.7 Smaller log message when logging request exceptions
+      1.7.6 FulcrumError now doesn't carry a StackTrace over app boundaries, i.e. we will not return stack trace in the HTTP response body.
+      1.7.5 Now considers failure in getting a client token as a critical error
+      1.7.4 Removed authentication details from log message
+      1.7.3 More logging for authentication
+      1.7.1 Fixed a mistake where the assembly was named Libraries.Web instead of Nexus.Link.Libraries.Web
+      1.7.0 Support for shared client authentication in ServiceAuthenticationHelper
+      1.6.5 Bumped version. New solution and build pipeline
+      1.6.4 Bumped nugets
+      1.6.3 Added ServiceAuthenticationHelper to help with authorization on outgoing requests, based on credentials for each client
+      1.5.0 Now can convert non-fulcrum exceptions into FulcrumError, i.e. fulcrum exceptions with a non-fulcrum inner exception will result in information also about the inner exception
+      1.4.6 Updated nexus nugets
+      1.4.1 Bumped
+      1.4.0 RestClient now supports HttpClient argument.
+      1.3.1 Bumped
+      1.3.0 Moved inbound pipe classes to Nexus.Link.Libraries.Web.AspNet
+      1.2.1 Bumped
+      1.2.0 Moved all things dependent on choice between ASP.NET or ASP.NET Core into a separate package.
+      1.1.0 Now supports both ASP.NET and ASP.NET Core in the same NuGet package.
+      1.0.2 Bumped
+      1.0.1 Core lib with support for .net standard
+      0.1.0 Release candidate with support for .net standard
+    </PackageReleaseNotes>
     <RootNamespace>Nexus.Link.Libraries.Web</RootNamespace>
     <AssemblyName>Nexus.Link.Libraries.Web</AssemblyName>
   </PropertyGroup>
