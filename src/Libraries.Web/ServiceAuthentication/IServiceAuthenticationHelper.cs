@@ -47,5 +47,10 @@ namespace Nexus.Link.Libraries.Web.ServiceAuthentication
         /// Provide your own <see cref="ClientAuthorizationSettings"/> and get the <see cref="AuthorizationToken"/> from that.
         /// </summary>
         Task<AuthorizationToken> GetAuthorizationForClientAsync(Tenant tenant, ClientAuthorizationSettings authSettings, string client, CancellationToken cancellationToken = default);
+        
+        /// <summary>
+        /// Clears the token cache for a client
+        /// </summary>
+        Task ClearCacheForClient(Tenant tenant, string client, CancellationToken cancellationToken = default);
     }
 }

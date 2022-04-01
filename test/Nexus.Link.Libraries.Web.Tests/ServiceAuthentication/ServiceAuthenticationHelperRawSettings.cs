@@ -337,5 +337,37 @@ namespace Nexus.Link.Libraries.Web.Tests.ServiceAuthentication
             };
             await _authenticationHelper.GetAuthorizationForClientAsync(Tenant, auth, ClientName);
         }
+
+        [TestMethod]
+        public async Task TestCacheRefresh()
+        {
+            const string username = "qwerty";
+            const string password1 = "1234";
+            const string password2 = "klklklk";
+
+            var auth1 = new ClientAuthorizationSettings
+            {
+                AuthorizationType = ClientAuthorizationSettings.AuthorizationTypeEnum.Basic,
+                Username = username,
+                Password = password1
+            };
+            var auth2 = new ClientAuthorizationSettings
+            {
+                AuthorizationType = ClientAuthorizationSettings.AuthorizationTypeEnum.Basic,
+                Username = username,
+                Password = password2
+            };
+            
+            var result1A = await _authenticationHelper.GetAuthorizationForClientAsync(Tenant, auth1, ClientName);
+            Assert.AreEqual($"{username}:{password1}", Base64Decode(result1A.Token));
+
+            var result1B = await _authenticationHelper.GetAuthorizationForClientAsync(Tenant, auth2, ClientName);
+            Assert.AreEqual($"{username}:{password1}", Base64Decode(result1B.Token));
+
+            await _authenticationHelper.ClearCacheForClient(Tenant, ClientName);
+
+            var result2 = await _authenticationHelper.GetAuthorizationForClientAsync(Tenant, auth2, ClientName);
+            Assert.AreEqual($"{username}:{password2}", Base64Decode(result2.Token));
+        }
     }
 }
