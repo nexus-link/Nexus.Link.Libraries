@@ -31,7 +31,7 @@
 
   <PropertyGroup>
     <PackageId>Nexus.Link.Libraries.Web</PackageId>
-    <Version>2.24.7</Version>
+    <Version>2.25.0</Version>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <PackageTags>nexus;link;fulcrum;lever</PackageTags>
     <Authors>XLENT Link</Authors>
@@ -41,7 +41,8 @@
     <Copyright>Copyright ©2021 Xlent Link AB</Copyright>
     <IncludeSymbols>true</IncludeSymbols>
     <PackageReleaseNotes>
-			2.24.7 Now supports multiple userId concepts
+			2.25.0 Added extension 
+      2.24.7 Now supports multiple userId concepts
 			2.24.6 Bump
 			2.24.5 Bug: We were reading content without buffering it first
 			2.24.4 Bug: Another spot where badly formatted header names bit us.
