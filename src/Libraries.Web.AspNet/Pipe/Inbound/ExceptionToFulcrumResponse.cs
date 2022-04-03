@@ -12,6 +12,8 @@ using Microsoft.AspNetCore.Http;
 using Nexus.Link.Libraries.Web.Logging;
 #endif
 
+//TODO: ExceptionToFulcrumResponse
+
 namespace Nexus.Link.Libraries.Web.AspNet.Pipe.Inbound
 {
     /// <summary>
