@@ -62,6 +62,20 @@ namespace Nexus.Link.Libraries.Web.AspNet.Tests.AspNetExceptionConverterTests
         }
 
         [TestMethod]
+        public void FulcrumResourceLockedException()
+        {
+            var message = Guid.NewGuid().ToString();
+            var exception = new FulcrumResourceLockedException(message);
+#if NETCOREAPP
+            var result = AspNetExceptionConverter.ToContentResult(exception);
+#else
+            var result = AspNetExceptionConverter.ToHttpResponseMessage(exception);
+#endif
+            // ReSharper disable once PossibleInvalidOperationException
+            Assert.AreEqual((int) (HttpStatusCode)423, (int) result.StatusCode);
+        }
+
+        [TestMethod]
         public void FulcrumAssertionException()
         {
             var message = Guid.NewGuid().ToString();
@@ -72,7 +86,7 @@ namespace Nexus.Link.Libraries.Web.AspNet.Tests.AspNetExceptionConverterTests
             var result = AspNetExceptionConverter.ToHttpResponseMessage(exception);
 #endif
             // ReSharper disable once PossibleInvalidOperationException
-            Assert.AreEqual((int) HttpStatusCode.InternalServerError, (int) result.StatusCode);
+            Assert.AreEqual((int)HttpStatusCode.InternalServerError, (int)result.StatusCode);
         }
 
         [TestMethod]

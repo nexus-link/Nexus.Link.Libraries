@@ -14,6 +14,8 @@ using System.Net.Http;
 using System.Text;
 #endif
 
+//TODO: ExceptionToFulcrumResponse
+
 namespace Nexus.Link.Libraries.Web.AspNet.Error.Logic
 {
     /// <summary>
