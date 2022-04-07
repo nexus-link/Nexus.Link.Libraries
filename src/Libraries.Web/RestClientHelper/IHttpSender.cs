@@ -25,6 +25,11 @@ namespace Nexus.Link.Libraries.Web.RestClientHelper
         IHttpSender CreateHttpSender(string relativeUrl);
 
         /// <summary>
+        /// Credentials to use for requests
+        /// </summary>
+        ServiceClientCredentials Credentials { get; }
+        
+        /// <summary>
         /// Send a request with method <paramref name="method"/> to <paramref name="relativeUrl"/>.
         /// </summary>
         /// <param name="method">POST, GET, etc.</param>
