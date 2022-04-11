@@ -1,16 +1,12 @@
-﻿using Nexus.Link.Libraries.Core.Storage.Model;
+﻿using System;
 
 namespace Nexus.Link.Libraries.SqlServer.Model
 {
     /// <summary>
     /// Properties required for record version.
     /// </summary>
-    public interface IRecordVersion
+    [Obsolete("Please use Nexus.Link.Libraries.Core.Storage.Model.IRecordVersion. Obsolete since 2022-04-07")]
+    public interface IRecordVersion : Core.Storage.Model.IRecordVersion
     {
-        /// <summary>
-        /// This is intended for reading a column with the SQL Server rowversion.
-        /// </summary>
-        /// <remarks>Used in conjunction with <see cref="IOptimisticConcurrencyControlByETag"/></remarks>
-        byte[] RecordVersion { get; set; }
     }
 }

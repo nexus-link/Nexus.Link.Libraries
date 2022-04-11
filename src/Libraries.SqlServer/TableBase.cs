@@ -14,6 +14,7 @@ using Nexus.Link.Libraries.Core.Storage.Logic;
 using Nexus.Link.Libraries.Core.Storage.Model;
 using Nexus.Link.Libraries.SqlServer.Logic;
 using Nexus.Link.Libraries.SqlServer.Model;
+using IRecordVersion = Nexus.Link.Libraries.Core.Storage.Model.IRecordVersion;
 
 namespace Nexus.Link.Libraries.SqlServer
 {

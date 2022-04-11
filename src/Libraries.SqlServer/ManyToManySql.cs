@@ -8,6 +8,7 @@ using Nexus.Link.Libraries.Core.Storage.Logic;
 using Nexus.Link.Libraries.Crud.Interfaces;
 using Nexus.Link.Libraries.Core.Storage.Model;
 using Nexus.Link.Libraries.SqlServer.Model;
+using ITableItem = Nexus.Link.Libraries.Core.Storage.Model.ITableItem;
 
 namespace Nexus.Link.Libraries.SqlServer
 {

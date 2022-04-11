@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Nexus.Link.Libraries.Core.Assert;
 
 namespace Nexus.Link.Libraries.Web.Error
@@ -14,7 +15,7 @@ namespace Nexus.Link.Libraries.Web.Error
         /// If there are requests that we are waiting for, they will be listed here.
         /// </summary>
         public IEnumerable<string> WaitingForRequestIds { get; set; } = new List<string>();
-
+        
         /// <summary>
         /// This value can be used instead of normal authentication to continue a postponed execution.
         /// </summary>

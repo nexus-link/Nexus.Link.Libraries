@@ -4,7 +4,9 @@ using Nexus.Link.Libraries.Crud.Model;
 
 namespace Nexus.Link.Libraries.SqlServer.Model
 {
-    public class DistributedLockRecord : TimeStampedTableItem, IRecordVersion
+#pragma warning disable CS0618
+    public class DistributedLockRecord : TimeStampedTableItem, Core.Storage.Model.IRecordVersion, IRecordVersion
+#pragma warning restore CS0618
     {
         public Guid LockId { get; set; }
         public string TableName { get; set; }

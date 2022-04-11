@@ -47,9 +47,14 @@ namespace Nexus.Link.Libraries.Web.AspNet.Pipe.Support.Options
         public SaveExecutionIdOptions SaveExecutionId { get; } = new();
 
         /// <summary>
-        /// This feature reads the <see cref="Constants.NexusTestContextHeaderName"/> header from the request and save it to the execution context.
+        /// This feature reads the <see cref="Constants.NexusTestContextHeaderName"/> header from the request and saves it to the execution context.
         /// </summary>
         public SaveNexusTestContextOptions SaveNexusTestContext { get; } = new();
+
+        /// <summary>
+        /// This feature reads the <see cref="Constants.ReentryAuthenticationHeaderName"/> header from the request and saves it to the execution context.
+        /// </summary>
+        public SaveReentryAuthenticationOptions SaveReentryAuthentication { get; } = new();
 
         /// <inheritdoc />
         public virtual void Validate(string errorLocation, string propertyPath = "")
@@ -62,6 +67,7 @@ namespace Nexus.Link.Libraries.Web.AspNet.Pipe.Support.Options
             FulcrumValidate.IsValidated(SaveCorrelationId, propertyPath, nameof(SaveCorrelationId), errorLocation);
             FulcrumValidate.IsValidated(SaveExecutionId, propertyPath, nameof(SaveCorrelationId), errorLocation);
             FulcrumValidate.IsValidated(SaveNexusTestContext, propertyPath, nameof(SaveNexusTestContext), errorLocation);
+            FulcrumValidate.IsValidated(SaveReentryAuthentication, propertyPath, nameof(SaveReentryAuthentication), errorLocation);
         }
     }
 }

@@ -1,4 +1,5 @@
-﻿using Nexus.Link.Libraries.Web.Error;
+﻿using System;
+using Nexus.Link.Libraries.Web.Error;
 
 namespace Nexus.Link.Libraries.Web.Pipe
 {
@@ -22,8 +23,8 @@ namespace Nexus.Link.Libraries.Web.Pipe
         /// <summary>
         /// The header for the Async Manager execution id
         /// </summary>
-        public static string ParentExecutionIdHeaderName = "X-Nexus-Parent-Execution-Id";     
-        
+        public static string ParentExecutionIdHeaderName = "X-Nexus-Parent-Execution-Id";
+
         /// <summary>
         /// The header for the Async Manager reentry authentication, <see cref="RequestPostponedContent.ReentryAuthentication"/>.
         /// </summary>
