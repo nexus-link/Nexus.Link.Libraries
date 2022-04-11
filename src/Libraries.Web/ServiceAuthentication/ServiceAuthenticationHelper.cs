@@ -63,7 +63,7 @@ namespace Nexus.Link.Libraries.Web.ServiceAuthentication
         /// <inheritdoc />
         public async Task<AuthorizationToken> GetAuthorizationForClientAsync(Tenant tenant, ClientAuthorizationSettings authSettings, string client, CancellationToken cancellationToken = default)
         {
-            var cacheKey = $"{tenant}/{client}";
+            var cacheKey = CreateCacheKey(tenant, client);
             if (_authCache[cacheKey] is AuthorizationToken authorization) return authorization;
 
             try
@@ -112,6 +112,20 @@ namespace Nexus.Link.Libraries.Web.ServiceAuthentication
             }
 
             return authorization;
+        }
+
+        private static string CreateCacheKey(Tenant tenant, string client)
+        {
+            return $"{tenant}/{client}";
+        }
+
+        /// <inheritdoc />
+        public Task ClearCacheForClient(Tenant tenant, string client, CancellationToken cancellationToken = default)
+        {
+            var cacheKey = CreateCacheKey(tenant, client);
+            _authCache.Remove(cacheKey);
+            
+            return Task.CompletedTask;
         }
 
         private async Task<AuthenticationToken> FetchJwtFromPlatformTokenRefresher(CancellationToken cancellationToken = default)

@@ -167,6 +167,8 @@ namespace Nexus.Link.Libraries.Web.Tests.RestClientHelper
                 throw new NotImplementedException();
             }
 
+            public ServiceClientCredentials Credentials { get; }
+
             /// <inheritdoc />
             public Task<HttpResponseMessage> SendRequestAsync(HttpMethod method, string relativeUrl, Dictionary<string, List<string>> customHeaders = null,
                 CancellationToken cancellationToken = default)

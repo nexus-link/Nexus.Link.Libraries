@@ -7,6 +7,7 @@ using Nexus.Link.Libraries.Crud.Interfaces;
 using Nexus.Link.Libraries.Crud.UnitTests.Crd;
 using Nexus.Link.Libraries.Crud.UnitTests.Model;
 using Nexus.Link.Libraries.SqlServer.Model;
+using IRecordVersion = Nexus.Link.Libraries.Core.Storage.Model.IRecordVersion;
 
 namespace Nexus.Link.Libraries.SqlServer.Test
 {

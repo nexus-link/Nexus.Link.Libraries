@@ -11,6 +11,7 @@ using Nexus.Link.Libraries.Core.Error.Logic;
 using Nexus.Link.Libraries.Core.Logging;
 using Nexus.Link.Libraries.Web.AspNet.Pipe;
 using Nexus.Link.Libraries.Web.Error.Logic;
+#pragma warning disable CS0618
 
 namespace Nexus.Link.Libraries.Web.AspNet.Tests.InboundPipe.NexusLinkMiddleware
 {

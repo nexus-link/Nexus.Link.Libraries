@@ -41,7 +41,7 @@ namespace Nexus.Link.Libraries.Web.RestClientHelper
         /// <summary>
         /// Credentials that are used when sending requests to the service.
         /// </summary>
-        protected ServiceClientCredentials Credentials { get; }
+        public ServiceClientCredentials Credentials { get; }
 
         /// <summary>
         /// Json settings when serializing to strings
@@ -232,6 +232,7 @@ namespace Nexus.Link.Libraries.Web.RestClientHelper
             await Credentials.ProcessHttpRequestAsync(request, cancellationToken).ConfigureAwait(false);
             return request;
         }
+
 
         private async Task<HttpOperationResponse<TResponse>> HandleResponseWithBody<TResponse>(HttpMethod method, HttpResponseMessage response,
             HttpRequestMessage request, CancellationToken cancellationToken)

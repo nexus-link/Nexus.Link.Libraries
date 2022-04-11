@@ -9,6 +9,7 @@ using Nexus.Link.Libraries.Core.Logging;
 using Nexus.Link.Libraries.Core.Platform.Configurations;
 using Nexus.Link.Libraries.Web.AspNet.Pipe;
 using Nexus.Link.Libraries.Web.AspNet.Pipe.Support.Options;
+#pragma warning disable CS0618
 
 namespace Nexus.Link.Libraries.Web.AspNet.Tests.InboundPipe.NexusLinkMiddleware
 {

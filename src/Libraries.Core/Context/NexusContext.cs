@@ -20,6 +20,7 @@ namespace Nexus.Link.Libraries.Core.Context
         private readonly OneValueProvider<bool> _isInBatchLogger;
         private readonly OneValueProvider<string> _nexusTestContext;
         private readonly OneValueProvider<string> _managedAsynchronousRequestId;
+        private readonly OneValueProvider<string> _reentryAuthentication;
 
         public NexusContext(IContextValueProvider valueProvider)
         {
@@ -35,6 +36,7 @@ namespace Nexus.Link.Libraries.Core.Context
             _isInBatchLogger = new OneValueProvider<bool>(ValueProvider, "IsInBatchLogger");
             _nexusTestContext = new OneValueProvider<string>(ValueProvider, "NexusTestContext");
             _managedAsynchronousRequestId = new OneValueProvider<string>(ValueProvider, "ManagedAsynchronousRequestId");
+            _reentryAuthentication = new OneValueProvider<string>(ValueProvider, "ReentryAuthentication");
         }
 
         /// <summary>
@@ -140,6 +142,15 @@ namespace Nexus.Link.Libraries.Core.Context
         {
             get => _managedAsynchronousRequestId.GetValue();
             set => _managedAsynchronousRequestId.SetValue(value);
+        }
+
+        /// <summary>
+        /// If non-null, we have saved a reentry token key, which enables us to use expired tokens on reentry.
+        /// </summary>
+        public string ReentryAuthentication
+        {
+            get => _reentryAuthentication.GetValue();
+            set => _reentryAuthentication.SetValue(value);
         }
 
     }

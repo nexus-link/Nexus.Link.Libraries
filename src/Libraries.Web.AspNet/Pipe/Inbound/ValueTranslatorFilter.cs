@@ -16,13 +16,11 @@ using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Controllers;
 using Microsoft.Extensions.Options;
-
 #else
 using System.Web.Http.Filters;
 using System.Web.Http.Controllers;
 using Newtonsoft.Json.Linq;
 using Nexus.Link.Libraries.Core.Json;
-using System.Linq;
 using System.Net.Http;
 using System.Text;
 using Nexus.Link.Libraries.Web.Logging;

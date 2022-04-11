@@ -47,6 +47,9 @@ namespace Nexus.Link.Libraries.Web.RestClientHelper
         }
 
         /// <inheritdoc />
+        public ServiceClientCredentials Credentials => HttpSender?.Credentials;
+
+        /// <inheritdoc />
         public async Task<HttpOperationResponse<TResponse>> SendRequestAsync<TResponse, TBody>(HttpMethod method, string relativeUrl,
             TBody body = default, Dictionary<string, List<string>> customHeaders = null,
             CancellationToken cancellationToken = default)

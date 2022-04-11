@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <TargetFrameworks>netstandard2.0;net461</TargetFrameworks>
-    
+
     <!-- Publish the repository URL in the built .nupkg (in the NuSpec <Repository> element) -->
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
 
@@ -23,6 +23,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Libraries.Core\Libraries.Core.csproj" />
+    <ProjectReference Include="..\Libraries.Crud\Libraries.Crud.csproj" />
   </ItemGroup>
 
   <ItemGroup>
@@ -31,7 +32,7 @@
 
   <PropertyGroup>
     <PackageId>Nexus.Link.Libraries.Web</PackageId>
-    <Version>5.25.0-alpha-01</Version>
+    <Version>5.29.0-alpha-01</Version>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <PackageTags>nexus;link;fulcrum;lever</PackageTags>
     <Authors>XLENT Link</Authors>
@@ -41,7 +42,12 @@
     <Copyright>Copyright ©2021 Xlent Link AB</Copyright>
     <IncludeSymbols>true</IncludeSymbols>
     <PackageReleaseNotes>
-      5.25.0 Added conversion of FulcrumResourceLockedException
+      5.29.0 Added conversion of FulcrumResourceLockedException
+      2.28.0 Added Constants.ReentryAuthenticationHeaderName and Reentry interface and model
+      2.27.0 Made ServiceClientCredentials public for IHttpSender
+      2.26.1 Added overload to extension Task.FireAndForgetAsync()
+      2.26.0 ServiceAuthenticationHelper.ClearCacheForClient
+      2.26.1 Added extension Task.FireAndForgetAsync()
       2.24.7 Now supports multiple userId concepts
       2.24.6 Bump
       2.24.5 Bug: We were reading content without buffering it first

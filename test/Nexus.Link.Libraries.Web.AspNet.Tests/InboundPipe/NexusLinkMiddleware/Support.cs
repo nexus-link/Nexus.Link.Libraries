@@ -5,6 +5,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Internal;
+using Nexus.Link.Libraries.Web.Pipe;
 using Newtonsoft.Json.Linq;
 
 namespace Nexus.Link.Libraries.Web.AspNet.Tests.InboundPipe.NexusLinkMiddleware
@@ -38,6 +39,26 @@ namespace Nexus.Link.Libraries.Web.AspNet.Tests.InboundPipe.NexusLinkMiddleware
         {
             var context = new DefaultHttpContext();
             return context.SetRequest(url, method, jObject);
+        }
+        public static HttpRequest SetRequestWithReentryAuthentication(this DefaultHttpContext context, string reentryAuthentication)
+        {
+            var memoryStream = new MemoryStream();
+            var request = new DefaultHttpRequest(context)
+            {
+                Scheme = "https",
+                Host = new HostString("host.example.com"),
+                PathBase = new PathString("/"),
+                Path = new PathString("/Person/123"),
+                Method = "Get",
+                Body = memoryStream,
+                ContentLength = memoryStream.Length,
+                QueryString = new QueryString("?id=23")
+            };
+            if (reentryAuthentication != null)
+            {
+                request.Headers.Add(Constants.ReentryAuthenticationHeaderName, reentryAuthentication);
+            }
+            return request;
         }
     }
 }

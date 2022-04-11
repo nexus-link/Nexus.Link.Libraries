@@ -2,26 +2,20 @@
 using System;
 using System.Diagnostics;
 using System.Linq;
-using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.Extensions.Options;
-using Newtonsoft.Json;
 using Nexus.Link.Libraries.Core.Application;
 using Nexus.Link.Libraries.Core.Assert;
 using Nexus.Link.Libraries.Core.Error.Logic;
-using Nexus.Link.Libraries.Core.Json;
 using Nexus.Link.Libraries.Core.Logging;
 using Nexus.Link.Libraries.Core.Misc;
 using Nexus.Link.Libraries.Core.MultiTenant.Model;
 using Nexus.Link.Libraries.Core.Platform.Configurations;
 using Nexus.Link.Libraries.Web.AspNet.Error.Logic;
 using Nexus.Link.Libraries.Web.AspNet.Logging;
-using Nexus.Link.Libraries.Web.AspNet.Serialization;
-using Nexus.Link.Libraries.Web.Error;
 using Nexus.Link.Libraries.Web.Error.Logic;
 using Nexus.Link.Libraries.Web.Pipe;
 using HttpRequest = Microsoft.AspNetCore.Http.HttpRequest;
@@ -32,6 +26,7 @@ namespace Nexus.Link.Libraries.Web.AspNet.Pipe
     /// This middleware is a collection of all the middleware features that are provided by Nexus Link. Use <see name="INexusLinkMiddlewareOptions"/>
     /// to specify exactly how they should behave.
     /// </summary>
+    [Obsolete("Please use Nexus.Link.Misc.AspNet.Sdk.Inbound.NexusLinkMiddleware. Obsolete since 2022-04-11.")]
     public class NexusLinkMiddleware
     {
         protected readonly RequestDelegate Next;
@@ -43,6 +38,7 @@ namespace Nexus.Link.Libraries.Web.AspNet.Pipe
         /// </summary>
         /// <param name="next">The inner handler</param>
         /// <param name="options">Options that controls which features to use and how they should behave.</param>
+        [Obsolete("Please use Nexus.Link.Misc.AspNet.Sdk.Inbound.NexusLinkMiddleware. Obsolete since 2022-04-11.")]
         public NexusLinkMiddleware(RequestDelegate next, NexusLinkMiddlewareOptions options)
         {
             InternalContract.RequireValidated(options, nameof(options));
@@ -57,6 +53,7 @@ namespace Nexus.Link.Libraries.Web.AspNet.Pipe
         /// </summary>
         /// <param name="next">The inner handler</param>
         /// <param name="options">Options that controls which features to use and how they should behave.</param>
+        [Obsolete("Please use Nexus.Link.Misc.AspNet.Sdk.Inbound.NexusLinkMiddleware. Obsolete since 2022-04-11.")]
         public NexusLinkMiddleware(RequestDelegate next, IOptions<NexusLinkMiddlewareOptions> options)
         {
             InternalContract.RequireNotNull(options.Value, nameof(options));
@@ -122,6 +119,13 @@ namespace Nexus.Link.Libraries.Web.AspNet.Pipe
                     BatchLogger.StartBatch(Options.Features.BatchLog.Threshold, Options.Features.BatchLog.FlushAsLateAsPossible);
                 }
 
+                // TODO: Make new feature
+                if (Options.Features.SaveReentryAuthentication.Enabled)
+                {
+                    var key = GetNexusReentryAuthenticationFromHeader(context);
+                    FulcrumApplication.Context.ReentryAuthentication = key;
+                }
+
                 try
                 {
                     await Next(context);
@@ -161,19 +165,18 @@ namespace Nexus.Link.Libraries.Web.AspNet.Pipe
 
         #region SaveNexusTestContextToContext
         /// <summary>
-        /// 
+        /// Get the <see cref="Constants.NexusTestContextHeaderName"/>.
         /// </summary>
         protected static string GetNexusTestContextFromHeader(HttpContext context)
         {
             var request = context?.Request;
             FulcrumAssert.IsNotNull(request, CodeLocation.AsString());
-            if (request == null) return null;
             var headerValueExists = request.Headers.TryGetValue(Constants.NexusTestContextHeaderName, out var values);
             if (!headerValueExists) return null;
             var valuesAsArray = values.ToArray();
             if (!valuesAsArray.Any()) return null;
             if (valuesAsArray.Length == 1) return valuesAsArray[0];
-            var message = $"There was more than one {Constants.NexusTestContextHeaderName} headers: {string.Join(", ", valuesAsArray)}. Using the first one.";
+            var message = $"There was more than one {Constants.NexusTestContextHeaderName} header: {string.Join(", ", valuesAsArray)}. Using the first one.";
             Log.LogWarning(message);
             return valuesAsArray[0];
         }
@@ -334,11 +337,32 @@ namespace Nexus.Link.Libraries.Web.AspNet.Pipe
             Log.LogError($"INBOUND request-exception {request.ToLogString(elapsedTime)} | {exception.Message}", exception);
         }
         #endregion
+
+        #region SaveReentryAuthentication
+        /// <summary>
+        /// Get the <see cref="Constants.ReentryAuthenticationHeaderName"/>.
+        /// </summary>
+        protected static string GetNexusReentryAuthenticationFromHeader(HttpContext context)
+        {
+            var request = context?.Request;
+            FulcrumAssert.IsNotNull(request, CodeLocation.AsString());
+            var headerValueExists = request.Headers.TryGetValue(Constants.ReentryAuthenticationHeaderName, out var values);
+            if (!headerValueExists) return null;
+            var valuesAsArray = values.ToArray();
+            if (!valuesAsArray.Any()) return null;
+            if (valuesAsArray.Length == 1) return valuesAsArray[0];
+            var message = $"There was more than one {Constants.ReentryAuthenticationHeaderName} header: {string.Join(", ", valuesAsArray)}. Using the first one.";
+            Log.LogWarning(message);
+            return valuesAsArray[0];
+        }
+
+        #endregion
     }
 
     /// <summary>
     /// Convenience class for middleware
     /// </summary>
+    [Obsolete("Please use Nexus.Link.Misc.AspNet.Sdk.Inbound.NexusLinkMiddleware. Obsolete since 2022-04-11.")]
     public static class NexusLinkMiddlewareExtension
     {
         /// <summary>
@@ -347,6 +371,7 @@ namespace Nexus.Link.Libraries.Web.AspNet.Pipe
         /// </summary>
         /// <param name="builder">"this"</param>
         /// <param name="options">Options that controls which features to use and how they should behave.</param>
+        [Obsolete("Please use Nexus.Link.Misc.AspNet.Sdk.Inbound.UseNexusLinkMiddleware. Obsolete since 2022-04-11.")]
         public static IApplicationBuilder UseNexusLinkMiddleware(this IApplicationBuilder builder, IOptions<NexusLinkMiddlewareOptions> options)
         {
             return builder.UseMiddleware<NexusLinkMiddleware>(options);
@@ -358,6 +383,7 @@ namespace Nexus.Link.Libraries.Web.AspNet.Pipe
         /// </summary>
         /// <param name="builder">"this"</param>
         /// <param name="options">Options that controls which features to use and how they should behave.</param>
+        [Obsolete("Please use Nexus.Link.Misc.AspNet.Sdk.Inbound.UseNexusLinkMiddleware. Obsolete since 2022-04-11.")]
         public static IApplicationBuilder UseNexusLinkMiddleware(this IApplicationBuilder builder, NexusLinkMiddlewareOptions options)
         {
             return builder.UseMiddleware<NexusLinkMiddleware>(options);
