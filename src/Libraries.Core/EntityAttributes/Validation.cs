@@ -25,6 +25,7 @@ namespace Nexus.Link.Libraries.Core.EntityAttributes
         public static IEnumerable<Type> AllPropertyValidationAttributes { get; } = new List<Type>()
         {
             typeof(NotNullAttribute),
+            typeof(NullAttribute),
             typeof(NotNullOrEmptyAttribute),
             typeof(NotNullOrWhitespaceAttribute),
             typeof(NotEqualToAttribute),
@@ -59,6 +60,20 @@ namespace Nexus.Link.Libraries.Core.EntityAttributes
                 return propertyValue != null
                     ? new ValidationResult()
                     : new ValidationResult($"{propertyInfo.Name} must not be null");
+            }
+        }
+
+        /// <summary>
+        /// The property value must not be equal to null
+        /// </summary>
+        public class NullAttribute : PropertyValidationAttribute
+        {
+            public override ValidationResult Validate(Type entityType, object entityValue, PropertyInfo propertyInfo,
+                object propertyValue, string errorLocation)
+            {
+                return propertyValue == null
+                    ? new ValidationResult()
+                    : new ValidationResult($"{propertyInfo.Name} must be null");
             }
         }
 

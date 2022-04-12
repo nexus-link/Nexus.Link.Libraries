@@ -33,6 +33,19 @@ namespace Nexus.Link.Libraries.Core.Tests.EntityAttributes
             FulcrumAssert.IsValidated(entity);
         }
 
+        [TestMethod]
+        [ExpectedException(typeof(FulcrumAssertionFailedException))]
+        public void Null_Given_Fail_Gives_Exception()
+        {
+            // Arrange
+            var entity = new TestEntity
+            {
+                Null = "not null"
+            };
+
+            FulcrumAssert.IsValidated(entity);
+        }
+
         [DataTestMethod]
         [DataRow(null)]
         [DataRow("")]
@@ -517,6 +530,9 @@ namespace Nexus.Link.Libraries.Core.Tests.EntityAttributes
     {
         [Validation.NotNull]
         public string NotNull { get; set; } = "";
+
+        [Validation.Null]
+        public string Null { get; set; } = null;
 
         [Validation.NotNullOrEmpty]
         public string NotNullOrEmpty { get; set; } = " ";
