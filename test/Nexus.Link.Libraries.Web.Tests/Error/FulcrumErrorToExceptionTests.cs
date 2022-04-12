@@ -5,6 +5,9 @@ using Nexus.Link.Libraries.Core.Error.Logic;
 using Nexus.Link.Libraries.Core.Error.Model;
 using Nexus.Link.Libraries.Web.Error.Logic;
 
+
+// TODO: Consolidate Converted- and Same-Type exceptions to "one" test with datarows for all types
+
 namespace Nexus.Link.Libraries.Web.Tests.Error
 {
     [TestClass]
