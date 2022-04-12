@@ -22,6 +22,7 @@ If the response body is not formatted as a FulcrumError, then we need to create 
 | 408 | Request TimeOut | Xlent.Fulcrum.TryAgain |
 | 409 | Conflict | Xlent.Fulcrum.Conflict |
 | 410 | Gone | Xlent.Fulcrum.NotFound |
+| 423 | Locked | Xlent.Fulcrum.ResourceLocked |
 | 4xx | catch all | Xlent.Fulcrum.ServiceContract |
 | 500 | Internal Server Error | Xlent.Fulcrum.AssertionFailed |
 | 501 | Not Implemented | Xlent.Fulcrum.NotImplemented |
@@ -47,5 +48,6 @@ The FulcrumError from the response will be mapped to the appropriate FulcrumExce
 | Xlent.Fulcrum.Resource | FulcrumResourceException | The resource had an error in another resource. |
 | Xlent.Fulcrum.ServiceContract | FulcrumContractException | The service said that the call did not follow the contract. We see this as an internal error for the code that called the RestClient. |
 | Xlent.Fulcrum.TryAgain | FulcrumTryAgainException | The original caller should take the decision on if it should try again or not. |
+| Xlent.Fulcrum.ResourceLocked | FulcrumResourceLockedException | Resourcce was locked, try again. |
 | Xlent.Fulcrum.Unauthorized | FulcrumUnauthorizedException | The provided credentials could not be accepted. |
 

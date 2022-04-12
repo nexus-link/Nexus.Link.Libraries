@@ -69,6 +69,7 @@ namespace Nexus.Link.Libraries.Web.Error.Logic
             AddFulcrumException(typeof(FulcrumContractException), HttpStatusCode.InternalServerError, FulcrumResourceException.ExceptionType);
             AddFulcrumException(typeof(FulcrumCancelledException), HttpStatusCode.InternalServerError, FulcrumResourceException.ExceptionType);
             AddFulcrumException(typeof(FulcrumNotImplementedException), HttpStatusCode.InternalServerError, FulcrumResourceException.ExceptionType);
+            AddFulcrumException(typeof(FulcrumResourceLockedException), (HttpStatusCode)423, FulcrumResourceLockedException.ExceptionType);
             AddFulcrumException(typeof(FulcrumTryAgainException), HttpStatusCode.InternalServerError, FulcrumTryAgainException.ExceptionType);
             AddFulcrumException(typeof(FulcrumBusinessRuleException), HttpStatusCode.BadRequest, FulcrumBusinessRuleException.ExceptionType);
             AddFulcrumException(typeof(FulcrumConflictException), HttpStatusCode.BadRequest, FulcrumConflictException.ExceptionType);
@@ -243,18 +244,16 @@ namespace Nexus.Link.Libraries.Web.Error.Logic
                     case HttpStatusCode.Gone:
                         fulcrumError.Type = FulcrumNotFoundException.ExceptionType;
                         break;
+                    case (HttpStatusCode) 423: // HttpCode: Locked
+                        fulcrumError.Type = FulcrumResourceLockedException.ExceptionType;
+                        break;
+                    case (HttpStatusCode) 429: // HttpCode: Too many requests
+                        fulcrumError.Type = FulcrumTryAgainException.ExceptionType;
+                        fulcrumError.IsRetryMeaningful = true;
+                        fulcrumError.RecommendedWaitTimeInSeconds = 30;
+                        break;
                     default:
-                        if (statusCodeAsInt == 429) // Too many requests
-                        {
-                            fulcrumError.Type = FulcrumTryAgainException.ExceptionType;
-                            fulcrumError.IsRetryMeaningful = true;
-                            fulcrumError.RecommendedWaitTimeInSeconds = 30;
-                        }
-                        else
-                        {
-                            fulcrumError.Type = FulcrumServiceContractException.ExceptionType;
-                        }
-
+                        fulcrumError.Type = FulcrumServiceContractException.ExceptionType;
                         break;
                 }
             }
