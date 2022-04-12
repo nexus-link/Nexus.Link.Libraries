@@ -32,7 +32,7 @@
 
   <PropertyGroup>
     <PackageId>Nexus.Link.Libraries.Web</PackageId>
-    <Version>5.29.0-alpha-01</Version>
+    <Version>5.29.0</Version>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <PackageTags>nexus;link;fulcrum;lever</PackageTags>
     <Authors>XLENT Link</Authors>
