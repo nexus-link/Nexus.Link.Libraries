@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Nexus.Link.Libraries.Core.Assert;
+using Nexus.Link.Libraries.Core.EntityAttributes;
 
 namespace Nexus.Link.Libraries.Web.Error.Logic
 {
@@ -16,8 +17,16 @@ namespace Nexus.Link.Libraries.Web.Error.Logic
         public bool TryAgain { get; set; }
 
         /// <summary>
+        /// If you set <see cref="TryAgain"/>, you may optionally set this property to
+        /// give the expected time before a retry is made.
+        /// </summary>
+        [Validation.Null(InvertedTrigger = true, TriggerPropertyName = nameof(TryAgain))]
+        public TimeSpan? TryAgainAfterMinimumTimeSpan { get; set; }
+
+        /// <summary>
         /// If there are any other requests that we are waiting for, they will be listed here.
         /// </summary>
+        [Validation.NotNull]
         public List<string> WaitingForRequestIds { get; } = new List<string>();
 
         /// <summary>

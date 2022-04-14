@@ -78,9 +78,11 @@ namespace Nexus.Link.Libraries.Web.AspNet.Error.Logic
             }
             if (e is RequestPostponedException postponedException)
             {
+                var seconds = postponedException.TryAgainAfterMinimumTimeSpan?.TotalSeconds;
                 var postponedContent = new RequestPostponedContent()
                 {
                     TryAgain = postponedException.TryAgain,
+                    TryAgainAfterMinimumSeconds = seconds,
                     WaitingForRequestIds = postponedException.WaitingForRequestIds,
                     ReentryAuthentication = postponedException.ReentryAuthentication
                 };

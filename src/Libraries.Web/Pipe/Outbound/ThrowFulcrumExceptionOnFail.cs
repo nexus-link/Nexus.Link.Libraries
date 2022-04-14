@@ -71,9 +71,13 @@ namespace Nexus.Link.Libraries.Web.Pipe.Outbound
                     var postponeInfo = JsonHelper.SafeDeserializeObject<RequestPostponedContent>(content);
                     if (postponeInfo?.WaitingForRequestIds != null)
                     {
+                        var timeSpan = postponeInfo.TryAgainAfterMinimumSeconds.HasValue
+                            ? TimeSpan.FromSeconds(postponeInfo.TryAgainAfterMinimumSeconds.Value)
+                            : (TimeSpan?) null;
                         throw new RequestPostponedException(postponeInfo.WaitingForRequestIds)
                         {
                             TryAgain = postponeInfo.TryAgain,
+                            TryAgainAfterMinimumTimeSpan = timeSpan,
                             ReentryAuthentication = postponeInfo.ReentryAuthentication
                         };
                     }
@@ -105,7 +109,7 @@ namespace Nexus.Link.Libraries.Web.Pipe.Outbound
                 throw new FulcrumTryAgainException(message, e);
             }
             catch (Exception e) when (
-                e is HttpRequestException 
+                e is HttpRequestException
                 || e is JsonReaderException
                 )
             {
@@ -122,7 +126,7 @@ namespace Nexus.Link.Libraries.Web.Pipe.Outbound
                 throw new FulcrumAssertionFailedException(message, e);
             }
 
-            var severityLevel = (int) response.StatusCode >= 500 ? LogSeverityLevel.Error : LogSeverityLevel.Warning;
+            var severityLevel = (int)response.StatusCode >= 500 ? LogSeverityLevel.Error : LogSeverityLevel.Warning;
             Log.LogOnLevel(severityLevel, $"{requestDescription} was converted to (and threw) the exception {fulcrumException.GetType().Name}: {fulcrumException.TechnicalMessage}", fulcrumException);
             throw fulcrumException;
         }
