@@ -29,7 +29,7 @@
 
   <PropertyGroup>
     <PackageId>Nexus.Link.Libraries.SqlServer</PackageId>
-    <Version>2.15.2</Version>
+    <Version>2.15.3</Version>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <PackageTags>nexus;link;fulcrum;lever</PackageTags>
     <Authors>XLENT Link</Authors>
@@ -39,6 +39,7 @@
     <Copyright>Copyright ©2019 Xlent Link AB</Copyright>
     <IncludeSymbols>true</IncludeSymbols>
     <PackageReleaseNotes>
+      2.15.3 Bump
       2.15.2 Moved IRecordVersion to Core
       2.15.1 Changed Has*Trigger to *CanUseOutput, as it better declares what the option is about
       2.15.0 Added ISqlTableMetadata.HasInsertTrigger and HasUpdateTrigger to know if we can use OUTPUT or not
