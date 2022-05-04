@@ -21,8 +21,7 @@ namespace Nexus.Link.Libraries.Core.Assert
             }
             var exception = (TException)Activator.CreateInstance(typeof(TException), message);
             exception.ErrorLocation = errorLocation;
-            if (exception is FulcrumAssertionFailedException ||
-                exception is FulcrumContractException)
+            if (exception is FulcrumProgrammersErrorException)
             {
                 var logMessage = $"An unexpected internal error resulted in an exception: {message}";
                 if (!string.IsNullOrWhiteSpace(errorLocation))

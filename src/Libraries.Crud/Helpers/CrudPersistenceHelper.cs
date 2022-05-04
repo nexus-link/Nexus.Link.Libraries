@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
@@ -23,6 +24,7 @@ namespace Nexus.Link.Libraries.Crud.Helpers
         private readonly ICrudable<TModelCreate, TModel, TId> _crudService;
         private readonly IRead<TModel, TId> _readService;
         private readonly CrudPersistenceHelperOptions _options;
+        private readonly IComparer<TModel> _saveOrderComparer;
         private readonly ConcurrentDictionary<TId, TModel> _stored = new ConcurrentDictionary<TId, TModel>();
         private readonly List<TId> _currentInOrder = new List<TId>();
         private readonly ConcurrentDictionary<TId, TModel> _currentDictionary = new ConcurrentDictionary<TId, TModel>();
@@ -32,12 +34,16 @@ namespace Nexus.Link.Libraries.Crud.Helpers
         /// </summary>
         /// <param name="crudService">The persistence service that will actually create, read and update data.</param>
         /// <param name="options"></param>
-        public CrudPersistenceHelper(ICrudable<TModelCreate, TModel, TId> crudService, CrudPersistenceHelperOptions options)
+        /// <param name="saveOrderComparer">If this is not null, we will sort the items in this order before we save them.</param>
+        public CrudPersistenceHelper(ICrudable<TModelCreate, TModel, TId> crudService,
+            CrudPersistenceHelperOptions options, IComparer<TModel> saveOrderComparer = null)
         {
             _readService = crudService as IRead<TModel, TId>;
-            InternalContract.Require(_readService != null, $"Parameter {nameof(crudService)} must implement {nameof(IRead<TModel, TId>)}.");
+            InternalContract.Require(_readService != null,
+                $"Parameter {nameof(crudService)} must implement {nameof(IRead<TModel, TId>)}.");
             _crudService = crudService;
             _options = options;
+            _saveOrderComparer = saveOrderComparer;
         }
 
         /// <summary>
@@ -87,14 +93,23 @@ namespace Nexus.Link.Libraries.Crud.Helpers
             return stored.AsCopy();
         }
 
-        public async Task SaveAsync(Func<TId, TModel, CancellationToken, Task> handleResultMethod, CancellationToken cancellationToken = default)
+        public async Task SaveAsync(Func<TId, TModel, CancellationToken, Task> handleResultMethod,
+            CancellationToken cancellationToken = default)
         {
             var itemTaskList = new List<Task<TModel>>();
-            var array = _currentInOrder.ToArray();
-            foreach (var id in array)
+            var items = _currentInOrder.Select(id => {
+                _currentDictionary.TryGetValue(id, out var item);
+                return item;
+            }).Where(item => item != null);
+            var array = MaybeSort(items);
+            foreach (var item in array)
             {
-                if (!_currentDictionary.TryGetValue(id, out var item)) continue;
-                var itemTask = SaveAsync(id, item, cancellationToken);
+                var itemTask = SaveAsync(item.Id, item, cancellationToken);
+                if (_saveOrderComparer != null)
+                {
+                    // If the save order is important, we can't use parallelism
+                    await itemTask;
+                }
                 itemTaskList.Add(itemTask);
             }
 
@@ -103,6 +118,13 @@ namespace Nexus.Link.Libraries.Crud.Helpers
                 var item = await itemTask;
                 await handleResultMethod(item.Id, item, cancellationToken);
             }
+        }
+
+        private TModel[] MaybeSort(IEnumerable<TModel> items)
+        {
+            return _saveOrderComparer == null 
+                ? items.ToArray() 
+                : items.OrderBy(item => item, _saveOrderComparer).ToArray();
         }
 
         public Task SaveAsync(Action<TId, TModel> handleResultMethod, CancellationToken cancellationToken = default)
@@ -136,7 +158,7 @@ namespace Nexus.Link.Libraries.Crud.Helpers
                     if (hasId && _stored.ContainsKey(id))
                     {
                         throw new FulcrumConflictException(
-                        $"{nameof(item.Etag)} == null which should indicate that this is a new item, but it has previously been successfully read from persistence.");
+                            $"{nameof(item.Etag)} == null which should indicate that this is a new item, but it has previously been successfully read from persistence.");
                     }
 
                     if (hasId) item.Id = id;
@@ -147,7 +169,8 @@ namespace Nexus.Link.Libraries.Crud.Helpers
                     {
                         result = await service1.CreateWithSpecifiedIdAndReturnAsync(id, item, cancellationToken);
                     }
-                    else if (_crudService is ICreateWithSpecifiedIdNoReturn<TModelCreate, TModel, TId> service2 && hasId)
+                    else if (_crudService is ICreateWithSpecifiedIdNoReturn<TModelCreate, TModel, TId> service2 &&
+                             hasId)
                     {
                         await service2.CreateWithSpecifiedIdAsync(id, item, cancellationToken);
                         result = await _readService.ReadAsync(id, cancellationToken);
@@ -169,7 +192,7 @@ namespace Nexus.Link.Libraries.Crud.Helpers
                             + $" {nameof(ICreateWithSpecifiedIdAndReturn<TModelCreate, TModel, TId>)}"
                             + $" or {nameof(ICreateWithSpecifiedId<TModelCreate, TModel, TId>)}"
                             + $" or {nameof(ICreateAndReturn<TModelCreate, TModel, TId>)}"
-                        + $" or {nameof(ICreate<TModelCreate, TModel, TId>)}");
+                            + $" or {nameof(ICreate<TModelCreate, TModel, TId>)}");
                     }
 
                     AddOrUpdateWithCopy(id, result, true);
@@ -190,8 +213,10 @@ namespace Nexus.Link.Libraries.Crud.Helpers
                     }
                     else
                     {
-                        InternalContract.Require(false, $"The CRUD service must implement {nameof(IUpdateAndReturn<TModel, TId>)} or {nameof(IUpdate<TModel, TId>)}");
+                        InternalContract.Require(false,
+                            $"The CRUD service must implement {nameof(IUpdateAndReturn<TModel, TId>)} or {nameof(IUpdate<TModel, TId>)}");
                     }
+
                     AddOrUpdateWithCopy(id, result, true);
                     return result;
                 }
@@ -213,21 +238,26 @@ namespace Nexus.Link.Libraries.Crud.Helpers
                 }
             }
         }
+
         public Task<TModel> SaveAsync(TModel item, CancellationToken cancellationToken = default)
         {
             InternalContract.RequireNotNull(item, nameof(item));
-            var id = item.GetPrimaryKey<TModel,TId>();
+            var id = item.GetPrimaryKey<TModel, TId>();
             return SaveAsync(id, item, cancellationToken);
         }
 
         private void AddOrUpdateWithCopy(TId id, TModel item, bool copyAsStored)
         {
             InternalContract.RequireNotNull(item, nameof(item));
-            _currentDictionary.AddOrUpdate(id, i =>
+            lock (_currentInOrder)
             {
-                _currentInOrder.Add(id);
-                return item;
-            }, (i, oldValue) => item);
+                _currentDictionary.AddOrUpdate(id, i =>
+                {
+                    _currentInOrder.Add(id);
+                    return item;
+                }, (i, oldValue) => item);
+            }
+
             if (!copyAsStored) return;
             var copy = item.AsCopy();
             _stored.AddOrUpdate(id, i => copy, (i, oldValue) => copy);
