@@ -96,6 +96,7 @@ namespace Nexus.Link.Libraries.Crud.Helpers
         public async Task SaveAsync(Func<TId, TModel, CancellationToken, Task> handleResultMethod,
             CancellationToken cancellationToken = default)
         {
+            InternalContract.RequireNotNull(handleResultMethod, nameof(handleResultMethod));
             var itemTaskList = new List<Task<TModel>>();
             var items = _currentInOrder.Select(id => {
                 _currentDictionary.TryGetValue(id, out var item);
@@ -104,6 +105,7 @@ namespace Nexus.Link.Libraries.Crud.Helpers
             var array = MaybeSort(items);
             foreach (var item in array)
             {
+                FulcrumAssert.IsNotNull(item, CodeLocation.AsString());
                 var itemTask = SaveAsync(item.Id, item, cancellationToken);
                 if (_saveOrderComparer != null)
                 {
@@ -116,6 +118,7 @@ namespace Nexus.Link.Libraries.Crud.Helpers
             foreach (var itemTask in itemTaskList)
             {
                 var item = await itemTask;
+                FulcrumAssert.IsNotNull(item, CodeLocation.AsString());
                 await handleResultMethod(item.Id, item, cancellationToken);
             }
         }
