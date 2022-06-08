@@ -80,15 +80,15 @@ namespace Nexus.Link.Libraries.Crud.UnitTests.Crd
             try
             {
                 var itemLock2 = await CrdStorage.ClaimDistributedLockAsync(id, TimeSpan.FromSeconds(30));
-                Assert.Fail($"Expected an exception of type {nameof(FulcrumTryAgainException)}.");
+                Assert.Fail($"Expected an exception of type {nameof(FulcrumResourceLockedException)}.");
             }
-            catch (FulcrumTryAgainException ex)
+            catch (FulcrumResourceLockedException ex)
             {
                 Assert.IsTrue(ex.RecommendedWaitTimeInSeconds <= 30, $"{nameof(ex.RecommendedWaitTimeInSeconds)}: {ex.RecommendedWaitTimeInSeconds}");
             }
             catch (Exception ex)
             {
-                Assert.Fail($"Expected an exception of type {nameof(FulcrumTryAgainException)}, byt received exception of type {ex.GetType().FullName}.");
+                Assert.Fail($"Expected an exception of type {nameof(FulcrumResourceLockedException)}, byt received exception of type {ex.GetType().FullName}.");
             }
         }
 
@@ -213,7 +213,7 @@ namespace Nexus.Link.Libraries.Crud.UnitTests.Crd
                         scope.Complete();
                         couldLock = true;
                     }
-                    catch (FulcrumTryAgainException)
+                    catch (FulcrumResourceLockedException)
                     {
                         couldLock = false;
                     }
@@ -231,7 +231,7 @@ namespace Nexus.Link.Libraries.Crud.UnitTests.Crd
                         scope.Complete();
                         couldLock = true;
                     }
-                    catch (FulcrumTryAgainException)
+                    catch (FulcrumResourceLockedException)
                     {
                         couldLock = false;
                     }
@@ -251,7 +251,7 @@ namespace Nexus.Link.Libraries.Crud.UnitTests.Crd
         /// Create a lock and then lock it again (which should fail).
         /// </summary>
         [TestMethod]
-        public async Task ClaimTransactionLock_Given_AlreadyLocked_Gives_FulcrumTryAgainException()
+        public async Task ClaimTransactionLock_Given_AlreadyLocked_Gives_FulcrumResourceLockedException()
         {
             TId id = default;
             using (var scope = CreateNormalScope())
@@ -276,7 +276,7 @@ namespace Nexus.Link.Libraries.Crud.UnitTests.Crd
                         scope2.Complete();
                         couldLock = true;
                     }
-                    catch (FulcrumTryAgainException)
+                    catch (FulcrumResourceLockedException)
                     {
                         couldLock = false;
                     }

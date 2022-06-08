@@ -20,7 +20,7 @@ namespace Nexus.Link.Libraries.Crud.Interfaces
         /// <param name="currentLockId">If you currently have a lock and would like to extend it, pass the old lock id here.</param>
         /// <param name="cancellationToken">Propagates notification that operations should be canceled</param>
         /// <returns>A <see cref="Lock{TId}"/> object that proves that the lock has been claimed.</returns>
-        /// <exception cref="FulcrumTryAgainException">
+        /// <exception cref="FulcrumResourceLockedException">
         /// Thrown if there already is a claimed lock. Will contain information about when the lock is automatically released.
         /// </exception>
         /// <remarks>

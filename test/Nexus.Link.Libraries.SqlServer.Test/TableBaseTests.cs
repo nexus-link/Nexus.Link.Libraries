@@ -95,7 +95,7 @@ namespace Nexus.Link.Libraries.SqlServer.Test
         }
 
         [TestMethod]
-        public async Task ClaimLock_Given_AlreadyLocked_Gives_FulcrumTryAgainException()
+        public async Task ClaimLock_Given_AlreadyLocked_Gives_FulcrumResourceLockedException()
         {
             var createItem = new TestItemBare
             {
@@ -130,7 +130,7 @@ namespace Nexus.Link.Libraries.SqlServer.Test
                         lock2Success = true;
                         scope.Complete();
                     }
-                    catch (FulcrumTryAgainException)
+                    catch (FulcrumResourceLockedException)
                     {
                         lock2Success = false;
                     }
@@ -178,7 +178,7 @@ namespace Nexus.Link.Libraries.SqlServer.Test
                         lock2Success = true;
                         scope.Complete();
                     }
-                    catch (FulcrumTryAgainException)
+                    catch (FulcrumResourceLockedException)
                     {
                         lock2Success = false;
                     }

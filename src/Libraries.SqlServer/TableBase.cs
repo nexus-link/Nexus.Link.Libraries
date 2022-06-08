@@ -156,7 +156,7 @@ namespace Nexus.Link.Libraries.SqlServer
             if (item != null) return item;
             var count = await CountItemsAdvancedAsync("SELECT COUNT(*)", $"FROM [{TableMetadata.TableName}] WITH (NOLOCK) WHERE ({@where})", param, token);
             if (count == 0) return default;
-            throw new FulcrumTryAgainException($"The specified row in table {TableMetadata.TableName} was already locked")
+            throw new FulcrumResourceLockedException($"The specified row in table {TableMetadata.TableName} was already locked")
             {
                 RecommendedWaitTimeInSeconds = 1.0
             };

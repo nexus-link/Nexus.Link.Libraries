@@ -298,7 +298,7 @@ namespace Nexus.Link.Libraries.Crud.MemoryStorage
                 if (remainingTime > TimeSpan.Zero)
                 {
                     var message = $"Item {key} is locked by someone else. The lock will be released before {oldLock.ValidUntil}";
-                    var exception = new FulcrumTryAgainException(message)
+                    var exception = new FulcrumResourceLockedException(message)
                     {
                         RecommendedWaitTimeInSeconds = remainingTime.Seconds
                     };
@@ -371,7 +371,7 @@ namespace Nexus.Link.Libraries.Crud.MemoryStorage
                 if (remainingTime > TimeSpan.Zero && !Equals(oldLock.LockId, currentLockId))
                 {
                     var message = $"Item {key} is locked by someone else. The lock will be released before {oldLock.ValidUntil}";
-                    var exception = new FulcrumTryAgainException(message)
+                    var exception = new FulcrumResourceLockedException(message)
                     {
                         RecommendedWaitTimeInSeconds = remainingTime.Seconds
                     };

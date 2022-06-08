@@ -75,7 +75,7 @@ namespace Nexus.Link.Libraries.SqlServer.Logic
             if (distributedLock == null)
             {
                 // Our strategy to retry with a read failed, ask the client to retry.
-                throw new FulcrumTryAgainException(
+                throw new FulcrumResourceLockedException(
                     $"Racing condition for a row lock for record id {recordToLockId} in table {TableName}. Try again.");
             }
 
@@ -85,7 +85,7 @@ namespace Nexus.Link.Libraries.SqlServer.Logic
             {
                 if (distributedLock.LockId != currentLockId)
                 {
-                    throw new FulcrumTryAgainException($"The record was already locked.")
+                    throw new FulcrumResourceLockedException($"The record was already locked.")
                     {
                         RecommendedWaitTimeInSeconds = remainingTime.TotalSeconds
                     };
@@ -105,7 +105,7 @@ namespace Nexus.Link.Libraries.SqlServer.Logic
             }
             catch (FulcrumConflictException)
             {
-                throw new FulcrumTryAgainException(
+                throw new FulcrumResourceLockedException(
                     $"Racing condition for a row lock for record id {recordToLockId} in table {TableName}. Try again.");
             }
 

@@ -168,7 +168,7 @@ namespace Nexus.Link.Libraries.Azure.Storage.V12.Blob
             var response = await lease.AcquireAsync(lockTimeSpan.Value, null, cancellationToken);
             if (response == null)
             {
-                throw new FulcrumTryAgainException($"The blob {id} was already locked.");
+                throw new FulcrumResourceLockedException($"The blob {id} was already locked.");
             }
 
             return new Lock<string>

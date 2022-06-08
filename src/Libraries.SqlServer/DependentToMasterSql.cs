@@ -221,7 +221,7 @@ namespace Nexus.Link.Libraries.SqlServer
             var result = await SearchSingleAndLockWhereAsync("MasterId=@MasterId AND DependentId=@DependentId", new { MasterId = masterId, DependentId = dependentId }, token);
             if (result == null)
             {
-                throw new FulcrumTryAgainException(
+                throw new FulcrumResourceLockedException(
                     $"Item {dependentId} in table {TableMetadata.TableName} was already locked by another client.")
                 {
                     RecommendedWaitTimeInSeconds = 1
