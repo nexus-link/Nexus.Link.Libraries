@@ -43,7 +43,7 @@
 
   <PropertyGroup>
     <PackageId>Nexus.Link.Libraries.Web.AspNet</PackageId>
-    <Version>3.2.3</Version>
+    <Version>3.2.4</Version>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <PackageTags>nexus;link;fulcrum;lever</PackageTags>
     <Authors>XLENT Link</Authors>
@@ -53,7 +53,8 @@
     <Copyright>Copyright ©2019 Xlent Link AB</Copyright>
     <IncludeSymbols>true</IncludeSymbols>
     <PackageReleaseNotes>
-      3.2.3 Bump
+      3.2.4 Save client tenant configuration in in-pipe now fails fast if the configuration could not be fetched from Fundamentals
+	  3.2.3 Bump
       3.2.0 Moved NexusLinkMiddleware to Nexus.Link.Misc.AspNet.Sdk
       3.1.0 Added SaveReentryAuthentication to NexusLinkMiddleware
       3.0.2 Now supports multiple userId concepts

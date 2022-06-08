@@ -270,14 +270,13 @@ namespace Nexus.Link.Libraries.Web.AspNet.Pipe
                 var service = Options.Features.SaveTenantConfiguration.ServiceConfiguration;
                 return await service.GetConfigurationForAsync(tenant, cancellationToken);
             }
-            catch (FulcrumUnauthorizedException e)
+            catch (FulcrumNotFoundException e)
             {
-                throw new FulcrumResourceException($"Could not fetch configuration for Tenant: '{tenant}': {e.Message}", e);
+                throw new FulcrumNotFoundException($"{FulcrumApplication.Setup.Name} could not find its configuration in Fundamentals for tenant {tenant}: {e}", e);
             }
-            catch
+            catch (Exception e)
             {
-                // Deliberately ignore errors for configuration. This will have to be taken care of when the configuration is needed.
-                return null;
+                throw new FulcrumAssertionFailedException($"{FulcrumApplication.Setup.Name} could not get its configuration in Fundamentals for tenant {tenant}: {e}", e); ;
             }
         }
         #endregion
