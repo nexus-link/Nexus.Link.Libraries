@@ -2,6 +2,7 @@
 using System.Threading;
 using System.Threading.Tasks;
 using Nexus.Link.Libraries.Core.Application;
+#pragma warning disable CS0618
 
 namespace Nexus.Link.Libraries.Web.Pipe.Outbound
 {

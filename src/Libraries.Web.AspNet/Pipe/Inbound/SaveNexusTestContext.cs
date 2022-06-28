@@ -13,6 +13,7 @@ using Microsoft.AspNetCore.Http;
 #else
 using System.Linq;
 #endif
+#pragma warning disable CS0618
 namespace Nexus.Link.Libraries.Web.AspNet.Pipe.Inbound
 {
     /// <summary>

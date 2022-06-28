@@ -5,6 +5,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Nexus.Link.Libraries.Core.Application;
 using Nexus.Link.Libraries.Web.Pipe;
 using Nexus.Link.Libraries.Web.Tests.Support;
+#pragma warning disable CS0618
 
 namespace Nexus.Link.Libraries.Web.Tests
 {

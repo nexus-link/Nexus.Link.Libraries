@@ -50,7 +50,7 @@
 
   <PropertyGroup>
     <PackageId>Nexus.Link.Libraries.Core</PackageId>
-    <Version>5.18.2</Version>
+    <Version>5.19.0</Version>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <PackageTags>nexus;link;fulcrum;lever</PackageTags>
     <Authors>XLENT Link</Authors>
@@ -60,6 +60,7 @@
     <Copyright>Copyright ©2021 Xlent Link AB</Copyright>
     <IncludeSymbols>true</IncludeSymbols>
     <PackageReleaseNotes>
+      5.19.0 Added FulcrumApplication.Context.ChildExecutionId, ChildExecutionDescription, ExecutionIsAsynchronous, AsyncRequestId and AsyncPriority. Added ToLogString() for TimeSpan
       5.18.2 FulcrumAssertFailedException and FulcrumContractException now inherits from FulcrumProgrammersErrorException
       5.18.1 Added Validation.NullAttribute
       5.18.0 Added FulcrumResourceLockedException

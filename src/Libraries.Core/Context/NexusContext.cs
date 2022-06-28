@@ -12,6 +12,11 @@ namespace Nexus.Link.Libraries.Core.Context
         private readonly OneValueProvider<string> _correlationId;
         private readonly OneValueProvider<string> _parentExecutionId;
         private readonly OneValueProvider<string> _executionId;
+        private readonly OneValueProvider<string> _childExecutionId;
+        private readonly OneValueProvider<string> _childRequestDescription;
+        private readonly OneValueProvider<bool> _executionIsAsynchronous;
+        private readonly OneValueProvider<string> _asyncRequestId;
+        private readonly OneValueProvider<double> _asyncPriority;
         private readonly OneValueProvider<string> _callingClientName;
         private readonly OneValueProvider<Tenant> _clientTenant;
         private readonly OneValueProvider<ILeverConfiguration> _leverConfiguration;
@@ -28,6 +33,8 @@ namespace Nexus.Link.Libraries.Core.Context
             _correlationId = new OneValueProvider<string>(ValueProvider, "NexusCorrelationId");
             _parentExecutionId = new OneValueProvider<string>(ValueProvider, "NexusParentExecutionId");
             _executionId = new OneValueProvider<string>(ValueProvider, "NexusExecutionId");
+            _childExecutionId = new OneValueProvider<string>(ValueProvider, "NexusChildExecutionId");
+            _childRequestDescription = new OneValueProvider<string>(ValueProvider, "NexusChildExecutionDescription");
             _callingClientName = new OneValueProvider<string>(ValueProvider, "CallingClientName");
             _clientTenant = new OneValueProvider<Tenant>(ValueProvider, "TenantId");
             _leverConfiguration = new OneValueProvider<ILeverConfiguration>(ValueProvider, "LeverConfigurationId");
@@ -37,6 +44,9 @@ namespace Nexus.Link.Libraries.Core.Context
             _nexusTestContext = new OneValueProvider<string>(ValueProvider, "NexusTestContext");
             _managedAsynchronousRequestId = new OneValueProvider<string>(ValueProvider, "ManagedAsynchronousRequestId");
             _reentryAuthentication = new OneValueProvider<string>(ValueProvider, "ReentryAuthentication");
+            _executionIsAsynchronous = new OneValueProvider<bool>(ValueProvider, "ExecutionIsAsynchronous");
+            _asyncRequestId = new OneValueProvider<string>(ValueProvider, "AsyncRequestId");
+            _asyncPriority = new OneValueProvider<double>(ValueProvider, "AsyncPriority");
         }
 
         /// <summary>
@@ -58,8 +68,8 @@ namespace Nexus.Link.Libraries.Core.Context
         /// </summary>
         public string ParentExecutionId
         {
-            get => _executionId.GetValue();
-            set => _executionId.SetValue(value);
+            get => _parentExecutionId.GetValue();
+            set => _parentExecutionId.SetValue(value);
         }
 
         /// <summary>
@@ -67,8 +77,53 @@ namespace Nexus.Link.Libraries.Core.Context
         /// </summary>
         public string ExecutionId
         {
-            get => _parentExecutionId.GetValue();
-            set => _parentExecutionId.SetValue(value);
+            get => _executionId.GetValue();
+            set => _executionId.SetValue(value);
+        }
+
+        /// <summary>
+        /// The child execution id.
+        /// </summary>
+        public string ChildExecutionId
+        {
+            get => _childExecutionId.GetValue();
+            set => _childExecutionId.SetValue(value);
+        }
+
+        /// <summary>
+        /// The child execution description.
+        /// </summary>
+        public string ChildRequestDescription
+        {
+            get => _childRequestDescription.GetValue();
+            set => _childRequestDescription.SetValue(value);
+        }
+
+        /// <summary>
+        /// True if the current execution is running as an asynchronous execution.
+        /// </summary>
+        public bool ExecutionIsAsynchronous
+        {
+            get => _executionIsAsynchronous.GetValue();
+            set => _executionIsAsynchronous.SetValue(value);
+        }
+
+        /// <summary>
+        /// If the current outbound request has been sent to the asynchronous request management capability, then this is the RequestId for that request.
+        /// </summary>
+        public string AsyncRequestId
+        {
+            get => _asyncRequestId.GetValue();
+            set => _asyncRequestId.SetValue(value);
+        }
+
+        /// <summary>
+        /// If <see cref="ExecutionIsAsynchronous"/> is set, this is the priority for this execution.
+        /// </summary>
+        public double AsyncPriority
+        {
+            get => _asyncPriority.GetValue();
+            set => _asyncPriority.SetValue(value);
         }
 
         /// <summary>

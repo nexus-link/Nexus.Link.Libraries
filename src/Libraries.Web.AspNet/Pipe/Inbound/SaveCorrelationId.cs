@@ -15,6 +15,7 @@ using Nexus.Link.Libraries.Web.AspNet.Logging;
 using System.Linq;
 using Nexus.Link.Libraries.Web.Logging;
 #endif
+#pragma warning disable CS0618
 namespace Nexus.Link.Libraries.Web.AspNet.Pipe.Inbound
 {
     /// <summary>

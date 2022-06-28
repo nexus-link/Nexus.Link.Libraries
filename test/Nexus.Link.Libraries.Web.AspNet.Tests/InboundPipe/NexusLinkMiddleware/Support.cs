@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Internal;
 using Nexus.Link.Libraries.Web.Pipe;
 using Newtonsoft.Json.Linq;
+#pragma warning disable CS0618
 
 namespace Nexus.Link.Libraries.Web.AspNet.Tests.InboundPipe.NexusLinkMiddleware
 {

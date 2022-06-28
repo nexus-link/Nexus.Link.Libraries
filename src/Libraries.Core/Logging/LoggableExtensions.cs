@@ -34,6 +34,27 @@ namespace Nexus.Link.Libraries.Core.Logging
         /// Very much like <see cref="object.ToString"/>, but specifically for logging purposes.
         /// </summary>
         /// <returns>A string for logging information about this type of object.</returns>
+        public static string ToLogString(this TimeSpan value)
+        {
+            if (value < TimeSpan.FromMilliseconds(1000)) return $"{value.TotalMilliseconds:F0}ms";
+            if (value < TimeSpan.FromMilliseconds(1995)) return $"{value.TotalSeconds:F2}s";
+            if (value < TimeSpan.FromSeconds(9.951)) return $"{value.TotalSeconds:F1}s";
+            if (value < TimeSpan.FromSeconds(30)) return $"{Math.Floor(value.TotalSeconds * 2.0) / 2.0:F1}s";
+            if (value < TimeSpan.FromSeconds(90)) return $"{value.TotalSeconds:F0}s";
+            if (value < TimeSpan.FromMinutes(10)) return $"{value.Minutes}min {value.Seconds}s";
+            if (value < TimeSpan.FromMinutes(30)) return $"{Math.Floor(value.TotalMinutes * 2.0) / 2.0:F1}min";
+            if (value < TimeSpan.FromMinutes(90)) return $"{value.TotalMinutes:F0}min";
+            if (value < TimeSpan.FromHours(12)) return $"{value.Hours}h {value.Minutes}min";
+            if (value < TimeSpan.FromHours(24)) return $"{Math.Floor(value.TotalHours * 2.0) / 2.0:F1}h";
+            if (value < TimeSpan.FromDays(7)) return $"{value.Days} days {value.Hours}h";
+            if (value < TimeSpan.FromDays(14)) return $"{Math.Floor(value.TotalDays*2.0)/2.0:F1} days";
+            return $"{value.TotalDays:F0} days";
+        }
+
+        /// <summary>
+        /// Very much like <see cref="object.ToString"/>, but specifically for logging purposes.
+        /// </summary>
+        /// <returns>A string for logging information about this type of object.</returns>
         public static string ToLogString(this JToken value) =>
             value.ToString(Formatting.Indented);
 
