@@ -178,7 +178,7 @@ namespace Nexus.Link.Libraries.Web.AspNet.Tests.InboundPipe
 #else
             var outerHandler = new LogRequestAndResponse()
             {
-                InnerHandler = new ReturnResponseWithPresetStatusCode(HttpStatusCode.BadRequest)
+                InnerHandler = new ReturnResponseWithPresetStatusCode((HttpStatusCode)423)
                 {
                     InnerHandler = new Mock<HttpMessageHandler>().Object
                 }
