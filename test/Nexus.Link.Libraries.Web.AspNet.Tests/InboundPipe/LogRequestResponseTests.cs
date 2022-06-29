@@ -155,6 +155,52 @@ namespace Nexus.Link.Libraries.Web.AspNet.Tests.InboundPipe
         /// LogRequestAndResponse must not come before BatchLogs in the pipe
         /// </summary>
         [TestMethod]
+        public async Task StatusCode423LogInformation()
+        {
+            var highestSeverityLevel = LogSeverityLevel.None;
+            var mockLogger = new Mock<ISyncLogger>();
+            mockLogger.Setup(logger =>
+                    logger.LogSync(
+                        It.IsAny<LogRecord>()))
+                .Callback((LogRecord lr) =>
+                {
+                    if (lr.SeverityLevel > highestSeverityLevel) highestSeverityLevel = lr.SeverityLevel;
+                })
+                .Verifiable();
+            FulcrumApplication.Setup.SynchronousFastLogger = mockLogger.Object;
+            const string url = "https://v-mock.org/v2/smoke-testing-company/ver";
+#if NETCOREAPP
+            var innerHandler = new ReturnResponseWithPresetStatusCode(async ctx => await Task.CompletedTask, 423);
+            var outerHandler =
+                new LogRequestAndResponse(innerHandler.InvokeAsync);
+            var context = new DefaultHttpContext();
+            SetRequest(context, url);
+#else
+            var outerHandler = new LogRequestAndResponse()
+            {
+                InnerHandler = new ReturnResponseWithPresetStatusCode(HttpStatusCode.BadRequest)
+                {
+                    InnerHandler = new Mock<HttpMessageHandler>().Object
+                }
+            };
+            var invoker = new HttpMessageInvoker(outerHandler);
+            var request = new HttpRequestMessage(HttpMethod.Get, url);
+#endif
+
+
+#if NETCOREAPP
+            await outerHandler.InvokeAsync(context);
+#else
+            await invoker.SendAsync(request, CancellationToken.None);
+#endif
+
+            Assert.AreEqual(LogSeverityLevel.Information, highestSeverityLevel);
+        }
+
+        /// <summary>
+        /// LogRequestAndResponse must not come before BatchLogs in the pipe
+        /// </summary>
+        [TestMethod]
         public async Task StatusCode500LogError()
         {
             var highestSeverityLevel = LogSeverityLevel.None;
