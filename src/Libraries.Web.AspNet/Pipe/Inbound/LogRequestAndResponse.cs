@@ -84,6 +84,7 @@ namespace Nexus.Link.Libraries.Web.AspNet.Pipe.Inbound
             {
                 var level = statusCode switch
                 {
+                    502 => LogSeverityLevel.Warning,
                     >= 500 => LogSeverityLevel.Error,
                     423 => LogSeverityLevel.Information,
                     >= 400 => LogSeverityLevel.Warning,
