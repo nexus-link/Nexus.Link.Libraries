@@ -6,6 +6,8 @@ using Nexus.Link.Libraries.Core.Assert;
 using Nexus.Link.Libraries.Crud.Interfaces;
 using Nexus.Link.Libraries.Core.Storage.Logic;
 using Nexus.Link.Libraries.Core.Storage.Model;
+using Nexus.Link.Libraries.Crud.Helpers;
+using Nexus.Link.Libraries.Crud.Model;
 
 namespace Nexus.Link.Libraries.Crud.MemoryStorage
 {
@@ -49,6 +51,7 @@ namespace Nexus.Link.Libraries.Crud.MemoryStorage
         where TModel : TModelCreate
     {
         private readonly GetParentIdDelegate<TModel> _getParentIdDelegate;
+        private readonly ManyToOneConvenience<TModelCreate, TModel, TId> _convenience;
 
         /// <summary>
         /// Constructor
@@ -58,10 +61,11 @@ namespace Nexus.Link.Libraries.Crud.MemoryStorage
         {
             InternalContract.RequireNotNull(getParentIdDelegate, nameof(getParentIdDelegate));
             _getParentIdDelegate = getParentIdDelegate;
+            _convenience = new ManyToOneConvenience<TModelCreate, TModel, TId>(this);
         }
 
         /// <inheritdoc />
-        public virtual Task<PageEnvelope<TModel>> ReadChildrenWithPagingAsync(TId parentId, int offset, int? limit = null, CancellationToken token = default(CancellationToken))
+        public virtual Task<PageEnvelope<TModel>> ReadChildrenWithPagingAsync(TId parentId, int offset, int? limit = null, CancellationToken cancellationToken  = default)
         {
             limit = limit ?? PageInfo.DefaultLimit;
             InternalContract.RequireNotNull(parentId, nameof(parentId));
@@ -79,7 +83,7 @@ namespace Nexus.Link.Libraries.Crud.MemoryStorage
         }
 
         /// <inheritdoc />
-        public virtual async Task<IEnumerable<TModel>> ReadChildrenAsync(TId parentId, int limit = int.MaxValue, CancellationToken token = default(CancellationToken))
+        public virtual async Task<IEnumerable<TModel>> ReadChildrenAsync(TId parentId, int limit = int.MaxValue, CancellationToken cancellationToken  = default)
         {
             InternalContract.RequireNotNull(parentId, nameof(parentId));
             InternalContract.RequireGreaterThan(0, limit, nameof(limit));
@@ -89,7 +93,7 @@ namespace Nexus.Link.Libraries.Crud.MemoryStorage
             var offset = 0;
             while (true)
             {
-                var page = await ReadChildrenWithPagingAsync(parentId, offset, null, token);
+                var page = await ReadChildrenWithPagingAsync(parentId, offset, null, cancellationToken );
                 if (page.PageInfo.Returned == 0) break;
                 result.AddRange(page.Data);
                 offset += page.PageInfo.Returned;
@@ -99,19 +103,57 @@ namespace Nexus.Link.Libraries.Crud.MemoryStorage
         }
 
         /// <inheritdoc />
-        public virtual async Task DeleteChildrenAsync(TId masterId, CancellationToken token = default(CancellationToken))
+        public virtual async Task DeleteChildrenAsync(TId masterId, CancellationToken cancellationToken  = default)
         {
             InternalContract.RequireNotNull(masterId, nameof(masterId));
             InternalContract.RequireNotDefaultValue(masterId, nameof(masterId));
-            var errorMessage = $"{nameof(TModel)} must implement the interface {nameof(IUniquelyIdentifiable<TId>)} for this method to work.";
-            InternalContract.Require(typeof(IUniquelyIdentifiable<TId>).IsAssignableFrom(typeof(TModel)), errorMessage);
-            var items = new PageEnvelopeEnumerableAsync<TModel>((o, t) => ReadChildrenWithPagingAsync(masterId, o, null, t), token);
+            var items = new PageEnvelopeEnumerableAsync<TModel>((o, t) => ReadChildrenWithPagingAsync(masterId, o, null, t), cancellationToken );
             var enumerator = items.GetEnumerator();
             while (await enumerator.MoveNextAsync())
             {
-                if (!(enumerator.Current is IUniquelyIdentifiable<TId> item)) continue;
-                await DeleteAsync(item.Id, token);
+                InternalContract.Require(enumerator.Current.TryGetPrimaryKey<TModel, TId>(out var id),
+                    $"The type {typeof(TModel).FullName} doesn't seem to have a primary key, which is required for the method {nameof(DeleteChildrenAsync)}.");
+                await DeleteAsync(id, cancellationToken );
             }
+        }
+
+        /// <inheritdoc />
+        public Task<PageEnvelope<TModel>> SearchChildrenAsync(TId parentId, SearchDetails<TModel> details, int offset, int? limit = null,
+            CancellationToken cancellationToken = default)
+        {
+            return _convenience.SearchChildrenAsync(parentId, details, offset, limit, cancellationToken);
+        }
+
+        /// <inheritdoc />
+        public Task<TModel> FindUniqueChildAsync(TId parentId, SearchDetails<TModel> details,
+            CancellationToken cancellationToken = default)
+        {
+            return _convenience.FindUniqueChildAsync(parentId, details, cancellationToken);
+        }
+
+        /// <inheritdoc />
+        public Task<TId> CreateChildAsync(TId parentId, TModelCreate item, CancellationToken cancellationToken  = default)
+        {
+            return _convenience.CreateChildAsync(parentId, item, cancellationToken );
+        }
+
+        /// <inheritdoc />
+        public Task<TModel> CreateChildAndReturnAsync(TId parentId, TModelCreate item, CancellationToken cancellationToken  = default)
+        {
+            return _convenience.CreateChildAndReturnAsync(parentId, item, cancellationToken );
+        }
+
+        /// <inheritdoc />
+        public Task CreateChildWithSpecifiedIdAsync(TId parentId, TId childId, TModelCreate item, CancellationToken cancellationToken  = default)
+        {
+            return _convenience.CreateChildWithSpecifiedIdAsync(parentId, childId, item, cancellationToken );
+        }
+
+        /// <inheritdoc />
+        public Task<TModel> CreateChildWithSpecifiedIdAndReturnAsync(TId parentId, TId childId, TModelCreate item,
+            CancellationToken cancellationToken  = default)
+        {
+            return _convenience.CreateChildWithSpecifiedIdAndReturnAsync(parentId, childId, item, cancellationToken );
         }
     }
 }

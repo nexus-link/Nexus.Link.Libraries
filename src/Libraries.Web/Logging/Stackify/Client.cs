@@ -24,7 +24,7 @@ namespace Nexus.Link.Libraries.Web.Logging.Stackify
             _client = new RestClient(new HttpSender(@"https://api.stackify.com/Log/Save"));
         }
 
-        public async Task LogOneMessageAsync(Envelope envelope, CancellationToken cancellationToken = default(CancellationToken))
+        public async Task LogOneMessageAsync(Envelope envelope, CancellationToken cancellationToken = default)
         {
             var headers = new Dictionary<string, List<string>>
             {

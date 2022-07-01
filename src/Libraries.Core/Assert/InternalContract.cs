@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
+using JetBrains.Annotations;
 using Nexus.Link.Libraries.Core.Error.Logic;
 using Nexus.Link.Libraries.Core.Misc;
 
@@ -25,6 +26,7 @@ namespace Nexus.Link.Libraries.Core.Assert
         /// Verify that <paramref name="parameterValue"/> is not null.
         /// </summary>
         [StackTraceHidden]
+        [ContractAnnotation("parameterValue:null => halt")]
         public static void RequireNotNull(object parameterValue, string parameterName, string customMessage = null)
         {
             GenericContract<FulcrumContractException>.RequireNotNull(parameterValue, parameterName, customMessage);
@@ -43,16 +45,7 @@ namespace Nexus.Link.Libraries.Core.Assert
         /// Verify that <paramref name="parameterValue"/> is not null, not empty and contains other characters than white space.
         /// </summary>
         [StackTraceHidden]
-        [Obsolete("Use RequireNotNullOrWhiteSpace(), note spelling of white space.", true)]
-        public static void RequireNotNullOrWhitespace(string parameterValue, string parameterName, string customMessage = null)
-        {
-            GenericContract<FulcrumContractException>.RequireNotNullOrWhiteSpace(parameterValue, parameterName, customMessage);
-        }
-
-        /// <summary>
-        /// Verify that <paramref name="parameterValue"/> is not null, not empty and contains other characters than white space.
-        /// </summary>
-        [StackTraceHidden]
+        [ContractAnnotation("parameterValue:null => halt")]
         public static void RequireNotNullOrWhiteSpace(string parameterValue, string parameterName, string customMessage = null)
         {
             GenericContract<FulcrumContractException>.RequireNotNullOrWhiteSpace(parameterValue, parameterName, customMessage);
@@ -66,52 +59,6 @@ namespace Nexus.Link.Libraries.Core.Assert
         {
             if (!(parameterValue is IValidatable validatable)) return;
             GenericContract<FulcrumContractException>.RequireValidated(validatable, parameterName, customMessage);
-        }
-
-        /// <summary>
-        /// If <paramref name="parameterValue"/> is not null, then call the FulcrumValidate() method of that type.
-        /// </summary>
-        [Obsolete("Use the RequireValidated() method.", true)]
-        [StackTraceHidden]
-        public static void RequireValidatedOrNull(IValidatable parameterValue, string parameterName, string customMessage = null)
-        {
-            GenericContract<FulcrumContractException>.RequireValidated(parameterValue, parameterName, customMessage);
-        }
-
-        /// <summary>
-        /// If <paramref name="parameterValues"/> is not null, then call the FulcrumValidate() method of that type.
-        /// </summary>
-        [Obsolete("Use the RequireValidated() method.", true)]
-        [StackTraceHidden]
-        public static void RequireValidatedOrNull(IEnumerable<IValidatable> parameterValues, string parameterName, string customMessage = null)
-        {
-            if (parameterValues == null) return;
-            foreach (var parameterValue in parameterValues)
-            {
-                RequireValidatedOrNull(parameterValue, parameterName, customMessage);
-            }
-        }
-
-        /// <summary>
-        /// Verify that <paramref name="parameterValue"/> is not null and also call the FulcrumValidate() method of that type.
-        /// </summary>
-        [Obsolete("Use the RequireValidated() method.", true)]
-        [StackTraceHidden]
-        public static void RequireValidatedAndNotNull(IValidatable parameterValue, string parameterName, string customMessage = null)
-        {
-            RequireNotNull(parameterValue, parameterName);
-            RequireValidatedOrNull(parameterValue, parameterName, customMessage);
-        }
-
-        /// <summary>
-        /// Verify that <paramref name="parameterValues"/> is not null and also call the FulcrumValidate() method of that type.
-        /// </summary>
-        [Obsolete("Use the RequireValidated() method.", true)]
-        [StackTraceHidden]
-        public static void RequireValidatedAndNotNull(IEnumerable<IValidatable> parameterValues, string parameterName, string customMessage = null)
-        {
-            RequireNotNull(parameterValues, parameterName);
-            RequireValidatedOrNull(parameterValues, parameterName, customMessage);
         }
 
         /// <summary>
@@ -129,17 +76,6 @@ namespace Nexus.Link.Libraries.Core.Assert
         }
 
         /// <summary>
-        /// Verify that <paramref name="expression"/> returns a true parameterValue.
-        /// </summary>
-        [Obsolete("Please notify the Fulcrum team if you use this assertion method. We intend to remove it.", true)]
-        [StackTraceHidden]
-        public static void Require(Expression<Func<bool>> expression, string message)
-        {
-            RequireNotNullOrWhiteSpace(message, nameof(message));
-            GenericContract<FulcrumContractException>.Require(expression, message);
-        }
-
-        /// <summary>
         /// Verify that <paramref name="mustBeTrue"/> really is true.
         /// </summary>
         [StackTraceHidden]
@@ -147,6 +83,26 @@ namespace Nexus.Link.Libraries.Core.Assert
         {
             RequireNotNullOrWhiteSpace(message, nameof(message));
             GenericContract<FulcrumContractException>.Require(mustBeTrue, message);
+        }
+
+        /// <summary>
+        /// Verify that <paramref name="parameterValue"/> is equal to <paramref name="expectedValue"/>.
+        /// </summary>
+        [StackTraceHidden]
+        public static void RequireAreEqual<T>(T expectedValue, T parameterValue, string parameterName, string customMessage = null)
+        {
+            if (customMessage == null) RequireNotNull(parameterName, nameof(parameterName));
+            GenericContract<FulcrumContractException>.RequireAreEqual(expectedValue, parameterValue, parameterName, customMessage);
+        }
+
+        /// <summary>
+        /// Verify that <paramref name="parameterValue"/> is not equal to <paramref name="expectedValue"/>.
+        /// </summary>
+        [StackTraceHidden]
+        public static void RequireAreNotEqual<T>(T expectedValue, T parameterValue, string parameterName, string customMessage = null)
+        {
+            if (customMessage == null) RequireNotNull(parameterName, nameof(parameterName));
+            GenericContract<FulcrumContractException>.RequireAreNotEqual(expectedValue, parameterValue, parameterName, customMessage);
         }
 
         /// <summary>
@@ -158,7 +114,7 @@ namespace Nexus.Link.Libraries.Core.Assert
         {
             RequireNotNull(greaterValue, nameof(greaterValue));
             RequireNotNull(parameterValue, nameof(parameterValue));
-            RequireNotNull(parameterName, nameof(parameterName));
+            if (customMessage == null) RequireNotNull(parameterName, nameof(parameterName));
             GenericContract<FulcrumContractException>.RequireLessThan(greaterValue, parameterValue, parameterName, customMessage);
         }
 
@@ -171,7 +127,7 @@ namespace Nexus.Link.Libraries.Core.Assert
         {
             RequireNotNull(greaterOrEqualValue, nameof(greaterOrEqualValue));
             RequireNotNull(parameterValue, nameof(parameterValue));
-            RequireNotNull(parameterName, nameof(parameterName));
+            if (customMessage == null) RequireNotNull(parameterName, nameof(parameterName));
             GenericContract<FulcrumContractException>.RequireLessThanOrEqualTo(greaterOrEqualValue, parameterValue, parameterName, customMessage);
         }
 
@@ -184,7 +140,7 @@ namespace Nexus.Link.Libraries.Core.Assert
         {
             RequireNotNull(lesserValue, nameof(lesserValue));
             RequireNotNull(parameterValue, nameof(parameterValue));
-            RequireNotNull(parameterName, nameof(parameterName));
+            if (customMessage == null) RequireNotNull(parameterName, nameof(parameterName));
             GenericContract<FulcrumContractException>.RequireGreaterThan(lesserValue, parameterValue, parameterName, customMessage);
         }
 
@@ -197,7 +153,7 @@ namespace Nexus.Link.Libraries.Core.Assert
         {
             RequireNotNull(lesserOrEqualValue, nameof(lesserOrEqualValue));
             RequireNotNull(parameterValue, nameof(parameterValue));
-            RequireNotNull(parameterName, nameof(parameterName));
+            if (customMessage == null) RequireNotNull(parameterName, nameof(parameterName));
             GenericContract<FulcrumContractException>.RequireGreaterThanOrEqualTo(lesserOrEqualValue, parameterValue, parameterName, customMessage);
         }
 
@@ -205,10 +161,10 @@ namespace Nexus.Link.Libraries.Core.Assert
         /// Verify that <paramref name="parameterValue"/> is null or matches the regular expression <paramref name="regularExpression"/>.
         /// </summary>
         [StackTraceHidden]
-        public static void MatchesRegExp(string regularExpression, string parameterValue, string parameterName, string customMessage = null)
+        public static void RequireMatchesRegExp(string regularExpression, string parameterValue, string parameterName, string customMessage = null)
         {
             RequireNotNullOrWhiteSpace(regularExpression, nameof(regularExpression));
-            RequireNotNull(parameterName, nameof(parameterName));
+            if (customMessage == null) RequireNotNull(parameterName, nameof(parameterName));
             GenericContract<FulcrumContractException>.RequireMatchesRegExp(regularExpression, parameterValue, parameterName, customMessage);
         }
 
@@ -216,16 +172,60 @@ namespace Nexus.Link.Libraries.Core.Assert
         /// Verify that <paramref name="value"/> is null or not matches the regular expression <paramref name="regularExpression"/>.
         /// </summary>
         [StackTraceHidden]
-        public static void MatchesNotRegExp(string regularExpression, string value, string errorLocation, string customMessage = null)
+        public static void RequireMatchesNotRegExp(string regularExpression, string value, string parameterName, string customMessage = null)
         {
             RequireNotNullOrWhiteSpace(regularExpression, nameof(regularExpression));
-            GenericContract<FulcrumContractException>.RequireMatchesNotRegExp(regularExpression, value, errorLocation, customMessage);
+            GenericContract<FulcrumContractException>.RequireMatchesNotRegExp(regularExpression, value, parameterName, customMessage);
+        }
+
+        /// <summary>
+        /// Verify that <paramref name="parameterValue"/> is null or matches the regular expression <paramref name="regularExpression"/>.
+        /// </summary>
+        [StackTraceHidden]
+        [Obsolete("Use RequireMatchesRegExp. Obsolete warning since 2021-05-03.")]
+        public static void MatchesRegExp(string regularExpression, string parameterValue, string parameterName, string customMessage = null)
+        {
+            RequireNotNullOrWhiteSpace(regularExpression, nameof(regularExpression));
+            if (customMessage == null) RequireNotNull(parameterName, nameof(parameterName));
+            GenericContract<FulcrumContractException>.RequireMatchesRegExp(regularExpression, parameterValue, parameterName, customMessage);
+        }
+
+        /// <summary>
+        /// Verify that <paramref name="value"/> is null or not matches the regular expression <paramref name="regularExpression"/>.
+        /// </summary>
+        [StackTraceHidden]
+        [Obsolete("Use RequireMatchesNotRegExp. Obsolete warning since 2021-05-03.")]
+        public static void MatchesNotRegExp(string regularExpression, string value, string parameterName, string customMessage = null)
+        {
+            RequireNotNullOrWhiteSpace(regularExpression, nameof(regularExpression));
+            GenericContract<FulcrumContractException>.RequireMatchesNotRegExp(regularExpression, value, parameterName, customMessage);
+        }
+
+        /// <summary>
+        /// Verify that <paramref name="parameterValue"/> is null or has one of the values in <paramref name="enumerationType"/>.
+        /// </summary>
+        [StackTraceHidden]
+        public static void RequireInEnumeration(Type enumerationType, string parameterValue, string parameterName, string customMessage = null)
+        {
+            RequireNotNull(enumerationType, nameof(enumerationType));
+            Require(enumerationType.IsEnum, $"Parameter {nameof(enumerationType)} must be of type enum.");
+            GenericContract<FulcrumContractException>.RequireInEnumeration(enumerationType, parameterValue, parameterName, customMessage);
+        }
+
+        /// <summary>
+        /// Verify that <paramref name="parameterValue"/> is null or in JSON format.
+        /// </summary>
+        [StackTraceHidden]
+        public static void RequireJson(string parameterValue, string parameterName, string customMessage = null)
+        {
+            GenericContract<FulcrumContractException>.RequireJson(parameterValue, parameterName, customMessage);
         }
 
         /// <summary>
         /// Always fail, with the given <paramref name="message"/>.
         /// </summary>
         [StackTraceHidden]
+        [ContractAnnotation("=> halt")]
         public static void Fail(string message)
         {
             RequireNotNull(message, nameof(message));

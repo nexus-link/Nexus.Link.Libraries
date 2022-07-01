@@ -1,8 +1,10 @@
-﻿using System.Threading;
+﻿using System;
+using System.Threading;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using Nexus.Link.Libraries.Core.Application;
 using Nexus.Link.Libraries.Core.Logging;
+using Nexus.Link.Libraries.Core.Threads;
 using UT = Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Nexus.Link.Libraries.Core.Tests.Logging
@@ -175,6 +177,36 @@ namespace Nexus.Link.Libraries.Core.Tests.Logging
             UT.Assert.AreEqual(0, _callsToFallback);
 
             _mockLogger.Verify();
+        }
+
+        //
+        // NOTE! Has to be run separately: TODO: fix this
+        //
+        /// <summary>
+        /// Make sure BatchLogger handles underlying collection properly
+        /// </summary>
+        [TestMethod]
+        public void HandlesUnderlyingCollectionProperly()
+        {
+            FulcrumApplication.Setup.LogSeverityLevelThreshold = LogSeverityLevel.Warning;
+            BatchLogger.StartBatch(LogSeverityLevel.Warning, true);
+
+            for (var i = 1; i <= 10; i++) Log.LogWarning($"Warning A {i}");
+
+            var allDone = new ManualResetEvent(false);
+
+            // Try to provoke "System.InvalidOperationException: Collection was modified; enumeration operation may not execute."
+            // Prior to version 4.15.3 this would trigger the exception:
+            ThreadHelper.FireAndForget(() =>
+            {
+                for (var i = 1; i <= 100000; i++) Log.LogWarning($"Warning B {i}");
+                allDone.Set();
+            });
+            BatchLogger.EndBatch();
+
+            UT.Assert.IsTrue(allDone.WaitOne(TimeSpan.FromSeconds(10)));
+            UT.Assert.AreEqual(0, _callsToFallback, $"{nameof(_loggedRecords)}: {_loggedRecords}");
+            UT.Assert.IsTrue(_loggedRecords >= 100, _loggedRecords.ToString());
         }
     }
 }

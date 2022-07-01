@@ -14,6 +14,6 @@ namespace Nexus.Link.Libraries.Core.Threads
         /// <param name="action">The action to run in the background.</param>
         /// <param name="token">Propagates notification that operations should be canceled</param>
         /// <returns>The created thread.</returns>
-        Thread FireAndForget(Action<CancellationToken> action, CancellationToken token = default(CancellationToken));
+        Thread FireAndForget(Action<CancellationToken> action, CancellationToken token = default);
     }
 }

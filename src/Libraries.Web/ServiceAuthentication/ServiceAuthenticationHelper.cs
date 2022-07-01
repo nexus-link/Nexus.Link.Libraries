@@ -12,6 +12,7 @@ using Nexus.Link.Libraries.Core.Assert;
 using Nexus.Link.Libraries.Core.Error.Logic;
 using Nexus.Link.Libraries.Core.Logging;
 using Nexus.Link.Libraries.Core.MultiTenant.Model;
+using Nexus.Link.Libraries.Core.Platform.Authentication;
 using Nexus.Link.Libraries.Core.Platform.Configurations;
 using Nexus.Link.Libraries.Web.Clients;
 using Nexus.Link.Libraries.Web.Pipe.Outbound;
@@ -30,6 +31,8 @@ namespace Nexus.Link.Libraries.Web.ServiceAuthentication
         /// <remarks>Is set to <see cref="HttpClient"/> by default. Typically only set to other values for unit test purposes.</remarks>
         public static IHttpClient HttpClient { get; set; }
 
+        public ITokenRefresher PlatformTokenRefresher { get; set; }
+
         private static readonly object LockClass = new object();
 
         public ServiceAuthenticationHelper()
@@ -42,17 +45,29 @@ namespace Nexus.Link.Libraries.Web.ServiceAuthentication
                 HttpClient = new HttpClientWrapper(httpClient);
             }
         }
+        
+        public ServiceAuthenticationHelper(ITokenRefresher platformTokenRefresher) : this()
+        {
+            PlatformTokenRefresher = platformTokenRefresher;
+        }
 
         /// <inheritdoc />
-        public async Task<AuthorizationToken> GetAuthorizationForClientAsync(Tenant tenant, ILeverConfiguration configuration, string client)
+        public async Task<AuthorizationToken> GetAuthorizationForClientAsync(Tenant tenant, ILeverConfiguration configuration, string client, CancellationToken cancellationToken = default)
         {
-            var cacheKey = $"{tenant}/{client}";
+            var authSettings = GetAuthorizationSettings(configuration, client);
+
+            return await GetAuthorizationForClientAsync(tenant, authSettings, client, cancellationToken);
+        }
+
+
+        /// <inheritdoc />
+        public async Task<AuthorizationToken> GetAuthorizationForClientAsync(Tenant tenant, ClientAuthorizationSettings authSettings, string client, CancellationToken cancellationToken = default)
+        {
+            var cacheKey = CreateCacheKey(tenant, client);
             if (_authCache[cacheKey] is AuthorizationToken authorization) return authorization;
 
             try
             {
-                var authSettings = GetAuthorizationSettings(configuration, client);
-
                 string token, tokenType;
                 switch (authSettings.AuthorizationType)
                 {
@@ -70,8 +85,13 @@ namespace Nexus.Link.Libraries.Web.ServiceAuthentication
                         tokenType = "Bearer";
                         break;
                     case ClientAuthorizationSettings.AuthorizationTypeEnum.JwtFromUrl:
-                        token = await FetchJwtFromUrl(authSettings);
+                        token = await FetchJwtFromUrl(authSettings, cancellationToken);
                         tokenType = "Bearer";
+                        break;
+                    case ClientAuthorizationSettings.AuthorizationTypeEnum.NexusPlatformService:
+                        var authToken = await FetchJwtFromPlatformTokenRefresher(cancellationToken);
+                        token = authToken?.AccessToken;
+                        tokenType = authToken?.Type;
                         break;
                     default:
                         throw new ArgumentException($"Unknown Authorization Type: '{authSettings.AuthorizationType}'");
@@ -94,6 +114,29 @@ namespace Nexus.Link.Libraries.Web.ServiceAuthentication
             return authorization;
         }
 
+        private static string CreateCacheKey(Tenant tenant, string client)
+        {
+            return $"{tenant}/{client}";
+        }
+
+        /// <inheritdoc />
+        public Task ClearCacheForClient(Tenant tenant, string client, CancellationToken cancellationToken = default)
+        {
+            var cacheKey = CreateCacheKey(tenant, client);
+            _authCache.Remove(cacheKey);
+            
+            return Task.CompletedTask;
+        }
+
+        private async Task<AuthenticationToken> FetchJwtFromPlatformTokenRefresher(CancellationToken cancellationToken = default)
+        {
+            InternalContract.RequireNotNull(PlatformTokenRefresher, nameof(PlatformTokenRefresher),
+                $"In order to use {nameof(ClientAuthorizationSettings.AuthorizationTypeEnum.NexusPlatformService)} type," +
+                $" configure {nameof(ServiceAuthenticationHelper)} with a {nameof(PlatformTokenRefresher)}");
+
+            return await PlatformTokenRefresher.GetJwtTokenAsync(cancellationToken);
+        }
+
         private static ClientAuthorizationSettings GetAuthorizationSettings(ILeverConfiguration configuration, string client)
         {
             // Do we have version 2 of the configuration syntax?
@@ -108,7 +151,14 @@ namespace Nexus.Link.Libraries.Web.ServiceAuthentication
         private static ClientAuthorizationSettings GetAuthSettingsVersion2(ILeverConfiguration configuration, string client)
         {
             var clientConfiguration = ClientConfigurationHelper.GetConfigurationForClient(configuration, client);
-            if (clientConfiguration == null) return null; 
+            if (clientConfiguration == null) return null;
+            if (string.IsNullOrWhiteSpace(clientConfiguration.Authentication))
+            {
+                return new ClientAuthorizationSettings
+                {
+                    AuthorizationType = ClientAuthorizationSettings.AuthorizationTypeEnum.None
+                };
+            }
 
             var authentications = GetAuthentications(configuration);
             if (authentications == null || !authentications.TryGetValue(clientConfiguration.Authentication, out var authentication))
@@ -164,7 +214,7 @@ namespace Nexus.Link.Libraries.Web.ServiceAuthentication
             return authSettings;
         }
 
-        private async Task<string> FetchJwtFromUrl(ClientAuthorizationSettings authSettings)
+        private async Task<string> FetchJwtFromUrl(ClientAuthorizationSettings authSettings, CancellationToken cancellationToken = default)
         {
             InternalContract.RequireNotNull(authSettings, nameof(authSettings));
             FulcrumAssert.IsNotNullOrWhiteSpace(authSettings.PostUrl, null, "Expected a Url to Post to");
@@ -181,13 +231,14 @@ namespace Nexus.Link.Libraries.Web.ServiceAuthentication
             var response = "";
             try
             {
-                var httpResponse = await HttpClient.SendAsync(httpRequest, CancellationToken.None);
+                var httpResponse = await HttpClient.SendAsync(httpRequest, cancellationToken);
                 if (httpResponse == null || !httpResponse.IsSuccessStatusCode)
                 {
                     Log.LogError($"Error fetching token from '{authSettings.PostUrl}' with json path '{authSettings.ResponseTokenJsonPath}'. Status code: '{httpResponse?.StatusCode}'.");
                     return null;
                 }
                 FulcrumAssert.IsNotNull(httpResponse.Content);
+                await httpResponse.Content.LoadIntoBufferAsync();
                 response = await httpResponse.Content.ReadAsStringAsync();
                 var result = JToken.Parse(response);
                 FulcrumAssert.IsNotNull(result);

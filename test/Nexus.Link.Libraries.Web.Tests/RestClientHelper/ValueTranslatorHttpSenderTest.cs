@@ -9,6 +9,7 @@ using Microsoft.Rest;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using Nexus.Link.Libraries.Core.Application;
+using Nexus.Link.Libraries.Core.MultiTenant.Model;
 using Nexus.Link.Libraries.Core.Storage.Model;
 using Nexus.Link.Libraries.Core.Translation;
 using Nexus.Link.Libraries.Web.RestClientHelper;
@@ -21,16 +22,17 @@ namespace Nexus.Link.Libraries.Web.Tests.RestClientHelper
     public class ValueTranslatorHttpSenderTest
     {
         private Mock<ITranslatorService> _translatorServiceMock;
-        private static string _consumerId = "in-1";
-        private static string _producerId = "out-1";
+        private const string ConsumerId = "in-1";
+        private const string ProducerId = "out-1";
         private string _decoratedConsumerId;
+        private List<string> DecoratedConsumerIds => new List<string> { _decoratedConsumerId };
         private string _decoratedProducerId;
 
         [TestInitialize]
         public void Initialize()
         {
-            _decoratedConsumerId = $"(foo.id!~consumer!{_consumerId})";
-            _decoratedProducerId = $"(foo.id!~producer!{_producerId})";
+            _decoratedConsumerId = $"(foo.id!~consumer!{ConsumerId})";
+            _decoratedProducerId = $"(foo.id!~producer!{ProducerId})";
             FulcrumApplicationHelper.UnitTestSetup(typeof(ValueTranslatorHttpSenderTest).FullName);
             _translatorServiceMock = new Mock<ITranslatorService>();
             _translatorServiceMock
@@ -38,7 +40,7 @@ namespace Nexus.Link.Libraries.Web.Tests.RestClientHelper
                     It.IsAny<IEnumerable<string>>(),
                     It.IsAny<string>(),
                     It.IsAny<CancellationToken>()))
-                .ReturnsAsync(new Dictionary<string, string>{{$"{_decoratedConsumerId}", _producerId}});
+                .ReturnsAsync(new Dictionary<string, string>{{$"{_decoratedConsumerId}", ProducerId}});
             ValueTranslatorHttpSender.TranslatorService = _translatorServiceMock.Object;
         }
 
@@ -48,7 +50,7 @@ namespace Nexus.Link.Libraries.Web.Tests.RestClientHelper
             var httpSenderMock = new HttpSenderMock();
             var sender = new ValueTranslatorHttpSender(httpSenderMock, "producer");
             await sender.SendRequestAsync(HttpMethod.Get, $"Foos/{_decoratedConsumerId}");
-            Assert.AreEqual($"Foos/{_producerId}", httpSenderMock.RelativeUrl);
+            Assert.AreEqual($"Foos/{ProducerId}", httpSenderMock.RelativeUrl);
         }
 
         [TestMethod]
@@ -57,11 +59,11 @@ namespace Nexus.Link.Libraries.Web.Tests.RestClientHelper
             var httpSenderMock = new HttpSenderMock();
             var sender = new ValueTranslatorHttpSender(httpSenderMock, "producer");
             var inBody = new Foo {Id = _decoratedConsumerId, Name = "name"};
-            await sender.SendRequestAsync(HttpMethod.Get, $"Foos/{_producerId}", inBody);
+            await sender.SendRequestAsync(HttpMethod.Get, $"Foos/{ProducerId}", inBody);
             Assert.IsNotNull(httpSenderMock.ReceivedBody);
             var outBody = httpSenderMock.ReceivedBody as Foo;
             Assert.IsNotNull(outBody);
-            Assert.AreEqual(_producerId, outBody.Id);
+            Assert.AreEqual(ProducerId, outBody.Id);
             Assert.AreEqual(inBody.Name, outBody.Name);
         }
 
@@ -71,16 +73,28 @@ namespace Nexus.Link.Libraries.Web.Tests.RestClientHelper
             var httpSenderMock = new HttpSenderMock();
             var sender = new ValueTranslatorHttpSender(httpSenderMock, "producer");
             var sentBody = new Foo {Id = _decoratedConsumerId, Name = "name"};
-            var result = await sender.SendRequestAsync<Foo,Foo>(HttpMethod.Get, $"Foos/{_producerId}", sentBody);
+            var result = await sender.SendRequestAsync<Foo,Foo>(HttpMethod.Get, $"Foos/{ProducerId}", sentBody);
             Assert.IsNotNull(httpSenderMock.ReceivedBody);
             var receivedBody = httpSenderMock.ReceivedBody as Foo;
             Assert.IsNotNull(receivedBody);
-            Assert.AreEqual(_producerId, receivedBody.Id);
+            Assert.AreEqual(ProducerId, receivedBody.Id);
             Assert.AreEqual(sentBody.Name, receivedBody.Name);
             Assert.IsNotNull(result.Body);
             var resultBody = result.Body;
             Assert.IsNotNull(resultBody);
             VerifyFoo(resultBody);
+        }
+
+        [TestMethod]
+        public async Task TranslateUserId()
+        {
+            FulcrumApplication.Context.ValueProvider.SetValue("DecoratedUserIds", DecoratedConsumerIds);
+
+            var httpSenderMock = new HttpSenderMock();
+            var sender = new ValueTranslatorHttpSender(httpSenderMock, "producer");
+            await sender.SendRequestAsync(HttpMethod.Get, $"Foos/{_decoratedConsumerId}");
+
+            Assert.AreEqual(ProducerId, sender.TranslatedUserId_OnlyForUnitTests);
         }
 
         [TestMethod]
@@ -103,7 +117,7 @@ namespace Nexus.Link.Libraries.Web.Tests.RestClientHelper
             var httpSenderMock = new HttpSenderMock();
             var sender = new ValueTranslatorHttpSender(httpSenderMock, "producer");
             var inBody = new Foo {Id = _decoratedConsumerId, Name = "name"};
-            var result = await sender.SendRequestAsync<PageEnvelope<Foo>, Foo>(HttpMethod.Get, $"Foos/{_producerId}", inBody);
+            var result = await sender.SendRequestAsync<PageEnvelope<Foo>, Foo>(HttpMethod.Get, $"Foos/{ProducerId}", inBody);
             Assert.IsNotNull(result?.Body);
             Assert.IsNotNull(result.Body.Data);
             Assert.IsTrue(result.Body.Data.Count() > 0);
@@ -111,6 +125,24 @@ namespace Nexus.Link.Libraries.Web.Tests.RestClientHelper
             {
                 VerifyFoo(foo);
             }
+        }
+
+        [TestMethod]
+        public async Task TranslatorServiceIsNotCalledForIfNoTranslations()
+        {
+            _translatorServiceMock = new Mock<ITranslatorService>();
+            _translatorServiceMock
+                .Setup(ts => ts.TranslateAsync(
+                    It.IsAny<IEnumerable<string>>(),
+                    It.IsAny<string>(),
+                    It.IsAny<CancellationToken>()))
+                .ThrowsAsync(new Exception("ITranslatorService should not be called if no translations"));
+            ValueTranslatorHttpSender.TranslatorService = _translatorServiceMock.Object;
+
+            var sender = new ValueTranslatorHttpSender(new HttpSenderMock(), "producer");
+            var inBody = new Tenant("o", "e");
+            // There are no translations in this request, so ITranslatorService.TranslateAsync should not be called
+            await sender.SendRequestAsync(HttpMethod.Get, $"Tenants/{ProducerId}", inBody);
         }
 
         private void VerifyFoo(Foo foo)
@@ -135,17 +167,19 @@ namespace Nexus.Link.Libraries.Web.Tests.RestClientHelper
                 throw new NotImplementedException();
             }
 
+            public ServiceClientCredentials Credentials { get; }
+
             /// <inheritdoc />
             public Task<HttpResponseMessage> SendRequestAsync(HttpMethod method, string relativeUrl, Dictionary<string, List<string>> customHeaders = null,
-                CancellationToken cancellationToken = new CancellationToken())
+                CancellationToken cancellationToken = default)
             {
                 RelativeUrl = relativeUrl;
                 return Task.FromResult(new HttpResponseMessage(HttpStatusCode.OK));
             }
 
             /// <inheritdoc />
-            public Task<HttpResponseMessage> SendRequestAsync<TBody>(HttpMethod method, string relativeUrl, TBody body = default(TBody),
-                Dictionary<string, List<string>> customHeaders = null, CancellationToken cancellationToken = default(CancellationToken))
+            public Task<HttpResponseMessage> SendRequestAsync<TBody>(HttpMethod method, string relativeUrl, TBody body = default,
+                Dictionary<string, List<string>> customHeaders = null, CancellationToken cancellationToken = default)
             {
                 RelativeUrl = relativeUrl;
                 ReceivedBody = body;
@@ -153,21 +187,21 @@ namespace Nexus.Link.Libraries.Web.Tests.RestClientHelper
             }
 
             /// <inheritdoc />
-            public Task<HttpOperationResponse<TResponse>> SendRequestAsync<TResponse, TBody>(HttpMethod method, string relativeUrl, TBody body = default(TBody),
-                Dictionary<string, List<string>> customHeaders = null, CancellationToken cancellationToken = default(CancellationToken))
+            public Task<HttpOperationResponse<TResponse>> SendRequestAsync<TResponse, TBody>(HttpMethod method, string relativeUrl, TBody body = default,
+                Dictionary<string, List<string>> customHeaders = null, CancellationToken cancellationToken = default)
             {
                 RelativeUrl = relativeUrl;
                 ReceivedBody = body;
                 var httpOperationResponse = new HttpOperationResponse<TResponse>();
                 var foo = new Foo
                 {
-                    Id = _producerId, Name = "out-name"
+                    Id = ProducerId, Name = "out-name"
                 };
-                foo.IdList.Add(_producerId);
-                foo.IdArray[0] = _producerId;
+                foo.IdList.Add(ProducerId);
+                foo.IdArray[0] = ProducerId;
                 if (typeof(TResponse) == typeof(string))
                 {
-                    httpOperationResponse.Body = (TResponse)(object)_producerId;
+                    httpOperationResponse.Body = (TResponse)(object)ProducerId;
                 }
                 else if (typeof(TResponse) == typeof(Foo))
                 {
@@ -184,9 +218,21 @@ namespace Nexus.Link.Libraries.Web.Tests.RestClientHelper
                 }
                 else
                 {
-                    httpOperationResponse.Body = default(TResponse);
+                    httpOperationResponse.Body = default;
                 }
                 return Task.FromResult(httpOperationResponse);
+            }
+
+            /// <inheritdoc />
+            public Task<HttpResponseMessage> SendAsync(HttpRequestMessage requestMessage, CancellationToken cancellationToken = default)
+            {
+                throw new NotImplementedException();
+            }
+
+            /// <inheritdoc />
+            public string GetAbsoluteUrl(string relativeUrl)
+            {
+                throw new NotImplementedException();
             }
         }
 

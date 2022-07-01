@@ -3,9 +3,12 @@
 namespace Nexus.Link.Libraries.Core.Error.Logic
 {
     /// <summary>
-    /// There was something wrong with the request itself, i.e. syntax, values out of range, etc.
+    /// The programmer has called a method in a way that breaks the contract.
     /// </summary>
-    public class FulcrumContractException : FulcrumException
+    /// <remarks>
+    /// This is basically a "Programmers Error", a bug on the server side.
+    /// </remarks>
+    public class FulcrumContractException : FulcrumProgrammersErrorException
     {
         /// <summary>
         /// Factory method
@@ -45,9 +48,6 @@ namespace Nexus.Link.Libraries.Core.Error.Logic
         {
             SetProperties();
         }
-
-        /// <inheritdoc />
-        public override bool IsRetryMeaningful { get; set; } = false;
 
         /// <inheritdoc />
         public override string Type => ExceptionType;

@@ -30,12 +30,13 @@ namespace Nexus.Link.Libraries.Core.Translation
         /// <summary>
         /// Decorate the <paramref name="id"/> with concept value paths.
         /// </summary>
+        [Obsolete("Use DependentToMaster instead of SlaveToMaster. Obsolete since 2021-10-06.")]
         SlaveToMasterId<string> Decorate(string masterIdConceptName, string slaveIdConceptName, SlaveToMasterId<string> id);
 
         /// <summary>
         /// Decorate the <paramref name="item"/> so that concept values are set to concept value paths.
         /// </summary>
-        [Obsolete("Use the method Decorate<T>(T). Obsolete since 2019-11-21.")]
+        [Obsolete("Use the method Decorate<T>(T). Obsolete warning since 2019-11-21, error since 2021-06-09.", true)]
         TModel DecorateItem<TModel>(TModel item);
 
         /// <summary>
@@ -46,7 +47,7 @@ namespace Nexus.Link.Libraries.Core.Translation
         /// <summary>
         /// Decorate the <paramref name="items"/> so that concept values are set to concept value paths.
         /// </summary>
-        [Obsolete("Use the method Decorate<T>(T). Obsolete since 2019-12-13.")]
+        [Obsolete("Use the method Decorate<T>(T). Obsolete warning since 2019-12-13, error since 2021-06-09.", true)]
         IEnumerable<T> Decorate<T>(IEnumerable<T> items);
 
         /// <summary>
@@ -57,19 +58,19 @@ namespace Nexus.Link.Libraries.Core.Translation
         /// <summary>
         /// Decorate the <paramref name="items"/> so that concept values are set to concept value paths.
         /// </summary>
-        [Obsolete("Use the method Decorate(object, Type). Obsolete since 2019-12-13.")]
+        [Obsolete("Use the method Decorate(object, Type). Obsolete warning since 2019-12-13, error since 2021-06-09.", true)]
         IEnumerable<object> Decorate(IEnumerable<object> items, Type type);
 
         /// <summary>
         ///  Decorate the <paramref name="items"/> so that concept values are set to concept value paths.
         /// </summary>
-        [Obsolete("Use the method Decorate<T>(T). Obsolete since 2019-11-21.")]
+        [Obsolete("Use the method Decorate<T>(T). Obsolete warning since 2019-11-21, error since 2021-06-09.", true)]
         IEnumerable<TModel> DecorateItems<TModel>(IEnumerable<TModel> items);
 
         /// <summary>
         /// Decorate the <paramref name="page"/> so that concept values are set to concept value paths.
         /// </summary>
-        [Obsolete("Use the method Decorate<T>(T). Obsolete since 2019-11-21.")]
+        [Obsolete("Use the method Decorate<T>(T). Obsolete warning since 2019-11-21, error since 2021-06-09.", true)]
         PageEnvelope<TModel> DecoratePage<TModel>(PageEnvelope<TModel> page);
 
         /// <summary>

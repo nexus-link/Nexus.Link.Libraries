@@ -19,8 +19,8 @@ namespace Nexus.Link.Libraries.Crud.Test.Cache
         public async Task Initialize()
         {
             FulcrumApplicationHelper.UnitTestSetup(typeof(TestMemoryDistributedCache).FullName);
-            var storage = new CrudMemory<MemoryDistributedCache, MemoryDistributedCache, string>();
-            var factory = new MemoryDistributedCacheFactory(storage);
+            var storage = new CrudMemory<CrudMemoryDistributedCache, CrudMemoryDistributedCache, string>();
+            var factory = new CrudMemoryDistributedCacheFactory(storage);
             _cache = await factory.GetOrCreateDistributedCacheAsync(typeof(TestMemoryDistributedCache).FullName);
         }
 

@@ -1,14 +1,27 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFrameworks>netstandard2.0;net461</TargetFrameworks>
+
+    <!-- Publish the repository URL in the built .nupkg (in the NuSpec <Repository> element) -->
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
+
+    <!-- Embed source files that are not tracked by the source control manager in the PDB -->
+    <EmbedUntrackedSources>true</EmbedUntrackedSources>
+
+    <!-- Recommended: Embed symbols containing Source Link in the main file (exe/dll) -->
+    <DebugType>embedded</DebugType>
+    <IncludeSymbols>true</IncludeSymbols>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="MSTest.TestFramework" Version="1.4.0" />
+    <Compile Remove="Properties\**" />
+    <EmbeddedResource Remove="Properties\**" />
+    <None Remove="Properties\**" />
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Properties\" />
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0" PrivateAssets="All" />
+    <PackageReference Include="MSTest.TestFramework" Version="2.2.5" />
   </ItemGroup>
 
   <ItemGroup>
@@ -17,7 +30,7 @@
 
   <PropertyGroup>
     <PackageId>Nexus.Link.Libraries.Crud.UnitTests</PackageId>
-    <Version>1.0.14</Version>
+    <Version>1.4.4</Version>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <PackageTags>nexus;link;fulcrum;lever</PackageTags>
     <Authors>XLENT Link</Authors>
@@ -27,6 +40,22 @@
     <Copyright>Copyright ©2019 Xlent Link AB</Copyright>
     <IncludeSymbols>true</IncludeSymbols>
     <PackageReleaseNotes>
+      1.4.4 Now should throw FulcrumResourceLockedException instead of FulcrumTryAgainException if a resource is locked
+      1.4.3 Bump
+      1.4.0 Support for entity attributes such as PrimaryKeyAttribute
+      1.3.4 Bump
+      1.3.2 Support for more kinds of tests
+      1.3.1 Bump
+      1.3.0 New tests for DistributedLock
+      1.2.4 New test for search for null.
+      1.2.3 Symbols
+      1.2.2 Added missing cancellation support for async methods.
+      1.2.1 Old obsolete stuff with errors has been deleted and old with warning has been updated to error.
+      1.2.0 Added ClaimTransactionLockAndReadAsycn()
+      1.1.0 Added Crud ISearch and ISearchChildren
+      1.0.17 Bump
+      1.0.16 Better tests for ETag.
+      1.0.15 Bump
       1.0.14 Bump
       1.0.10 Fix: PackageProjectUrl for this nuget package
       1.0.9 Bumped version

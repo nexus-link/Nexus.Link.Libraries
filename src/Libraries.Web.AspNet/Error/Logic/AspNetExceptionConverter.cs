@@ -5,6 +5,7 @@ using Nexus.Link.Libraries.Core.Assert;
 using Nexus.Link.Libraries.Core.Error.Logic;
 using Nexus.Link.Libraries.Core.Logging;
 using Nexus.Link.Libraries.Core.Misc;
+using Nexus.Link.Libraries.Web.Error;
 using Nexus.Link.Libraries.Web.Error.Logic;
 #if NETCOREAPP
 using Microsoft.AspNetCore.Mvc;
@@ -59,7 +60,40 @@ namespace Nexus.Link.Libraries.Web.AspNet.Error.Logic
 
         private static StatusAndContent ToStatusAndContent(Exception e)
         {
-
+            if (e is RequestAcceptedException acceptedException)
+            {
+                var acceptedContent = new RequestAcceptedContent()
+                {
+                    RequestId = acceptedException.RequestId,
+                    PollingUrl = acceptedException.PollingUrl,
+                    RegisterCallbackUrl = acceptedException.RegisterCallbackUrl
+                };
+                FulcrumAssert.IsValidated(acceptedContent, CodeLocation.AsString());
+                return new StatusAndContent
+                {
+                    // ReSharper disable once PossibleInvalidOperationException
+                    StatusCode = HttpStatusCode.Accepted,
+                    Content = JsonConvert.SerializeObject(acceptedContent)
+                };
+            }
+            if (e is RequestPostponedException postponedException)
+            {
+                var seconds = postponedException.TryAgainAfterMinimumTimeSpan?.TotalSeconds;
+                var postponedContent = new RequestPostponedContent()
+                {
+                    TryAgain = postponedException.TryAgain,
+                    TryAgainAfterMinimumSeconds = seconds,
+                    WaitingForRequestIds = postponedException.WaitingForRequestIds,
+                    ReentryAuthentication = postponedException.ReentryAuthentication
+                };
+                FulcrumAssert.IsValidated(postponedContent, CodeLocation.AsString());
+                return new StatusAndContent
+                {
+                    // ReSharper disable once PossibleInvalidOperationException
+                    StatusCode = HttpStatusCode.Accepted,
+                    Content = JsonConvert.SerializeObject(postponedContent)
+                };
+            }
             if (!(e is FulcrumException fulcrumException))
             {
                 var message = $"Application threw an exception that didn't inherit from {typeof(FulcrumException)}.\r{e.GetType().FullName}: {e.Message}\rFull exception:\r{e}";

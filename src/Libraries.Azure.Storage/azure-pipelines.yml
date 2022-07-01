@@ -19,8 +19,9 @@ jobs:
 - template: 'templates/netcore/v1/jobs/nuget.yml@azure-devops-tools'
   parameters:
     jobName: 'AzureStorage'
-    # Skip tests. Currently no implementation of locking, so 3 tests fail.
-    testProjectsPath: ''
+    testProjectsPath: 'test/Nexus.Link.Libraries.Azure.Storage.Test/*.csproj'
     nugetProjectsPath: 'src/Libraries.Azure.Storage/*.csproj'
     nuGetFeedType: external
     publishFeedCredentials: 'prd-nexus-nuget-external'
+    publishVstsFeed: 'Nexus Libs/nexus-nugets'
+

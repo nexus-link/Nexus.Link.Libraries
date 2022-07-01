@@ -11,7 +11,7 @@ namespace Nexus.Link.Libraries.Core.Error.Logic
     /// <remarks>
     /// This is basically a "Programmers Error", a bug on the server side.
     /// </remarks>
-    public class FulcrumAssertionFailedException : FulcrumException
+    public class FulcrumAssertionFailedException : FulcrumProgrammersErrorException
     {
         /// <summary>
         /// Factory method
@@ -51,9 +51,6 @@ namespace Nexus.Link.Libraries.Core.Error.Logic
         {
             SetProperties();
         }
-
-        /// <inheritdoc />
-        public override bool IsRetryMeaningful { get; set; } = false;
 
         /// <inheritdoc />
         public override string Type => ExceptionType;

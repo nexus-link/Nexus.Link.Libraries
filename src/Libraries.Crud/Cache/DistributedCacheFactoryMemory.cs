@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System.Threading;
+using System.Threading.Tasks;
 using Microsoft.Extensions.Caching.Distributed;
 using Nexus.Link.Libraries.Core.Assert;
 using Nexus.Link.Libraries.Crud.Interfaces;
@@ -24,12 +25,12 @@ namespace Nexus.Link.Libraries.Crud.Cache
         }
 
         /// <inheritdoc />
-        public async Task<IDistributedCache> GetOrCreateDistributedCacheAsync(string key)
+        public async Task<IDistributedCache> GetOrCreateDistributedCacheAsync(string key, CancellationToken cancellationToken = default)
         {
-            var item = await _storage.ReadAsync(key);
+            var item = await _storage.ReadAsync(key, cancellationToken);
             if (item != null) return item;
             var cache = new DistributedCacheMemory();
-            await _storage.CreateWithSpecifiedIdAsync(key, cache);
+            await _storage.CreateWithSpecifiedIdAsync(key, cache, cancellationToken);
             return cache;
         }
     }

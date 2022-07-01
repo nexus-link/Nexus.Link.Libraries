@@ -1,6 +1,12 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+#if NETCOREAPP
+using Microsoft.AspNetCore.Mvc;
+#else
+using System.Web.Http;
+#endif
 using Nexus.Link.Libraries.Core.Assert;
 using Nexus.Link.Libraries.Core.Storage.Model;
 using Nexus.Link.Libraries.Crud.Interfaces;
@@ -11,6 +17,7 @@ using Nexus.Link.Libraries.Web.AspNet.Annotations;
 namespace Nexus.Link.Libraries.Crud.AspNet.Controllers
 {
     /// <inheritdoc cref="CrudController{TModelCreate, TModel}" />
+    [Obsolete("Use Nexus.Link.Libraries.Crud.AspNet.ControllerHelpers. Obsolete warning since 2020-09-23, error since 2021-06-09.", true)]
     public class CrudController<TModel> :
         CrudController<TModel, TModel>,
         ICrud<TModel, string>
@@ -23,6 +30,7 @@ namespace Nexus.Link.Libraries.Crud.AspNet.Controllers
     }
 
     /// <inheritdoc cref="CrudControllerBase" />
+    [Obsolete("Use Nexus.Link.Libraries.Crud.AspNet.ControllerHelpers. Obsolete warning since 2020-09-23, error since 2021-06-09.", true)]
     public class CrudController<TModelCreate, TModel> :
         CrudControllerBase,
         ICrud<TModelCreate, TModel, string>
@@ -42,7 +50,7 @@ namespace Nexus.Link.Libraries.Crud.AspNet.Controllers
         /// <inheritdoc />
         [SwaggerBadRequestResponse]
         [SwaggerInternalServerErrorResponse]
-        public virtual async Task<string> CreateAsync(TModelCreate item, CancellationToken token = default(CancellationToken))
+        public virtual async Task<string> CreateAsync(TModelCreate item, CancellationToken token = default)
         {
             ServiceContract.RequireNotNull(item, nameof(item));
             ServiceContract.RequireValidated(item, nameof(item));
@@ -54,7 +62,7 @@ namespace Nexus.Link.Libraries.Crud.AspNet.Controllers
         /// <inheritdoc />
         [SwaggerBadRequestResponse]
         [SwaggerInternalServerErrorResponse]
-        public virtual async Task<TModel> CreateAndReturnAsync(TModelCreate item, CancellationToken token = default(CancellationToken))
+        public virtual async Task<TModel> CreateAndReturnAsync(TModelCreate item, CancellationToken token = default)
         {
             ServiceContract.RequireNotNull(item, nameof(item));
             ServiceContract.RequireValidated(item, nameof(item));
@@ -67,7 +75,7 @@ namespace Nexus.Link.Libraries.Crud.AspNet.Controllers
         /// <inheritdoc />
         [SwaggerBadRequestResponse]
         [SwaggerInternalServerErrorResponse]
-        public virtual async Task CreateWithSpecifiedIdAsync(string id, TModelCreate item, CancellationToken token = new CancellationToken())
+        public virtual async Task CreateWithSpecifiedIdAsync(string id, TModelCreate item, CancellationToken token = default)
         {
             ServiceContract.RequireNotNullOrWhiteSpace(id, nameof(id));
             ServiceContract.RequireNotNull(item, nameof(item));
@@ -79,7 +87,7 @@ namespace Nexus.Link.Libraries.Crud.AspNet.Controllers
         [SwaggerBadRequestResponse]
         [SwaggerInternalServerErrorResponse]
         public virtual async Task<TModel> CreateWithSpecifiedIdAndReturnAsync(string id, TModelCreate item,
-            CancellationToken token = new CancellationToken())
+            CancellationToken token = default)
         {
             ServiceContract.RequireNotNullOrWhiteSpace(id, nameof(id));
             ServiceContract.RequireNotNull(item, nameof(item));
@@ -93,7 +101,7 @@ namespace Nexus.Link.Libraries.Crud.AspNet.Controllers
         /// <inheritdoc />
         [SwaggerBadRequestResponse]
         [SwaggerInternalServerErrorResponse]
-        public virtual async Task<TModel> ReadAsync(string id, CancellationToken token = default(CancellationToken))
+        public virtual async Task<TModel> ReadAsync(string id, CancellationToken token = default)
         {
             ServiceContract.RequireNotDefaultValue(id, nameof(id));
             var item = await Logic.ReadAsync(id, token);
@@ -104,7 +112,7 @@ namespace Nexus.Link.Libraries.Crud.AspNet.Controllers
         /// <inheritdoc />
         [SwaggerBadRequestResponse]
         [SwaggerInternalServerErrorResponse]
-        public virtual async Task<PageEnvelope<TModel>> ReadAllWithPagingAsync(int offset, int? limit = null, CancellationToken token = default(CancellationToken))
+        public virtual async Task<PageEnvelope<TModel>> ReadAllWithPagingAsync(int offset, int? limit = null, CancellationToken token = default)
         {
             ServiceContract.RequireGreaterThanOrEqualTo(0, offset, nameof(offset));
             if (limit != null)
@@ -121,7 +129,7 @@ namespace Nexus.Link.Libraries.Crud.AspNet.Controllers
         /// <inheritdoc />
         [SwaggerBadRequestResponse]
         [SwaggerInternalServerErrorResponse]
-        public virtual async Task<IEnumerable<TModel>> ReadAllAsync(int limit = int.MaxValue, CancellationToken token = default(CancellationToken))
+        public virtual async Task<IEnumerable<TModel>> ReadAllAsync(int limit = int.MaxValue, CancellationToken token = default)
         {
             ServiceContract.RequireGreaterThan(0, limit, nameof(limit));
             var items = await Logic.ReadAllAsync(limit, token);
@@ -131,9 +139,33 @@ namespace Nexus.Link.Libraries.Crud.AspNet.Controllers
         }
 
         /// <inheritdoc />
+        public async Task<PageEnvelope<TModel>> SearchAsync([FromBody] SearchDetails<TModel> details, int offset, int? limit = null,
+            CancellationToken cancellationToken = default)
+        {
+            ServiceContract.RequireNotNull(details, nameof(details));
+            ServiceContract.RequireValidated(details, nameof(details));
+            ServiceContract.RequireGreaterThanOrEqualTo(0, offset, nameof(offset));
+            if (limit != null)
+            {
+                ServiceContract.RequireGreaterThan(0, limit.Value, nameof(limit));
+            }
+
+            var page = await Logic.SearchAsync(details, offset, limit, cancellationToken);
+            FulcrumAssert.IsNotNull(page?.Data);
+            FulcrumAssert.IsValidated(page?.Data);
+            return page;
+        }
+
+        /// <inheritdoc />
+        public Task<TModel> FindUniqueAsync(SearchDetails<TModel> details, CancellationToken cancellationToken = default)
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <inheritdoc />
         [SwaggerBadRequestResponse]
         [SwaggerInternalServerErrorResponse]
-        public virtual async Task UpdateAsync(string id, TModel item, CancellationToken token = default(CancellationToken))
+        public virtual async Task UpdateAsync(string id, TModel item, CancellationToken token = default)
         {
             ServiceContract.RequireNotNullOrWhiteSpace(id, nameof(id));
             ServiceContract.RequireNotNull(item, nameof(item));
@@ -144,7 +176,7 @@ namespace Nexus.Link.Libraries.Crud.AspNet.Controllers
         /// <inheritdoc />
         [SwaggerBadRequestResponse]
         [SwaggerInternalServerErrorResponse]
-        public virtual async Task<TModel> UpdateAndReturnAsync(string id, TModel item, CancellationToken token = default(CancellationToken))
+        public virtual async Task<TModel> UpdateAndReturnAsync(string id, TModel item, CancellationToken token = default)
         {
             ServiceContract.RequireNotNullOrWhiteSpace(id, nameof(id));
             ServiceContract.RequireNotNull(item, nameof(item));
@@ -158,7 +190,7 @@ namespace Nexus.Link.Libraries.Crud.AspNet.Controllers
         /// <inheritdoc />
         [SwaggerBadRequestResponse]
         [SwaggerInternalServerErrorResponse]
-        public virtual async Task DeleteAsync(string id, CancellationToken token = default(CancellationToken))
+        public virtual async Task DeleteAsync(string id, CancellationToken token = default)
         {
             ServiceContract.RequireNotNullOrWhiteSpace(id, nameof(id));
             await Logic.DeleteAsync(id, token);
@@ -167,7 +199,7 @@ namespace Nexus.Link.Libraries.Crud.AspNet.Controllers
         /// <inheritdoc />
         [SwaggerBadRequestResponse]
         [SwaggerInternalServerErrorResponse]
-        public virtual async Task DeleteAllAsync(CancellationToken token = default(CancellationToken))
+        public virtual async Task DeleteAllAsync(CancellationToken token = default)
         {
             await Logic.DeleteAllAsync(token);
         }
@@ -175,7 +207,7 @@ namespace Nexus.Link.Libraries.Crud.AspNet.Controllers
         /// <inheritdoc />
         [SwaggerBadRequestResponse]
         [SwaggerInternalServerErrorResponse]
-        public virtual async Task<Lock<string>> ClaimLockAsync(string id, CancellationToken token = new CancellationToken())
+        public virtual async Task<Lock<string>> ClaimLockAsync(string id, CancellationToken token = default)
         {
             ServiceContract.RequireNotNullOrWhiteSpace(id, nameof(id));
             var @lock = await Logic.ClaimLockAsync(id, token);
@@ -187,11 +219,37 @@ namespace Nexus.Link.Libraries.Crud.AspNet.Controllers
         /// <inheritdoc />
         [SwaggerBadRequestResponse]
         [SwaggerInternalServerErrorResponse]
-        public virtual async Task ReleaseLockAsync(string id, string lockId, CancellationToken token = new CancellationToken())
+        public virtual async Task ReleaseLockAsync(string id, string lockId, CancellationToken token = default)
         {
             ServiceContract.RequireNotNullOrWhiteSpace(id, nameof(id));
             ServiceContract.RequireNotNullOrWhiteSpace(lockId, nameof(lockId));
             await Logic.ReleaseLockAsync(id, lockId, token);
+        }
+
+        /// <inheritdoc />
+        public Task<Lock<string>> ClaimDistributedLockAsync(string id, TimeSpan? lockTimeSpan = null,
+            string currentLockId = default,
+            CancellationToken token = default)
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <inheritdoc />
+        public Task ReleaseDistributedLockAsync(string id, string lockId, CancellationToken token = default)
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <inheritdoc />
+        public Task ClaimTransactionLockAsync(string id, CancellationToken token = default)
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <inheritdoc />
+        public Task<TModel> ClaimTransactionLockAndReadAsync(string id, CancellationToken token = default)
+        {
+            throw new NotImplementedException();
         }
     }
 }

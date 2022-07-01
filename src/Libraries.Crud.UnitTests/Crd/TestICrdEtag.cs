@@ -17,18 +17,14 @@ namespace Nexus.Link.Libraries.Crud.UnitTests.Crd
         [TestMethod]
         public async Task Create_Read_Etag_Async()
         {
-            var initialItem = new TestItemEtag<TId>();
+            var initialItem = new TestItemBare();
             initialItem.InitializeWithDataForTesting(TypeOfTestDataEnum.Default);
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual(default(TId), initialItem.Id);
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsNull(initialItem.Etag);
             var id = await CrdStorage.CreateAsync(initialItem);
             var createdItem = await CrdStorage.ReadAsync(id);
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsNotNull(createdItem);
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreNotEqual(createdItem.Id, default(TId));
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsNotNull(createdItem.Etag);
-            initialItem.Id = createdItem.Id;
-            initialItem.Etag = createdItem.Etag;
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual(initialItem, createdItem);
+            Assert.IsNotNull(createdItem);
+            Assert.AreNotEqual(createdItem.Id, default);
+            Assert.IsNotNull(createdItem.Etag);
+            Assert.AreEqual(initialItem, createdItem);
         }
 
         /// <summary>
@@ -37,17 +33,13 @@ namespace Nexus.Link.Libraries.Crud.UnitTests.Crd
         [TestMethod]
         public async Task CreateAndReturn_Read_Etag_Async()
         {
-            var initialItem = new TestItemEtag<TId>();
+            var initialItem = new TestItemBare();
             initialItem.InitializeWithDataForTesting(TypeOfTestDataEnum.Default);
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual(default(TId), initialItem.Id);
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsNull(initialItem.Etag);
             var createdItem = await CrdStorage.CreateAndReturnAsync(initialItem);
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsNotNull(createdItem);
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreNotEqual(createdItem.Id, default(TId));
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsNotNull(createdItem.Etag);
-            initialItem.Id = createdItem.Id;
-            initialItem.Etag = createdItem.Etag;
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual(initialItem, createdItem);
+            Assert.IsNotNull(createdItem);
+            Assert.AreNotEqual(createdItem.Id, default);
+            Assert.IsNotNull(createdItem.Etag);
+            Assert.AreEqual(initialItem, createdItem);
         }
     }
 }

@@ -57,6 +57,7 @@ namespace Nexus.Link.Libraries.Core.Translation
         }
 
         /// <inheritdoc/>
+        [Obsolete("Use DependentToMaster instead of SlaveToMaster. Obsolete since 2021-10-06.")]
         public SlaveToMasterId<string> Decorate(string masterIdConceptName, string slaveIdConceptName, SlaveToMasterId<string> id)
         {
             if (id == null) return null;
@@ -80,28 +81,28 @@ namespace Nexus.Link.Libraries.Core.Translation
         }
 
         /// <inheritdoc />
-        [Obsolete("Use the method Decorate<T>(T). Obsolete since 2019-12-13.")]
+        [Obsolete("Use the method Decorate<T>(T). Obsolete warning since 2019-12-13, error since 2021-06-09.", true)]
         public IEnumerable<T> Decorate<T>(IEnumerable<T> items)
         {
             return items?.Select(Decorate);
         }
 
         /// <inheritdoc />
-        [Obsolete("Use the method Decorate(object, Type). Obsolete since 2019-12-13.")]
+        [Obsolete("Use the method Decorate(object, Type). Obsolete warning since 2019-12-13, error since 2021-06-09.", true)]
         public IEnumerable<object> Decorate(IEnumerable<object> items, Type type)
         {
             return items?.Select(i => Decorate(i, type));
         }
 
         /// <inheritdoc/>
-        [Obsolete("Use the method Decorate<T>(T). Obsolete since 2019-11-21.")]
+        [Obsolete("Use the method Decorate<T>(T). Obsolete warning since 2019-11-21, error since 2021-06-09.", true)]
         public TModel DecorateItem<TModel>(TModel item)
         {
             return Decorate(item);
         }
 
         /// <inheritdoc/>
-        [Obsolete("Use the method Decorate<T>(T). Obsolete since 2019-11-21.")]
+        [Obsolete("Use the method Decorate<T>(T). Obsolete warning since 2019-11-21, error since 2021-06-09.", true)]
         public IEnumerable<TModel> DecorateItems<TModel>(IEnumerable<TModel> items)
         {
             if (items == null) return null;
@@ -115,7 +116,7 @@ namespace Nexus.Link.Libraries.Core.Translation
         }
 
         /// <inheritdoc/>
-        [Obsolete("Use the method Decorate<T>(T). Obsolete since 2019-11-21.")]
+        [Obsolete("Use the method Decorate<T>(T). Obsolete warning since 2019-11-21, error since 2021-06-09.", true)]
         public PageEnvelope<TModel> DecoratePage<TModel>(PageEnvelope<TModel> page)
         {
             if (page == null) return null;
@@ -151,8 +152,13 @@ namespace Nexus.Link.Libraries.Core.Translation
         }
 
         /// <inheritdoc/>
-        public async Task ExecuteAsync(CancellationToken cancellationToken = new CancellationToken())
+        public async Task ExecuteAsync(CancellationToken cancellationToken = default)
         {
+            if (!_conceptValues.Any())
+            {
+                // Do not call translator service if there is nothing to translate
+                return;
+            }
             _translations = await _service.TranslateAsync(_conceptValues, _clientName, cancellationToken);
         }
 

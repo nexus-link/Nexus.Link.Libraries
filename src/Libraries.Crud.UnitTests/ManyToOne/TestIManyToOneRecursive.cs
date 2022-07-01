@@ -19,9 +19,9 @@ namespace Nexus.Link.Libraries.Crud.UnitTests.ManyToOne
         {
             var parent = await CreateItemAsync(CrudManyStorageRecursive, TypeOfTestDataEnum.Variant1, default(TReferenceId));
             var child = await CreateItemAsync(CrudManyStorageRecursive, TypeOfTestDataEnum.Variant2, parent.Id);
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsNotNull(child.ParentId);
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreNotEqual(default(TReferenceId), child.ParentId);
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreNotEqual(parent.Value, child.Value);
+            Assert.IsNotNull(child.ParentId);
+            Assert.AreNotEqual(default, child.ParentId);
+            Assert.AreNotEqual(parent.Value, child.Value);
         }
     }
 }

@@ -1,12 +1,18 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Net.Http;
+using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Rest;
+using Newtonsoft.Json.Linq;
 using Nexus.Link.Libraries.Core.Assert;
+using Nexus.Link.Libraries.Core.EntityAttributes;
+using Nexus.Link.Libraries.Core.EntityAttributes.Support;
+using Nexus.Link.Libraries.Core.Storage.Logic;
 using Nexus.Link.Libraries.Core.Storage.Model;
 using Nexus.Link.Libraries.Core.Translation;
+using Nexus.Link.Libraries.Crud.Helpers;
 using Nexus.Link.Libraries.Crud.Interfaces;
 using Nexus.Link.Libraries.Crud.Model;
 using Nexus.Link.Libraries.Web.RestClientHelper;
@@ -30,7 +36,7 @@ namespace Nexus.Link.Libraries.Crud.Web.RestClient
         #region Obsolete constructors
         /// <summary></summary>
         /// <param name="baseUri">The base URL that all HTTP calls methods will refer to.</param>
-        [Obsolete("Use constructor with IHttpSender. Obsolete since 2019-11-18")]
+        [Obsolete("Use constructor with IHttpSender. Obsolete warning since 2019-11-18, error since 2021-06-09.", true)]
         public CrudRestClient(string baseUri)
             : base(baseUri)
         {
@@ -39,7 +45,7 @@ namespace Nexus.Link.Libraries.Crud.Web.RestClient
         /// <param name="baseUri">The base URL that all HTTP calls methods will refer to.</param>
         /// <param name="httpClient">The HttpClient used when making the HTTP calls.</param>
         /// <param name="credentials">The credentials used when making the HTTP calls.</param>
-        [Obsolete("Use constructor with IHttpSender. Obsolete since 2019-11-18")]
+        [Obsolete("Use constructor with IHttpSender. Obsolete warning since 2019-11-18, error since 2021-06-09.", true)]
         public CrudRestClient(string baseUri, HttpClient httpClient, ServiceClientCredentials credentials)
             : base(baseUri, httpClient, credentials)
         {
@@ -48,7 +54,7 @@ namespace Nexus.Link.Libraries.Crud.Web.RestClient
         /// <summary></summary>
         /// <param name="baseUri">The base URL that all HTTP calls methods will refer to.</param>
         /// <param name="httpClient">The HttpClient used when making the HTTP calls.</param>
-        [Obsolete("Use constructor with IHttpSender. Obsolete since 2019-11-18")]
+        [Obsolete("Use constructor with IHttpSender. Obsolete warning since 2019-11-18, error since 2021-06-09.", true)]
         public CrudRestClient(string baseUri, HttpClient httpClient)
             : base(baseUri, httpClient)
         {
@@ -61,6 +67,8 @@ namespace Nexus.Link.Libraries.Crud.Web.RestClient
         Libraries.Web.RestClientHelper.RestClient,
         ICrud<TModelCreate, TModel, TId> where TModel : TModelCreate
     {
+        private readonly CrudConvenience<TModelCreate, TModel, TId> _convenience;
+
         /// <summary>
         /// Constructor. 
         /// </summary>
@@ -68,12 +76,13 @@ namespace Nexus.Link.Libraries.Crud.Web.RestClient
         public CrudRestClient(IHttpSender httpSender)
             : base(httpSender)
         {
+            _convenience = new CrudConvenience<TModelCreate, TModel,TId>(this);
         }
 
         #region Obsolete constructors
         /// <summary></summary>
         /// <param name="baseUri">The base URL that all HTTP calls methods will refer to.</param>
-        [Obsolete("Use constructor with IHttpSender. Obsolete since 2019-11-18")]
+        [Obsolete("Use constructor with IHttpSender. Obsolete warning since 2019-11-18, error since 2021-06-09.", true)]
         public CrudRestClient(string baseUri)
             : base(baseUri)
         {
@@ -83,7 +92,7 @@ namespace Nexus.Link.Libraries.Crud.Web.RestClient
         /// <param name="baseUri">The base URL that all HTTP calls methods will refer to.</param>
         /// <param name="httpClient">The HttpClient used when making the HTTP calls.</param>
         /// <param name="credentials">The credentials used when making the HTTP calls.</param>
-        [Obsolete("Use constructor with IHttpSender. Obsolete since 2019-11-18")]
+        [Obsolete("Use constructor with IHttpSender. Obsolete warning since 2019-11-18, error since 2021-06-09.", true)]
         public CrudRestClient(string baseUri, HttpClient httpClient, ServiceClientCredentials credentials)
             : base(baseUri, httpClient, credentials)
         {
@@ -92,7 +101,7 @@ namespace Nexus.Link.Libraries.Crud.Web.RestClient
         /// <summary></summary>
         /// <param name="baseUri">The base URL that all HTTP calls methods will refer to.</param>
         /// <param name="httpClient">The HttpClient used when making the HTTP calls.</param>
-        [Obsolete("Use constructor with IHttpSender. Obsolete since 2019-11-18")]
+        [Obsolete("Use constructor with IHttpSender. Obsolete warning since 2019-11-18, error since 2021-06-09.", true)]
         public CrudRestClient(string baseUri, HttpClient httpClient)
             : base(baseUri, httpClient)
         {
@@ -100,56 +109,57 @@ namespace Nexus.Link.Libraries.Crud.Web.RestClient
         #endregion
 
         /// <inheritdoc />
-        public virtual async Task<TId> CreateAsync(TModelCreate item, CancellationToken token = default(CancellationToken))
+        public virtual async Task<TId> CreateAsync(TModelCreate item, CancellationToken token = default)
         {
             // TODO: PostAndDecorateResultAsync
-            var invoiceId = await PostAsync<TId, TModelCreate>("", item, cancellationToken: token);
-            return MaybeDecorate(invoiceId);
+            var id = await PostAsync<TId, TModelCreate>("", item, cancellationToken: token);
+            return MaybeDecorate(id);
         }
 
-        private TId MaybeDecorate(TId invoiceId)
+        private TId MaybeDecorate(TId id)
         {
-            if (typeof(TId) != typeof(string)) return invoiceId;
-            if (!(HttpSender is ITranslationClientName translationTargetClientName)) return invoiceId;
-            if (!typeof(IUniquelyIdentifiable<string>).IsAssignableFrom(typeof(TModel))) return invoiceId;
+            if (typeof(TId) != typeof(string)) return id;
+            if (!(HttpSender is ITranslationClientName translationTargetClientName)) return id;
 
-            var idPropertyInfo = typeof(TModel).GetProperty(nameof(IUniquelyIdentifiable<string>.Id));
+            var idPropertyInfo = StorageHelper.GetPrimaryKeyProperty<TModel,TId>();
+            if (idPropertyInfo == null) return id;
+
             var translationConcept = Translator.GetConceptAttribute(idPropertyInfo);
-            if (translationConcept == null) return invoiceId;
+            if (translationConcept == null) return id;
 
             return (TId)(object) Translator.Decorate(
                 translationConcept.ConceptName,
                 translationTargetClientName.TranslationClientName, 
-                (string)(object)invoiceId);
+                (string)(object)id);
         }
 
         /// <inheritdoc />
-        public virtual async Task<TModel> CreateAndReturnAsync(TModelCreate item, CancellationToken token = default(CancellationToken))
+        public virtual async Task<TModel> CreateAndReturnAsync(TModelCreate item, CancellationToken token = default)
         {
             return await PostAsync<TModel, TModelCreate>("ReturnCreated", item, cancellationToken: token);
         }
 
         /// <inheritdoc />
-        public virtual async Task CreateWithSpecifiedIdAsync(TId id, TModelCreate item, CancellationToken token = default(CancellationToken))
+        public virtual async Task CreateWithSpecifiedIdAsync(TId id, TModelCreate item, CancellationToken token = default)
         {
             await PostNoResponseContentAsync($"{id}", item, cancellationToken: token);
         }
 
         /// <inheritdoc />
-        public virtual async Task<TModel> CreateWithSpecifiedIdAndReturnAsync(TId id, TModelCreate item, CancellationToken token = default(CancellationToken))
+        public virtual async Task<TModel> CreateWithSpecifiedIdAndReturnAsync(TId id, TModelCreate item, CancellationToken token = default)
         {
             return await PostAsync<TModel, TModelCreate>($"{id}/ReturnCreated", item, cancellationToken: token);
         }
 
         /// <inheritdoc />
-        public virtual async Task<TModel> ReadAsync(TId id, CancellationToken token = default(CancellationToken))
+        public virtual async Task<TModel> ReadAsync(TId id, CancellationToken token = default)
         {
             InternalContract.RequireNotDefaultValue(id, nameof(id));
             return await GetAsync<TModel>($"{id}", cancellationToken: token);
         }
 
         /// <inheritdoc />
-        public virtual async Task<PageEnvelope<TModel>> ReadAllWithPagingAsync(int offset = 0, int? limit = null, CancellationToken token = default(CancellationToken))
+        public virtual async Task<PageEnvelope<TModel>> ReadAllWithPagingAsync(int offset = 0, int? limit = null, CancellationToken token = default)
         {
             InternalContract.RequireGreaterThanOrEqualTo(0, offset, nameof(offset));
             var limitParameter = "";
@@ -162,46 +172,105 @@ namespace Nexus.Link.Libraries.Crud.Web.RestClient
         }
 
         /// <inheritdoc />
-        public virtual async Task<IEnumerable<TModel>> ReadAllAsync(int limit = int.MaxValue, CancellationToken token = default(CancellationToken))
+        public virtual async Task<IEnumerable<TModel>> ReadAllAsync(int limit = int.MaxValue, CancellationToken token = default)
         {
             InternalContract.RequireGreaterThan(0, limit, nameof(limit));
             return await GetAsync<IEnumerable<TModel>>($"?limit={limit}", cancellationToken: token);
         }
 
         /// <inheritdoc />
-        public virtual async Task UpdateAsync(TId id, TModel item, CancellationToken token = default(CancellationToken))
+        public async Task<PageEnvelope<TModel>> SearchAsync(SearchDetails<TModel> details, int offset, int? limit = null,
+            CancellationToken cancellationToken = default)
+        {
+            ServiceContract.RequireNotNull(details, nameof(details));
+            ServiceContract.RequireValidated(details, nameof(details));
+            ServiceContract.RequireGreaterThanOrEqualTo(0, offset, nameof(offset));
+            if (limit != null)
+            {
+                ServiceContract.RequireGreaterThan(0, limit.Value, nameof(limit));
+            }
+            var limitParameter = "";
+            if (limit != null)
+            {
+                limitParameter = $"&limit={limit}";
+            }
+            return await PostAsync<PageEnvelope<TModel>, SearchDetails<TModel>>($"/Searches?offset={offset}{limitParameter}", details, cancellationToken: cancellationToken);
+        }
+
+        /// <inheritdoc />
+        public Task<TModel> FindUniqueAsync(SearchDetails<TModel> details, CancellationToken cancellationToken = default)
+        {
+            return _convenience.FindUniqueAsync(details, cancellationToken);
+        }
+
+        /// <inheritdoc />
+        public virtual async Task UpdateAsync(TId id, TModel item, CancellationToken token = default)
         {
             await PutNoResponseContentAsync($"{id}", item, cancellationToken: token);
         }
 
         /// <inheritdoc />
-        public virtual async Task<TModel> UpdateAndReturnAsync(TId id, TModel item, CancellationToken token = default(CancellationToken))
+        public virtual async Task<TModel> UpdateAndReturnAsync(TId id, TModel item, CancellationToken token = default)
         {
             return await PutAndReturnUpdatedObjectAsync($"{id}/ReturnUpdated", item, cancellationToken: token);
         }
 
         /// <inheritdoc />
-        public virtual async Task DeleteAsync(TId id, CancellationToken token = default(CancellationToken))
+        public virtual async Task DeleteAsync(TId id, CancellationToken token = default)
         {
             await DeleteAsync($"{id}", cancellationToken: token);
         }
 
         /// <inheritdoc />
-        public virtual async Task DeleteAllAsync(CancellationToken token = default(CancellationToken))
+        public virtual async Task DeleteAllAsync(CancellationToken token = default)
         {
             await DeleteAsync("", cancellationToken: token);
         }
 
         /// <inheritdoc />
-        public async Task<Lock<TId>> ClaimLockAsync(TId id, CancellationToken token = new CancellationToken())
+        public async Task<Lock<TId>> ClaimLockAsync(TId id, CancellationToken token = default)
         {
             return await PostAsync<Lock<TId>>($"{id}/Locks", cancellationToken: token);
         }
 
         /// <inheritdoc />
-        public async Task ReleaseLockAsync(TId id, TId lockId, CancellationToken token = new CancellationToken())
+        public async Task ReleaseLockAsync(TId id, TId lockId, CancellationToken token = default)
         {
             await PostNoResponseContentAsync($"{id}/Locks/{lockId}", cancellationToken: token);
+        }
+
+        /// <inheritdoc />
+        public Task<Lock<TId>> ClaimDistributedLockAsync(TId id, TimeSpan? lockTimeSpan = null, TId currentLockId = default,
+            CancellationToken token = default)
+        {
+            var relativeUrl = $"{id}/Locks";
+            if (!Equals(currentLockId, default))
+            {
+                relativeUrl += $"/{currentLockId}";
+            }
+            if (lockTimeSpan != null)
+            {
+                relativeUrl += $"?seconds={lockTimeSpan.Value.TotalSeconds}";
+            }
+            return PostAsync<Lock<TId>>(relativeUrl, cancellationToken: token);
+        }
+
+        /// <inheritdoc />
+        public async Task ReleaseDistributedLockAsync(TId id, TId lockId, CancellationToken token = default)
+        {
+            await DeleteAsync($"{id}/Locks/{lockId}", cancellationToken: token);
+        }
+
+        /// <inheritdoc />
+        public Task ClaimTransactionLockAsync(TId id, CancellationToken token = default)
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <inheritdoc />
+        public Task<TModel> ClaimTransactionLockAndReadAsync(TId id, CancellationToken token = default)
+        {
+            return _convenience.ClaimTransactionLockAndReadAsync(id, token);
         }
     }
 }

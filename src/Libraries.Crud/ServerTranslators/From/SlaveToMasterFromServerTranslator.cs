@@ -12,7 +12,7 @@ using Nexus.Link.Libraries.Crud.PassThrough;
 namespace Nexus.Link.Libraries.Crud.ServerTranslators.From
 {
     /// <inheritdoc cref="SlaveToMasterFromServerTranslator{TModelCreate, TModel}" />
-    [Obsolete("Use Libraries.Web ValueTranslatorHttpSender. Obsolete since 2019-11-21.")]
+    [Obsolete("Use Libraries.Web ValueTranslatorHttpSender. Obsolete warning since 2019-11-21, error since 2021-06-09.", true)]
     public class SlaveToMasterFromServerTranslator<TModel> : 
         SlaveToMasterFromServerTranslator<TModel, TModel>,
         ICrudSlaveToMaster<TModel, string>
@@ -26,7 +26,7 @@ namespace Nexus.Link.Libraries.Crud.ServerTranslators.From
     }
 
     /// <inheritdoc cref="ServerTranslatorBase" />
-    [Obsolete("Use Libraries.Web ValueTranslatorHttpSender. Obsolete since 2019-11-21.")]
+    [Obsolete("Use Libraries.Web ValueTranslatorHttpSender. Obsolete warning since 2019-11-21, error since 2021-06-09.", true)]
     public class SlaveToMasterFromServerTranslator<TModelCreate, TModel> : 
         ServerTranslatorBase,
         ICrudSlaveToMaster<TModelCreate, TModel, string>
@@ -48,17 +48,17 @@ namespace Nexus.Link.Libraries.Crud.ServerTranslators.From
         }
 
         /// <inheritdoc />
-        public async Task<string> CreateAsync(string masterId, TModelCreate item, CancellationToken token = default(CancellationToken))
+        public async Task<string> CreateAsync(string masterId, TModelCreate item, CancellationToken cancellationToken  = default)
         {
-            var result = await _service.CreateAsync(masterId, item, token);
+            var result = await _service.CreateAsync(masterId, item, cancellationToken );
             var translator = CreateTranslator();
             return translator.Decorate(IdConceptName, result);
         }
 
         /// <inheritdoc />
-        public async Task<TModel> CreateAndReturnAsync(string masterId, TModelCreate item, CancellationToken token = default(CancellationToken))
+        public async Task<TModel> CreateAndReturnAsync(string masterId, TModelCreate item, CancellationToken cancellationToken  = default)
         {
-            var result = await _service.CreateAndReturnAsync(masterId, item, token);
+            var result = await _service.CreateAndReturnAsync(masterId, item, cancellationToken );
             var translator = CreateTranslator();
             FulcrumAssert.IsNotNull(result);
             return translator.Decorate(result);
@@ -66,85 +66,85 @@ namespace Nexus.Link.Libraries.Crud.ServerTranslators.From
 
         /// <inheritdoc />
         public async Task CreateWithSpecifiedIdAsync(string masterId, string slaveId, TModelCreate item,
-            CancellationToken token = default(CancellationToken))
+            CancellationToken cancellationToken  = default)
         {
-            await _service.CreateWithSpecifiedIdAsync(masterId, slaveId, item, token);
+            await _service.CreateWithSpecifiedIdAsync(masterId, slaveId, item, cancellationToken );
         }
 
         /// <inheritdoc />
         public async Task<TModel> CreateWithSpecifiedIdAndReturnAsync(string masterId, string slaveId, TModelCreate item,
-            CancellationToken token = default(CancellationToken))
+            CancellationToken cancellationToken  = default)
         {
-            var result = await _service.CreateWithSpecifiedIdAndReturnAsync(masterId, slaveId, item, token);
+            var result = await _service.CreateWithSpecifiedIdAndReturnAsync(masterId, slaveId, item, cancellationToken );
             var translator = CreateTranslator();
             FulcrumAssert.IsNotNull(result);
             return translator.Decorate(result);
         }
 
         /// <inheritdoc />
-        public async Task<TModel> ReadAsync(string masterId, string slaveId, CancellationToken token = default(CancellationToken))
+        public async Task<TModel> ReadAsync(string masterId, string slaveId, CancellationToken cancellationToken  = default)
         {
-            var result = await _service.ReadAsync(masterId, slaveId, token);
+            var result = await _service.ReadAsync(masterId, slaveId, cancellationToken );
             var translator = CreateTranslator();
             FulcrumAssert.IsNotNull(result);
             return translator.Decorate(result);
         }
 
         /// <inheritdoc />
-        public Task<TModel> ReadAsync(SlaveToMasterId<string> id, CancellationToken token = default(CancellationToken))
+        public Task<TModel> ReadAsync(SlaveToMasterId<string> id, CancellationToken cancellationToken  = default)
         {
-            return ReadAsync(id.MasterId, id.SlaveId, token);
+            return ReadAsync(id.MasterId, id.SlaveId, cancellationToken );
         }
 
         /// <inheritdoc />
         public async Task<PageEnvelope<TModel>> ReadChildrenWithPagingAsync(string parentId, int offset, int? limit = null,
-            CancellationToken token = default(CancellationToken))
+            CancellationToken cancellationToken  = default)
         {
-            var result = await _service.ReadChildrenWithPagingAsync(parentId, offset, limit, token);
+            var result = await _service.ReadChildrenWithPagingAsync(parentId, offset, limit, cancellationToken );
             var translator = CreateTranslator();
             return translator.Decorate(result);
         }
 
         /// <inheritdoc />
-        public async Task<IEnumerable<TModel>> ReadChildrenAsync(string parentId, int limit = int.MaxValue, CancellationToken token = default(CancellationToken))
+        public async Task<IEnumerable<TModel>> ReadChildrenAsync(string parentId, int limit = int.MaxValue, CancellationToken cancellationToken  = default)
         {
-            var result = await _service.ReadChildrenAsync(parentId, limit, token);
+            var result = await _service.ReadChildrenAsync(parentId, limit, cancellationToken );
             var translator = CreateTranslator();
             return translator.Decorate(result);
         }
 
         /// <inheritdoc />
-        public Task UpdateAsync(string masterId, string slaveId, TModel item, CancellationToken token = default(CancellationToken))
+        public Task UpdateAsync(string masterId, string slaveId, TModel item, CancellationToken cancellationToken  = default)
         {
-            return _service.UpdateAsync(masterId, slaveId, item, token);
+            return _service.UpdateAsync(masterId, slaveId, item, cancellationToken );
         }
 
         /// <inheritdoc />
         public async Task<TModel> UpdateAndReturnAsync(string masterId, string slaveId, TModel item,
-            CancellationToken token = default(CancellationToken))
+            CancellationToken cancellationToken  = default)
         {
-            var result = await _service.UpdateAndReturnAsync(masterId, slaveId, item, token);
+            var result = await _service.UpdateAndReturnAsync(masterId, slaveId, item, cancellationToken );
             var translator = CreateTranslator();
             FulcrumAssert.IsNotNull(result);
             return translator.Decorate(result);
         }
 
         /// <inheritdoc />
-        public Task DeleteChildrenAsync(string masterId, CancellationToken token = default(CancellationToken))
+        public Task DeleteChildrenAsync(string masterId, CancellationToken cancellationToken  = default)
         {
-            return _service.DeleteChildrenAsync(masterId, token);
+            return _service.DeleteChildrenAsync(masterId, cancellationToken );
         }
 
         /// <inheritdoc />
-        public Task DeleteAsync(string masterId, string slaveId, CancellationToken token = default(CancellationToken))
+        public Task DeleteAsync(string masterId, string slaveId, CancellationToken cancellationToken  = default)
         {
-            return _service.DeleteAsync(masterId, slaveId, token);
+            return _service.DeleteAsync(masterId, slaveId, cancellationToken );
         }
 
         /// <inheritdoc />
-        public async Task<SlaveLock<string>> ClaimLockAsync(string masterId, string slaveId, CancellationToken token = default(CancellationToken))
+        public async Task<SlaveLock<string>> ClaimLockAsync(string masterId, string slaveId, CancellationToken cancellationToken  = default)
         {
-            var result = await _service.ClaimLockAsync(masterId, slaveId, token);
+            var result = await _service.ClaimLockAsync(masterId, slaveId, cancellationToken );
             var translator = CreateTranslator();
             FulcrumAssert.IsNotNull(result);
             result.MasterId = translator.Decorate(_masterIdConceptName, result.MasterId);
@@ -154,9 +154,49 @@ namespace Nexus.Link.Libraries.Crud.ServerTranslators.From
 
         /// <inheritdoc />
         public Task ReleaseLockAsync(string masterId, string slaveId, string lockId,
-            CancellationToken token = default(CancellationToken))
+            CancellationToken cancellationToken  = default)
         {
-            return _service.ReleaseLockAsync(masterId, slaveId, lockId, token);
+            return _service.ReleaseLockAsync(masterId, slaveId, lockId, cancellationToken );
+        }
+
+        /// <inheritdoc />
+        public Task<SlaveLock<string>> ClaimDistributedLockAsync(string masterId, string slaveId, CancellationToken cancellationToken  = default)
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <inheritdoc />
+        public Task ReleaseDistributedLockAsync(string masterId, string slaveId, string lockId,
+            CancellationToken cancellationToken  = default)
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <inheritdoc />
+        public Task ClaimTransactionLockAsync(string masterId, string slaveId, CancellationToken cancellationToken  = default)
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <inheritdoc />
+        public Task<TModel> ClaimTransactionLockAndReadAsync(string masterId, string slaveId,
+            CancellationToken cancellationToken  = default)
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <inheritdoc />
+        public Task<PageEnvelope<TModel>> SearchChildrenAsync(string parentId, SearchDetails<TModel> details, int offset, int? limit = null,
+            CancellationToken cancellationToken = default)
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <inheritdoc />
+        public Task<TModel> FindUniqueChildAsync(string parentId, SearchDetails<TModel> details,
+            CancellationToken cancellationToken = default)
+        {
+            throw new NotImplementedException();
         }
     }
 }

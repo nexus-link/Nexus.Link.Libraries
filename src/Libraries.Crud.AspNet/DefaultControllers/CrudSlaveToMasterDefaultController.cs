@@ -1,4 +1,5 @@
-﻿using System.Threading;
+﻿using System;
+using System.Threading;
 using System.Threading.Tasks;
 using Nexus.Link.Libraries.Core.Storage.Model;
 using Nexus.Link.Libraries.Crud.AspNet.Controllers;
@@ -14,6 +15,7 @@ namespace Nexus.Link.Libraries.Crud.AspNet.DefaultControllers
     /// <summary>
     /// ApiController with CRUD-support
     /// </summary>
+    [Obsolete("Use Nexus.Link.Libraries.Crud.AspNet.Controllers classes. Obsolete warning since 2020-09-23, error since 2021-06-09.", true)]
     public class CrudSlaveToMasterDefaultController<TModel> :
         CrudSlaveToMasterDefaultController<TModel, TModel>,
         ICrudSlaveToMaster<TModel, string>
@@ -28,6 +30,7 @@ namespace Nexus.Link.Libraries.Crud.AspNet.DefaultControllers
     }
 
     /// <inheritdoc cref="CrudSlaveToMasterController{TModelCreate, TModel}" />
+    [Obsolete("Use Nexus.Link.Libraries.Crud.AspNet.Controllers classes. Obsolete warning since 2020-09-23, error since 2021-06-09.", true)]
     public class CrudSlaveToMasterDefaultController<TModelCreate, TModel> :
         CrudSlaveToMasterController<TModelCreate, TModel>,
         ICrudSlaveToMaster<TModelCreate, TModel, string>
@@ -44,7 +47,7 @@ namespace Nexus.Link.Libraries.Crud.AspNet.DefaultControllers
         /// <inheritdoc />
         [HttpGet]
         [Route("{masterId}/Children")]
-        public override Task<PageEnvelope<TModel>> ReadChildrenWithPagingAsync(string masterId, int offset, int? limit = null, CancellationToken token = default(CancellationToken))
+        public override Task<PageEnvelope<TModel>> ReadChildrenWithPagingAsync(string masterId, int offset, int? limit = null, CancellationToken token = default)
         {
             return base.ReadChildrenWithPagingAsync(masterId, offset, limit, token);
         }
@@ -52,7 +55,7 @@ namespace Nexus.Link.Libraries.Crud.AspNet.DefaultControllers
         /// <inheritdoc />
         [HttpPost]
         [Route("{masterId}/Children")]
-        public override Task<string> CreateAsync(string masterId, TModelCreate item, CancellationToken token = new CancellationToken())
+        public override Task<string> CreateAsync(string masterId, TModelCreate item, CancellationToken token = default)
         {
             return base.CreateAsync(masterId, item, token);
         }
@@ -60,7 +63,7 @@ namespace Nexus.Link.Libraries.Crud.AspNet.DefaultControllers
         /// <inheritdoc />
         [HttpDelete]
         [Route("{masterId}/Children")]
-        public override Task DeleteChildrenAsync(string masterId, CancellationToken token = new CancellationToken())
+        public override Task DeleteChildrenAsync(string masterId, CancellationToken token = default)
         {
             return base.DeleteChildrenAsync(masterId, token);
         }
@@ -68,7 +71,7 @@ namespace Nexus.Link.Libraries.Crud.AspNet.DefaultControllers
         /// <inheritdoc cref="ICrudSlaveToMaster{TModel,TId}" />
         [HttpGet]
         [Route("{masterId}/Children/{slaveId}")]
-        public override Task<TModel> ReadAsync(string masterId, string slaveId, CancellationToken token = new CancellationToken())
+        public override Task<TModel> ReadAsync(string masterId, string slaveId, CancellationToken token = default)
         {
             return base.ReadAsync(masterId, slaveId, token);
         }
@@ -76,7 +79,7 @@ namespace Nexus.Link.Libraries.Crud.AspNet.DefaultControllers
         /// <inheritdoc cref="ICrudSlaveToMaster{TModel,TId}" />
         [HttpPut]
         [Route("{masterId}/Children/{slaveId}")]
-        public override Task UpdateAsync(string masterId, string slaveId, TModel item, CancellationToken token = new CancellationToken())
+        public override Task UpdateAsync(string masterId, string slaveId, TModel item, CancellationToken token = default)
         {
             return base.UpdateAsync(masterId, slaveId, item, token);
         }
@@ -84,7 +87,7 @@ namespace Nexus.Link.Libraries.Crud.AspNet.DefaultControllers
         /// <inheritdoc cref="ICrudSlaveToMaster{TModel,TId}" />
         [HttpDelete]
         [Route("{masterId}/Children/{slaveId}")]
-        public override Task DeleteAsync(string masterId, string slaveId, CancellationToken token = new CancellationToken())
+        public override Task DeleteAsync(string masterId, string slaveId, CancellationToken token = default)
         {
             return base.DeleteAsync(masterId, slaveId, token);
         }

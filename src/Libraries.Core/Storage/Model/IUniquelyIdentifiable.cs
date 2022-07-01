@@ -1,7 +1,7 @@
 ﻿namespace Nexus.Link.Libraries.Core.Storage.Model
 {
     /// <summary>
-    /// Properties required to be a storable class
+    /// Properties required for an item to be stored in a "table".
     /// </summary>
     /// <typeparam name="TId">The type for the property <see cref="Id"/>.</typeparam>
     public interface IUniquelyIdentifiable<TId>

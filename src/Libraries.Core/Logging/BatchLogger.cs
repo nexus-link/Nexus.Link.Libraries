@@ -33,18 +33,12 @@ namespace Nexus.Link.Libraries.Core.Logging
         /// <inheritdoc />
         public void LogSync(LogRecord logRecord)
         {
-            if (!HasStarted)
+            // The goal is to enqueue the record, but there are exceptions to this.
+
+            if (!HasStarted || Batch.EndBatchRequested)
             {
                 _syncLogger.LogSync(logRecord);
                 return;
-            }
-
-            if (FulcrumApplication.Context.ContextId != Batch.ContextId)
-            {
-                var logAllThreshold = Batch.LogAllThreshold;
-                var releaseRecordsAsLateAsPossible = Batch.ReleaseRecordsAsLateAsPossible;
-                EndBatch();
-                StartBatch(logAllThreshold, releaseRecordsAsLateAsPossible);
             }
 
             if (!Batch.HasReachedThreshold &&
@@ -63,31 +57,6 @@ namespace Nexus.Link.Libraries.Core.Logging
             {
                 Batch.LogRecords.Add(logRecord);
             }
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="logIndividualThreshold">Only log log records that has this or higher severity level. Can be overruled by <paramref name="logAllThreshold"/>.</param>
-        /// <param name="logAllThreshold">If any of the log records in the batch has this or higher severity level,
-        /// the <paramref name="logIndividualThreshold"/> will be ignored and consequently all log records will be logged.
-        /// Set this to <see cref="LogSeverityLevel.None"/> to avoid this functionality, i.e. only <paramref name="logIndividualThreshold"/> will be used.</param>
-        /// <param name="releaseRecordsAsLateAsPossible">This is relevant when a log record is logged that fulfills the <paramref name="logAllThreshold"/> threshold.
-        /// If true, the logs in the batch will not be released until <see cref="EndBatch"/> is called. If false, then the current log records will be immediately released
-        /// and the following individual logs in the batch will be release immediately.</param>
-        [Obsolete("The parameter logIndividualThreshold has been removed. Use the application setting FulcrumApplication.Setup.LogSeverityLevelThreshold instead. Obsolete from 2019-06-27.", true)]
-        public static void StartBatch(
-            LogSeverityLevel logIndividualThreshold = LogSeverityLevel.Warning,
-            LogSeverityLevel logAllThreshold = LogSeverityLevel.Error,
-            bool releaseRecordsAsLateAsPossible = false)
-        {
-            AsyncLocalBatch.Value = new BatchInfo();
-            Batch.LogRecords = new List<LogRecord>();
-            Batch.ContextId = FulcrumApplication.Context.ContextId;
-            Batch.HasReachedThreshold = false;
-            Batch.LogAllThreshold = logAllThreshold;
-            Batch.ReleaseRecordsAsLateAsPossible = releaseRecordsAsLateAsPossible;
-            FulcrumApplication.Context.IsInBatchLogger = true;
         }
 
         /// <summary>
@@ -115,8 +84,13 @@ namespace Nexus.Link.Libraries.Core.Logging
 
         public static void EndBatch()
         {
-            FlushValues();
+            if (!HasStarted) return;
+            Batch.EndBatchRequested = true;
+
+            // Note! Important that this is set before flushing: We depend on Log.LogOnLevel to discard low severity logs
             FulcrumApplication.Context.IsInBatchLogger = false;
+
+            FlushValues();
             AsyncLocalBatch.Value = null;
         }
 
@@ -145,6 +119,12 @@ namespace Nexus.Link.Libraries.Core.Logging
             public List<LogRecord> LogRecords { get; set; }
             public Guid ContextId { get; set; }
             public bool HasReachedThreshold { get; set; }
+
+            /// <summary>
+            /// Tells if the process of ending the batch has started.
+            /// This means that queuing within the <see cref="BatchLogger"/> is prohibited.
+            /// </summary>
+            public bool EndBatchRequested { get; set; }
         }
     }
 }

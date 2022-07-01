@@ -11,7 +11,7 @@ namespace Nexus.Link.Libraries.Core.Error.Logic
     /// <remarks>
     /// This exception is a way to blame someone else for a problem that has occurred in your code.
     /// </remarks>
-    [Obsolete("Use FulcrumResourceException.")]
+    [Obsolete("Use FulcrumResourceException. Obsolete warning since 2020-06-09, error since 2021-06-09.", true)]
     public class FulcrumResourceContractException : FulcrumException
     {
         /// <summary>

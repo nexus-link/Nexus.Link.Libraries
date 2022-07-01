@@ -79,10 +79,10 @@ namespace Nexus.Link.Libraries.Core.Tests.Json
             var success = JsonHelper.TryDeserializeObject<HasMandatoryField>(value, out var hasMandatoryField);
             UT.Assert.IsTrue(success);
             UT.Assert.IsNotNull(hasMandatoryField);
-            UT.Assert.AreEqual(default(int), hasMandatoryField.Value);
+            UT.Assert.AreEqual(default, hasMandatoryField.Value);
             hasMandatoryField = JsonHelper.SafeDeserializeObject<HasMandatoryField>(value);
             UT.Assert.IsNotNull(hasMandatoryField);
-            UT.Assert.AreEqual(default(int), hasMandatoryField.Value);
+            UT.Assert.AreEqual(default, hasMandatoryField.Value);
         }
 
         [TestMethod]

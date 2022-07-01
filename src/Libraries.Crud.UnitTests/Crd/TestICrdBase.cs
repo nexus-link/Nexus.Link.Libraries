@@ -1,4 +1,7 @@
-﻿using System.Threading.Tasks;
+﻿using System.Threading;
+using System.Threading.Tasks;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Nexus.Link.Libraries.Core.Storage.Logic;
 using Nexus.Link.Libraries.Core.Storage.Model;
 using Nexus.Link.Libraries.Crud.Interfaces;
 using Nexus.Link.Libraries.Crud.UnitTests.Model;
@@ -19,32 +22,28 @@ namespace Nexus.Link.Libraries.Crud.UnitTests.Crd
         /// </summary>
         protected abstract ICrud<TModelCreate, TModel, TId> CrudStorage { get; }
 
-        protected async Task<TId> CreateItemAsync(TypeOfTestDataEnum type)
+        protected async Task<TId> CreateItemAsync(TypeOfTestDataEnum type, CancellationToken cancellationToken = default)
         {
             var initialItem = new TModelCreate();
             initialItem.InitializeWithDataForTesting(type);
-            var id = await CrdStorage.CreateAsync(initialItem);
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreNotEqual(default(TId), id);
+            var id = await CrdStorage.CreateAsync(initialItem, cancellationToken);
+            Assert.AreNotEqual(default, id);
             return id;
         }
 
-        protected async Task<TModel> ReadItemAsync(TId id)
+        protected async Task<TModel> ReadItemAsync(TId id, CancellationToken cancellationToken = default)
         {
-            var readItem = await CrdStorage.ReadAsync(id);
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsNotNull(readItem);
+            var readItem = await CrdStorage.ReadAsync(id, cancellationToken);
+            Assert.IsNotNull(readItem);
             return readItem;
         }
 
-        protected async Task<TModel> UpdateItemAsync(TId id, TypeOfTestDataEnum type)
+        protected async Task<TModel> UpdateAndReturnItemAsync(TId id, TypeOfTestDataEnum type, CancellationToken cancellationToken = default)
         {
-            var updatedItem = await ReadItemAsync(id);
+            var updatedItem = await ReadItemAsync(id, cancellationToken);
             updatedItem.InitializeWithDataForTesting(type);
-            if (updatedItem is IUniquelyIdentifiable<TId> itemWithId)
-            {
-                itemWithId.Id = id;
-            }
-            await CrudStorage.UpdateAsync(id, updatedItem);
-            return await ReadItemAsync(id);
+            updatedItem.TrySetPrimaryKey(id);
+            return await CrudStorage.UpdateAndReturnAsync(id, updatedItem, cancellationToken);
         }
     }
 }

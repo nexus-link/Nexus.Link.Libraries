@@ -26,10 +26,10 @@ namespace Nexus.Link.Libraries.Crud.Cache
         }
 
         /// <inheritdoc />
-        public async Task<byte[]> GetAsync(string key, CancellationToken token = default(CancellationToken))
+        public async Task<byte[]> GetAsync(string key, CancellationToken cancellationToken  = default)
         {
             InternalContract.RequireNotNullOrWhiteSpace(key, nameof(key));
-            return await ItemStorage.ReadAsync(key, token);
+            return await ItemStorage.ReadAsync(key, cancellationToken );
         }
 
         /// <inheritdoc />
@@ -40,26 +40,26 @@ namespace Nexus.Link.Libraries.Crud.Cache
 
         /// <inheritdoc />
         public async Task SetAsync(string key, byte[] value, DistributedCacheEntryOptions options,
-            CancellationToken token = default(CancellationToken))
+            CancellationToken cancellationToken  = default)
         {
             InternalContract.RequireNotNullOrWhiteSpace(key, nameof(key));
             InternalContract.RequireNotNull(value, nameof(value));
 
-            var item = await GetAsync(key, token);
+            var item = await GetAsync(key, cancellationToken );
             if (item == null)
             {
                 try
                 {
-                    await ItemStorage.CreateWithSpecifiedIdAsync(key, value, token);
+                    await ItemStorage.CreateWithSpecifiedIdAsync(key, value, cancellationToken );
                 }
                 catch (FulcrumConflictException)
                 {
-                    await ItemStorage.UpdateAsync(key, value, token);
+                    await ItemStorage.UpdateAsync(key, value, cancellationToken );
                 }
             }
             else
             {
-                await ItemStorage.UpdateAsync(key, value, token);
+                await ItemStorage.UpdateAsync(key, value, cancellationToken );
             }
         }
 
@@ -70,7 +70,7 @@ namespace Nexus.Link.Libraries.Crud.Cache
         }
 
         /// <inheritdoc />
-        public Task RefreshAsync(string key, CancellationToken token = default(CancellationToken))
+        public Task RefreshAsync(string key, CancellationToken cancellationToken  = default)
         {
             throw new NotImplementedException();
         }
@@ -82,16 +82,16 @@ namespace Nexus.Link.Libraries.Crud.Cache
         }
 
         /// <inheritdoc />
-        public async Task RemoveAsync(string key, CancellationToken token = default(CancellationToken))
+        public async Task RemoveAsync(string key, CancellationToken cancellationToken  = default)
         {
             InternalContract.RequireNotNullOrWhiteSpace(key, nameof(key));
-            await ItemStorage.DeleteAsync(key, token);
+            await ItemStorage.DeleteAsync(key, cancellationToken );
         }
 
         /// <inheritdoc />
-        public async Task FlushAsync(CancellationToken token = default(CancellationToken))
+        public async Task FlushAsync(CancellationToken cancellationToken  = default)
         {
-            await ItemStorage.DeleteAllAsync(token);
+            await ItemStorage.DeleteAllAsync(cancellationToken );
         }
     }
 }

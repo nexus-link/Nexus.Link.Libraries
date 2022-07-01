@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 #if NETCOREAPP
 using Microsoft.AspNetCore.Http;
 #else
@@ -7,6 +8,7 @@ using System.Threading;
 #endif
 namespace Nexus.Link.Libraries.Web.AspNet.Pipe.Inbound
 {
+    [Obsolete("Use CompatibilityDelegatingHandlerWithCancellationSupport instead. Obsolete warning since 2021-06-09.")]
     public abstract class CompatibilityDelegatingHandler
 #if NETCOREAPP
 

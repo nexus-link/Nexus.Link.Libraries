@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading;
 using System.Threading.Tasks;
 using Nexus.Link.Libraries.Core.Application;
 using Nexus.Link.Libraries.Core.Assert;
@@ -14,12 +15,13 @@ using Nexus.Link.Libraries.Web.AspNet.Logging;
 using System.Linq;
 using Nexus.Link.Libraries.Web.Logging;
 #endif
+#pragma warning disable CS0618
 namespace Nexus.Link.Libraries.Web.AspNet.Pipe.Inbound
 {
     /// <summary>
     /// Handle correlation id on inbound requests.
     /// </summary>
-    public class SaveCorrelationId : CompatibilityDelegatingHandler
+    public class SaveCorrelationId : CompatibilityDelegatingHandlerWithCancellationSupport
     {
         private static readonly DelegateState DelegateState = new DelegateState(typeof(SaveCorrelationId).FullName);
 
@@ -34,6 +36,7 @@ namespace Nexus.Link.Libraries.Web.AspNet.Pipe.Inbound
 
 #if NETCOREAPP
         /// <inheritdoc />
+        [Obsolete("Please use the class NexusLinkMiddleware. Obsolete since 2021-06-04")]
         public SaveCorrelationId(RequestDelegate next)
             : base(next)
         {
@@ -44,7 +47,7 @@ namespace Nexus.Link.Libraries.Web.AspNet.Pipe.Inbound
         }
 #endif
         /// <inheritdoc />
-        protected override async Task InvokeAsync(CompabilityInvocationContext context)
+        protected override async Task InvokeAsync(CompabilityInvocationContext context, CancellationToken cancellationToken)
         {
             InternalContract.Require(!DelegateState.HasStarted, $"{nameof(SaveCorrelationId)} has already been started in this http request.");
             InternalContract.Require(!BatchLogs.HasStarted,
@@ -55,7 +58,7 @@ namespace Nexus.Link.Libraries.Web.AspNet.Pipe.Inbound
                 $"{nameof(ExceptionToFulcrumResponse)} must not precede {nameof(SaveCorrelationId)}");
             HasStarted = true;
             SaveCorrelationIdToExecutionContext(context);
-            await CallNextDelegateAsync(context);
+            await CallNextDelegateAsync(context, cancellationToken);
         }
 
         /// <summary>
@@ -115,6 +118,7 @@ namespace Nexus.Link.Libraries.Web.AspNet.Pipe.Inbound
 #if NETCOREAPP
     public static class SaveCorrelationIdExtension
     {
+        [Obsolete("Please use the class NexusLinkMiddleware. Obsolete since 2021-06-04")]
         public static IApplicationBuilder UseNexusSaveCorrelationId(
             this IApplicationBuilder builder)
         {

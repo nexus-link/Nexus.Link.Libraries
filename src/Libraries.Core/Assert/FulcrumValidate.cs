@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using JetBrains.Annotations;
 using Nexus.Link.Libraries.Core.Misc;
 
 namespace Nexus.Link.Libraries.Core.Assert
@@ -15,6 +16,7 @@ namespace Nexus.Link.Libraries.Core.Assert
         /// <param name="errorLocation">A unique errorLocation for the part of errorLocation where the validation didn't hold.</param>
         /// <param name="message">A message that documents/explains this failure. This message should normally start with "Expected ...".</param>
         [StackTraceHidden]
+        [ContractAnnotation("=> halt")]
         public static void Fail(string errorLocation, string message)
         {
             InternalContract.RequireNotNull(message, nameof(message));
@@ -25,6 +27,7 @@ namespace Nexus.Link.Libraries.Core.Assert
         /// </summary>
         /// <param name="message">A message that documents/explains this failure. This message should normally start with "Expected ...".</param>
         [StackTraceHidden]
+        [ContractAnnotation("=> halt")]
         public static void Fail(string message)
         {
             InternalContract.RequireNotNull(message, nameof(message));
@@ -48,6 +51,7 @@ namespace Nexus.Link.Libraries.Core.Assert
         /// Verify that <paramref name="value"/> is not null.
         /// </summary>
         [StackTraceHidden]
+        [ContractAnnotation("value:null => halt")]
         public static void IsNotNull(object value, string propertyName, string errorLocation, string customMessage = null)
         {
             InternalContract.RequireNotNull(propertyName, nameof(propertyName));
@@ -70,6 +74,7 @@ namespace Nexus.Link.Libraries.Core.Assert
         /// Verify that <paramref name="value"/> is not null, not empty and contains other characters than white space.
         /// </summary>
         [StackTraceHidden]
+        [ContractAnnotation("value:null => halt")]
         public static void IsNotNullOrWhiteSpace(string value, string propertyName, string errorLocation, string customMessage = null)
         {
             InternalContract.RequireNotNull(propertyName, nameof(propertyName));
@@ -189,6 +194,37 @@ namespace Nexus.Link.Libraries.Core.Assert
             InternalContract.RequireNotNullOrWhiteSpace(regularExpression, nameof(regularExpression));
             var message = customMessage ?? $"Expected property {propertyName} ({propertyValue}) to not match ({regularExpression}).";
             GenericAssert<ValidationException>.MatchesNotRegExp(regularExpression, propertyValue, errorLocation, message);
+        }
+
+        /// <summary>
+        /// Verify that <paramref name="propertyValue"/> is null or has one of the values in <paramref name="enumerationType"/>.
+        /// </summary>
+        [StackTraceHidden]
+        [Obsolete("Please use IsInEnumeration(). Obsolete since 2022-01-26.")]
+        public static void InEnumeration(Type enumerationType, string propertyValue, string propertyName, string errorLocation, string customMessage = null)
+        {
+            IsInEnumeration(enumerationType, propertyValue, propertyName, errorLocation, customMessage);
+        }
+
+        /// <summary>
+        /// Verify that <paramref name="propertyValue"/> is null or has one of the values in <paramref name="enumerationType"/>.
+        /// </summary>
+        [StackTraceHidden]
+        public static void IsInEnumeration(Type enumerationType, string propertyValue, string propertyName, string errorLocation, string customMessage = null)
+        {
+            InternalContract.RequireNotNull(enumerationType, nameof(enumerationType));
+            var message = customMessage ?? $"Expected property {propertyName} ({propertyValue}) to represent one of the enumeration values for ({enumerationType.FullName}).";
+            GenericAssert<ValidationException>.IsInEnumeration(enumerationType, propertyValue, errorLocation, message);
+        }
+
+        /// <summary>
+        /// Verify that <paramref name="propertyValue"/> null or a JSON expression.
+        /// </summary>
+        [StackTraceHidden]
+        public static void IsJson(string propertyValue, string propertyName, string errorLocation, string customMessage = null)
+        {
+            var message = customMessage ?? $"Expected property {propertyName} ({propertyValue}) to be null or a JSON expression.";
+            GenericAssert<ValidationException>.IsJson(propertyValue, errorLocation, customMessage);
         }
     }
 }

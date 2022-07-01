@@ -8,13 +8,14 @@ using Nexus.Link.Libraries.Core.Storage.Logic;
 using Nexus.Link.Libraries.Crud.Interfaces;
 using Nexus.Link.Libraries.Core.Storage.Model;
 using Nexus.Link.Libraries.SqlServer.Model;
+using ITableItem = Nexus.Link.Libraries.Core.Storage.Model.ITableItem;
 
 namespace Nexus.Link.Libraries.SqlServer
 {
     public class ManyToManySql<TManyToManyModel, TReferenceModel1, TReferenceModel2> : ManyToManySql<TManyToManyModel, TManyToManyModel, TReferenceModel1, TReferenceModel2>,
         ICrud<TManyToManyModel, Guid>,
         ICrudManyToMany<TManyToManyModel, TReferenceModel1, TReferenceModel2, Guid>
-        where TManyToManyModel : class, ITableItem, IValidatable
+        where TManyToManyModel : class, ITableItem, IValidatable, new()
         where TReferenceModel1 : ITableItem, IValidatable
         where TReferenceModel2 : ITableItem, IValidatable
     {
@@ -27,10 +28,27 @@ namespace Nexus.Link.Libraries.SqlServer
         /// <param name="referenceHandler1"></param>
         /// <param name="groupColumnName2"></param>
         /// <param name="referenceHandler2"></param>
+        [Obsolete("Use ManyToManySql(IDatabaseOptions, ISqlTableMetadata, ...) instead. Obsolete since 2021-01-07.", error: false)]
         public ManyToManySql(string connectionString, ISqlTableMetadata tableMetadata, string groupColumnName1,
             CrudSql<TReferenceModel1> referenceHandler1, string groupColumnName2,
             CrudSql<TReferenceModel2> referenceHandler2)
             : base(connectionString, tableMetadata, groupColumnName1, referenceHandler1, groupColumnName2, referenceHandler2)
+        {
+        }
+
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        /// <param name="options"></param>
+        /// <param name="tableMetadata"></param>
+        /// <param name="groupColumnName1"></param>
+        /// <param name="referenceHandler1"></param>
+        /// <param name="groupColumnName2"></param>
+        /// <param name="referenceHandler2"></param>
+        public ManyToManySql(IDatabaseOptions options, ISqlTableMetadata tableMetadata, string groupColumnName1,
+            CrudSql<TReferenceModel1> referenceHandler1, string groupColumnName2,
+            CrudSql<TReferenceModel2> referenceHandler2)
+            : base(options, tableMetadata, groupColumnName1, referenceHandler1, groupColumnName2, referenceHandler2)
         {
         }
     }
@@ -38,7 +56,7 @@ namespace Nexus.Link.Libraries.SqlServer
     public class ManyToManySql<TManyToManyModelCreate, TManyToManyModel, TReferenceModel1, TReferenceModel2> : 
         CrudSql<TManyToManyModelCreate, TManyToManyModel>, 
         ICrudManyToMany<TManyToManyModelCreate, TManyToManyModel, TReferenceModel1, TReferenceModel2, Guid>
-            where TManyToManyModel : class, TManyToManyModelCreate, ITableItem, IValidatable, IUniquelyIdentifiable<Guid>
+            where TManyToManyModel : class, TManyToManyModelCreate, ITableItem, IValidatable, IUniquelyIdentifiable<Guid>, new()
             where TReferenceModel1 : ITableItem, IValidatable
             where TReferenceModel2 : ITableItem, IValidatable
     {
@@ -54,6 +72,7 @@ namespace Nexus.Link.Libraries.SqlServer
         /// <param name="referenceHandler1"></param>
         /// <param name="groupColumnName2"></param>
         /// <param name="referenceHandler2"></param>
+        [Obsolete("Use ManyToManySql(IDatabaseOptions, ISqlTableMetadata, ...) instead. Obsolete since 2021-01-07.", error: false)]
         public ManyToManySql(string connectionString, ISqlTableMetadata tableMetadata, string groupColumnName1, CrudSql<TReferenceModel1> referenceHandler1, string groupColumnName2, CrudSql<TReferenceModel2> referenceHandler2)
             : base(connectionString, tableMetadata)
         {
@@ -61,11 +80,27 @@ namespace Nexus.Link.Libraries.SqlServer
             OneTableHandler2 = new ManyToOneSql<TManyToManyModel, TReferenceModel2>(connectionString, tableMetadata, groupColumnName2, referenceHandler2);
         }
 
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        /// <param name="options"></param>
+        /// <param name="tableMetadata"></param>
+        /// <param name="groupColumnName1"></param>
+        /// <param name="referenceHandler1"></param>
+        /// <param name="groupColumnName2"></param>
+        /// <param name="referenceHandler2"></param>
+        public ManyToManySql(IDatabaseOptions options, ISqlTableMetadata tableMetadata, string groupColumnName1, CrudSql<TReferenceModel1> referenceHandler1, string groupColumnName2, CrudSql<TReferenceModel2> referenceHandler2)
+            : base(options, tableMetadata)
+        {
+            OneTableHandler1 = new ManyToOneSql<TManyToManyModel, TReferenceModel1>(options, tableMetadata, groupColumnName1, referenceHandler1);
+            OneTableHandler2 = new ManyToOneSql<TManyToManyModel, TReferenceModel2>(options, tableMetadata, groupColumnName2, referenceHandler2);
+        }
+
         #region The reference table (the many-to-many table)
 
         /// <inheritdoc />
         public Task CreateWithSpecifiedIdAsync(Guid masterId, Guid slaveId, TManyToManyModelCreate item,
-            CancellationToken token = new CancellationToken())
+            CancellationToken token = default)
         {
             InternalContract.RequireNotDefaultValue(masterId, nameof(masterId));
             InternalContract.RequireNotDefaultValue(slaveId, nameof(slaveId));
@@ -76,7 +111,7 @@ namespace Nexus.Link.Libraries.SqlServer
 
         /// <inheritdoc />
         public Task<TManyToManyModel> CreateWithSpecifiedIdAndReturnAsync(Guid masterId, Guid slaveId, TManyToManyModelCreate item,
-            CancellationToken token = new CancellationToken())
+            CancellationToken token = default)
         {
             InternalContract.RequireNotDefaultValue(masterId, nameof(masterId));
             InternalContract.RequireNotDefaultValue(slaveId, nameof(slaveId));
@@ -86,40 +121,40 @@ namespace Nexus.Link.Libraries.SqlServer
         }
 
         /// <inheritdoc />
-        public async Task<TManyToManyModel> ReadAsync(Guid reference1Id, Guid reference2Id, CancellationToken token = default(CancellationToken))
+        public async Task<TManyToManyModel> ReadAsync(Guid reference1Id, Guid reference2Id, CancellationToken token = default)
         {
             InternalContract.RequireNotDefaultValue(reference1Id, nameof(reference1Id));
             InternalContract.RequireNotDefaultValue(reference2Id, nameof(reference2Id));
             var param = new { Reference1Id = reference1Id, Reference2Id = reference2Id };
-            return await SearchWhereSingle($"{OneTableHandler1.ParentColumnName} = @Reference1Id AND {OneTableHandler2.ParentColumnName}= @Reference2Id", param, token);
+            return await SearchSingleWhereAsync($"{OneTableHandler1.ParentColumnName} = @Reference1Id AND {OneTableHandler2.ParentColumnName}= @Reference2Id", param, token);
         }
 
         /// <inheritdoc />
-        public async Task<PageEnvelope<TManyToManyModel>> ReadByReference1WithPagingAsync(Guid id, int offset, int? limit = null, CancellationToken token = default(CancellationToken))
+        public async Task<PageEnvelope<TManyToManyModel>> ReadByReference1WithPagingAsync(Guid id, int offset, int? limit = null, CancellationToken token = default)
         {
             return await OneTableHandler1.ReadChildrenWithPagingAsync(id, offset, limit, token);
         }
 
         /// <inheritdoc />
-        public async Task<IEnumerable<TManyToManyModel>> ReadByReference1Async(Guid id, int limit = int.MaxValue, CancellationToken token = default(CancellationToken))
+        public async Task<IEnumerable<TManyToManyModel>> ReadByReference1Async(Guid id, int limit = int.MaxValue, CancellationToken token = default)
         {
             return await StorageHelper.ReadPagesAsync((offset, t) => ReadByReference1WithPagingAsync(id, offset, null, t), limit, token);
         }
 
         /// <inheritdoc />
-        public async Task<PageEnvelope<TManyToManyModel>> ReadByReference2WithPagingAsync(Guid id, int offset, int? limit = null, CancellationToken token = default(CancellationToken))
+        public async Task<PageEnvelope<TManyToManyModel>> ReadByReference2WithPagingAsync(Guid id, int offset, int? limit = null, CancellationToken token = default)
         {
             return await OneTableHandler2.ReadChildrenWithPagingAsync(id, offset, limit, token);
         }
 
         /// <inheritdoc />
-        public async Task<IEnumerable<TManyToManyModel>> ReadByReference2Async(Guid id, int limit = int.MaxValue, CancellationToken token = default(CancellationToken))
+        public async Task<IEnumerable<TManyToManyModel>> ReadByReference2Async(Guid id, int limit = int.MaxValue, CancellationToken token = default)
         {
             return await StorageHelper.ReadPagesAsync((offset, t) => ReadByReference2WithPagingAsync(id, offset, null, t), limit, token);
         }
 
         /// <inheritdoc />
-        public async Task UpdateAsync(Guid masterId, Guid slaveId, TManyToManyModel item, CancellationToken token = new CancellationToken())
+        public async Task UpdateAsync(Guid masterId, Guid slaveId, TManyToManyModel item, CancellationToken token = default)
         {
             InternalContract.RequireNotDefaultValue(masterId, nameof(masterId));
             InternalContract.RequireNotDefaultValue(slaveId, nameof(slaveId));
@@ -133,7 +168,7 @@ namespace Nexus.Link.Libraries.SqlServer
 
         /// <inheritdoc />
         public async Task<TManyToManyModel> UpdateAndReturnAsync(Guid masterId, Guid slaveId, TManyToManyModel item,
-            CancellationToken token = new CancellationToken())
+            CancellationToken token = default)
         {
             InternalContract.RequireNotDefaultValue(masterId, nameof(masterId));
             InternalContract.RequireNotDefaultValue(slaveId, nameof(slaveId));
@@ -146,7 +181,7 @@ namespace Nexus.Link.Libraries.SqlServer
         }
 
         /// <inheritdoc />
-        public Task DeleteAsync(Guid masterId, Guid slaveId, CancellationToken token = new CancellationToken())
+        public Task DeleteAsync(Guid masterId, Guid slaveId, CancellationToken token = default)
         {
             var param = new { Reference1Id = masterId, Reference2Id = slaveId };
             return DeleteWhereAsync(
@@ -155,13 +190,13 @@ namespace Nexus.Link.Libraries.SqlServer
         }
 
         /// <inheritdoc />
-        public async Task DeleteByReference1Async(Guid id, CancellationToken token = default(CancellationToken))
+        public async Task DeleteByReference1Async(Guid id, CancellationToken token = default)
         {
             await OneTableHandler1.DeleteChildrenAsync(id, token);
         }
 
         /// <inheritdoc />
-        public async Task DeleteByReference2Async(Guid id, CancellationToken token = default(CancellationToken))
+        public async Task DeleteByReference2Async(Guid id, CancellationToken token = default)
         {
             await OneTableHandler2.DeleteChildrenAsync(id, token);
         }
@@ -170,7 +205,7 @@ namespace Nexus.Link.Libraries.SqlServer
         #region The referenced tables
 
         /// <inheritdoc />
-        public async Task<PageEnvelope<TReferenceModel2>> ReadReferencedItemsByReference1WithPagingAsync(Guid id, int offset, int? limit = null, CancellationToken token = default(CancellationToken))
+        public async Task<PageEnvelope<TReferenceModel2>> ReadReferencedItemsByReference1WithPagingAsync(Guid id, int offset, int? limit = null, CancellationToken token = default)
         {
             return await OneTableHandler2.ReadAllParentsInGroupAsync(
                 OneTableHandler1.ParentColumnName,
@@ -178,13 +213,13 @@ namespace Nexus.Link.Libraries.SqlServer
         }
 
         /// <inheritdoc />
-        public async Task<IEnumerable<TReferenceModel2>> ReadReferencedItemsByReference1Async(Guid id, int limit = int.MaxValue, CancellationToken token = default(CancellationToken))
+        public async Task<IEnumerable<TReferenceModel2>> ReadReferencedItemsByReference1Async(Guid id, int limit = int.MaxValue, CancellationToken token = default)
         {
             return await StorageHelper.ReadPagesAsync((offset, t) => ReadReferencedItemsByReference1WithPagingAsync(id, offset, null, t), limit, token);
         }
 
         /// <inheritdoc />
-        public async Task<PageEnvelope<TReferenceModel1>> ReadReferencedItemsByReference2WithPagingAsync(Guid id, int offset, int? limit = null, CancellationToken token = default(CancellationToken))
+        public async Task<PageEnvelope<TReferenceModel1>> ReadReferencedItemsByReference2WithPagingAsync(Guid id, int offset, int? limit = null, CancellationToken token = default)
         {
             return await OneTableHandler1.ReadAllParentsInGroupAsync(
                 OneTableHandler2.ParentColumnName,
@@ -192,19 +227,19 @@ namespace Nexus.Link.Libraries.SqlServer
         }
 
         /// <inheritdoc />
-        public async Task<IEnumerable<TReferenceModel1>> ReadReferencedItemsByReference2Async(Guid id, int limit = int.MaxValue, CancellationToken token = default(CancellationToken))
+        public async Task<IEnumerable<TReferenceModel1>> ReadReferencedItemsByReference2Async(Guid id, int limit = int.MaxValue, CancellationToken token = default)
         {
             return await StorageHelper.ReadPagesAsync((offset, t) => ReadReferencedItemsByReference2WithPagingAsync(id, offset, null, t), limit, token);
         }
 
         /// <inheritdoc />
-        public async Task DeleteReferencedItemsByReference1(Guid id, CancellationToken token = default(CancellationToken))
+        public async Task DeleteReferencedItemsByReference1(Guid id, CancellationToken token = default)
         {
             await OneTableHandler1.DeleteAllParentsInGroupAsync(OneTableHandler1.ParentColumnName, id, token);
         }
 
         /// <inheritdoc />
-        public async Task DeleteReferencedItemsByReference2(Guid id, CancellationToken token = default(CancellationToken))
+        public async Task DeleteReferencedItemsByReference2(Guid id, CancellationToken token = default)
         {
             await OneTableHandler1.DeleteAllParentsInGroupAsync(OneTableHandler2.ParentColumnName, id, token);
         }

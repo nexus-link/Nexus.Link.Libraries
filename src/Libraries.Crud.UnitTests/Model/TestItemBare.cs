@@ -16,6 +16,11 @@ namespace Nexus.Link.Libraries.Crud.UnitTests.Model
 
     public partial class TestItemBare : IItemForTesting
     {
+        public const string ValueToMakeValidationFail = "THIS WILL FAIL";
+
+        public static int Modulo { get; set; } = 3;
+
+        public static int Count { get; set; } = 1;
         public virtual void InitializeWithDataForTesting(TypeOfTestDataEnum typeOfTestData)
         {
             switch (typeOfTestData)
@@ -24,6 +29,12 @@ namespace Nexus.Link.Libraries.Crud.UnitTests.Model
                     Value = "Default";
                     break;
                 case TypeOfTestDataEnum.ValidationFail:
+                    Value = ValueToMakeValidationFail;
+                    break;
+                case TypeOfTestDataEnum.NullValue:
+                    Value = null;
+                    break;
+                case TypeOfTestDataEnum.EmptyValue:
                     Value = "";
                     break;
                 case TypeOfTestDataEnum.Variant1:
@@ -32,11 +43,30 @@ namespace Nexus.Link.Libraries.Crud.UnitTests.Model
                 case TypeOfTestDataEnum.Variant2:
                     Value = "Variant2";
                     break;
+                case TypeOfTestDataEnum.Guid:
+                    Value = Guid.NewGuid().ToString();
+                    break;
                 case TypeOfTestDataEnum.Random:
                     Value = Guid.NewGuid().ToString();
                     break;
                 default:
                     throw new ArgumentOutOfRangeException(nameof(typeOfTestData), typeOfTestData, null);
+            }
+
+            switch (this)
+            {
+                case TestItemSort<Guid> sortItem:
+                    sortItem.IncreasingNumber = Count;
+                    sortItem.NumberModulo = Count % Modulo;
+                    sortItem.DecreasingString = (short.MaxValue - Count).ToString();
+                    Count++;
+                    break;
+                case TestItemSort<string> sortItem:
+                    sortItem.IncreasingNumber = Count;
+                    sortItem.NumberModulo = Count % Modulo;
+                    sortItem.DecreasingString = (short.MaxValue - Count).ToString();
+                    Count++;
+                    break;
             }
         }
 

@@ -23,11 +23,11 @@ namespace Nexus.Link.Libraries.Crud.UnitTests.Crud
         public async Task Update_ValidationFailed_Async()
         {
             var id = await CreateItemAsync(TypeOfTestDataEnum.Default);
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreNotEqual(default(TId), id);
+            Assert.AreNotEqual(default, id);
             var updatedItem = new TestItemValidated<TId>();
             updatedItem.InitializeWithDataForTesting(TypeOfTestDataEnum.ValidationFail);
             await CrudStorage.UpdateAsync(id, updatedItem);
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.Fail($"Expected the method {nameof(CrudStorage.UpdateAsync)} to detect that the data was not valid and throw the exception {nameof(FulcrumContractException)}.");
+            Assert.Fail($"Expected the method {nameof(CrudStorage.UpdateAsync)} to detect that the data was not valid and throw the exception {nameof(FulcrumContractException)}.");
         }
 
         /// <summary>
@@ -37,10 +37,10 @@ namespace Nexus.Link.Libraries.Crud.UnitTests.Crud
         public async Task Update_Read_Validated_Async()
         {
             var id = await CreateItemAsync(TypeOfTestDataEnum.Variant1);
-            var updatedItem = await UpdateItemAsync(id, TypeOfTestDataEnum.Variant2);
+            var updatedItem = await UpdateAndReturnItemAsync(id, TypeOfTestDataEnum.Variant2);
             var readItem = await ReadItemAsync(id);
             readItem.Validate(null);
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual(updatedItem, readItem);
+            Assert.AreEqual(updatedItem, readItem);
         }
     }
 }

@@ -7,7 +7,7 @@ namespace Nexus.Link.Libraries.Crud.ClientTranslators
     /// <summary>
     /// Decorate values from client and translate concept values to client.
     /// </summary>
-    [Obsolete("Use Libraries.Web.AspNet ValueTranslatorFilter. Obsolete since 2019-11-21.")]
+    [Obsolete("Use Libraries.Web.AspNet ValueTranslatorFilter. Obsolete warning since 2019-11-21, error since 2021-06-09.", true)]
     public abstract class ClientTranslatorBase
     {
         /// <summary>

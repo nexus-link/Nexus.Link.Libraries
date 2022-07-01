@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Nexus.Link.Libraries.Core.Application;
 using Nexus.Link.Libraries.Core.Logging;
 using Nexus.Link.Libraries.Web.Logging;
+#pragma warning disable CS0618
 
 namespace Nexus.Link.Libraries.Web.Pipe.Outbound
 {

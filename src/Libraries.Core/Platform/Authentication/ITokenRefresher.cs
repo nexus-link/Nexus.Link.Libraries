@@ -4,6 +4,7 @@
 // MVID: 19725B22-C3AF-4803-B23A-188B770C1A91
 // Assembly location: C:\Git\Xlent.Lever\Xlent.Lever.Configurations\packages\Xlent.Lever.Authentication.Sdk.1.5.0\lib\Xlent.Lever.Authentication.Sdk\Xlent.Lever.Authentication.Sdk.dll
 
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Nexus.Link.Libraries.Core.Platform.Authentication
@@ -17,6 +18,6 @@ namespace Nexus.Link.Libraries.Core.Platform.Authentication
         /// Get a cached <see cref="AuthenticationToken"/>. If no token is cached or the token is becoming old, a new one is returned.
         /// </summary>
         /// <returns></returns>
-        Task<AuthenticationToken> GetJwtTokenAsync();
+        Task<AuthenticationToken> GetJwtTokenAsync(CancellationToken cancellationToken = default);
     }
 }

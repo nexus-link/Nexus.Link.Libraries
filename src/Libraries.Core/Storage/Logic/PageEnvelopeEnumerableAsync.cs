@@ -17,7 +17,7 @@ namespace Nexus.Link.Libraries.Core.Storage.Logic
         /// </summary>
         /// <param name="readMethodDelegate">A method that returns a new page of answers for a specific offset.</param>
         /// <param name="token">Propagates notification that operations should be canceled</param>
-        public PageEnvelopeEnumerableAsync(PageEnvelopeEnumeratorAsync<T>.ReadMethodDelegate readMethodDelegate, CancellationToken token = default(CancellationToken))
+        public PageEnvelopeEnumerableAsync(PageEnvelopeEnumeratorAsync<T>.ReadMethodDelegate readMethodDelegate, CancellationToken token = default)
         {
             _enumerator = new PageEnvelopeEnumeratorAsync<T>(readMethodDelegate, token);
         }

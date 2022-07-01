@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
+using System.Threading;
 using System.Threading.Tasks;
 using Nexus.Link.Libraries.Core.Assert;
 using Nexus.Link.Libraries.Core.Logging;
@@ -17,7 +18,7 @@ namespace Nexus.Link.Libraries.Web.AspNet.Pipe.Inbound
     /// <summary>
     /// Logs requests and responses in the pipe
     /// </summary>
-    public class LogRequestAndResponse : CompatibilityDelegatingHandler
+    public class LogRequestAndResponse : CompatibilityDelegatingHandlerWithCancellationSupport
     {
         private static readonly DelegateState DelegateState = new DelegateState(typeof(LogRequestAndResponse).FullName);
 
@@ -32,6 +33,7 @@ namespace Nexus.Link.Libraries.Web.AspNet.Pipe.Inbound
 
 #if NETCOREAPP
         /// <inheritdoc />
+        [Obsolete("Please use the class NexusLinkMiddleware. Obsolete since 2021-06-04")]
         public LogRequestAndResponse(RequestDelegate next) 
         :base(next)
         {
@@ -41,44 +43,55 @@ namespace Nexus.Link.Libraries.Web.AspNet.Pipe.Inbound
         {
         }
 #endif
-        protected override async Task InvokeAsync(CompabilityInvocationContext context)
+        protected override async Task InvokeAsync(CompabilityInvocationContext context, CancellationToken cancellationToken)
         {
             InternalContract.Require(!DelegateState.HasStarted, $"{nameof(LogResponseAsync)} has already been started in this http request.");
             InternalContract.Require(!ExceptionToFulcrumResponse.HasStarted,
                 $"{nameof(ExceptionToFulcrumResponse)} must not precede {nameof(LogRequestAndResponse)}");
             DelegateState.HasStarted = true;
-            var stopWatch = new Stopwatch();
-            stopWatch.Start();
+            var stopwatch = new Stopwatch();
+            stopwatch.Start();
             try
             {
-                await CallNextDelegateAsync(context);
-                stopWatch.Stop();
-                await LogResponseAsync(context, stopWatch.Elapsed);
+                await CallNextDelegateAsync(context, cancellationToken);
+                stopwatch.Stop();
+                await LogResponseAsync(context, stopwatch.Elapsed, cancellationToken);
             }
             catch (Exception exception)
             {
                 // If ExceptionToFulcrumResponse handler is used, we should not end up here.
-                stopWatch.Stop();
-                LogException(context, exception, stopWatch.Elapsed);
+                stopwatch.Stop();
+                LogException(context, exception, stopwatch.Elapsed);
                 throw;
             }
         }
 
-        private static async Task LogResponseAsync(CompabilityInvocationContext context, TimeSpan elapsedTime)
+        private static async Task LogResponseAsync(CompabilityInvocationContext context, TimeSpan elapsedTime, CancellationToken cancellationToken)
         {
             var logLevel = LogSeverityLevel.Information;
 #if NETCOREAPP
             var request = context.Context.Request;
             var response = context.Context.Response;
-            if (response.StatusCode >= 500) logLevel = LogSeverityLevel.Error;
-            else if (response.StatusCode >= 400) logLevel = LogSeverityLevel.Warning;
+            logLevel = CalculateLogSeverityLevel(response.StatusCode);
 #else
             var request = context.RequestMessage;
             var response = context.ResponseMessage;
-            if ((int)response.StatusCode >= 500) logLevel = LogSeverityLevel.Error;
-            else if ((int)response.StatusCode >= 400) logLevel = LogSeverityLevel.Warning;
+            logLevel = CalculateLogSeverityLevel((int)response.StatusCode);
 #endif
-            Log.LogOnLevel(logLevel, $"INBOUND request-response {await request.ToLogStringAsync(response, elapsedTime)}");
+            Log.LogOnLevel(logLevel, $"INBOUND request-response {await request.ToLogStringAsync(response, elapsedTime, cancellationToken: cancellationToken)}");
+
+            LogSeverityLevel CalculateLogSeverityLevel(int statusCode)
+            {
+                var level = statusCode switch
+                {
+                    502 => LogSeverityLevel.Warning,
+                    >= 500 => LogSeverityLevel.Error,
+                    423 => LogSeverityLevel.Information,
+                    >= 400 => LogSeverityLevel.Warning,
+                    _ => LogSeverityLevel.Information
+                };
+                return level;
+            }
         }
 
         private static void LogException(CompabilityInvocationContext context, Exception exception, TimeSpan elapsedTime)
@@ -94,6 +107,7 @@ namespace Nexus.Link.Libraries.Web.AspNet.Pipe.Inbound
 #if NETCOREAPP
     public static class LogRequestAndResponseExtension
     {
+        [Obsolete("Please use the class NexusLinkMiddleware. Obsolete since 2021-06-04")]
         public static IApplicationBuilder UseNexusLogRequestAndResponse(
             this IApplicationBuilder builder)
         {

@@ -1,4 +1,5 @@
 ﻿using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Nexus.Link.Libraries.Core.Health.Logic;
@@ -48,7 +49,7 @@ namespace Nexus.Link.Libraries.Core.Tests.Health
             UT.Assert.AreEqual(HealthInfo.StatusEnum.Ok, aggregatedHealthResponse.Resources.First().Status);
         }
 
-        private static Task<HealthInfo> HealthDelegateMethod(Tenant tenant)
+        private static Task<HealthInfo> HealthDelegateMethod(Tenant tenant, CancellationToken cancellationToken = default)
         {
             return Task.FromResult(new HealthInfo
             {
@@ -63,7 +64,7 @@ namespace Nexus.Link.Libraries.Core.Tests.Health
     {
         public const string Name = "GOOMBA";
 
-        public Task<HealthInfo> GetResourceHealth2Async(Tenant tenant)
+        public Task<HealthInfo> GetResourceHealth2Async(Tenant tenant, CancellationToken cancellationToken = default)
         {
             return Task.FromResult(new HealthInfo
             {

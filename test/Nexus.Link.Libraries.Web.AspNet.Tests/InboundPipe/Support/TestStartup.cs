@@ -11,6 +11,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ApplicationParts;
+#pragma warning disable 618
 #else
 using System.Web.Http;
 using System.Web.Http.ExceptionHandling;
@@ -28,14 +29,13 @@ namespace Nexus.Link.Libraries.Web.AspNet.Tests.InboundPipe.Support
         public virtual void ConfigureServices(IServiceCollection services)
         {
             var valueTranslatorFilter = new ValueTranslatorFilter(TranslatorService, GetTranslatorClientName);
-            var mvc = services
-                .AddMvc(opts => { opts.Filters.Add(valueTranslatorFilter); });
-            mvc
-                .SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
+            var mvc = services.AddMvc(opts => { opts.Filters.Add(valueTranslatorFilter); });
+            mvc.SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
         }
 
         public virtual void Configure(IApplicationBuilder app, IHostingEnvironment env)
         {
+            app.UseNexusSaveTestContext();
             app.UseMvc();
         }
 #else
@@ -46,6 +46,7 @@ namespace Nexus.Link.Libraries.Web.AspNet.Tests.InboundPipe.Support
             httpConfiguration.Services.Replace(typeof(IExceptionHandler), new ConvertExceptionToFulcrumResponse());
             httpConfiguration.MapHttpAttributeRoutes();
             httpConfiguration.Filters.Add(new ValueTranslatorFilter(TranslatorService, GetTranslatorClientName));
+            httpConfiguration.MessageHandlers.Add(new SaveNexusTestContext());
             httpConfiguration.EnsureInitialized();
 
             app.UseWebApi(httpConfiguration);

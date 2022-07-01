@@ -158,6 +158,59 @@ namespace Nexus.Link.Libraries.Core.Tests.TestAssert
             }
         }
 
+        internal enum TestEnum
+        {
+            Value1,Value2
+        }
+
+        [TestMethod]
+        public void AreEqualEnumAssertionOk()
+        {
+            FulcrumAssert.AreEqual(TestEnum.Value1, TestEnum.Value1, $"{Namespace}: 6BC20889-87A4-450A-A326-D352A2FEBD81");
+        }
+
+        [TestMethod]
+        public void AreEqualEnumAssertionFail()
+        {
+            const string message = "A random message";
+            try
+            {
+                FulcrumAssert.AreEqual(TestEnum.Value1, TestEnum.Value2, $"{Namespace}: 0F718BCF-B831-40D7-A172-8A4293F58EF6");
+                UT.Assert.Fail("An exception should have been thrown");
+            }
+            catch (FulcrumAssertionFailedException fulcrumException)
+            {
+                UT.Assert.IsNotNull(fulcrumException.TechnicalMessage.Contains(message));
+            }
+            catch (Exception e)
+            {
+                UT.Assert.Fail($"Expected a specific FulcrumException but got {e.GetType().FullName}.");
+            }
+        }
+
+        [TestMethod]
+        public void InEnumAssertionOk()
+        {
+            FulcrumAssert.IsInEnumeration(typeof(TestEnum), "Value1");
+        }
+
+        [TestMethod]
+        public void InEnumAssertionFail()
+        {
+            try
+            {
+                FulcrumAssert.IsInEnumeration(typeof(TestEnum), "Unknown");
+                UT.Assert.Fail("An exception should have been thrown");
+            }
+            catch (FulcrumAssertionFailedException)
+            {
+            }
+            catch (Exception e)
+            {
+                UT.Assert.Fail($"Expected a specific FulcrumException but got {e.GetType().FullName}.");
+            }
+        }
+
         [TestMethod]
         public void AreEqualAssertionFailWithCodeLocation()
         {

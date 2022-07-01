@@ -85,52 +85,52 @@ namespace Nexus.Link.Libraries.Crud.MemoryStorage
         public delegate TId GetForeignKeyDelegate(TManyToManyModel item);
 
         /// <inheritdoc />
-        public virtual async Task<PageEnvelope<TReferenceModel2>> ReadReferencedItemsByReference1WithPagingAsync(TId id, int offset, int? limit = null, CancellationToken token = default(CancellationToken))
+        public virtual async Task<PageEnvelope<TReferenceModel2>> ReadReferencedItemsByReference1WithPagingAsync(TId id, int offset, int? limit = null, CancellationToken cancellationToken  = default)
         {
             return await ReadReferencedItemsByForeignKeyAsync(
                 id,
                 _getForeignKey1Delegate,
                 _getForeignKey2Delegate,
                 _foreignHandler2,
-                offset, limit, token);
+                offset, limit, cancellationToken );
         }
 
         /// <inheritdoc />
-        public virtual async Task<IEnumerable<TReferenceModel2>> ReadReferencedItemsByReference1Async(TId id, int limit = int.MaxValue, CancellationToken token = default(CancellationToken))
+        public virtual async Task<IEnumerable<TReferenceModel2>> ReadReferencedItemsByReference1Async(TId id, int limit = int.MaxValue, CancellationToken cancellationToken  = default)
         {
-            return await StorageHelper.ReadPagesAsync((offset, t) => ReadReferencedItemsByReference1WithPagingAsync(id, offset, null, t), limit, token);
+            return await StorageHelper.ReadPagesAsync((offset, t) => ReadReferencedItemsByReference1WithPagingAsync(id, offset, null, t), limit, cancellationToken );
         }
 
         /// <inheritdoc />
-        public virtual async Task<PageEnvelope<TReferenceModel1>> ReadReferencedItemsByReference2WithPagingAsync(TId id, int offset, int? limit = null, CancellationToken token = default(CancellationToken))
+        public virtual async Task<PageEnvelope<TReferenceModel1>> ReadReferencedItemsByReference2WithPagingAsync(TId id, int offset, int? limit = null, CancellationToken cancellationToken  = default)
         {
             return await ReadReferencedItemsByForeignKeyAsync(
                 id,
                 _getForeignKey2Delegate,
                 _getForeignKey1Delegate,
                 _foreignHandler1,
-                offset, limit, token);
+                offset, limit, cancellationToken );
         }
 
         /// <inheritdoc />
-        public virtual async Task<IEnumerable<TReferenceModel1>> ReadReferencedItemsByReference2Async(TId id, int limit = int.MaxValue, CancellationToken token = default(CancellationToken))
+        public virtual async Task<IEnumerable<TReferenceModel1>> ReadReferencedItemsByReference2Async(TId id, int limit = int.MaxValue, CancellationToken cancellationToken  = default)
         {
-            return await StorageHelper.ReadPagesAsync((offset, t) => ReadReferencedItemsByReference2WithPagingAsync(id, offset, null, t), limit, token);
+            return await StorageHelper.ReadPagesAsync((offset, t) => ReadReferencedItemsByReference2WithPagingAsync(id, offset, null, t), limit, cancellationToken );
         }
 
         /// <inheritdoc />
-        public virtual async Task DeleteReferencedItemsByReference1(TId id, CancellationToken token = default(CancellationToken))
+        public virtual async Task DeleteReferencedItemsByReference1(TId id, CancellationToken cancellationToken  = default)
         {
-            await DeleteReferencedItemsByForeignKey<TReferenceModel2>(id, _getForeignKey1Delegate, _foreignHandler2, token);
+            await DeleteReferencedItemsByForeignKey<TReferenceModel2>(id, _getForeignKey1Delegate, _foreignHandler2, cancellationToken );
         }
 
         /// <inheritdoc />
-        public virtual async Task DeleteReferencedItemsByReference2(TId id, CancellationToken token = default(CancellationToken))
+        public virtual async Task DeleteReferencedItemsByReference2(TId id, CancellationToken cancellationToken  = default)
         {
-            await DeleteReferencedItemsByForeignKey<TReferenceModel1>(id, _getForeignKey2Delegate, _foreignHandler1, token);
+            await DeleteReferencedItemsByForeignKey<TReferenceModel1>(id, _getForeignKey2Delegate, _foreignHandler1, cancellationToken );
         }
 
-        private Task<PageEnvelope<T>> ReadReferencedItemsByForeignKeyAsync<T>(TId id, GetForeignKeyDelegate idDelegate, GetForeignKeyDelegate referenceIdDelegate, IRead<T, TId> referenceHandler, int offset, int? limit = null, CancellationToken token = default(CancellationToken))
+        private Task<PageEnvelope<T>> ReadReferencedItemsByForeignKeyAsync<T>(TId id, GetForeignKeyDelegate idDelegate, GetForeignKeyDelegate referenceIdDelegate, IRead<T, TId> referenceHandler, int offset, int? limit = null, CancellationToken cancellationToken  = default)
         {
             throw new FulcrumNotImplementedException("This method needs to be changed and tests");
             //limit = limit ?? PageInfo.DefaultLimit;
@@ -144,7 +144,7 @@ namespace Nexus.Link.Libraries.Crud.MemoryStorage
             //        .Where(i => id.Equals(idDelegate(i)))
             //        .Skip(offset)
             //        .Take(limit.Value)
-            //        .Select(i => referenceHandler.ReadAsync(referenceIdDelegate(i), token))
+            //        .Select(i => referenceHandler.ReadAsync(referenceIdDelegate(i), cancellationToken ))
             //        .ToList();
             //}
 
@@ -158,11 +158,11 @@ namespace Nexus.Link.Libraries.Crud.MemoryStorage
             //return await Task.FromResult(page);
         }
 
-        private Task DeleteReferencedItemsByForeignKey<T>(TId id, GetForeignKeyDelegate idDelegate, IDelete<TId> referenceHandler, CancellationToken token)
+        private Task DeleteReferencedItemsByForeignKey<T>(TId id, GetForeignKeyDelegate idDelegate, IDelete<TId> referenceHandler, CancellationToken cancellationToken )
         {
             throw new FulcrumNotImplementedException("This method needs to be changed and tests");
             //InternalContract.RequireNotNull(id, nameof(id));
-            //var errorMessage = $"{nameof(TManyToManyModel)} must implement the interface {nameof(IUniquelyIdentifiable<TId>)} for this method to work.";
+            //var errorMessage = $"{typeof(TManyToManyModel).Name} must implement the interface {nameof(IUniquelyIdentifiable<TId>)} for this method to work.";
             //InternalContract.Require(typeof(IUniquelyIdentifiable<TId>).IsAssignableFrom(typeof(TManyToManyModel)), errorMessage);
             //List<TManyToManyModel> list;
             //lock (MemoryItems)
@@ -175,12 +175,12 @@ namespace Nexus.Link.Libraries.Crud.MemoryStorage
             //foreach (var item in list)
             //{
             //    if (!(item is IUniquelyIdentifiable<TId> idItem)) continue;
-            //    await referenceHandler.DeleteAsync(idItem.Id, token);
+            //    await referenceHandler.DeleteAsync(idItem.Id, cancellationToken );
             //}
         }
 
         /// <inheritdoc />
-        public virtual async Task<PageEnvelope<TManyToManyModel>> ReadByReference1WithPagingAsync(TId reference1Id, int offset, int? limit = null, CancellationToken token = default(CancellationToken))
+        public virtual async Task<PageEnvelope<TManyToManyModel>> ReadByReference1WithPagingAsync(TId reference1Id, int offset, int? limit = null, CancellationToken cancellationToken  = default)
         {
             limit = limit ?? PageInfo.DefaultLimit;
             InternalContract.RequireNotNull(reference1Id, nameof(reference1Id));
@@ -200,13 +200,13 @@ namespace Nexus.Link.Libraries.Crud.MemoryStorage
         }
 
         /// <inheritdoc />
-        public virtual async Task<IEnumerable<TManyToManyModel>> ReadByReference1Async(TId reference1Id, int limit = int.MaxValue, CancellationToken token = default(CancellationToken))
+        public virtual async Task<IEnumerable<TManyToManyModel>> ReadByReference1Async(TId reference1Id, int limit = int.MaxValue, CancellationToken cancellationToken  = default)
         {
-            return await StorageHelper.ReadPagesAsync((offset, t) => ReadByReference1WithPagingAsync(reference1Id, offset, null, t), limit, token);
+            return await StorageHelper.ReadPagesAsync((offset, t) => ReadByReference1WithPagingAsync(reference1Id, offset, null, t), limit, cancellationToken );
         }
 
         /// <inheritdoc />
-        public virtual async Task<PageEnvelope<TManyToManyModel>> ReadByReference2WithPagingAsync(TId reference2Id, int offset, int? limit = null, CancellationToken token = default(CancellationToken))
+        public virtual async Task<PageEnvelope<TManyToManyModel>> ReadByReference2WithPagingAsync(TId reference2Id, int offset, int? limit = null, CancellationToken cancellationToken  = default)
         {
             limit = limit ?? PageInfo.DefaultLimit;
             InternalContract.RequireNotNull(reference2Id, nameof(reference2Id));
@@ -226,36 +226,34 @@ namespace Nexus.Link.Libraries.Crud.MemoryStorage
         }
 
         /// <inheritdoc />
-        public virtual async Task<IEnumerable<TManyToManyModel>> ReadByReference2Async(TId reference2Id, int limit = Int32.MaxValue, CancellationToken token = default(CancellationToken))
+        public virtual async Task<IEnumerable<TManyToManyModel>> ReadByReference2Async(TId reference2Id, int limit = Int32.MaxValue, CancellationToken cancellationToken  = default)
         {
-            return await StorageHelper.ReadPagesAsync((offset, t) => ReadByReference2WithPagingAsync(reference2Id, offset, null, t), limit, token);
+            return await StorageHelper.ReadPagesAsync((offset, t) => ReadByReference2WithPagingAsync(reference2Id, offset, null, t), limit, cancellationToken );
         }
 
         /// <inheritdoc />
-        public virtual async Task DeleteByReference1Async(TId reference1Id, CancellationToken token = default(CancellationToken))
+        public virtual async Task DeleteByReference1Async(TId reference1Id, CancellationToken cancellationToken  = default)
         {
-            var enumerator = new PageEnvelopeEnumeratorAsync<TManyToManyModel>((offset, t) => ReadByReference1WithPagingAsync(reference1Id, offset, null, t), token);
-            await DeleteItemsAsync(enumerator, token);
+            var enumerator = new PageEnvelopeEnumeratorAsync<TManyToManyModel>((offset, t) => ReadByReference1WithPagingAsync(reference1Id, offset, null, t), cancellationToken );
+            await DeleteItemsAsync(enumerator, cancellationToken );
         }
 
         /// <inheritdoc />
-        public virtual async Task DeleteByReference2Async(TId reference2Id, CancellationToken token = default(CancellationToken))
+        public virtual async Task DeleteByReference2Async(TId reference2Id, CancellationToken cancellationToken  = default)
         {
-            var enumerator = new PageEnvelopeEnumeratorAsync<TManyToManyModel>((offset, t) => ReadByReference2WithPagingAsync(reference2Id, offset, null, t), token);
-            await DeleteItemsAsync(enumerator, token);
+            var enumerator = new PageEnvelopeEnumeratorAsync<TManyToManyModel>((offset, t) => ReadByReference2WithPagingAsync(reference2Id, offset, null, t), cancellationToken );
+            await DeleteItemsAsync(enumerator, cancellationToken );
         }
 
-        private async Task DeleteItemsAsync(PageEnvelopeEnumeratorAsync<TManyToManyModel> enumerator, CancellationToken token)
+        private async Task DeleteItemsAsync(PageEnvelopeEnumeratorAsync<TManyToManyModel> enumerator, CancellationToken cancellationToken )
         {
             var tasks = new List<Task>();
             while (await enumerator.MoveNextAsync())
             {
                 var item = enumerator.Current;
-                var itemWithId = item as IUniquelyIdentifiable<TId>;
-                InternalContract.Require(itemWithId != null,
-                    $"The type {typeof(TManyToManyModel).FullName} must implement {typeof(IUniquelyIdentifiable<TId>).Name} for this method to work.");
-                if (itemWithId == null) break;
-                var task = DeleteAsync(itemWithId.Id, token);
+                InternalContract.Require(item.TryGetPrimaryKey<TManyToManyModel, TId>(out var id),
+                    $"The type {typeof(TManyToManyModel).FullName} doesn't seem to have a primary key, which is required for the method {nameof(DeleteItemsAsync)}.");
+                var task = DeleteAsync(id, cancellationToken );
                 tasks.Add(task);
             }
 
@@ -263,7 +261,7 @@ namespace Nexus.Link.Libraries.Crud.MemoryStorage
         }
 
         /// <inheritdoc />
-        public virtual Task<TManyToManyModel> ReadAsync(TId masterId, TId slaveId, CancellationToken token = default(CancellationToken))
+        public virtual Task<TManyToManyModel> ReadAsync(TId masterId, TId slaveId, CancellationToken cancellationToken  = default)
         {
             TManyToManyModel item;
             lock (MemoryItems)
@@ -278,53 +276,51 @@ namespace Nexus.Link.Libraries.Crud.MemoryStorage
 
         /// <inheritdoc />
         public virtual async Task UpdateAsync(TId masterId, TId slaveId, TManyToManyModel item,
-            CancellationToken token = default(CancellationToken))
+            CancellationToken cancellationToken  = default)
         {
-            var id = await GetItemId(masterId, slaveId, token);
+            var id = await GetItemId(masterId, slaveId, cancellationToken );
             if (Equals(id, default(TId))) throw new FulcrumNotFoundException($"No item was found with reference id 1 = {masterId} and reference id 2 = {slaveId}.");
-            await UpdateAsync(id, item, token);
+            await UpdateAsync(id, item, cancellationToken );
         }
 
         /// <inheritdoc />
-        public virtual async Task DeleteAsync(TId masterId, TId slaveId, CancellationToken token = default(CancellationToken))
+        public virtual async Task DeleteAsync(TId masterId, TId slaveId, CancellationToken cancellationToken  = default)
         {
-            var id = await GetItemId(masterId, slaveId, token);
+            var id = await GetItemId(masterId, slaveId, cancellationToken );
             if (Equals(id, default(TId))) return;
-            await DeleteAsync(id, token);
+            await DeleteAsync(id, cancellationToken );
         }
 
         /// <inheritdoc />
         public virtual Task CreateWithSpecifiedIdAsync(TId masterId, TId slaveId, TManyToManyModelCreate item,
-            CancellationToken token = default(CancellationToken))
+            CancellationToken cancellationToken  = default)
         {
-            return CreateAsync(item, token);
+            return CreateAsync(item, cancellationToken );
         }
 
         /// <inheritdoc />
         public virtual Task<TManyToManyModel> CreateWithSpecifiedIdAndReturnAsync(TId masterId, TId slaveId, TManyToManyModelCreate item,
-            CancellationToken token = default(CancellationToken))
+            CancellationToken cancellationToken  = default)
         {
-            return CreateAndReturnAsync(item, token);
+            return CreateAndReturnAsync(item, cancellationToken );
         }
 
         /// <inheritdoc />
         public virtual async Task<TManyToManyModel> UpdateAndReturnAsync(TId masterId, TId slaveId, TManyToManyModel item,
-            CancellationToken token = default(CancellationToken))
+            CancellationToken cancellationToken  = default)
         {
-            var id = await GetItemId(masterId, slaveId, token);
-            if (Equals(id, default(TId))) return default(TManyToManyModel);
-            return await UpdateAndReturnAsync(id, item, token);
+            var id = await GetItemId(masterId, slaveId, cancellationToken );
+            if (Equals(id, default(TId))) return default;
+            return await UpdateAndReturnAsync(id, item, cancellationToken );
         }
 
-        private async Task<TId> GetItemId(TId masterId, TId slaveId, CancellationToken token)
+        private async Task<TId> GetItemId(TId masterId, TId slaveId, CancellationToken cancellationToken )
         {
-            var item = await ReadAsync(masterId, slaveId, token);
-            if (item == null) return default(TId);
-            var itemWithId = item as IUniquelyIdentifiable<TId>;
-            InternalContract.Require(itemWithId != null,
-                $"The type {typeof(TManyToManyModel).FullName} must implement {typeof(IUniquelyIdentifiable<TId>).Name} for this method to work.");
-            if (itemWithId == null) return default(TId);
-            return itemWithId.Id;
+            var item = await ReadAsync(masterId, slaveId, cancellationToken );
+            if (item == null) return default;
+            InternalContract.Require(item.TryGetPrimaryKey<TManyToManyModel, TId>(out var id),
+                $"The type {typeof(TManyToManyModel).FullName} doesn't seem to have a primary key, which is required for the method {nameof(DeleteItemsAsync)}.");
+            return id;
         }
     }
 }

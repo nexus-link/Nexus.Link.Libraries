@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Net;
 using System.Net.Http;
+using System.Threading;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -49,7 +50,7 @@ namespace Nexus.Link.Libraries.Web.Error.Logic
             {
                 var methodInfo = exceptionType.GetMethod("Create");
                 FulcrumAssert.IsNotNull(methodInfo);
-                return (Func<string, Exception, FulcrumException>) Delegate.CreateDelegate(
+                return (Func<string, Exception, FulcrumException>)Delegate.CreateDelegate(
                         typeof(Func<string, Exception, FulcrumException>), methodInfo);
             }
             catch (Exception e)
@@ -60,32 +61,15 @@ namespace Nexus.Link.Libraries.Web.Error.Logic
             }
         }
 
-        /// <summary>
-        /// Use this method to add a new <see cref="FulcrumException"/>. This means that it will be included in converting.
-        /// </summary>
-        /// <param name="exceptionType">The type of the exception.</param>
-        /// <param name="statusCode">The status code that it should be converted to if we convert it to an HTTP response.</param>
-        [Obsolete("Use the overload with three arguments", true)]
-        public static void AddFulcrumException(Type exceptionType, HttpStatusCode? statusCode = null)
-        {
-            InternalContract.RequireNotNull(exceptionType, nameof(exceptionType));
-            InternalContract.RequireNotNull(statusCode, nameof(statusCode));
-            var createDelegate = GetInstanceDelegate(exceptionType);
-            var exception = createDelegate("test", (Exception) null);
-            // ReSharper disable once PossibleInvalidOperationException
-            AddFulcrumException(exceptionType, statusCode.Value, exception.Type);
-        }
-
         static ExceptionConverter()
         {
             // Core
             AddFulcrumException(typeof(FulcrumAssertionFailedException), HttpStatusCode.InternalServerError, FulcrumResourceException.ExceptionType);
             AddFulcrumException(typeof(FulcrumResourceException), HttpStatusCode.BadGateway, FulcrumResourceException.ExceptionType);
-#pragma warning disable 618
-            AddFulcrumException(typeof(FulcrumResourceContractException), HttpStatusCode.BadGateway, FulcrumResourceException.ExceptionType);
-#pragma warning restore 618
             AddFulcrumException(typeof(FulcrumContractException), HttpStatusCode.InternalServerError, FulcrumResourceException.ExceptionType);
+            AddFulcrumException(typeof(FulcrumCancelledException), HttpStatusCode.InternalServerError, FulcrumResourceException.ExceptionType);
             AddFulcrumException(typeof(FulcrumNotImplementedException), HttpStatusCode.InternalServerError, FulcrumResourceException.ExceptionType);
+            AddFulcrumException(typeof(FulcrumResourceLockedException), (HttpStatusCode)423, FulcrumResourceLockedException.ExceptionType);
             AddFulcrumException(typeof(FulcrumTryAgainException), HttpStatusCode.InternalServerError, FulcrumTryAgainException.ExceptionType);
             AddFulcrumException(typeof(FulcrumBusinessRuleException), HttpStatusCode.BadRequest, FulcrumBusinessRuleException.ExceptionType);
             AddFulcrumException(typeof(FulcrumConflictException), HttpStatusCode.BadRequest, FulcrumConflictException.ExceptionType);
@@ -95,6 +79,9 @@ namespace Nexus.Link.Libraries.Web.Error.Logic
             AddFulcrumException(typeof(FulcrumServiceContractException), HttpStatusCode.BadRequest, FulcrumContractException.ExceptionType);
             AddFulcrumException(typeof(FulcrumUnauthorizedException), HttpStatusCode.BadRequest, FulcrumUnauthorizedException.ExceptionType);
             AddFulcrumException(typeof(FulcrumForbiddenAccessException), HttpStatusCode.BadRequest, FulcrumForbiddenAccessException.ExceptionType);
+#pragma warning disable 618
+            AddFulcrumException(typeof(FulcrumAcceptedException), HttpStatusCode.Accepted, FulcrumAcceptedException.ExceptionType);
+#pragma warning restore 618
         }
 
         /// <summary>
@@ -128,17 +115,20 @@ namespace Nexus.Link.Libraries.Web.Error.Logic
             return fulcrumError;
         }
 
-        public static async Task<FulcrumError> ToFulcrumErrorAsync(HttpResponseMessage response)
+        public static async Task<FulcrumError> ToFulcrumErrorAsync(HttpResponseMessage response, CancellationToken cancellationToken = default)
         {
             InternalContract.RequireNotNull(response, nameof(response));
-            if (response.IsSuccessStatusCode) return null;
-            
+            if (response.IsSuccessStatusCode)
+            {
+                if (response.StatusCode != HttpStatusCode.Accepted) return null;
+            }
+
             var contentAsString = "";
             if (response.Content != null)
             {
                 await response.Content?.LoadIntoBufferAsync();
                 contentAsString = await response.Content?.ReadAsStringAsync();
-                var fulcrumError = await FulcrumErrorFromContentAsync(response, contentAsString);
+                var fulcrumError = await FulcrumErrorFromContentAsync(response, contentAsString, cancellationToken);
                 if (fulcrumError != null) return fulcrumError;
             }
 
@@ -146,7 +136,7 @@ namespace Nexus.Link.Libraries.Web.Error.Logic
         }
 
         private static Task<FulcrumError> FulcrumErrorFromContentAsync(HttpResponseMessage response,
-            string contentAsString)
+            string contentAsString, CancellationToken cancellationToken)
         {
             InternalContract.RequireNotNull(contentAsString, nameof(contentAsString));
             var fulcrumError = SafeParse<FulcrumError>(contentAsString);
@@ -165,10 +155,11 @@ namespace Nexus.Link.Libraries.Web.Error.Logic
                 {
                     ValidateStatusCode(response.StatusCode, fulcrumError);
                     return Task.FromResult(fulcrumError);
-                } catch (FulcrumException e)
+                }
+                catch (FulcrumException e)
                 {
                     // We will just log this. It is important that we still try to use the response in some way.
-                    Log.LogWarning($"{response.RequestMessage.ToLogStringAsync(response)}\r{e.Message}\r{fulcrumError.ToLogString()}");
+                    Log.LogWarning($"{response.RequestMessage.ToLogStringAsync(response, cancellationToken: cancellationToken)}\r{e.Message}\r{fulcrumError.ToLogString()}");
                 }
             }
 
@@ -253,24 +244,28 @@ namespace Nexus.Link.Libraries.Web.Error.Logic
                     case HttpStatusCode.Gone:
                         fulcrumError.Type = FulcrumNotFoundException.ExceptionType;
                         break;
+                    case (HttpStatusCode) 423: // HttpCode: Locked
+                        fulcrumError.Type = FulcrumResourceLockedException.ExceptionType;
+                        break;
+                    case (HttpStatusCode) 429: // HttpCode: Too many requests
+                        fulcrumError.Type = FulcrumTryAgainException.ExceptionType;
+                        fulcrumError.IsRetryMeaningful = true;
+                        fulcrumError.RecommendedWaitTimeInSeconds = 30;
+                        break;
                     default:
-                        if (statusCodeAsInt == 429) // Too many requests
-                        {
-                            fulcrumError.Type = FulcrumTryAgainException.ExceptionType;
-                            fulcrumError.IsRetryMeaningful = true;
-                            fulcrumError.RecommendedWaitTimeInSeconds = 30;
-                        }
-                        else
-                        {
-                            fulcrumError.Type = FulcrumServiceContractException.ExceptionType;
-                        }
-
+                        fulcrumError.Type = FulcrumServiceContractException.ExceptionType;
                         break;
                 }
             }
             else if (statusCodeAsInt >= 300)
             {
                 fulcrumError.Type = FulcrumServiceContractException.ExceptionType;
+            }
+            else if (statusCodeAsInt == 202)
+            {
+#pragma warning disable 618
+                fulcrumError.Type = FulcrumAcceptedException.ExceptionType;
+#pragma warning restore 618
             }
             else
             {
@@ -283,10 +278,10 @@ namespace Nexus.Link.Libraries.Web.Error.Logic
         /// <summary>
         /// Convert an HTTP response (<paramref name="response"/>) into a <see cref="FulcrumException"/>.
         /// </summary>
-        public static async Task<FulcrumException> ToFulcrumExceptionAsync(HttpResponseMessage response)
+        public static async Task<FulcrumException> ToFulcrumExceptionAsync(HttpResponseMessage response, CancellationToken cancellationToken = default)
         {
             InternalContract.RequireNotNull(response, nameof(response));
-            var fulcrumError = await ToFulcrumErrorAsync(response);
+            var fulcrumError = await ToFulcrumErrorAsync(response, cancellationToken);
             if (fulcrumError == null) return null;
             var fulcrumException = ToFulcrumException(fulcrumError);
             FulcrumAssert.IsNotNull(fulcrumException, $"Could not convert the following {nameof(FulcrumError)} to a {nameof(FulcrumException)}:\r {ToJsonString(fulcrumError, Formatting.Indented)}");

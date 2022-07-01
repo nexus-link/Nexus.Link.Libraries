@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading;
 using System.Threading.Tasks;
 using Nexus.Link.Libraries.Core.Logging;
 
@@ -23,6 +24,6 @@ namespace Nexus.Link.Libraries.Azure.Storage.File
         /// Delete the object physically from the file system.
         /// </summary>
         /// <returns></returns>
-        Task DeleteAsync();
+        Task DeleteAsync(CancellationToken cancellationToken = default);
     }
 }
