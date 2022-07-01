@@ -1,5 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using JetBrains.Annotations;
+using Nexus.Link.Libraries.Core.EntityAttributes;
+using Nexus.Link.Libraries.Core.EntityAttributes.Support;
 using Nexus.Link.Libraries.Core.Error.Logic;
 using Nexus.Link.Libraries.Core.Misc;
 
@@ -16,6 +19,7 @@ namespace Nexus.Link.Libraries.Core.Assert
         /// <param name="errorLocation">A unique errorLocation for this exact assertion. </param>
         /// <param name="message">A message that documents/explains this failure. This message should normally start with "Expected ...".</param>
         [StackTraceHidden]
+        [ContractAnnotation("=> halt")]
         public static void Fail(string errorLocation, string message)
         {
             InternalContract.RequireNotNullOrWhiteSpace(errorLocation, nameof(errorLocation));
@@ -27,6 +31,7 @@ namespace Nexus.Link.Libraries.Core.Assert
         /// </summary>
         /// <param name="message">A message that documents/explains this failure. This message should normally start with "Expected ...".</param>
         [StackTraceHidden]
+        [ContractAnnotation("=> halt")]
         public static void Fail(string message)
         {
             InternalContract.RequireNotNullOrWhiteSpace(message, nameof(message));
@@ -56,6 +61,7 @@ namespace Nexus.Link.Libraries.Core.Assert
         /// </summary>
         
         [StackTraceHidden]
+        [ContractAnnotation("value:null => halt")]
         public static void IsNotNull(object value, string errorLocation = null, string customMessage = null)
         {
             GenericAssert<FulcrumAssertionFailedException>.IsNotNull(value, errorLocation, customMessage);
@@ -74,6 +80,7 @@ namespace Nexus.Link.Libraries.Core.Assert
         /// Verify that <paramref name="value"/> is not null, not empty and contains other characters than white space.
         /// </summary>
         [StackTraceHidden]
+        [ContractAnnotation("value:null => halt")]
         public static void IsNotNullOrWhiteSpace(string value, string errorLocation = null, string customMessage = null)
         {
             GenericAssert<FulcrumAssertionFailedException>.IsNotNullOrWhiteSpace(value, errorLocation, customMessage);
@@ -166,50 +173,32 @@ namespace Nexus.Link.Libraries.Core.Assert
         }
 
         /// <summary>
-        /// If <paramref name="value"/> is not null, then call the Validate() method of that type.
+        /// Verify that <paramref name="value"/> is null or has one of the values in <paramref name="enumerationType"/>.
         /// </summary>
-        [Obsolete("Use the IsValidated() method.", true)]
         [StackTraceHidden]
-        public static void IsValidatedOrNull(object value, string errorLocation = null)
+        [Obsolete("Please use IsInEnumeration(). Obsolete since 2022-01-26.")]
+        public static void InEnumeration(Type enumerationType, string value, string errorLocation = null, string customMessage = null)
         {
-            if (!(value is IValidatable validatable)) return;
-            IsValidated(value, errorLocation);
+            IsInEnumeration(enumerationType, value, errorLocation, customMessage);
         }
 
         /// <summary>
-        /// If <paramref name="values"/> is not null, then call the Validate() method for every object in the collection.
+        /// Verify that <paramref name="value"/> is null or has one of the values in <paramref name="enumerationType"/>.
         /// </summary>
-        [Obsolete("Use the IsNotNull() and IsValidated() methods.", true)]
         [StackTraceHidden]
-        public static void IsValidatedOrNull(IEnumerable<object> values, string errorLocation = null)
+        public static void IsInEnumeration(Type enumerationType, string value, string errorLocation = null, string customMessage = null)
         {
-            if (values == null) return;
-            foreach (var value in values)
-            {
-                IsValidated(value, errorLocation);
-            }
+            InternalContract.RequireNotNull(enumerationType, nameof(enumerationType));
+            GenericAssert<FulcrumAssertionFailedException>.IsInEnumeration(enumerationType, value, errorLocation, customMessage);
         }
 
         /// <summary>
-        /// Verify that <paramref name="value"/> is not null and also call the Validate() method of that type.
+        /// Verify that <paramref name="value"/> null or a JSON expression.
         /// </summary>
-        [Obsolete("Use the IsNotNull() and IsValidated() methods.", true)]
         [StackTraceHidden]
-        public static void IsValidatedAndNotNull(object value, string errorLocation = null)
+        public static void IsJson(string value, string errorLocation = null, string customMessage = null)
         {
-            IsNotNull(value, errorLocation);
-            IsValidated(value, errorLocation);
-        }
-
-        /// <summary>
-        /// Verify that <paramref name="values"/> is not null and also call the Validate() method for every object in the collection.
-        /// </summary>
-        [Obsolete("Use the IsNotNull() and IsValidated() methods.", true)]
-        [StackTraceHidden]
-        public static void IsValidatedAndNotNull(IEnumerable<object> values, string errorLocation = null)
-        {
-            IsNotNull(values, errorLocation);
-            IsValidated(values, errorLocation);
+            GenericAssert<FulcrumAssertionFailedException>.IsJson(value, errorLocation, customMessage);
         }
 
         /// <summary>
@@ -219,8 +208,7 @@ namespace Nexus.Link.Libraries.Core.Assert
         public static void IsValidated(object value, string errorLocation = null)
         {
             if (value == null) return;
-            if (!(value is IValidatable validatable)) return;
-            GenericAssert<FulcrumAssertionFailedException>.IsValidated(validatable, errorLocation);
+            GenericAssert<FulcrumAssertionFailedException>.IsValidated(value, errorLocation);
         }
 
         /// <summary>

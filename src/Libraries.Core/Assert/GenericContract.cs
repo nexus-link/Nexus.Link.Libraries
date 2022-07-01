@@ -2,6 +2,8 @@
 using System.Linq;
 using System.Linq.Expressions;
 using System.Text.RegularExpressions;
+using JetBrains.Annotations;
+using Newtonsoft.Json.Linq;
 using Nexus.Link.Libraries.Core.Error.Logic;
 using Nexus.Link.Libraries.Core.Misc;
 
@@ -28,6 +30,7 @@ namespace Nexus.Link.Libraries.Core.Assert
         /// Verify that <paramref name="parameterValue"/> is not null.
         /// </summary>
         [StackTraceHidden]
+        [ContractAnnotation("parameterValue:null => halt")]
         public static void RequireNotNull<TParameter>(TParameter parameterValue, string parameterName, string customMessage = null)
         {
             var message = GetErrorMessageIfNull(parameterValue, parameterName, customMessage);
@@ -48,20 +51,10 @@ namespace Nexus.Link.Libraries.Core.Assert
         /// Verify that <paramref name="parameterValue"/> is not null, not empty and contains other characters than white space.
         /// </summary>
         [StackTraceHidden]
+        [ContractAnnotation("parameterValue:null => halt")]
         public static void RequireNotNullOrWhiteSpace(string parameterValue, string parameterName, string customMessage = null)
         {
             var message = GetErrorMessageIfNullOrWhiteSpace(parameterValue, parameterName, customMessage);
-            MaybeThrowException(message);
-        }
-
-        /// <summary>
-        /// Verify that <paramref name="expression"/> returns a true value.
-        /// </summary>
-        [Obsolete("Please notify the Fulcrum team if you use this assertion method. We intend to remove it.", true)]
-        [StackTraceHidden]
-        public static void Require(Expression<Func<bool>> expression, string customMessage = null)
-        {
-            var message = GetErrorMessageIfFalse(expression, customMessage);
             MaybeThrowException(message);
         }
 
@@ -80,10 +73,33 @@ namespace Nexus.Link.Libraries.Core.Assert
         /// Always fail, with the given <paramref name="message"/>.
         /// </summary>
         [StackTraceHidden]
+        [ContractAnnotation("=> halt")]
         public static void Fail(string message)
         {
             InternalContract.RequireNotNullOrWhiteSpace(message, nameof(message));
             GenericBase<TException>.ThrowException(message);
+        }
+
+        /// <summary>
+        /// Verify that <paramref name="parameterValue"/> is equal to <paramref name="expectedValue"/>.
+        /// </summary>
+        [StackTraceHidden]
+        public static void RequireAreEqual<T>(T expectedValue, T parameterValue, string parameterName, string customMessage = null)
+        {
+             if (customMessage == null) InternalContract.RequireNotNull(parameterName, nameof(parameterName));
+            var message = customMessage ?? $"ContractViolation: {parameterName} ({parameterValue}) must be equal to ({expectedValue}).";
+            Require(Equals(expectedValue, parameterValue), message);
+        }
+
+        /// <summary>
+        /// Verify that <paramref name="parameterValue"/> is not equal to <paramref name="expectedValue"/>.
+        /// </summary>
+        [StackTraceHidden]
+        public static void RequireAreNotEqual<T>(T expectedValue, T parameterValue, string parameterName, string customMessage = null)
+        {
+             if (customMessage == null) InternalContract.RequireNotNull(parameterName, nameof(parameterName));
+            var message = customMessage ?? $"ContractViolation: {parameterName} ({parameterValue}) must not be equal to ({expectedValue}).";
+            Require(!Equals(expectedValue, parameterValue), message);
         }
 
         /// <summary>
@@ -95,7 +111,7 @@ namespace Nexus.Link.Libraries.Core.Assert
         {
             InternalContract.RequireNotNull(greaterValue, nameof(greaterValue));
             InternalContract.RequireNotNull(parameterValue, nameof(parameterValue));
-            InternalContract.RequireNotNull(parameterName, nameof(parameterName));
+             if (customMessage == null) InternalContract.RequireNotNull(parameterName, nameof(parameterName));
             var message = customMessage ?? $"ContractViolation: {parameterName} ({parameterValue}) must be less than ({greaterValue}).";
             Require(parameterValue.CompareTo(greaterValue) < 0, message);
         }
@@ -109,7 +125,7 @@ namespace Nexus.Link.Libraries.Core.Assert
         {
             InternalContract.RequireNotNull(greaterOrEqualValue, nameof(greaterOrEqualValue));
             InternalContract.RequireNotNull(parameterValue, nameof(parameterValue));
-            InternalContract.RequireNotNull(parameterName, nameof(parameterName));
+             if (customMessage == null) InternalContract.RequireNotNull(parameterName, nameof(parameterName));
             var message = customMessage ?? $"ContractViolation: {parameterName} ({parameterValue}) must be less than or equal to ({greaterOrEqualValue}).";
             Require(parameterValue.CompareTo(greaterOrEqualValue) <= 0, message);
         }
@@ -123,7 +139,7 @@ namespace Nexus.Link.Libraries.Core.Assert
         {
             InternalContract.RequireNotNull(lesserValue, nameof(lesserValue));
             InternalContract.RequireNotNull(parameterValue, nameof(parameterValue));
-            InternalContract.RequireNotNull(parameterName, nameof(parameterName));
+             if (customMessage == null) InternalContract.RequireNotNull(parameterName, nameof(parameterName));
             var message = customMessage ?? $"ContractViolation: {parameterName} ({parameterValue}) must be greater than ({lesserValue}).";
             Require(parameterValue.CompareTo(lesserValue) > 0, message);
         }
@@ -137,7 +153,7 @@ namespace Nexus.Link.Libraries.Core.Assert
         {
             InternalContract.RequireNotNull(lesserOrEqualValue, nameof(lesserOrEqualValue));
             InternalContract.RequireNotNull(parameterValue, nameof(parameterValue));
-            InternalContract.RequireNotNull(parameterName, nameof(parameterName));
+             if (customMessage == null) InternalContract.RequireNotNull(parameterName, nameof(parameterName));
             var message = customMessage ?? $"ContractViolation: {parameterName} ({parameterValue}) must be greater than or equal to ({lesserOrEqualValue}).";
             Require(parameterValue.CompareTo(lesserOrEqualValue) >= 0, message);
         }
@@ -150,7 +166,7 @@ namespace Nexus.Link.Libraries.Core.Assert
         {
             InternalContract.RequireNotNull(regularExpression, nameof(regularExpression));
             InternalContract.RequireNotNull(parameterValue, nameof(parameterValue));
-            InternalContract.RequireNotNull(parameterName, nameof(parameterName));
+             if (customMessage == null) InternalContract.RequireNotNull(parameterName, nameof(parameterName));
             var message = customMessage ?? $"ContractViolation: {parameterName} ({parameterValue}) must match regular expression ({regularExpression}).";
             Require(Regex.IsMatch(parameterValue, regularExpression), message);
         }
@@ -163,9 +179,40 @@ namespace Nexus.Link.Libraries.Core.Assert
         {
             InternalContract.RequireNotNull(regularExpression, nameof(regularExpression));
             InternalContract.RequireNotNull(parameterValue, nameof(parameterValue));
-            InternalContract.RequireNotNull(parameterName, nameof(parameterName));
+             if (customMessage == null) InternalContract.RequireNotNull(parameterName, nameof(parameterName));
             var message = customMessage ?? $"ContractViolation: {parameterName} ({parameterValue}) must not match regular expression ({regularExpression}).";
             Require(!Regex.IsMatch(parameterValue, regularExpression), message);
+        }
+
+        /// <summary>
+        /// Verify that <paramref name="parameterValue"/> is null or has one of the values in <paramref name="enumerationType"/>.
+        /// </summary>
+        [StackTraceHidden]
+        public static void RequireInEnumeration(Type enumerationType, string parameterValue, string parameterName, string customMessage = null)
+        {
+            InternalContract.RequireNotNull(enumerationType, nameof(enumerationType));
+            InternalContract.Require(enumerationType.IsEnum, $"Parameter {nameof(enumerationType)} must be of type enum.");
+            if (parameterValue == null) return;
+            var message = customMessage ?? $"ContractViolation: {parameterName} ({parameterValue}) must represent one of the enumeration values for ({enumerationType.FullName}).";
+            Require(Enum.IsDefined(enumerationType, parameterValue), message);
+        }
+
+        /// <summary>
+        /// Verify that <paramref name="parameterValue"/> is null or in JSON format.
+        /// </summary>
+        [StackTraceHidden]
+        public static void RequireJson(string parameterValue, string parameterName, string customMessage = null)
+        {
+            if (parameterValue == null) return;
+            try
+            {
+                JToken.Parse(parameterValue);
+            }
+            catch (Exception e)
+            {
+                var message = customMessage ?? $"ContractViolation: {parameterName} ({parameterValue}) must be null or in JSON format: {e.Message}";
+                Require(false, message);
+            }
         }
 
         /// <summary>
@@ -212,16 +259,6 @@ namespace Nexus.Link.Libraries.Core.Assert
             var value = parameterValue == null ? "null" : $"\"{parameterValue}\"";
             return customMessage ?? $"Contract violation: {parameterName} ({value}) must not be null, empty or whitespace.";
         }
-
-        [Obsolete("Please notify the Fulcrum team if you use this assertion method. We intend to remove it.", true)]
-        private static string GetErrorMessageIfFalse(Expression<Func<bool>> requirementExpression, string customMessage)
-        {
-            if (requirementExpression.Compile()()) return null;
-
-            var condition = requirementExpression.Body.ToString();
-            return customMessage ?? $"Contract violation: The call must fulfil {condition}.";
-        }
-
         private static string GetErrorMessageIfFalse(bool mustBeTrue, string message)
         {
             InternalContract.RequireNotNullOrWhiteSpace(message, nameof(message));

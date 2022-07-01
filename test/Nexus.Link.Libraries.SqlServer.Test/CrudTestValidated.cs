@@ -26,7 +26,10 @@ namespace Nexus.Link.Libraries.SqlServer.Test
                 CustomColumnNames = new[] { "Value" },
                 OrderBy = new string[] { }
             };
-            _storage = new CrudSql<TestItemBare, TestItemValidated<Guid>>(connectionString, tableMetadata);
+            _storage = new CrudSql<TestItemBare, TestItemValidated<Guid>>(new DatabaseOptions
+            {
+                ConnectionString = connectionString
+            }, tableMetadata);
         }
 
         protected override ICrud<TestItemBare, TestItemValidated<Guid>, Guid> CrudStorage => _storage;

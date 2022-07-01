@@ -12,6 +12,6 @@ namespace Nexus.Link.Libraries.Crud.Interfaces
         /// <summary>
         /// Delete all child items for a specific parent, <paramref name="parentId"/>.
         /// </summary>
-        Task DeleteChildrenAsync(TId parentId, CancellationToken token = default(CancellationToken));
+        Task DeleteChildrenAsync(TId parentId, CancellationToken cancellationToken  = default);
     }
 }

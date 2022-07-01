@@ -29,7 +29,7 @@ namespace Nexus.Link.Libraries.Crud.Test.Cache
         {
             FulcrumApplicationHelper.UnitTestSetup(typeof(TestAutoCacheManyToOneRecursive).FullName);
             _storage = new ManyToOneMemory<ItemWithParentId, Guid>(item => item.ParentId);
-            Cache = new MemoryDistributedCache();
+            Cache = new CrudMemoryDistributedCache();
             DistributedCacheOptions = new DistributedCacheEntryOptions
             {
                 AbsoluteExpirationRelativeToNow = TimeSpan.FromMilliseconds(1000)

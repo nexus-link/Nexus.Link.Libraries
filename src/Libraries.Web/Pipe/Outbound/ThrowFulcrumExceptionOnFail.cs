@@ -1,11 +1,14 @@
 ﻿using System;
+using System.Net;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 using Nexus.Link.Libraries.Core.Application;
 using Nexus.Link.Libraries.Core.Error.Logic;
+using Nexus.Link.Libraries.Core.Json;
 using Nexus.Link.Libraries.Core.Logging;
+using Nexus.Link.Libraries.Web.Error;
 using Nexus.Link.Libraries.Web.Error.Logic;
 using Nexus.Link.Libraries.Web.Logging;
 
@@ -50,14 +53,53 @@ namespace Nexus.Link.Libraries.Web.Pipe.Outbound
                     response = await UnitTest_SendAsyncDependencyInjection(request, cancellationToken);
                 }
 
-                requestDescription = $"OUT request-response {await request.ToLogStringAsync(response)}";
+                requestDescription = $"OUT request-response {await request.ToLogStringAsync(response, cancellationToken: cancellationToken)}";
 
-                fulcrumException = await ExceptionConverter.ToFulcrumExceptionAsync(response);
+                if (response.StatusCode == HttpStatusCode.Accepted && response.Content != null)
+                {
+                    await response.Content.LoadIntoBufferAsync();
+                    var content = await response.Content.ReadAsStringAsync();
+                    var acceptInfo = JsonHelper.SafeDeserializeObject<RequestAcceptedContent>(content);
+                    if (acceptInfo?.RequestId != null)
+                    {
+                        throw new RequestAcceptedException(acceptInfo.RequestId)
+                        {
+                            PollingUrl = acceptInfo.PollingUrl,
+                            RegisterCallbackUrl = acceptInfo.RegisterCallbackUrl
+                        };
+                    }
+                    var postponeInfo = JsonHelper.SafeDeserializeObject<RequestPostponedContent>(content);
+                    if (postponeInfo?.WaitingForRequestIds != null)
+                    {
+                        var timeSpan = postponeInfo.TryAgainAfterMinimumSeconds.HasValue
+                            ? TimeSpan.FromSeconds(postponeInfo.TryAgainAfterMinimumSeconds.Value)
+                            : (TimeSpan?) null;
+                        throw new RequestPostponedException(postponeInfo.WaitingForRequestIds)
+                        {
+                            TryAgain = postponeInfo.TryAgain,
+                            TryAgainAfterMinimumTimeSpan = timeSpan,
+                            ReentryAuthentication = postponeInfo.ReentryAuthentication
+                        };
+                    }
+
+                    return response;
+                }
+                fulcrumException = await ExceptionConverter.ToFulcrumExceptionAsync(response, cancellationToken);
                 if (fulcrumException == null) return response;
             }
             catch (FulcrumException e)
             {
                 Log.LogError($"{requestDescription} threw the exception {e.GetType().Name}: {e.TechnicalMessage}", e);
+                throw;
+            }
+            catch (RequestAcceptedException)
+            {
+                Log.LogInformation($"{requestDescription} was converted to (and threw) the exception {nameof(RequestAcceptedException)}");
+                throw;
+            }
+            catch (RequestPostponedException)
+            {
+                Log.LogInformation($"{requestDescription} was converted to (and threw) the exception {nameof(RequestPostponedException)}");
                 throw;
             }
             catch (TaskCanceledException e)
@@ -67,7 +109,7 @@ namespace Nexus.Link.Libraries.Web.Pipe.Outbound
                 throw new FulcrumTryAgainException(message, e);
             }
             catch (Exception e) when (
-                e is HttpRequestException 
+                e is HttpRequestException
                 || e is JsonReaderException
                 )
             {
@@ -84,7 +126,7 @@ namespace Nexus.Link.Libraries.Web.Pipe.Outbound
                 throw new FulcrumAssertionFailedException(message, e);
             }
 
-            var severityLevel = (int) response.StatusCode >= 500 ? LogSeverityLevel.Error : LogSeverityLevel.Warning;
+            var severityLevel = (int)response.StatusCode >= 500 ? LogSeverityLevel.Error : LogSeverityLevel.Warning;
             Log.LogOnLevel(severityLevel, $"{requestDescription} was converted to (and threw) the exception {fulcrumException.GetType().Name}: {fulcrumException.TechnicalMessage}", fulcrumException);
             throw fulcrumException;
         }

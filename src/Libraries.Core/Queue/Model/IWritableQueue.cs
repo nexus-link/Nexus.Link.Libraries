@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Nexus.Link.Libraries.Core.Queue.Model
@@ -13,6 +14,7 @@ namespace Nexus.Link.Libraries.Core.Queue.Model
         /// </summary>
         /// <param name="message">The message to add</param>
         /// <param name="timeSpanToWait">An optional time span to wait before the item can be taken from the queue.</param>
-        Task AddMessageAsync(T message, TimeSpan? timeSpanToWait = null);
+        /// <param name="cancellationToken"></param>
+        Task AddMessageAsync(T message, TimeSpan? timeSpanToWait = null, CancellationToken cancellationToken = default);
     }
 }

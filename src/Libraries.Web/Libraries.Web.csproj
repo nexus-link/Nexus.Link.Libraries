@@ -2,9 +2,20 @@
 
   <PropertyGroup>
     <TargetFrameworks>netstandard2.0;net461</TargetFrameworks>
+
+    <!-- Publish the repository URL in the built .nupkg (in the NuSpec <Repository> element) -->
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
+
+    <!-- Embed source files that are not tracked by the source control manager in the PDB -->
+    <EmbedUntrackedSources>true</EmbedUntrackedSources>
+
+    <!-- Recommended: Embed symbols containing Source Link in the main file (exe/dll) -->
+    <DebugType>embedded</DebugType>
+    <IncludeSymbols>true</IncludeSymbols>
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0" PrivateAssets="All" />
     <PackageReference Include="Microsoft.Rest.ClientRuntime" Version="2.3.20" />
     <PackageReference Include="Microsoft.AspNet.WebApi.Client" Version="5.2.7" />
     <PackageReference Include="System.Runtime.Caching" Version="4.5.0" />
@@ -12,6 +23,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Libraries.Core\Libraries.Core.csproj" />
+    <ProjectReference Include="..\Libraries.Crud\Libraries.Crud.csproj" />
   </ItemGroup>
 
   <ItemGroup>
@@ -20,16 +32,55 @@
 
   <PropertyGroup>
     <PackageId>Nexus.Link.Libraries.Web</PackageId>
-    <Version>2.11.0</Version>
+    <Version>5.31.1</Version>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <PackageTags>nexus;link;fulcrum;lever</PackageTags>
     <Authors>XLENT Link</Authors>
     <PackageProjectUrl>https://github.com/nexus-link/Nexus.Link.Libraries</PackageProjectUrl>
     <PackageLanguage>en-US</PackageLanguage>
     <Description>Nexus Web library for .NET Standard</Description>
-    <Copyright>Copyright ©2020 Xlent Link AB</Copyright>
+    <Copyright>Copyright ©2021 Xlent Link AB</Copyright>
     <IncludeSymbols>true</IncludeSymbols>
     <PackageReleaseNotes>
+      5.31.0 Bump
+      5.31.0 Moved HttpSender to Nexus.Link.Misc.Web.Sdk.RestClientHelper and Constants to NexusHeaderNames and NexusContextNames
+      5.30.1 Bump
+      5.30.0 Added TryAgainAfterMinimumTimeSpan for RequestPostponed*
+      5.29.0 Added conversion of FulcrumResourceLockedException
+      2.28.0 Added Constants.ReentryAuthenticationHeaderName and Reentry interface and model
+      2.27.0 Made ServiceClientCredentials public for IHttpSender
+      2.26.1 Added overload to extension Task.FireAndForgetAsync()
+      2.26.0 ServiceAuthenticationHelper.ClearCacheForClient
+      2.26.1 Added extension Task.FireAndForgetAsync()
+      2.24.7 Now supports multiple userId concepts
+      2.24.6 Bump
+      2.24.5 Bug: We were reading content without buffering it first
+      2.24.4 Bug: Another spot where badly formatted header names bit us.
+      2.24.3 Bug: Problem with badly formatted header names. Better messages for header validation
+      2.24.2 Added IValidated for RequestData
+      2.24.1 Breaking change for RequestAcceptedException and RequestAcceptedContent, but since it is only used internally we don't see it as breaking. Added IHttpSender.GetAbsoluteUrl()
+      Breaking change for Constants.ExecutionIdHeaderName to make it more conformant to standard header names.
+      2.23.0 Added ToHttpResponseMessage(). Added ResponseData.ContentType and ContentLength.
+      2.22.1 Added TryAgain to ReqeustPostponed
+      2.21.3 Bump
+      2.21.1 Added converter for FulcrumCancelledException
+      2.20.3 Added ReentryAuthentication to postpone and Constants.ReentryAuthenticationHeaderName
+      2.20.0 Added SendAsync() to IHttpSender. Can convert HttpStatus Accepted to RequestAcceptedException and RequestPostponedException
+      2.19.0 Added new constants for HTTP headers. Added Serialization; RequestData and ResponseData
+      2.18.0 Added outbound handlers targeted at Business APIs, including propagating end user authentication and translated user id
+      2.17.2 Symbols
+      2.17.1 A RestClient with null BaseUri will now use the BaseUri of the HttpClient
+      2.17.0 Added AuthorizationTypeEnum.NexusPlatformService to enable intra-Nexus authentication
+      2.16.0 Added IServiceAuthenticationHelper.GetAuthorizationForClientAsync which takes a ClientAuthorizationSettings
+      2.15.0 Removed code related to asynchronous processes
+      2.14.0 Added FulcrumAcceptedException
+      2.13.2 Corrected code documentation
+      2.13.1 HttpSender can now handle HttpStatus.NoContent
+      2.13.0 Added PreferRespondAsync as an outbound pipe
+      2.12.0 Added CancellationToken where it was missing. Old obsolete stuff with errors has been deleted and old with warning has been updated to error.
+      2.11.4 Bump
+      2.11.2 HttpSender can now be created without baseUrl
+      2.11.1 Fix: "Authentication" property of "ClientConfiguration" is no longer required
       2.11.0 Support for propagating header "X-nexus-test-context" in RestClient
       2.10.2 Bump
       2.10.1 Request headers in Client configuration

@@ -1,4 +1,6 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading;
+using System.Threading.Tasks;
 using Nexus.Link.Libraries.Core.Application;
 using Nexus.Link.Libraries.Core.Assert;
 using Nexus.Link.Libraries.Core.Logging;
@@ -11,12 +13,13 @@ using Microsoft.AspNetCore.Http;
 #else
 using System.Linq;
 #endif
+#pragma warning disable CS0618
 namespace Nexus.Link.Libraries.Web.AspNet.Pipe.Inbound
 {
     /// <summary>
     /// Handle <see cref="Constants.NexusTestContextHeaderName"/> header on inbound requests.
     /// </summary>
-    public class SaveNexusTestContext : CompatibilityDelegatingHandler
+    public class SaveNexusTestContext : CompatibilityDelegatingHandlerWithCancellationSupport
     {
         private static readonly DelegateState DelegateState = new DelegateState(typeof(SaveNexusTestContext).FullName);
 
@@ -31,6 +34,7 @@ namespace Nexus.Link.Libraries.Web.AspNet.Pipe.Inbound
 
 #if NETCOREAPP
         /// <inheritdoc />
+        [Obsolete("Please use the class NexusLinkMiddleware. Obsolete since 2021-06-04")]
         public SaveNexusTestContext(RequestDelegate next)
             : base(next)
         {
@@ -41,12 +45,12 @@ namespace Nexus.Link.Libraries.Web.AspNet.Pipe.Inbound
         }
 #endif
         /// <inheritdoc />
-        protected override async Task InvokeAsync(CompabilityInvocationContext context)
+        protected override async Task InvokeAsync(CompabilityInvocationContext context, CancellationToken cancellationToken)
         {
             InternalContract.Require(!DelegateState.HasStarted, $"{nameof(SaveNexusTestContext)} has already been started in this http request.");
             HasStarted = true;
             SaveHeaderToExecutionContext(context);
-            await CallNextDelegateAsync(context);
+            await CallNextDelegateAsync(context, cancellationToken);
         }
 
         /// <summary>
@@ -90,6 +94,7 @@ namespace Nexus.Link.Libraries.Web.AspNet.Pipe.Inbound
 #if NETCOREAPP
     public static class SaveNexusTestContextExtension
     {
+        [Obsolete("Please use the class NexusLinkMiddleware. Obsolete since 2021-06-04")]
         public static IApplicationBuilder UseNexusSaveTestContext(this IApplicationBuilder builder)
         {
             return builder.UseMiddleware<SaveNexusTestContext>();

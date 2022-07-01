@@ -1,7 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Net.Http;
-using Nexus.Link.Libraries.Core.Context;
 
 namespace Nexus.Link.Libraries.Web.Pipe.Outbound
 {
@@ -34,28 +32,37 @@ namespace Nexus.Link.Libraries.Web.Pipe.Outbound
             return CreateDelegatingHandlers(false);
         }
 
+        /// <summary>
+        /// Creates handlers specialized for a Business API service
+        /// </summary>
+        public static DelegatingHandler[] CreateDelegatingHandlersForBusinessApi(bool withLogging)
+        {
+            return CreateDelegatingHandlers(withLogging, true);
+        }
 
-        private static DelegatingHandler[] CreateDelegatingHandlers(bool withLogging)
+
+        private static DelegatingHandler[] CreateDelegatingHandlers(bool withLogging, bool asBusinessApi = false)
         {
             var handlers = new List<DelegatingHandler>
             {
                 new ThrowFulcrumExceptionOnFail(),
                 new AddCorrelationId(),
-                new PropagateNexusTestHeader(),
             };
+            
+            if (asBusinessApi)
+            {
+                handlers.Add(new AddUserAuthorization());
+                handlers.Add(new AddTranslatedUserId());
+            }
+            
             if (withLogging)
             {
                 handlers.Add(new LogRequestAndResponse());
             }
+            
+            handlers.Add(new PropagateNexusTestHeader());
+            
             return handlers.ToArray();
-        }
-
-        [Obsolete("Use overload with no parameters", true)]
-#pragma warning disable 1591
-        public static DelegatingHandler[] CreateDelegatingHandlers(IValueProvider valueProvider)
-#pragma warning restore 1591
-        {
-            return CreateDelegatingHandlers();
         }
     }
 }

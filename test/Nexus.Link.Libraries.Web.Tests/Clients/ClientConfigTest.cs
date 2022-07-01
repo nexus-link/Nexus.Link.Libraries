@@ -21,6 +21,8 @@ namespace Nexus.Link.Libraries.Web.Tests.Clients
 
         private const string ClientName = "my-page-adapter";
         private const string ClientName2 = "c2";
+        private const string ClientNameNoAuth = "c3";
+        private const string ClientName4 = "c4";
 
         private List<ClientConfiguration> _clientConfigurations;
 
@@ -31,6 +33,7 @@ namespace Nexus.Link.Libraries.Web.Tests.Clients
 
             _clientConfigurations = new List<ClientConfiguration>
             {
+                // Both request headers and authentication
                 new ClientConfiguration
                 {
                     Name = ClientName,
@@ -40,10 +43,25 @@ namespace Nexus.Link.Libraries.Web.Tests.Clients
                     },
                     Authentication = "auth"
                 },
+                // Request headers, but no authentication
+                new ClientConfiguration
+                {
+                    Name = ClientNameNoAuth,
+                    RequestHeaders = new Dictionary<string, string>
+                    {
+                        { "baz", "boz" }
+                    }
+                },
+                // Authentication, but no request headers
                 new ClientConfiguration
                 {
                     Name = ClientName2,
                     Authentication = "auth"
+                },
+                // No authentication and no request headers
+                new ClientConfiguration
+                {
+                    Name = ClientName4
                 }
             };
             CreateLeverConfiguration();
@@ -64,12 +82,14 @@ namespace Nexus.Link.Libraries.Web.Tests.Clients
         }
 
         [TestMethod]
-        public void Multipleclients()
+        public void MultipleClients()
         {
             var configs = ClientConfigurationHelper.GetClientsConfigurations(LeverConfiguration);
             Assert.AreEqual(_clientConfigurations.Count, configs.Count);
             Assert.IsTrue(configs.ContainsKey(ClientName));
             Assert.IsTrue(configs.ContainsKey(ClientName2));
+            Assert.IsTrue(configs.ContainsKey(ClientNameNoAuth));
+            Assert.IsTrue(configs.ContainsKey(ClientName4));
         }
 
         [TestMethod]
@@ -109,6 +129,16 @@ namespace Nexus.Link.Libraries.Web.Tests.Clients
         }
 
         [TestMethod]
+        public void NoAuthentication()
+        {
+            SetupConfigMock(null);
+
+            var config = ClientConfigurationHelper.GetConfigurationForClient(LeverConfiguration, ClientNameNoAuth);
+            Assert.IsNotNull(config);
+            Assert.IsNull(config.Authentication);
+        }
+
+        [TestMethod]
         public void ConfigurationFromJsonFile()
         {
             // https://docs.nexus.link/docs/client-authentication-methods
@@ -122,6 +152,10 @@ namespace Nexus.Link.Libraries.Web.Tests.Clients
             Assert.IsTrue(config.RequestHeaders.ContainsKey("header-b"));
             Assert.IsTrue(config.RequestHeaders.ContainsValue("value-b"));
             Assert.AreEqual("auth", config.Authentication);
+
+            config = ClientConfigurationHelper.GetConfigurationForClient(LeverConfiguration, "client-no-auth");
+            Assert.IsNotNull(config);
+            Assert.IsNull(config.Authentication);
         }
 
         [TestMethod]

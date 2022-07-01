@@ -13,6 +13,9 @@ namespace Nexus.Link.Libraries.SqlServer.Model
         public string EtagColumnName { get; set; }
 
         /// <inheritdoc />
+        public string RowVersionColumnName { get; set; }
+
+        /// <inheritdoc />
         public string ForeignKeyColumnName { get; set; }
         /// <inheritdoc />
         public string CreatedAtColumnName { get; set; }
@@ -23,6 +26,18 @@ namespace Nexus.Link.Libraries.SqlServer.Model
 
         /// <inheritdoc />
         public IEnumerable<string> OrderBy { get; set; }
+
+        /// <inheritdoc />
+        public bool InsertCanUseOutput { get; set; }
+
+        /// <inheritdoc />
+        public bool HasInsertTrigger => !InsertCanUseOutput;
+
+        /// <inheritdoc />
+        public bool UpdateCanUseOutput { get; set; }
+
+        /// <inheritdoc />
+        public bool HasUpdateTrigger => UpdateCanUseOutput;
 
         /// <inheritdoc />
         public string GetOrderBy(string columnPrefix = null)

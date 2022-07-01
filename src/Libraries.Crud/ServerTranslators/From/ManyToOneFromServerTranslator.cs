@@ -5,12 +5,13 @@ using System.Threading.Tasks;
 using Nexus.Link.Libraries.Core.Assert;
 using Nexus.Link.Libraries.Core.Storage.Model;
 using Nexus.Link.Libraries.Crud.Interfaces;
+using Nexus.Link.Libraries.Crud.Model;
 using Nexus.Link.Libraries.Crud.PassThrough;
 
 namespace Nexus.Link.Libraries.Crud.ServerTranslators.From
 {
     /// <inheritdoc cref="ManyToOneFromServerTranslator{TModelCreate, TModel}" />
-    [Obsolete("Use Libraries.Web ValueTranslatorHttpSender. Obsolete since 2019-11-21.")]
+    [Obsolete("Use Libraries.Web ValueTranslatorHttpSender. Obsolete warning since 2019-11-21, error since 2021-06-09.", true)]
     public class ManyToOneFromServerTranslator<TModel> :
         ManyToOneFromServerTranslator<TModel, TModel>,
         ICrudManyToOne<TModel, string>
@@ -25,7 +26,7 @@ namespace Nexus.Link.Libraries.Crud.ServerTranslators.From
     }
 
     /// <inheritdoc cref="CrudFromServerTranslator{TModelCreate, TModel}" />
-    [Obsolete("Use Libraries.Web ValueTranslatorHttpSender. Obsolete since 2019-11-21.")]
+    [Obsolete("Use Libraries.Web ValueTranslatorHttpSender. Obsolete warning since 2019-11-21, error since 2021-06-09.", true)]
     public class ManyToOneFromServerTranslator<TModelCreate, TModel> :
         CrudFromServerTranslator<TModelCreate, TModel>,
         ICrudManyToOne<TModelCreate, TModel, string>
@@ -45,25 +46,64 @@ namespace Nexus.Link.Libraries.Crud.ServerTranslators.From
 
         /// <inheritdoc />
         public async Task<PageEnvelope<TModel>> ReadChildrenWithPagingAsync(string parentId, int offset, int? limit = null,
-        CancellationToken token = default(CancellationToken))
+        CancellationToken cancellationToken  = default)
         {
-            var result = await _service.ReadChildrenWithPagingAsync(parentId, offset, limit, token);
+            var result = await _service.ReadChildrenWithPagingAsync(parentId, offset, limit, cancellationToken );
             var translator = CreateTranslator();
             return translator.Decorate(result);
         }
 
         /// <inheritdoc />
-        public async Task<IEnumerable<TModel>> ReadChildrenAsync(string parentId, int limit = int.MaxValue, CancellationToken token = default(CancellationToken))
+        public async Task<IEnumerable<TModel>> ReadChildrenAsync(string parentId, int limit = int.MaxValue, CancellationToken cancellationToken  = default)
         {
-            var result = await _service.ReadChildrenAsync(parentId, limit, token);
+            var result = await _service.ReadChildrenAsync(parentId, limit, cancellationToken );
             var translator = CreateTranslator();
             return translator.Decorate(result);
         }
 
         /// <inheritdoc />
-        public Task DeleteChildrenAsync(string parentId, CancellationToken token = default(CancellationToken))
+        public Task DeleteChildrenAsync(string parentId, CancellationToken cancellationToken  = default)
         {
-            return _service.DeleteChildrenAsync(parentId, token);
+            return _service.DeleteChildrenAsync(parentId, cancellationToken );
+        }
+
+        /// <inheritdoc />
+        public Task<PageEnvelope<TModel>> SearchChildrenAsync(string parentId, SearchDetails<TModel> details, int offset, int? limit = null,
+            CancellationToken cancellationToken = default)
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <inheritdoc />
+        public Task<TModel> FindUniqueChildAsync(string parentId, SearchDetails<TModel> details,
+            CancellationToken cancellationToken = default)
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <inheritdoc />
+        public Task<string> CreateChildAsync(string parentId, TModelCreate item, CancellationToken cancellationToken  = default)
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <inheritdoc />
+        public Task<TModel> CreateChildAndReturnAsync(string parentId, TModelCreate item, CancellationToken cancellationToken  = default)
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <inheritdoc />
+        public Task CreateChildWithSpecifiedIdAsync(string parentId, string childId, TModelCreate item, CancellationToken cancellationToken  = default)
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <inheritdoc />
+        public Task<TModel> CreateChildWithSpecifiedIdAndReturnAsync(string parentId, string childId, TModelCreate item,
+            CancellationToken cancellationToken  = default)
+        {
+            throw new NotImplementedException();
         }
     }
 }

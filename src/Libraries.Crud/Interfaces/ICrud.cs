@@ -15,17 +15,16 @@ namespace Nexus.Link.Libraries.Crud.Interfaces
     /// Interface for CRUD operations."/>.
     /// </summary>
     public interface ICrud<in TModelCreate, TModel, TId> :
-        ICreate<TModelCreate, TModel, TId>,
         ICreateAndReturn<TModelCreate, TModel, TId>,
         ICreateWithSpecifiedId<TModelCreate, TModel, TId>,
-        IRead<TModel, TId>,
-        IReadAllWithPaging<TModel, TId>,
         IReadAll<TModel, TId>,
-        IUpdate<TModel, TId>,
+        ISearch<TModel, TId>,
         IUpdateAndReturn<TModel, TId>,
-        IDelete<TId>,
-        IDeleteAll,
+#pragma warning disable 618
         ILockable<TId>,
+#pragma warning restore 618
+        IDistributedLock<TId>,
+        ITransactionLock<TModel, TId>,
         ICrudBasic<TModelCreate, TModel, TId> 
         where TModel : TModelCreate
     {

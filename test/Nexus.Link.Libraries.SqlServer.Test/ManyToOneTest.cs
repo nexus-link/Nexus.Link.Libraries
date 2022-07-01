@@ -13,7 +13,7 @@ namespace Nexus.Link.Libraries.SqlServer.Test
     public class ManyToOneTest : TestIManyToOne<Guid, Guid?>
     {
         private CrudSql<TestItemId<Guid>> _oneStorage;
-        private ICrudManyToOne<TestItemManyToOneCreate<Guid?>, TestItemManyToOne<Guid, Guid?>, Guid> _manyStorage;
+        private ICrudManyToOne<TestItemManyToOneCreate<Guid, Guid?>, TestItemManyToOne<Guid, Guid?>, Guid> _manyStorage;
 
         [TestInitialize]
         public void Initialize()
@@ -24,7 +24,7 @@ namespace Nexus.Link.Libraries.SqlServer.Test
             var manyTableMetadata = new SqlTableMetadata
             {
                 TableName = "TestItem",
-                CustomColumnNames = new[] { "Value", "ParentId" },
+                CustomColumnNames = new[] { "Value", "IncreasingNumber", "NumberModulo", "DecreasingString", "ParentId" },
                 OrderBy = new string[] { }
             };
             var oneTableMetadata = new SqlTableMetadata
@@ -33,16 +33,23 @@ namespace Nexus.Link.Libraries.SqlServer.Test
                 CustomColumnNames = new[] { "Value" },
                 OrderBy = new string[] { }
             };
-            _oneStorage = new CrudSql<TestItemId<Guid>>(connectionString, oneTableMetadata);
-            _manyStorage = new ManyToOneSql<TestItemManyToOneCreate<Guid?>, TestItemManyToOne<Guid, Guid?>, TestItemId<Guid>>(connectionString, manyTableMetadata, "ParentId", _oneStorage);
+            _oneStorage = new CrudSql<TestItemId<Guid>>(new DatabaseOptions
+            {
+                ConnectionString = connectionString
+            }, oneTableMetadata);
+            _manyStorage = new ManyToOneSql<TestItemManyToOneCreate<Guid, Guid?>, TestItemManyToOne<Guid, Guid?>, TestItemId<Guid>>(
+                new DatabaseOptions
+                {
+                    ConnectionString = connectionString
+                }, manyTableMetadata, "ParentId", _oneStorage);
         }
 
         /// <inheritdoc />
-        protected override ICrudManyToOne<TestItemManyToOneCreate<Guid?>, TestItemManyToOne<Guid, Guid?>, Guid>
+        protected override ICrudManyToOne<TestItemManyToOneCreate<Guid, Guid?>, TestItemManyToOne<Guid, Guid?>, Guid>
             CrudManyStorageRecursive => null;
 
         /// <inheritdoc />
-        protected override ICrudManyToOne<TestItemManyToOneCreate<Guid?>, TestItemManyToOne<Guid, Guid?>, Guid>
+        protected override ICrudManyToOne<TestItemManyToOneCreate<Guid, Guid?>, TestItemManyToOne<Guid, Guid?>, Guid>
             CrudManyStorageNonRecursive => _manyStorage;
 
         /// <inheritdoc />

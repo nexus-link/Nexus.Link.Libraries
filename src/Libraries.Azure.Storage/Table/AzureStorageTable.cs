@@ -29,7 +29,7 @@ namespace Nexus.Link.Libraries.Azure.Storage.Table
             Table = client.GetTableReference(name);
         }
 
-        public async Task CreateAsync(string partitionKey, string rowKey, TStorableItemCreate item, CancellationToken token = default(CancellationToken))
+        public async Task CreateAsync(string partitionKey, string rowKey, TStorableItemCreate item, CancellationToken token = default)
         {
             InternalContract.RequireNotNullOrWhiteSpace(partitionKey, nameof(partitionKey));
             InternalContract.RequireNotNullOrWhiteSpace(rowKey, nameof(rowKey));
@@ -37,9 +37,9 @@ namespace Nexus.Link.Libraries.Azure.Storage.Table
             InternalContract.RequireValidated(item, nameof(item));
 
             var dbItem = StorageHelper.DeepCopy<TStorableItem, TStorableItemCreate>(item);
-            StorageHelper.MaybeCreateNewEtag(dbItem);
+            dbItem.TrySetOptimisticConcurrencyControl();
             StorageHelper.MaybeUpdateTimeStamps(dbItem, true);
-            StorageHelper.MaybeValidate(dbItem);
+            InternalContract.RequireValidated(dbItem, nameof(item));
 
             var tableRequestOptions = new TableRequestOptions();
             var operationContext = new OperationContext();
@@ -53,22 +53,22 @@ namespace Nexus.Link.Libraries.Azure.Storage.Table
             await Table.ExecuteAsync(TableOperation.Insert(entity, true), tableRequestOptions, operationContext, token);
         }
 
-        public async Task<TStorableItem> ReadAsync(string partitionKey, string rowKey, CancellationToken token = default(CancellationToken))
+        public async Task<TStorableItem> ReadAsync(string partitionKey, string rowKey, CancellationToken token = default)
         {
             InternalContract.RequireNotNullOrWhiteSpace(partitionKey, nameof(partitionKey));
             InternalContract.RequireNotNullOrWhiteSpace(rowKey, nameof(rowKey));
 
             var tableRequestOptions = new TableRequestOptions();
             var operationContext = new OperationContext();
-            if (!await Table.ExistsAsync(tableRequestOptions, operationContext, token)) return default(TStorableItem);
+            if (!await Table.ExistsAsync(tableRequestOptions, operationContext, token)) return default;
             var result = await Table.ExecuteAsync(TableOperation.Retrieve<JsonEntity>(partitionKey, rowKey), tableRequestOptions, operationContext, token);
-            if (!(result.Result is JsonEntity entity)) return default(TStorableItem);
+            if (!(result.Result is JsonEntity entity)) return default;
             var item = JsonHelper.SafeDeserializeObject<TStorableItem>(entity.JsonAsString);
             item.Etag = entity.ETag;
             return item;
         }
 
-        public async Task<TStorableItem> UpdateAsync(string partitionKey, string rowKey, TStorableItem item, CancellationToken token = default(CancellationToken))
+        public async Task<TStorableItem> UpdateAsync(string partitionKey, string rowKey, TStorableItem item, CancellationToken token = default)
         {
             InternalContract.RequireNotNullOrWhiteSpace(partitionKey, nameof(partitionKey));
             InternalContract.RequireNotNullOrWhiteSpace(rowKey, nameof(rowKey));
@@ -88,7 +88,7 @@ namespace Nexus.Link.Libraries.Azure.Storage.Table
             return item;
         }
 
-        public async Task DeleteAsync(string partitionKey, string rowKey, CancellationToken token = default(CancellationToken))
+        public async Task DeleteAsync(string partitionKey, string rowKey, CancellationToken token = default)
         {
             InternalContract.RequireNotNullOrWhiteSpace(partitionKey, nameof(partitionKey));
             InternalContract.RequireNotNullOrWhiteSpace(rowKey, nameof(rowKey));
@@ -101,37 +101,37 @@ namespace Nexus.Link.Libraries.Azure.Storage.Table
             await Table.ExecuteAsync(TableOperation.Delete(entity), tableRequestOptions, operationContext, token);
         }
 
-        public async Task DeleteTableAsync()
+        public async Task DeleteTableAsync(CancellationToken cancellationToken = default)
         {
-            await Table.DeleteAsync();
+            await Table.DeleteAsync(null, null, cancellationToken);
         }
 
-        public async Task DeleteItemsAsync(CancellationToken token = default(CancellationToken))
+        public async Task DeleteItemsAsync(CancellationToken token = default)
         {
             var enumerator = new PageEnvelopeEnumeratorAsync<JsonEntity>((offset, ct) => ReadAllJsonEntitiesWithPagingAsync(offset, 50, ct), token);
             await DeleteItemsAsync(enumerator, token);
         }
 
-        public async Task DeleteItemsAsync(string partitionKey, CancellationToken token = default(CancellationToken))
+        public async Task DeleteItemsAsync(string partitionKey, CancellationToken token = default)
         {
             var enumerator = new PageEnvelopeEnumeratorAsync<JsonEntity>((offset, ct) => ReadAllJsonEntitiesWithPagingAsync(partitionKey, offset, 50, ct), token);
             await DeleteItemsAsync(enumerator, token);
         }
 
-        private async Task DeleteItemsAsync(PageEnvelopeEnumeratorAsync<JsonEntity> enumerator, CancellationToken token)
+        private async Task DeleteItemsAsync(PageEnvelopeEnumeratorAsync<JsonEntity> enumerator, CancellationToken cancellationToken)
         {
             var taskList = new List<Task>();
             while (await enumerator.MoveNextAsync())
             {
                 var item = enumerator.Current;
-                var task = DeleteAsync(item.PartitionKey, item.RowKey, token);
+                var task = DeleteAsync(item.PartitionKey, item.RowKey, cancellationToken);
                 taskList.Add(task);
             }
 
             await Task.WhenAll(taskList);
         }
 
-        public async Task<PageEnvelope<TStorableItem>> ReadAllWithPagingAsync(int offset = 0, int? limit = null, CancellationToken token = default(CancellationToken))
+        public async Task<PageEnvelope<TStorableItem>> ReadAllWithPagingAsync(int offset = 0, int? limit = null, CancellationToken token = default)
         {
             InternalContract.RequireGreaterThanOrEqualTo(0, offset, nameof(offset));
             limit = limit ?? int.MaxValue;
@@ -145,7 +145,7 @@ namespace Nexus.Link.Libraries.Azure.Storage.Table
             };
         }
 
-        public async Task<PageEnvelope<TStorableItem>> ReadAllWithPagingAsync(string partitionKey, int offset = 0, int? limit = null, CancellationToken token = default(CancellationToken))
+        public async Task<PageEnvelope<TStorableItem>> ReadAllWithPagingAsync(string partitionKey, int offset = 0, int? limit = null, CancellationToken token = default)
         {
             InternalContract.RequireGreaterThanOrEqualTo(0, offset, nameof(offset));
             limit = limit ?? int.MaxValue;
@@ -166,7 +166,7 @@ namespace Nexus.Link.Libraries.Azure.Storage.Table
             return o;
         }
 
-        private async Task<PageEnvelope<JsonEntity>> ReadAllJsonEntitiesWithPagingAsync(int offset, int limit, CancellationToken ct = default(CancellationToken))
+        private async Task<PageEnvelope<JsonEntity>> ReadAllJsonEntitiesWithPagingAsync(int offset, int limit, CancellationToken ct = default)
         {
             InternalContract.RequireGreaterThanOrEqualTo(0, offset, nameof(offset));
             InternalContract.RequireGreaterThan(0, limit, nameof(limit));
@@ -176,7 +176,7 @@ namespace Nexus.Link.Libraries.Azure.Storage.Table
             return await CreatePageEnvelopeAsync(offset, limit, jsonEntities);
         }
 
-        private async Task<PageEnvelope<JsonEntity>> ReadAllJsonEntitiesWithPagingAsync(string partitionKey, int offset, int limit, CancellationToken ct = default(CancellationToken))
+        private async Task<PageEnvelope<JsonEntity>> ReadAllJsonEntitiesWithPagingAsync(string partitionKey, int offset, int limit, CancellationToken ct = default)
         {
             InternalContract.RequireGreaterThanOrEqualTo(0, offset, nameof(offset));
             InternalContract.RequireGreaterThan(0, limit, nameof(limit));
@@ -186,7 +186,7 @@ namespace Nexus.Link.Libraries.Azure.Storage.Table
             var jsonEntities = await ExecuteQueryAsync(query, ct);
             return await CreatePageEnvelopeAsync(offset, limit, jsonEntities);
         }
-        public async Task<IEnumerable<T>> ExecuteQueryAsync<T>(TableQuery<T> query, CancellationToken ct = default(CancellationToken)) where T : ITableEntity, new()
+        public async Task<IEnumerable<T>> ExecuteQueryAsync<T>(TableQuery<T> query, CancellationToken ct = default) where T : ITableEntity, new()
         {
             var runningQuery = new TableQuery<T>()
             {

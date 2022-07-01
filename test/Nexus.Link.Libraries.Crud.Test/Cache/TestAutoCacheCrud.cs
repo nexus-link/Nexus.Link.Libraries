@@ -27,7 +27,7 @@ namespace Nexus.Link.Libraries.Crud.Test.Cache
         {
             FulcrumApplicationHelper.UnitTestSetup(typeof(TestAutoCacheCrud).FullName);
             _storage = new CrudMemory<string, string, Guid>();
-            Cache = new MemoryDistributedCache();
+            Cache = new CrudMemoryDistributedCache();
             DistributedCacheOptions = new DistributedCacheEntryOptions
             {
                 AbsoluteExpirationRelativeToNow = TimeSpan.FromMilliseconds(1000)
@@ -136,7 +136,7 @@ namespace Nexus.Link.Libraries.Crud.Test.Cache
         [TestMethod]
         public async Task ReadStorage_MethodPrevent_ReadStorage()
         {
-            _autoCache.UseCacheAtAllMethodAsync = type => Task.FromResult(false);
+            _autoCache.UseCacheAtAllMethodAsync = (type, ct)  => Task.FromResult(false);
             var id = Guid.NewGuid();
             await PrepareStorageAndCacheAsync(id, "A", "A");
             await PrepareStorageAsync(id, "B");

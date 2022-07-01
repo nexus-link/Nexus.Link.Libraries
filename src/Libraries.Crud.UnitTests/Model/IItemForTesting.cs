@@ -1,7 +1,7 @@
 ﻿namespace Nexus.Link.Libraries.Crud.UnitTests.Model
 {
     /// <summary>
-    /// Methods needed for automatic testing of persistant storage implementations.
+    /// Methods needed for automatic testing of persistent storage implementations.
     /// </summary>
     public interface IItemForTesting
     {

@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System.Threading;
+using System.Threading.Tasks;
 using Microsoft.Extensions.Caching.Distributed;
 
 namespace Nexus.Link.Libraries.Crud.Cache
@@ -12,6 +13,7 @@ namespace Nexus.Link.Libraries.Crud.Cache
         /// Create or get a distributed cache.
         /// </summary>
         /// <param name="key">The key to find the cache if it already exists.</param>
-        Task<IDistributedCache> GetOrCreateDistributedCacheAsync(string key);
+        /// <param name="cancellationToken"></param>
+        Task<IDistributedCache> GetOrCreateDistributedCacheAsync(string key, CancellationToken cancellationToken = default);
     }
 }

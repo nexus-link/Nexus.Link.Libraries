@@ -1,5 +1,6 @@
 ﻿using System;
 using Nexus.Link.Libraries.Core.Assert;
+using Nexus.Link.Libraries.Core.Logging;
 using Nexus.Link.Libraries.Core.Storage.Model;
 
 namespace Nexus.Link.Libraries.SqlServer.Model
@@ -17,12 +18,12 @@ namespace Nexus.Link.Libraries.SqlServer.Model
         public DateTimeOffset RecordUpdatedAt { get; set; }
 
         /// <inheritdoc />
-        public override void Validate(string errorLocaction, string propertyPath = "")
+        public override void Validate(string errorLocation, string propertyPath = "")
         {
-            base.Validate(errorLocaction, propertyPath);
-            var now = DateTimeOffset.Now;
-            FulcrumValidate.IsTrue(RecordCreatedAt < now, errorLocaction, $"Expected {nameof(RecordCreatedAt)} ({RecordCreatedAt}) to have a value less than the current time ({now}).");
-            FulcrumValidate.IsTrue(RecordUpdatedAt < now, errorLocaction, $"Expected {nameof(RecordUpdatedAt)} ({RecordUpdatedAt}) to have a value less than the current time ({now}).");
+            base.Validate(errorLocation, propertyPath);
+            var now = DateTimeOffset.UtcNow;
+            FulcrumValidate.IsTrue(RecordCreatedAt <= now, errorLocation, $"Expected {nameof(RecordCreatedAt)} ({RecordCreatedAt.ToLogString()}) to have a value <= than the current time ({now.ToLogString()}).");
+            FulcrumValidate.IsTrue(RecordUpdatedAt <= now, errorLocation, $"Expected {nameof(RecordUpdatedAt)} ({RecordUpdatedAt.ToLogString()}) to have a value <= than the current time ({now.ToLogString()}).");
         }
     }
 }

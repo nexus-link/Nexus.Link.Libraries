@@ -9,7 +9,9 @@ namespace Nexus.Link.Libraries.SqlServer.Model
     /// <remarks>
     /// We recommend to inherit from <see cref="TimeStampedTableItem"/>.
     /// </remarks>
-    public abstract class TableItem : ITableItem, IValidatable
+#pragma warning disable CS0618
+    public abstract class TableItem : ITableItem, Core.Storage.Model.ITableItem
+#pragma warning restore CS0618
     {
         /// <inheritdoc />
         public Guid Id { get; set; }

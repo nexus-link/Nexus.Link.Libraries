@@ -21,15 +21,15 @@ namespace Nexus.Link.Libraries.Crud.UnitTests.Crud
         public async Task Update_Read_Etag_Async()
         {
             var id = await CreateItemAsync(TypeOfTestDataEnum.Variant1);
-            var updateItem = await UpdateItemAsync(id, TypeOfTestDataEnum.Variant2);
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsNotNull(updateItem);
+            var updateItem = await UpdateAndReturnItemAsync(id, TypeOfTestDataEnum.Variant2);
+            Assert.IsNotNull(updateItem);
             var readItem = await ReadItemAsync(id);
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsNotNull(readItem);
+            Assert.IsNotNull(readItem);
             if (!updateItem.Equals(readItem))
             {
                 updateItem.Etag = readItem.Etag;
             }
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual(updateItem, readItem);
+            Assert.AreEqual(updateItem, readItem);
         }
     }
 }

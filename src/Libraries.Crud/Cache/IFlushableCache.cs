@@ -11,7 +11,7 @@ namespace Nexus.Link.Libraries.Crud.Cache
         /// <summary>
         /// Clears the cache, i.e. remove all cached items.
         /// </summary>
-        /// <param name="token">Propagates notification that operations should be canceled.</param>
-        Task FlushAsync(CancellationToken token = default(CancellationToken));
+        /// <param name="cancellationToken">Propagates notification that operations should be canceled.</param>
+        Task FlushAsync(CancellationToken cancellationToken  = default);
     }
 }

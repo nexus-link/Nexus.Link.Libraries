@@ -39,6 +39,14 @@ namespace Nexus.Link.Libraries.Core.Tests.TestAssert
         }
 
         [TestMethod]
+        public void NullParameterNameIsOkWhenThereIsACustomMessage()
+        {
+            var value = "A";
+            // ReSharper disable once ExpressionIsAlwaysNull
+            ServiceContract.RequireAreEqual(value, value, null, "This assertion has a custom message, so null parameter name is OK");
+        }
+
+        [TestMethod]
         public void NullString()
         {
             const string parameterName = "parameterName";
@@ -89,6 +97,89 @@ namespace Nexus.Link.Libraries.Core.Tests.TestAssert
                 string whitespaceString = "     \t";
                 // ReSharper disable once ExpressionIsAlwaysNull
                 ServiceContract.RequireNotNullOrWhiteSpace(whitespaceString, parameterName);
+                UT.Assert.Fail("An exception should have been thrown");
+            }
+            catch (FulcrumServiceContractException fulcrumException)
+            {
+                UT.Assert.IsTrue(fulcrumException.TechnicalMessage.Contains(parameterName));
+            }
+            catch (Exception e)
+            {
+                UT.Assert.Fail($"Expected a specific FulcrumException but got {e.GetType().FullName}.");
+            }
+        }
+
+        [TestMethod]
+        public void AreEqualOk()
+        {
+            const string parameterName = "parameterName";
+            ServiceContract.RequireAreEqual(10, 5 * 2, parameterName);
+        }
+
+        [TestMethod]
+        public void AreEqualFail()
+        {
+            const string parameterName = "parameterName";
+            try
+            {
+                ServiceContract.RequireAreEqual("Knoll", "Tott", parameterName);
+                UT.Assert.Fail("An exception should have been thrown");
+            }
+            catch (FulcrumServiceContractException fulcrumException)
+            {
+                UT.Assert.IsTrue(fulcrumException.TechnicalMessage.Contains(parameterName));
+            }
+            catch (Exception e)
+            {
+                UT.Assert.Fail($"Expected a specific FulcrumException but got {e.GetType().FullName}.");
+            }
+        }
+
+        [TestMethod]
+        public void AreNotEqualOk()
+        {
+            const string parameterName = "parameterName";
+            ServiceContract.RequireAreNotEqual("Knoll","Tott", parameterName);
+        }
+
+        [TestMethod]
+        public void AreNotEqualFail()
+        {
+            const string parameterName = "parameterName";
+            try
+            {
+                ServiceContract.RequireAreNotEqual(10, 2*5, parameterName);
+                UT.Assert.Fail("An exception should have been thrown");
+            }
+            catch (FulcrumServiceContractException fulcrumException)
+            {
+                UT.Assert.IsTrue(fulcrumException.TechnicalMessage.Contains(parameterName));
+            }
+            catch (Exception e)
+            {
+                UT.Assert.Fail($"Expected a specific FulcrumException but got {e.GetType().FullName}.");
+            }
+        }
+
+        internal enum TestEnum
+        {
+            Value
+        }
+
+        [TestMethod]
+        public void InEnumOk()
+        {
+            const string parameterName = "parameterName";
+            ServiceContract.RequireInEnumeration(typeof(TestEnum), "Value", parameterName);
+        }
+
+        [TestMethod]
+        public void InEnumFail()
+        {
+            const string parameterName = "parameterName";
+            try
+            {
+                ServiceContract.RequireInEnumeration(typeof(TestEnum), "Unknown", parameterName);
                 UT.Assert.Fail("An exception should have been thrown");
             }
             catch (FulcrumServiceContractException fulcrumException)

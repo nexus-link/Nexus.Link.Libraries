@@ -99,6 +99,8 @@ namespace Nexus.Link.Libraries.Web.AspNet.Tests.InboundPipe
             // Setup the filter
             var filter = new ValueTranslatorFilter(testServiceMock.Object, () => Foo.ConsumerName);
 
+            // TODO: Test DecorateUserId
+
             // Run the filter
             Assert.IsFalse(inFoo.Id.StartsWith("(foo.id!"));
 #if NETCOREAPP
@@ -208,6 +210,44 @@ namespace Nexus.Link.Libraries.Web.AspNet.Tests.InboundPipe
             await filter.OnActionExecutedAsync(contextMock, new CancellationToken());
 #endif
         }
+        
+        [TestMethod]
+        public async Task NullValueFromControllerIsHandled()
+        {
+            // Mock a translator
+            var testServiceMock = new Mock<ITranslatorService>();
+            testServiceMock
+                .Setup(service => service.TranslateAsync(It.IsAny<IEnumerable<string>>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
+                .ThrowsAsync(new Exception("ITranslatorService should not be called for null values"));
+
+#if NETCOREAPP
+            var foosController = new FoosController();
+            var controllerActionDescriptor = new ControllerActionDescriptor
+            {
+                MethodInfo = foosController.GetType().GetMethod(nameof(foosController.ReadNullAsync))
+            };
+            var actionContext = new ActionContext
+            {
+                HttpContext = new DefaultHttpContext(),
+                RouteData = new RouteData(),
+                ActionDescriptor = controllerActionDescriptor
+            };
+            var executingContext = new ResultExecutingContext(actionContext, new List<IFilterMetadata>(), new ObjectResult(null), foosController);
+#else
+            var contextMock = CreateExecutedContextWithStatusCode(HttpStatusCode.OK, null);
+#endif
+
+            // Setup the filter
+            var filter = new ValueTranslatorFilter(testServiceMock.Object, () => Foo.ConsumerName);
+
+            // Run the filter
+            // There are no translations, so ITranslatorService.TranslateAsync should not be called
+#if NETCOREAPP
+            await filter.OnResultExecutionAsync(executingContext, () => Task.FromResult(new ResultExecutedContext(actionContext, new List<IFilterMetadata>(), executingContext.Result, foosController)));
+#else
+            await filter.OnActionExecutedAsync(contextMock, new CancellationToken());
+#endif
+        }
 
 #if NETCOREAPP
 #else
@@ -245,7 +285,7 @@ namespace Nexus.Link.Libraries.Web.AspNet.Tests.InboundPipe
                 Response = new HttpResponseMessage
                 {
                     StatusCode = statusCode,
-                    Content = new StringContent(JsonConvert.SerializeObject(model), Encoding.UTF8, "application/json")
+                    Content = model == null ? null : new StringContent(JsonConvert.SerializeObject(model), Encoding.UTF8, "application/json")
                 }
             };
         }

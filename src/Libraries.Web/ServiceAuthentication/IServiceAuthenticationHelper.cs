@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System.Threading;
+using System.Threading.Tasks;
 using Nexus.Link.Libraries.Core.MultiTenant.Model;
 using Nexus.Link.Libraries.Core.Platform.Configurations;
 
@@ -40,6 +41,16 @@ namespace Nexus.Link.Libraries.Web.ServiceAuthentication
         /// or null if <paramref name="configuration"/> does not contain "{client name}-authentication"
         /// or null if <see cref="ClientAuthorizationSettings.AuthorizationType"/> is None.
         /// </returns>
-        Task<AuthorizationToken> GetAuthorizationForClientAsync(Tenant tenant, ILeverConfiguration configuration, string client);
+        Task<AuthorizationToken> GetAuthorizationForClientAsync(Tenant tenant, ILeverConfiguration configuration, string client, CancellationToken cancellationToken = default);
+
+        /// <summary>
+        /// Provide your own <see cref="ClientAuthorizationSettings"/> and get the <see cref="AuthorizationToken"/> from that.
+        /// </summary>
+        Task<AuthorizationToken> GetAuthorizationForClientAsync(Tenant tenant, ClientAuthorizationSettings authSettings, string client, CancellationToken cancellationToken = default);
+        
+        /// <summary>
+        /// Clears the token cache for a client
+        /// </summary>
+        Task ClearCacheForClient(Tenant tenant, string client, CancellationToken cancellationToken = default);
     }
 }

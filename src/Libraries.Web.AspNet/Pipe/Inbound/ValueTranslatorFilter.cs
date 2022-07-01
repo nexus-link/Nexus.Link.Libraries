@@ -2,6 +2,7 @@
 using Nexus.Link.Libraries.Core.Logging;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
@@ -15,13 +16,11 @@ using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Controllers;
 using Microsoft.Extensions.Options;
-
 #else
 using System.Web.Http.Filters;
 using System.Web.Http.Controllers;
 using Newtonsoft.Json.Linq;
 using Nexus.Link.Libraries.Core.Json;
-using System.Linq;
 using System.Net.Http;
 using System.Text;
 using Nexus.Link.Libraries.Web.Logging;
@@ -40,14 +39,24 @@ namespace Nexus.Link.Libraries.Web.AspNet.Pipe.Inbound
         /// </summary>
         public ITranslatorService TranslatorService { get; }
 
+        /// <summary>
+        /// The concepts which we want to try to translate the UserId to
+        /// </summary>
+        public static List<string> UserIdConcepts = new();
+
         private readonly Func<string> _getClientNameMethod;
 
-        public ValueTranslatorFilter(ITranslatorService translatorService, Func<string> getClientNameMethod)
+        public ValueTranslatorFilter(ITranslatorService translatorService, Func<string> getClientNameMethod, IEnumerable<string> userIdConcepts = null)
         {
             InternalContract.RequireNotNull(translatorService, nameof(translatorService));
             InternalContract.RequireNotNull(getClientNameMethod, nameof(getClientNameMethod));
             TranslatorService = translatorService;
             _getClientNameMethod = getClientNameMethod;
+
+            if (userIdConcepts != null)
+            {
+                UserIdConcepts.AddRange(userIdConcepts);
+            }
         }
 
 #if NETCOREAPP
@@ -63,6 +72,7 @@ namespace Nexus.Link.Libraries.Web.AspNet.Pipe.Inbound
                 {
                     try
                     {
+                        DecorateUserId(translator);
                         DecorateArguments(methodInfo.GetParameters(), context.ActionArguments, translator);
                     }
                     catch (Exception exception)
@@ -83,11 +93,11 @@ namespace Nexus.Link.Libraries.Web.AspNet.Pipe.Inbound
             {
                 try
                 {
-                    await TranslateResponseAsync(context, translator);
+                    await TranslateResponseAsync(context, translator, CancellationToken.None);
                 }
                 catch (Exception exception)
                 {
-                    await LogTranslationFailureAsync(context, exception);
+                    await LogTranslationFailureAsync(context, exception, CancellationToken.None);
                     throw;
                 }
             }
@@ -107,11 +117,12 @@ namespace Nexus.Link.Libraries.Web.AspNet.Pipe.Inbound
                 {
                     try
                     {
+                        DecorateUserId(translator);
                         DecorateArguments(methodInfo.GetParameters(), actionContext.ActionArguments, translator);
                     }
                     catch (Exception exception)
                     {
-                        await LogFailureAsync(actionContext.Request, actionContext.Response, exception);
+                        await LogFailureAsync(actionContext.Request, actionContext.Response, exception, cancellationToken);
                     }
                 }
             }
@@ -168,7 +179,7 @@ namespace Nexus.Link.Libraries.Web.AspNet.Pipe.Inbound
                 }
                 catch (Exception exception)
                 {
-                    await LogFailureAsync(actionExecutedContext.Request, actionExecutedContext.Response, exception);
+                    await LogFailureAsync(actionExecutedContext.Request, actionExecutedContext.Response, exception, cancellationToken);
                     throw;
                 }
             }
@@ -222,6 +233,26 @@ namespace Nexus.Link.Libraries.Web.AspNet.Pipe.Inbound
             arguments[parameterName] = translator.Decorate(currentValue);
         }
 
+        private static void DecorateUserId(ITranslator translator)
+        {
+            if (UserIdConcepts != null && UserIdConcepts.Any())
+            {
+                var userId = FulcrumApplication.Context.ValueProvider.GetValue<string>("UserId");
+                if (!string.IsNullOrWhiteSpace(userId))
+                {
+                    var decoratedUserIds = new List<string>();
+                    foreach (var concept in UserIdConcepts)
+                    {
+                        var decoratedUserId = translator.Decorate(concept, userId);
+                        decoratedUserIds.Add(decoratedUserId);
+                    }
+
+                    FulcrumApplication.Context.ValueProvider.SetValue("DecoratedUserIds", decoratedUserIds);
+                }
+
+            }
+        }
+
 #if NETCOREAPP
 
         private static void LogDecorationFailure(ActionExecutingContext context, Exception exception)
@@ -253,21 +284,20 @@ namespace Nexus.Link.Libraries.Web.AspNet.Pipe.Inbound
         }
 
         private static async Task TranslateResponseAsync(ResultExecutingContext context, ITranslator translator,
-            CancellationToken cancellationToken = default(CancellationToken))
+            CancellationToken cancellationToken)
         {
             if (context?.Result == null) return;
             if (!(context.Result is ObjectResult objectResult)) return;
+            if (objectResult.Value == null) return;
 
             var itemBeforeTranslation = objectResult.Value;
 
-            //  TODO: We crash if null is returned from controller method
-
             await translator.Add(itemBeforeTranslation).ExecuteAsync(cancellationToken);
-            var itemAfterTranslation = translator.Translate(itemBeforeTranslation,itemBeforeTranslation.GetType());
+            var itemAfterTranslation = translator.Translate(itemBeforeTranslation, itemBeforeTranslation.GetType());
             context.Result = new ObjectResult(itemAfterTranslation);
         }
 
-        private static async Task LogTranslationFailureAsync(ResultExecutingContext context, Exception exception)
+        private static async Task LogTranslationFailureAsync(ResultExecutingContext context, Exception exception, CancellationToken cancellationToken)
         {
             string requestAsLog;
             string resultAsLog;
@@ -283,7 +313,7 @@ namespace Nexus.Link.Libraries.Web.AspNet.Pipe.Inbound
 
             try
             {
-                requestAsLog = await context.HttpContext.Request.ToLogStringAsync(context.HttpContext.Response);
+                requestAsLog = await context.HttpContext.Request.ToLogStringAsync(context.HttpContext.Response, cancellationToken: cancellationToken);
             }
             catch (Exception)
             {
@@ -295,7 +325,7 @@ namespace Nexus.Link.Libraries.Web.AspNet.Pipe.Inbound
                 exception);
         }
 #else
-        private static async Task LogFailureAsync(HttpRequestMessage request, HttpResponseMessage response, Exception exception)
+        private static async Task LogFailureAsync(HttpRequestMessage request, HttpResponseMessage response, Exception exception, CancellationToken cancellationToken)
         {
             string requestAsLog;
             string resultAsLog;
@@ -312,7 +342,7 @@ namespace Nexus.Link.Libraries.Web.AspNet.Pipe.Inbound
 
             try
             {
-                requestAsLog = await request.ToLogStringAsync(response);
+                requestAsLog = await request.ToLogStringAsync(response, cancellationToken: cancellationToken);
             }
             catch (Exception)
             {
@@ -322,7 +352,7 @@ namespace Nexus.Link.Libraries.Web.AspNet.Pipe.Inbound
             Log.LogError($"Failed to decorate the arguments for the request {requestAsLog}. Result:\r{resultAsLog}", exception);
         }
 
-        private static async Task TranslateResponseAsync(HttpActionExecutedContext context, ITranslator translator, CancellationToken cancellationToken = default(CancellationToken))
+        private static async Task TranslateResponseAsync(HttpActionExecutedContext context, ITranslator translator, CancellationToken cancellationToken = default)
         {
             if (context.ActionContext?.Response?.Content == null) return;
             await context.ActionContext?.Response.Content.LoadIntoBufferAsync();
@@ -339,7 +369,7 @@ namespace Nexus.Link.Libraries.Web.AspNet.Pipe.Inbound
         }
 #endif
     }
-    #if NETCOREAPP
+#if NETCOREAPP
     /// <summary>
     /// https://stackoverflow.com/questions/55990151/is-adding-addmvc-service-twice-in-configureservices-a-good-practice-in-asp-n
     /// </summary>
@@ -377,5 +407,5 @@ namespace Nexus.Link.Libraries.Web.AspNet.Pipe.Inbound
             return services;
         }
     }
-    #endif
+#endif
 }

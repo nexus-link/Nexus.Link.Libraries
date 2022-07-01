@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Nexus.Link.Libraries.Core.Assert;
 
 namespace Nexus.Link.Libraries.Core.Crud.Model
@@ -6,6 +7,7 @@ namespace Nexus.Link.Libraries.Core.Crud.Model
     /// <summary>
     /// An Id for slaves that belongs to a master
     /// </summary>
+    [Obsolete("Not needed since we introduced DependentToMaster. Obsolete since 2021-08-27.")]
     public class SlaveToMasterId<TId> : IValidatable
     {
         /// <summary>

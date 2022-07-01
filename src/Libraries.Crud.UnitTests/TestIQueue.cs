@@ -19,8 +19,8 @@ namespace Nexus.Link.Libraries.Crud.UnitTests
         {
             var getTask = Queue.GetOneMessageNoBlockAsync();
             await Task.Delay(TimeSpan.FromMilliseconds(100));
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsTrue(getTask.IsCompleted, "Expected the method to finish quickly.");
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsNull(await getTask);
+            Assert.IsTrue(getTask.IsCompleted, "Expected the method to finish quickly.");
+            Assert.IsNull(await getTask);
         }
 
         [TestMethod]
@@ -28,8 +28,8 @@ namespace Nexus.Link.Libraries.Crud.UnitTests
         {
             var getTask = Queue.PeekNoBlockAsync();
             await Task.Delay(TimeSpan.FromMilliseconds(100));
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsTrue(getTask.IsCompleted, "Expected the method to finish quickly.");
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsNull(await getTask);
+            Assert.IsTrue(getTask.IsCompleted, "Expected the method to finish quickly.");
+            Assert.IsNull(await getTask);
         }
 
         [TestMethod]
@@ -39,8 +39,8 @@ namespace Nexus.Link.Libraries.Crud.UnitTests
             message.InitializeWithDataForTesting(TypeOfTestDataEnum.Variant1);
             await Queue.AddMessageAsync(message);
             var result = await Queue.GetOneMessageNoBlockAsync();
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsNotNull(result);
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual(message, result);
+            Assert.IsNotNull(result);
+            Assert.AreEqual(message, result);
         }
 
         [TestMethod]
@@ -50,11 +50,11 @@ namespace Nexus.Link.Libraries.Crud.UnitTests
             message.InitializeWithDataForTesting(TypeOfTestDataEnum.Variant1);
             await Queue.AddMessageAsync(message);
             var result = await Queue.PeekNoBlockAsync();
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsNotNull(result);
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual(message, result);
+            Assert.IsNotNull(result);
+            Assert.AreEqual(message, result);
             result = await Queue.GetOneMessageNoBlockAsync();
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsNotNull(result);
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual(message, result);
+            Assert.IsNotNull(result);
+            Assert.AreEqual(message, result);
         }
 
         [TestMethod]
@@ -66,8 +66,8 @@ namespace Nexus.Link.Libraries.Crud.UnitTests
             await Queue.ClearAsync();
             var getTask = Queue.GetOneMessageNoBlockAsync();
             await Task.Delay(TimeSpan.FromMilliseconds(100));
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsTrue(getTask.IsCompleted, "Expected the method to finish quickly.");
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsNull(await getTask);
+            Assert.IsTrue(getTask.IsCompleted, "Expected the method to finish quickly.");
+            Assert.IsNull(await getTask);
         }
     }
 }

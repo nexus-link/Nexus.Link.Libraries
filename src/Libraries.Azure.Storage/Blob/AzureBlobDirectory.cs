@@ -31,28 +31,28 @@ namespace Nexus.Link.Libraries.Azure.Storage.Blob
             return new AzureBlockBlob(blockBlob);
         }
 
-        public async Task<bool> ExistsAsync()
+        public async Task<bool> ExistsAsync(CancellationToken cancellationToken = default)
         {
-            return await Container.ExistsAsync();
+            return await Container.ExistsAsync(cancellationToken);
         }
 
-        public Task CreateIfNotExistsAsync()
+        public Task CreateIfNotExistsAsync(CancellationToken cancellationToken = default)
         {
             throw new FulcrumNotImplementedException();
         }
 
-        public Task DeleteAsync()
+        public Task DeleteAsync(CancellationToken cancellationToken = default)
         {
             throw new FulcrumNotImplementedException();
         }
 
-        public async Task<IEnumerable<IDirectoryListItem>> ListContentAsync(CancellationToken ct = default(CancellationToken))
+        public async Task<IEnumerable<IDirectoryListItem>> ListContentAsync(CancellationToken cancellationToken = default)
         {
-            return await Task.FromResult((await ListBlobsAsync(ct))
+            return await Task.FromResult((await ListBlobsAsync(cancellationToken))
                 .Select(CastToBlob));
         }
 
-        private async Task<List<IListBlobItem>> ListBlobsAsync(CancellationToken ct = default(CancellationToken))
+        private async Task<List<IListBlobItem>> ListBlobsAsync(CancellationToken ct = default)
         {
             BlobContinuationToken continuationToken = null;
             var results = new List<IListBlobItem>();

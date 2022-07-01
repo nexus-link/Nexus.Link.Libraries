@@ -23,7 +23,8 @@ namespace Nexus.Link.Libraries.Core.Tests.Queue
         public void CanRunWithoutIndividualAwait()
         {
             var stopWatch = new Stopwatch();
-            var queue = new MemoryQueue<string>(nameof(CanRunWithoutIndividualAwait), SlowItemAction, true);
+            var queue = new MemoryQueue<string>(nameof(CanRunWithoutIndividualAwait));
+            queue.SetQueueItemAction(SlowItemAction, true);
             queue.KeepQueueAliveTimeSpan = TimeSpan.Zero;
             stopWatch.Start();
             for (var i = 0; i < 20000; i++)
@@ -59,9 +60,9 @@ namespace Nexus.Link.Libraries.Core.Tests.Queue
             UT.Assert.AreEqual(expectedCount, count);
         }
 
-        private static async Task SlowItemAction(string item)
+        private static async Task SlowItemAction(string item, CancellationToken cancellationToken = default)
         {
-            await Task.Delay(TimeSpan.FromMilliseconds(100));
+            await Task.Delay(TimeSpan.FromMilliseconds(100), cancellationToken);
         }
     }
 }

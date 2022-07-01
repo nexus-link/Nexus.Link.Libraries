@@ -16,7 +16,7 @@ namespace Nexus.Link.Libraries.Web.AspNet.Pipe.Inbound
     /// Extracts organization and environment values from request uri and adds these values to an execution context. 
     /// These values are later used to get organization and environment specific configurations for logging and request handling. 
     /// </summary>
-    [Obsolete("Use SaveClientTenant and SaveClientTenantConfiguration")]
+    [Obsolete("Use SaveClientTenant and SaveClientTenantConfiguration. Obsolete warning since 2020-06-09, error since 2021-06-09.", true)]
     public class SaveConfiguration : CompatibilityDelegatingHandler
     {
         private readonly ILeverServiceConfiguration _serviceConfiguration;
@@ -88,7 +88,7 @@ namespace Nexus.Link.Libraries.Web.AspNet.Pipe.Inbound
 #if NETCOREAPP
     public static class SaveConfigurationExtension
     {
-        [Obsolete("Use UseNexusSaveClientTenant and UseNexusSaveClientConfigurationTenant")]
+        [Obsolete("Use UseNexusSaveClientTenant and UseNexusSaveClientConfigurationTenant. Obsolete warning since 2020-06-09, error since 2021-06-09.", true)]
         public static IApplicationBuilder UseNexusSaveConfiguration(
             this IApplicationBuilder builder, ILeverServiceConfiguration serviceConfiguration)
         {

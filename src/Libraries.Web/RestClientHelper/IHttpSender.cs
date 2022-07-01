@@ -25,6 +25,11 @@ namespace Nexus.Link.Libraries.Web.RestClientHelper
         IHttpSender CreateHttpSender(string relativeUrl);
 
         /// <summary>
+        /// Credentials to use for requests
+        /// </summary>
+        ServiceClientCredentials Credentials { get; }
+        
+        /// <summary>
         /// Send a request with method <paramref name="method"/> to <paramref name="relativeUrl"/>.
         /// </summary>
         /// <param name="method">POST, GET, etc.</param>
@@ -32,7 +37,7 @@ namespace Nexus.Link.Libraries.Web.RestClientHelper
         /// <param name="customHeaders">Optional headers.</param>
         /// <param name="cancellationToken">Optional cancellation token.</param>
         /// <returns></returns>
-        Task<HttpResponseMessage> SendRequestAsync(HttpMethod method, string relativeUrl, Dictionary<string, List<string>> customHeaders = null, CancellationToken cancellationToken = new CancellationToken());
+        Task<HttpResponseMessage> SendRequestAsync(HttpMethod method, string relativeUrl, Dictionary<string, List<string>> customHeaders = null, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Send a request with method <paramref name="method"/> to <paramref name="relativeUrl"/> with <paramref name="body"/>.
@@ -44,9 +49,9 @@ namespace Nexus.Link.Libraries.Web.RestClientHelper
         /// <param name="customHeaders">Optional headers.</param>
         /// <param name="cancellationToken">Optional cancellation token.</param>
         /// <returns></returns>
-        Task<HttpResponseMessage> SendRequestAsync<TBody>(HttpMethod method, string relativeUrl, TBody body = default(TBody),
+        Task<HttpResponseMessage> SendRequestAsync<TBody>(HttpMethod method, string relativeUrl, TBody body = default,
             Dictionary<string, List<string>> customHeaders = null,
-            CancellationToken cancellationToken = default(CancellationToken));
+            CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Send a request with method <paramref name="method"/> to <paramref name="relativeUrl"/> with <paramref name="body"/> and expect a result of a specific type.
@@ -60,7 +65,20 @@ namespace Nexus.Link.Libraries.Web.RestClientHelper
         /// <param name="cancellationToken">Optional cancellation token.</param>
         /// <returns></returns>
         Task<HttpOperationResponse<TResponse>> SendRequestAsync<TResponse, TBody>(HttpMethod method, string relativeUrl,
-            TBody body = default(TBody), Dictionary<string, List<string>> customHeaders = null,
-            CancellationToken cancellationToken = default(CancellationToken));
+            TBody body = default, Dictionary<string, List<string>> customHeaders = null,
+            CancellationToken cancellationToken = default);
+
+        /// <summary>
+        /// The core method for sending a <paramref name="requestMessage"/>.
+        /// </summary>
+        /// <param name="requestMessage">The request to send.</param>
+        /// <param name="cancellationToken">Optional cancellation token.</param>
+        /// <returns></returns>
+        Task<HttpResponseMessage> SendAsync(HttpRequestMessage requestMessage, CancellationToken cancellationToken = default);
+
+        /// <summary>
+        /// Return the absolute Url by concatenating the base url with the <paramref name="relativeUrl"/>.
+        /// </summary>
+        string GetAbsoluteUrl(string relativeUrl);
     }
 }

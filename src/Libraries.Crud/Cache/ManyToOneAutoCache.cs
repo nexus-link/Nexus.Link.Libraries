@@ -5,8 +5,11 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Caching.Distributed;
 using Nexus.Link.Libraries.Core.Assert;
+using Nexus.Link.Libraries.Core.Storage.Logic;
 using Nexus.Link.Libraries.Core.Storage.Model;
+using Nexus.Link.Libraries.Crud.Helpers;
 using Nexus.Link.Libraries.Crud.Interfaces;
+using Nexus.Link.Libraries.Crud.Model;
 
 namespace Nexus.Link.Libraries.Crud.Cache
 {
@@ -25,7 +28,7 @@ namespace Nexus.Link.Libraries.Crud.Cache
         /// <param name="options"></param>
         public ManyToOneAutoCache(ICrudManyToOne<TManyModel, TId> service, IDistributedCache cache,
             FlushCacheDelegateAsync flushCacheDelegateAsync = null, AutoCacheOptions options = null)
-            : this(service, item => ((IUniquelyIdentifiable<TId>)item).Id, cache, flushCacheDelegateAsync, options)
+            : this(service, item => item.GetPrimaryKey<TManyModel,TId>(), cache, flushCacheDelegateAsync, options)
         {
         }
 
@@ -52,6 +55,7 @@ namespace Nexus.Link.Libraries.Crud.Cache
         ICrudManyToOne<TManyModelCreate, TManyModel, TId> where TManyModel : TManyModelCreate
     {
         private readonly ICrudManyToOne<TManyModelCreate, TManyModel, TId> _service;
+        private readonly ManyToOneConvenience<TManyModelCreate, TManyModel, TId> _convenience;
 
         /// <summary>
         /// Constructor for TOneModel that implements <see cref="IUniquelyIdentifiable{TId}"/>.
@@ -63,7 +67,7 @@ namespace Nexus.Link.Libraries.Crud.Cache
         public ManyToOneAutoCache(ICrudManyToOne<TManyModelCreate, TManyModel, TId> service,
             IDistributedCache cache, FlushCacheDelegateAsync flushCacheDelegateAsync = null,
             AutoCacheOptions options = null)
-            : this(service, item => ((IUniquelyIdentifiable<TId>)item).Id, cache, flushCacheDelegateAsync, options)
+            : this(service, item => item.GetPrimaryKey<TManyModel,TId>(), cache, flushCacheDelegateAsync, options)
         {
         }
 
@@ -85,6 +89,7 @@ namespace Nexus.Link.Libraries.Crud.Cache
             InternalContract.RequireNotNull(getIdDelegate, nameof(getIdDelegate));
             InternalContract.RequireNotNull(cache, nameof(cache));
             _service = service;
+            _convenience = new ManyToOneConvenience<TManyModelCreate, TManyModel, TId>(this);
         }
 
         /// <summary>
@@ -99,52 +104,52 @@ namespace Nexus.Link.Libraries.Crud.Cache
         /// <summary>
         /// Wait until any background thread is active saving results from a ReadAll() operation.
         /// </summary>
-        public async Task DelayUntilNoOperationActiveAsync(TId parentId)
+        public async Task DelayUntilNoOperationActiveAsync(TId parentId, CancellationToken cancellationToken = default)
         {
             var count = 0;
-            while (count++ < 5 && !IsCollectionOperationActive(parentId)) await Task.Delay(TimeSpan.FromMilliseconds(1));
-            while (IsCollectionOperationActive(parentId)) await Task.Delay(TimeSpan.FromMilliseconds(10));
+            while (count++ < 5 && !IsCollectionOperationActive(parentId)) await Task.Delay(TimeSpan.FromMilliseconds(1), cancellationToken);
+            while (IsCollectionOperationActive(parentId)) await Task.Delay(TimeSpan.FromMilliseconds(10), cancellationToken);
         }
 
         /// <inheritdoc />
-        public async Task DeleteChildrenAsync(TId masterId, CancellationToken token = default(CancellationToken))
+        public async Task DeleteChildrenAsync(TId masterId, CancellationToken cancellationToken  = default)
         {
-            await _service.DeleteChildrenAsync(masterId, token);
-            await RemoveCachedChildrenInBackgroundAsync(masterId, token);
+            await _service.DeleteChildrenAsync(masterId, cancellationToken );
+            await RemoveCachedChildrenInBackgroundAsync(masterId, cancellationToken );
         }
 
-        private async Task RemoveCachedChildrenInBackgroundAsync(TId parentId, CancellationToken token = default(CancellationToken))
+        private async Task RemoveCachedChildrenInBackgroundAsync(TId parentId, CancellationToken cancellationToken  = default)
         {
-            await DelayUntilNoOperationActiveAsync(parentId);
+            await DelayUntilNoOperationActiveAsync(parentId, cancellationToken );
             var key = CacheKeyForChildrenCollection(parentId);
-            await RemoveCacheItemsInBackgroundAsync(key, async () => await CacheGetAsync(int.MaxValue, key, token));
+            await RemoveCacheItemsInBackgroundAsync(key, async () => await CacheGetAsync(int.MaxValue, key, cancellationToken ), cancellationToken );
         }
 
         /// <inheritdoc />
-        public async Task<PageEnvelope<TManyModel>> ReadChildrenWithPagingAsync(TId parentId, int offset, int? limit = null, CancellationToken token = default(CancellationToken))
+        public async Task<PageEnvelope<TManyModel>> ReadChildrenWithPagingAsync(TId parentId, int offset, int? limit = null, CancellationToken cancellationToken  = default)
         {
             InternalContract.RequireNotDefaultValue(parentId, nameof(parentId));
             InternalContract.RequireGreaterThanOrEqualTo(0, offset, nameof(limit));
             if (limit == null) limit = PageInfo.DefaultLimit;
             InternalContract.RequireGreaterThan(0, limit.Value, nameof(limit));
             var key = CacheKeyForChildrenCollection(parentId);
-            var result = await CacheGetAsync(offset, limit.Value, key, token);
+            var result = await CacheGetAsync(offset, limit.Value, key, cancellationToken );
             if (result != null) return result;
-            result = await _service.ReadChildrenWithPagingAsync(parentId, offset, limit, token);
+            result = await _service.ReadChildrenWithPagingAsync(parentId, offset, limit, cancellationToken );
             if (result?.Data == null) return null;
             CacheItemsInBackground(result, limit.Value, key);
             return result;
         }
 
         /// <inheritdoc />
-        public async Task<IEnumerable<TManyModel>> ReadChildrenAsync(TId parentId, int limit = int.MaxValue, CancellationToken token = default(CancellationToken))
+        public async Task<IEnumerable<TManyModel>> ReadChildrenAsync(TId parentId, int limit = int.MaxValue, CancellationToken cancellationToken  = default)
         {
             InternalContract.RequireNotDefaultValue(parentId, nameof(parentId));
             InternalContract.RequireGreaterThan(0, limit, nameof(limit));
             var key = CacheKeyForChildrenCollection(parentId);
-            var itemsArray = await CacheGetAsync(limit, key, token);
+            var itemsArray = await CacheGetAsync(limit, key, cancellationToken );
             if (itemsArray != null) return itemsArray;
-            var itemsCollection = await _service.ReadChildrenAsync(parentId, limit, token);
+            var itemsCollection = await _service.ReadChildrenAsync(parentId, limit, cancellationToken );
             itemsArray = itemsCollection as TManyModel[] ?? itemsCollection.ToArray();
             CacheItemsInBackground(itemsArray, limit, key);
             return itemsArray;
@@ -153,6 +158,45 @@ namespace Nexus.Link.Libraries.Crud.Cache
         private static string CacheKeyForChildrenCollection(TId parentId)
         {
             return $"childrenOf-{parentId}";
+        }
+
+        /// <inheritdoc />
+        public Task<PageEnvelope<TManyModel>> SearchChildrenAsync(TId parentId, SearchDetails<TManyModel> details, int offset, int? limit = null,
+            CancellationToken cancellationToken = default)
+        {
+            return _convenience.SearchChildrenAsync(parentId, details, offset, limit, cancellationToken);
+        }
+
+        /// <inheritdoc />
+        public Task<TManyModel> FindUniqueChildAsync(TId parentId, SearchDetails<TManyModel> details,
+            CancellationToken cancellationToken = default)
+        {
+            return _convenience.FindUniqueChildAsync(parentId, details, cancellationToken);
+        }
+
+        /// <inheritdoc />
+        public Task<TId> CreateChildAsync(TId parentId, TManyModelCreate item, CancellationToken cancellationToken  = default)
+        {
+            return _convenience.CreateChildAsync(parentId, item, cancellationToken );
+        }
+
+        /// <inheritdoc />
+        public Task<TManyModel> CreateChildAndReturnAsync(TId parentId, TManyModelCreate item, CancellationToken cancellationToken  = default)
+        {
+            return _convenience.CreateChildAndReturnAsync(parentId, item, cancellationToken );
+        }
+
+        /// <inheritdoc />
+        public Task CreateChildWithSpecifiedIdAsync(TId parentId, TId childId, TManyModelCreate item, CancellationToken cancellationToken  = default)
+        {
+            return _convenience.CreateChildWithSpecifiedIdAsync(parentId, childId, item, cancellationToken );
+        }
+
+        /// <inheritdoc />
+        public Task<TManyModel> CreateChildWithSpecifiedIdAndReturnAsync(TId parentId, TId childId, TManyModelCreate item,
+            CancellationToken cancellationToken  = default)
+        {
+            return _convenience.CreateChildWithSpecifiedIdAndReturnAsync(parentId, childId, item, cancellationToken );
         }
     }
 }

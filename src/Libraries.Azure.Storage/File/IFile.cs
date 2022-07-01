@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System.Threading;
+using System.Threading.Tasks;
 
 namespace Nexus.Link.Libraries.Azure.Storage.File
 {
@@ -12,18 +13,19 @@ namespace Nexus.Link.Libraries.Azure.Storage.File
         /// </summary>
         /// <param name="content">The content for the file.</param>
         /// <param name="contentType">The content type as relevant to the file system.</param>
-        Task UploadAsync(string content, string contentType = null);
+        /// <param name="cancellationToken"></param>
+        Task UploadAsync(string content, string contentType = null, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Return true if the directory exists already.
         /// </summary>
         /// <returns></returns>
-        Task<bool> ExistsAsync();
+        Task<bool> ExistsAsync(CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Download the content of the file as a text string.
         /// </summary>
         /// <returns></returns>
-        Task<string> DownloadTextAsync();
+        Task<string> DownloadTextAsync(CancellationToken cancellationToken = default);
     }
 }

@@ -89,6 +89,34 @@ namespace Nexus.Link.Libraries.Web.Tests.Error
         }
 
         [TestMethod]
+        public async Task Convert402()
+        {
+            var content = "Accepted FulcrumError";
+            var responseMessage = new HttpResponseMessage(HttpStatusCode.Accepted)
+            {
+                Content = new StringContent(content, Encoding.UTF8)
+            };
+            var result = await ExceptionConverter.ToFulcrumExceptionAsync(responseMessage);
+            Assert.IsNotNull(result);
+#pragma warning disable 618
+            Assert.AreEqual(FulcrumAcceptedException.ExceptionType, result.Type);
+#pragma warning restore 618
+        }
+
+        [TestMethod]
+        public async Task Convert423()
+        {
+            var content = "Locked FulcrumError";
+            var responseMessage = new HttpResponseMessage((HttpStatusCode)423)
+            {
+                Content = new StringContent(content, Encoding.UTF8)
+            };
+            var result = await ExceptionConverter.ToFulcrumExceptionAsync(responseMessage);
+            Assert.IsNotNull(result);
+            Assert.AreEqual(FulcrumResourceLockedException.ExceptionType, result.Type);
+        }
+
+        [TestMethod]
         public async Task ConvertNotFulcrumErrorAndAccessAfter()
         {
             var content = "Not result FulcrumError";

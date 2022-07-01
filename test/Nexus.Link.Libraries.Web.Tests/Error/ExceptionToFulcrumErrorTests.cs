@@ -4,6 +4,8 @@ using Nexus.Link.Libraries.Core.Application;
 using Nexus.Link.Libraries.Core.Error.Logic;
 using Nexus.Link.Libraries.Web.Error.Logic;
 
+//TODO: ExceptionToFulcrumResponse
+
 namespace Nexus.Link.Libraries.Web.Tests.Error
 {
     [TestClass]
@@ -64,6 +66,50 @@ namespace Nexus.Link.Libraries.Web.Tests.Error
                 Assert.IsNotNull(error.InnerError);
                 Assert.AreEqual(innerMessage, error.InnerError.TechnicalMessage);
                 Assert.AreEqual(error.InnerInstanceId, error.InnerError?.InstanceId);
+            }
+        }
+
+        [TestMethod]
+        public void FulcrumException_ResourceLocked()
+        {
+            var exceptionMessage = Guid.NewGuid().ToString();
+            var exception = new FulcrumResourceLockedException(exceptionMessage);
+            try
+            {
+                throw exception;
+            }
+            catch (FulcrumException e)
+            {
+                Assert.IsNotNull(e.StackTrace);
+                var error = ExceptionConverter.ToFulcrumError(exception);
+                Assert.IsNotNull(error);
+                Assert.AreEqual(exceptionMessage, error.TechnicalMessage);
+                Assert.AreEqual("Xlent.Fulcrum.ResourceLocked", error.Type);
+
+                Assert.IsNull(error.ErrorLocation,
+                    $"Error location was expected to be null, but contained the following: {error.ErrorLocation}");
+            }
+        }
+
+        [TestMethod]
+        public void FulcrumException_TryAgain()
+        {
+            var exceptionMessage = Guid.NewGuid().ToString();
+            var exception = new FulcrumTryAgainException(exceptionMessage);
+            try
+            {
+                throw exception;
+            }
+            catch (FulcrumException e)
+            {
+                Assert.IsNotNull(e.StackTrace);
+                var error = ExceptionConverter.ToFulcrumError(exception);
+                Assert.IsNotNull(error);
+                Assert.AreEqual(exceptionMessage, error.TechnicalMessage);
+                Assert.AreEqual("Xlent.Fulcrum.TryAgain", error.Type);
+
+                Assert.IsNull(error.ErrorLocation,
+                    $"Error location was expected to be null, but contained the following: {error.ErrorLocation}");
             }
         }
     }

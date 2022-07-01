@@ -3,6 +3,12 @@
     {
       "Name": "client-a",
       "Authentication": "auth-1"
+    },
+    {
+      "Name": "client-no-auth",
+      "RequestHeaders": {
+        "Authorization": "Basic pythagoras" 
+      } 
     }
   ],
   "Authentications": [

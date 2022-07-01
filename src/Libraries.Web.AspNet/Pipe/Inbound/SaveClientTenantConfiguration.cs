@@ -1,6 +1,9 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading;
+using System.Threading.Tasks;
 using Nexus.Link.Libraries.Core.Application;
 using Nexus.Link.Libraries.Core.Assert;
+using Nexus.Link.Libraries.Core.Error.Logic;
 using Nexus.Link.Libraries.Core.Platform.Configurations;
 
 #if NETCOREAPP
@@ -13,7 +16,7 @@ namespace Nexus.Link.Libraries.Web.AspNet.Pipe.Inbound
     /// Extracts organization and environment values from request uri and adds these values to an execution context. 
     /// These values are later used to get organization and environment specific configurations for logging and request handling. 
     /// </summary>
-    public class SaveClientTenantConfiguration : CompatibilityDelegatingHandler
+    public class SaveClientTenantConfiguration : CompatibilityDelegatingHandlerWithCancellationSupport
     {
         private readonly ILeverServiceConfiguration _serviceConfiguration;
         private static readonly DelegateState DelegateState = new DelegateState(typeof(SaveClientTenantConfiguration).FullName);
@@ -28,9 +31,10 @@ namespace Nexus.Link.Libraries.Web.AspNet.Pipe.Inbound
         }
 
 #if NETCOREAPP
-/// <inheritdoc />
+        /// <inheritdoc />
+        [Obsolete("Please use the class NexusLinkMiddleware. Obsolete since 2021-06-04")]
         public SaveClientTenantConfiguration(RequestDelegate next, ILeverServiceConfiguration serviceConfiguration)
-        :base(next)
+                : base(next)
         {
             _serviceConfiguration = serviceConfiguration;
         }
@@ -41,7 +45,7 @@ namespace Nexus.Link.Libraries.Web.AspNet.Pipe.Inbound
         }
 #endif
 
-        protected override async Task InvokeAsync(CompabilityInvocationContext context)
+        protected override async Task InvokeAsync(CompabilityInvocationContext context, CancellationToken cancellationToken)
         {
             InternalContract.Require(!DelegateState.HasStarted, $"{nameof(SaveClientTenantConfiguration)} has already been started in this http request.");
             InternalContract.Require(SaveClientTenant.HasStarted,
@@ -49,7 +53,8 @@ namespace Nexus.Link.Libraries.Web.AspNet.Pipe.Inbound
             InternalContract.Require(!SaveCorrelationId.HasStarted,
                 $"{nameof(SaveCorrelationId)} must not precede {nameof(SaveClientTenantConfiguration)}");
             HasStarted = true;
-            if (FulcrumApplication.Context.ClientTenant != null)
+            var tenant = FulcrumApplication.Context.ClientTenant;
+            if (tenant != null)
             {
                 try
                 {
@@ -62,21 +67,25 @@ namespace Nexus.Link.Libraries.Web.AspNet.Pipe.Inbound
                     }
 
                     FulcrumApplication.Context.LeverConfiguration =
-                        await _serviceConfiguration.GetConfigurationForAsync(
-                            FulcrumApplication.Context.ClientTenant);
+                        await _serviceConfiguration.GetConfigurationForAsync(tenant, cancellationToken);
                 }
-                catch
+                catch (FulcrumNotFoundException e)
                 {
-                    // Deliberately ignore errors for configuration. This will have to be taken care of when the configuration is needed.
+                    throw new FulcrumNotFoundException($"{FulcrumApplication.Setup.Name} could not find its configuration in Fundamentals for tenant {tenant}: {e}", e);
+                }
+                catch (Exception e)
+                {
+                    throw new FulcrumAssertionFailedException($"{FulcrumApplication.Setup.Name} could not get its configuration in Fundamentals for tenant {tenant}: {e}", e); ;
                 }
             }
 
-            await CallNextDelegateAsync(context);
+            await CallNextDelegateAsync(context, cancellationToken);
         }
     }
 #if NETCOREAPP
     public static class SaveClientTenantConfigurationExtension
     {
+        [Obsolete("Please use the class NexusLinkMiddleware. Obsolete since 2021-06-04")]
         public static IApplicationBuilder UseNexusSaveClientTenantConfiguration(
             this IApplicationBuilder builder, ILeverServiceConfiguration serviceConfiguration)
         {

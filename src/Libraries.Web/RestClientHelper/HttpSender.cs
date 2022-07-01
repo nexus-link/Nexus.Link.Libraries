@@ -6,7 +6,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Rest;
 using Newtonsoft.Json;
-using Nexus.Link.Libraries.Core.Application;
 using Nexus.Link.Libraries.Core.Assert;
 using Nexus.Link.Libraries.Core.Error.Logic;
 using Nexus.Link.Libraries.Core.Logging;
@@ -42,7 +41,7 @@ namespace Nexus.Link.Libraries.Web.RestClientHelper
         /// <summary>
         /// Credentials that are used when sending requests to the service.
         /// </summary>
-        protected ServiceClientCredentials Credentials { get; }
+        public ServiceClientCredentials Credentials { get; }
 
         /// <summary>
         /// Json settings when serializing to strings
@@ -82,9 +81,12 @@ namespace Nexus.Link.Libraries.Web.RestClientHelper
         // ReSharper disable once UnusedParameter.Local
         public HttpSender(string baseUri)
         {
-            InternalContract.RequireNotNullOrWhiteSpace(baseUri, nameof(baseUri));try
+            try
             {
-                BaseUri = new Uri(baseUri);
+                if (!string.IsNullOrWhiteSpace(baseUri))
+                {
+                    BaseUri = new Uri(baseUri);
+                }
             }
             catch (UriFormatException e)
             {
@@ -117,15 +119,15 @@ namespace Nexus.Link.Libraries.Web.RestClientHelper
 
         /// <inheritdoc />
         public async Task<HttpOperationResponse<TResponse>> SendRequestAsync<TResponse, TBody>(HttpMethod method, string relativeUrl,
-            TBody body = default(TBody), Dictionary<string, List<string>> customHeaders = null,
-            CancellationToken cancellationToken = default(CancellationToken))
+            TBody body = default, Dictionary<string, List<string>> customHeaders = null,
+            CancellationToken cancellationToken = default)
         {
             HttpResponseMessage response = null;
             try
             {
                 response = await SendRequestAsync(method, relativeUrl, body, customHeaders, cancellationToken).ConfigureAwait(false);
                 var request = response.RequestMessage;
-                return await HandleResponseWithBody<TResponse>(method, response, request);
+                return await HandleResponseWithBody<TResponse>(method, response, request, cancellationToken);
             }
             finally
             {
@@ -135,13 +137,13 @@ namespace Nexus.Link.Libraries.Web.RestClientHelper
 
         /// <inheritdoc />
         public async Task<HttpResponseMessage> SendRequestAsync<TBody>(HttpMethod method, string relativeUrl,
-            TBody body = default(TBody), Dictionary<string, List<string>> customHeaders = null,
-            CancellationToken cancellationToken = default(CancellationToken))
+            TBody body = default, Dictionary<string, List<string>> customHeaders = null,
+            CancellationToken cancellationToken = default)
         {
             HttpRequestMessage request = null;
             try
             {
-                request = await CreateRequest(method, relativeUrl, body, customHeaders, cancellationToken);
+                request = await CreateRequestAsync(method, relativeUrl, body, customHeaders, cancellationToken);
                 return await SendAsync(request, cancellationToken);
             }
             finally
@@ -155,7 +157,7 @@ namespace Nexus.Link.Libraries.Web.RestClientHelper
         {
             InternalContract.RequireNotNull(relativeUrl, nameof(relativeUrl));
 
-            var newUri = ConcatenateBaseUrlAndRelativeUrl(relativeUrl);
+            var newUri = GetAbsoluteUrl(relativeUrl);
             return new HttpSender(newUri, Credentials)
             {
                 HttpClient = HttpClient
@@ -165,12 +167,12 @@ namespace Nexus.Link.Libraries.Web.RestClientHelper
         /// <inheritdoc />
         public async Task<HttpResponseMessage> SendRequestAsync(HttpMethod method, string relativeUrl,
             Dictionary<string, List<string>> customHeaders = null,
-            CancellationToken cancellationToken = default(CancellationToken))
+            CancellationToken cancellationToken = default)
         {
             HttpRequestMessage request = null;
             try
             {
-                request = await CreateRequest(method, relativeUrl, customHeaders);
+                request = await CreateRequestAsync(method, relativeUrl, customHeaders);
                 return await SendAsync(request, cancellationToken);
             }
             finally
@@ -178,9 +180,9 @@ namespace Nexus.Link.Libraries.Web.RestClientHelper
                 request?.Dispose();
             }
         }
-
-        private async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request,
-            CancellationToken cancellationToken)
+        
+        /// <inheritdoc />
+        public async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken = default)
         {
             cancellationToken.ThrowIfCancellationRequested();
             var response = await HttpClient.SendAsync(request, cancellationToken).ConfigureAwait(false);
@@ -191,22 +193,18 @@ namespace Nexus.Link.Libraries.Web.RestClientHelper
 
         #region Helpers
 
-        private async Task<HttpRequestMessage> CreateRequest(HttpMethod method, string relativeUrl, Dictionary<string, List<string>> customHeaders)
+        protected async Task<HttpRequestMessage> CreateRequestAsync(HttpMethod method, string relativeUrl, Dictionary<string, List<string>> customHeaders)
         {
-            var url = ConcatenateBaseUrlAndRelativeUrl(relativeUrl);
+            var url = GetAbsoluteUrl(relativeUrl);
             var request = new HttpRequestMessage(method, url);
-            request.Headers.TryAddWithoutValidation("Accept", new List<string> {"application/json"});
             if (customHeaders != null)
             {
                 foreach (var header in customHeaders)
                 {
-                    if (request.Headers.Contains(header.Key))
-                    {
-                        request.Headers.Remove(header.Key);
-                    }
                     request.Headers.TryAddWithoutValidation(header.Key, header.Value);
                 }
             }
+            request.Headers.TryAddWithoutValidation("Accept", new List<string> { "application/json" });
 
             if (Credentials == null) return request;
 
@@ -214,11 +212,11 @@ namespace Nexus.Link.Libraries.Web.RestClientHelper
             return request;
         }
 
-        private async Task<HttpRequestMessage> CreateRequest<TBody>(HttpMethod method, string relativeUrl, TBody instance, Dictionary<string, List<string>> customHeaders,
+        private async Task<HttpRequestMessage> CreateRequestAsync<TBody>(HttpMethod method, string relativeUrl, TBody instance, Dictionary<string, List<string>> customHeaders,
             CancellationToken cancellationToken)
         {
             InternalContract.RequireNotNull(relativeUrl, nameof(relativeUrl));
-            var request = await CreateRequest(method, relativeUrl, customHeaders);
+            var request = await CreateRequestAsync(method, relativeUrl, customHeaders);
 
             if (instance != null)
             {
@@ -235,28 +233,33 @@ namespace Nexus.Link.Libraries.Web.RestClientHelper
             return request;
         }
 
+
         private async Task<HttpOperationResponse<TResponse>> HandleResponseWithBody<TResponse>(HttpMethod method, HttpResponseMessage response,
-            HttpRequestMessage request)
+            HttpRequestMessage request, CancellationToken cancellationToken)
         {
-            await VerifySuccessAsync(response);
             var result = new HttpOperationResponse<TResponse>
             {
                 Request = request,
                 Response = response,
-                Body = default(TResponse)
+                Body = default
             };
 
-            if (method == HttpMethod.Get || method == HttpMethod.Put || method == HttpMethod.Post || method == PatchMethod )
+            // Simple case
+            if (response.StatusCode == HttpStatusCode.NoContent) return result;
+
+            await VerifySuccessAsync(response, cancellationToken);
+            if (method == HttpMethod.Get || method == HttpMethod.Put || method == HttpMethod.Post || method == PatchMethod)
             {
                 if ((method == HttpMethod.Get || method == HttpMethod.Put || method == PatchMethod) && response.StatusCode != HttpStatusCode.OK)
                 {
                     throw new FulcrumResourceException($"The response to request {request.ToLogString()} was expected to have HttpStatusCode {HttpStatusCode.OK}, but had {response.StatusCode.ToLogString()}.");
                 }
+
                 if (method == HttpMethod.Post && response.StatusCode != HttpStatusCode.OK && response.StatusCode != HttpStatusCode.Created)
                 {
                     throw new FulcrumResourceException($"The response to request {request.ToLogString()} was expected to have HttpStatusCode {HttpStatusCode.OK} or {HttpStatusCode.Created}, but had {response.StatusCode.ToLogString()}.");
                 }
-                var responseContent = await TryGetContentAsString(response.Content, false);
+                var responseContent = await TryGetContentAsString(response.Content, false, cancellationToken);
                 if (responseContent == null) return result;
                 try
                 {
@@ -270,14 +273,14 @@ namespace Nexus.Link.Libraries.Web.RestClientHelper
             return result;
         }
 
-        private async Task VerifySuccessAsync(HttpResponseMessage response)
+        private async Task VerifySuccessAsync(HttpResponseMessage response, CancellationToken cancellationToken)
         {
             InternalContract.RequireNotNull(response, nameof(response));
             InternalContract.RequireNotNull(response.RequestMessage, $"{nameof(response)}.{nameof(response.RequestMessage)}");
             if (!response.IsSuccessStatusCode)
             {
-                var requestContent = await TryGetContentAsString(response.RequestMessage?.Content, true);
-                var responseContent = await TryGetContentAsString(response.Content, true);
+                var requestContent = await TryGetContentAsString(response.RequestMessage?.Content, true, cancellationToken);
+                var responseContent = await TryGetContentAsString(response.Content, true, cancellationToken);
                 var message = $"{response.StatusCode} {responseContent}";
                 var exception = new HttpOperationException(message)
                 {
@@ -288,11 +291,12 @@ namespace Nexus.Link.Libraries.Web.RestClientHelper
             }
         }
 
-        private async Task<string> TryGetContentAsString(HttpContent content, bool silentlyIgnoreExceptions)
+        private async Task<string> TryGetContentAsString(HttpContent content, bool silentlyIgnoreExceptions, CancellationToken cancellationToken)
         {
             if (content == null) return null;
             try
             {
+                await content.LoadIntoBufferAsync();
                 return await content.ReadAsStringAsync().ConfigureAwait(false);
             }
             catch (Exception e)
@@ -302,22 +306,34 @@ namespace Nexus.Link.Libraries.Web.RestClientHelper
             return null;
         }
 
-        private string ConcatenateBaseUrlAndRelativeUrl(string relativeUrl)
+        public string GetAbsoluteUrl(string relativeUrl)
         {
-            var baseUri = BaseUri.AbsoluteUri;
-            var relativeUrlBeginsWithSpecialCharacter = relativeUrl.StartsWith("/") || relativeUrl.StartsWith("?");
-            var slashIsRequired = !string.IsNullOrWhiteSpace(relativeUrl) && !relativeUrlBeginsWithSpecialCharacter;
-            if (baseUri.EndsWith("/"))
+            string baseUri = BaseUri?.OriginalString ?? HttpClient.ActualHttpClient?.BaseAddress?.OriginalString ?? "";
+
+            if (baseUri != "" && !string.IsNullOrWhiteSpace(relativeUrl))
             {
-                // Maybe remove the /
-                if (relativeUrlBeginsWithSpecialCharacter) baseUri = baseUri.Substring(0, baseUri.Length - 1);
-            }
-            else
-            {
-                if (slashIsRequired) baseUri += "/";
+                var relativeUrlBeginsWithSpecialCharacter = relativeUrl.StartsWith("/") || relativeUrl.StartsWith("?");
+                var slashIsRequired = !string.IsNullOrWhiteSpace(relativeUrl) && !relativeUrlBeginsWithSpecialCharacter;
+                if (baseUri.EndsWith("/"))
+                {
+                    // Maybe remove the /
+                    if (relativeUrlBeginsWithSpecialCharacter) baseUri = baseUri.Substring(0, baseUri.Length - 1);
+                }
+                else
+                {
+                    if (slashIsRequired) baseUri += "/";
+                }
             }
 
-            return baseUri + relativeUrl;
+            var concatenatedUrl = baseUri + relativeUrl?.Trim(' ');
+
+            if (!(Uri.TryCreate(concatenatedUrl, UriKind.Absolute, out var uri)
+                && (uri.Scheme == Uri.UriSchemeHttp || uri.Scheme == Uri.UriSchemeHttps)))
+            {
+                InternalContract.Fail($"The format of the concatenated url ({concatenatedUrl}) is not correct. BaseUrl: '{baseUri}'. RelativeUrl: '{relativeUrl}'");
+            }
+
+            return concatenatedUrl;
         }
         #endregion
     }

@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Text.RegularExpressions;
+using System.Threading;
 using System.Threading.Tasks;
 using Nexus.Link.Libraries.Core.Application;
 using Nexus.Link.Libraries.Core.Assert;
@@ -14,7 +15,7 @@ namespace Nexus.Link.Libraries.Azure.Web.AspNet.Telemetry
     /// <summary>
     /// TODO
     /// </summary>
-    public class TrackAggregatedRequestUrls : CompatibilityDelegatingHandler
+    public class TrackAggregatedRequestUrls : CompatibilityDelegatingHandlerWithCancellationSupport
     {
         private readonly IDictionary<string, Regex> _pathAndQueryMatching;
 
@@ -34,7 +35,7 @@ namespace Nexus.Link.Libraries.Azure.Web.AspNet.Telemetry
         }
 #endif
 
-        protected override async Task InvokeAsync(CompabilityInvocationContext context)
+        protected override async Task InvokeAsync(CompabilityInvocationContext context, CancellationToken cancellationToken)
         {
             FulcrumAssert.IsNotNull(FulcrumApplication.Setup.TelemetryHandler, null, $"When using this handler, setup the {nameof(FulcrumApplication.Setup.TelemetryHandler)}");
             FulcrumAssert.IsNotNull(_pathAndQueryMatching, null, $"Expected {nameof(_pathAndQueryMatching)}");
@@ -61,7 +62,7 @@ namespace Nexus.Link.Libraries.Azure.Web.AspNet.Telemetry
                 }
             }
 
-            await CallNextDelegateAsync(context);
+            await CallNextDelegateAsync(context, cancellationToken);
         }
     }
 

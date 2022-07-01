@@ -26,7 +26,7 @@ namespace Nexus.Link.Libraries.Crud.UnitTests.Crud
             var updateItem = new TestItemBare();
             updateItem.InitializeWithDataForTesting(TypeOfTestDataEnum.Default);
             await CrudStorage.UpdateAsync(CrudHelper.CreateNewId<TId>(), updateItem);
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.Fail("Expected an exception");
+            Assert.Fail("Expected an exception");
         }
 
         /// <summary>
@@ -36,9 +36,9 @@ namespace Nexus.Link.Libraries.Crud.UnitTests.Crud
         public async Task Update_Read_Bare_Async()
         {
             var id = await CreateItemAsync(TypeOfTestDataEnum.Variant1);
-            var updatedItem = await UpdateItemAsync(id, TypeOfTestDataEnum.Variant2);
+            var updatedItem = await UpdateAndReturnItemAsync(id, TypeOfTestDataEnum.Variant2);
             var readItem = await ReadItemAsync(id);
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual(updatedItem, readItem);
+            Assert.AreEqual(updatedItem, readItem);
         }
     }
 }

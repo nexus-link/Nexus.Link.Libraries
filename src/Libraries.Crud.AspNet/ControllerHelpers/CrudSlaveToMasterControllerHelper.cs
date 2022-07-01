@@ -2,10 +2,16 @@
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+#if NETCOREAPP
+using Microsoft.AspNetCore.Mvc;
+#else
+using System.Web.Http;
+#endif
 using Nexus.Link.Libraries.Core.Assert;
 using Nexus.Link.Libraries.Core.Crud.Model;
 using Nexus.Link.Libraries.Core.Storage.Model;
 using Nexus.Link.Libraries.Crud.AspNet.Controllers;
+using Nexus.Link.Libraries.Crud.Helpers;
 using Nexus.Link.Libraries.Crud.Interfaces;
 using Nexus.Link.Libraries.Crud.Model;
 using Nexus.Link.Libraries.Crud.PassThrough;
@@ -13,6 +19,7 @@ using Nexus.Link.Libraries.Crud.PassThrough;
 namespace Nexus.Link.Libraries.Crud.AspNet.ControllerHelpers
 {
     /// <inheritdoc cref="CrudSlaveToMasterControllerHelper{TModel, TModel}" />
+    [Obsolete("Use DependentToMaster instead of SlaveToMaster. Obsolete since 2021-10-06.")]
     public class CrudSlaveToMasterControllerHelper<TModel> :
         CrudSlaveToMasterControllerHelper<TModel, TModel>,
         ICrudSlaveToMaster<TModel, string>
@@ -25,6 +32,7 @@ namespace Nexus.Link.Libraries.Crud.AspNet.ControllerHelpers
     }
 
     /// <inheritdoc cref="ICrudSlaveToMaster{TModelCreate, TModel, TId}" />
+    [Obsolete("Use DependentToMaster instead of SlaveToMaster. Obsolete since 2021-10-06.")]
     public class CrudSlaveToMasterControllerHelper<TModelCreate, TModel> : 
         ICrudSlaveToMaster<TModelCreate, TModel, string>
         where TModel : TModelCreate
@@ -34,14 +42,17 @@ namespace Nexus.Link.Libraries.Crud.AspNet.ControllerHelpers
         /// </summary>
         protected readonly ICrudSlaveToMaster<TModelCreate, TModel, string> Logic;
 
+        private readonly SlaveToMasterConvenience<TModelCreate, TModel, string> _convenience;
+
         /// <inheritdoc />
         public CrudSlaveToMasterControllerHelper(ICrudable<TModel, string> logic)
         {
             Logic = new SlaveToMasterPassThrough<TModelCreate, TModel, string>(logic);
+            _convenience = new SlaveToMasterConvenience<TModelCreate, TModel, string>(this);
         }
 
         /// <inheritdoc />
-        public async Task<string> CreateAsync(string masterId, TModelCreate item, CancellationToken token = default(CancellationToken))
+        public async Task<string> CreateAsync(string masterId, TModelCreate item, CancellationToken token = default)
         {
             ServiceContract.RequireNotNullOrWhiteSpace(masterId, nameof(masterId));
             ServiceContract.RequireNotNull(item, nameof(item));
@@ -52,7 +63,7 @@ namespace Nexus.Link.Libraries.Crud.AspNet.ControllerHelpers
         }
 
         /// <inheritdoc />
-        public async Task<TModel> CreateAndReturnAsync(string masterId, TModelCreate item, CancellationToken token = default(CancellationToken))
+        public async Task<TModel> CreateAndReturnAsync(string masterId, TModelCreate item, CancellationToken token = default)
         {
             ServiceContract.RequireNotNullOrWhiteSpace(masterId, nameof(masterId));
             ServiceContract.RequireNotNull(item, nameof(item));
@@ -65,7 +76,7 @@ namespace Nexus.Link.Libraries.Crud.AspNet.ControllerHelpers
 
         /// <inheritdoc />
         public async Task CreateWithSpecifiedIdAsync(string masterId, string slaveId, TModelCreate item,
-            CancellationToken token = default(CancellationToken))
+            CancellationToken token = default)
         {
             ServiceContract.RequireNotNullOrWhiteSpace(masterId, nameof(masterId));
             ServiceContract.RequireNotNullOrWhiteSpace(slaveId, nameof(slaveId));
@@ -76,7 +87,7 @@ namespace Nexus.Link.Libraries.Crud.AspNet.ControllerHelpers
 
         /// <inheritdoc />
         public async Task<TModel> CreateWithSpecifiedIdAndReturnAsync(string masterId, string slaveId, TModelCreate item,
-            CancellationToken token = default(CancellationToken))
+            CancellationToken token = default)
         {
             ServiceContract.RequireNotNullOrWhiteSpace(masterId, nameof(masterId));
             ServiceContract.RequireNotNullOrWhiteSpace(slaveId, nameof(slaveId));
@@ -89,7 +100,7 @@ namespace Nexus.Link.Libraries.Crud.AspNet.ControllerHelpers
         }
 
         /// <inheritdoc />
-        public async Task<TModel> ReadAsync(string masterId, string slaveId, CancellationToken token = default(CancellationToken))
+        public async Task<TModel> ReadAsync(string masterId, string slaveId, CancellationToken token = default)
         {
             ServiceContract.RequireNotNullOrWhiteSpace(masterId, nameof(masterId));
             ServiceContract.RequireNotNullOrWhiteSpace(slaveId, nameof(slaveId));
@@ -99,7 +110,7 @@ namespace Nexus.Link.Libraries.Crud.AspNet.ControllerHelpers
         }
 
         /// <inheritdoc />
-        public async Task<TModel> ReadAsync(SlaveToMasterId<string> id, CancellationToken token = default(CancellationToken))
+        public async Task<TModel> ReadAsync(SlaveToMasterId<string> id, CancellationToken token = default)
         {
             ServiceContract.RequireNotNull(id, nameof(id));
             ServiceContract.RequireValidated(id, nameof(id));
@@ -110,7 +121,7 @@ namespace Nexus.Link.Libraries.Crud.AspNet.ControllerHelpers
 
         /// <inheritdoc />
         public async Task<PageEnvelope<TModel>> ReadChildrenWithPagingAsync(string parentId, int offset, int? limit = null,
-            CancellationToken token = default(CancellationToken))
+            CancellationToken token = default)
         {
             ServiceContract.RequireNotNullOrWhiteSpace(parentId, nameof(parentId));
             ServiceContract.RequireGreaterThanOrEqualTo(0, offset, nameof(offset));
@@ -126,7 +137,31 @@ namespace Nexus.Link.Libraries.Crud.AspNet.ControllerHelpers
         }
 
         /// <inheritdoc />
-        public async Task<IEnumerable<TModel>> ReadChildrenAsync(string parentId, int limit = 2147483647, CancellationToken token = default(CancellationToken))
+        public async Task<PageEnvelope<TModel>> SearchChildrenAsync(string parentId,[FromBody] SearchDetails<TModel> details, int offset, int? limit = null,
+            CancellationToken cancellationToken = default)
+        {
+            ServiceContract.RequireNotNullOrWhiteSpace(parentId, nameof(parentId));
+            ServiceContract.RequireGreaterThanOrEqualTo(0, offset, nameof(offset));
+            if (limit != null)
+            {
+                ServiceContract.RequireGreaterThan(0, limit.Value, nameof(limit));
+            }
+
+            var page = await Logic.SearchChildrenAsync(parentId, details, offset, limit, cancellationToken);
+            FulcrumAssert.IsNotNull(page?.Data);
+            FulcrumAssert.IsValidated(page?.Data);
+            return page;
+        }
+
+        /// <inheritdoc />
+        public Task<TModel> FindUniqueChildAsync(string parentId, [FromBody] SearchDetails<TModel> details,
+            CancellationToken cancellationToken = default)
+        {
+            return _convenience.FindUniqueChildAsync(parentId, details, cancellationToken);
+        }
+
+        /// <inheritdoc />
+        public async Task<IEnumerable<TModel>> ReadChildrenAsync(string parentId, int limit = 2147483647, CancellationToken token = default)
         {
             ServiceContract.RequireNotNullOrWhiteSpace(parentId, nameof(parentId));
             ServiceContract.RequireGreaterThan(0, limit, nameof(limit));
@@ -137,7 +172,7 @@ namespace Nexus.Link.Libraries.Crud.AspNet.ControllerHelpers
         }
 
         /// <inheritdoc />
-        public async Task UpdateAsync(string masterId, string slaveId, TModel item, CancellationToken token = default(CancellationToken))
+        public async Task UpdateAsync(string masterId, string slaveId, TModel item, CancellationToken token = default)
         {
             ServiceContract.RequireNotNullOrWhiteSpace(masterId, nameof(masterId));
             ServiceContract.RequireNotNullOrWhiteSpace(slaveId, nameof(slaveId));
@@ -148,7 +183,7 @@ namespace Nexus.Link.Libraries.Crud.AspNet.ControllerHelpers
 
         /// <inheritdoc />
         public async Task<TModel> UpdateAndReturnAsync(string masterId, string slaveId, TModel item,
-            CancellationToken token = default(CancellationToken))
+            CancellationToken token = default)
         {
             ServiceContract.RequireNotNullOrWhiteSpace(masterId, nameof(masterId));
             ServiceContract.RequireNotNullOrWhiteSpace(slaveId, nameof(slaveId));
@@ -161,7 +196,7 @@ namespace Nexus.Link.Libraries.Crud.AspNet.ControllerHelpers
         }
 
         /// <inheritdoc />
-        public async Task DeleteAsync(string masterId, string slaveId, CancellationToken token = default(CancellationToken))
+        public async Task DeleteAsync(string masterId, string slaveId, CancellationToken token = default)
         {
             ServiceContract.RequireNotNullOrWhiteSpace(masterId, nameof(masterId));
             ServiceContract.RequireNotNullOrWhiteSpace(slaveId, nameof(slaveId));
@@ -169,14 +204,14 @@ namespace Nexus.Link.Libraries.Crud.AspNet.ControllerHelpers
         }
 
         /// <inheritdoc />
-        public async Task DeleteChildrenAsync(string parentId, CancellationToken token = default(CancellationToken))
+        public async Task DeleteChildrenAsync(string parentId, CancellationToken token = default)
         {
             ServiceContract.RequireNotNullOrWhiteSpace(parentId, nameof(parentId));
             await Logic.DeleteChildrenAsync(parentId, token);
         }
 
         /// <inheritdoc />
-        public async Task<SlaveLock<string>> ClaimLockAsync(string masterId, string slaveId, CancellationToken token = default(CancellationToken))
+        public async Task<SlaveLock<string>> ClaimLockAsync(string masterId, string slaveId, CancellationToken token = default)
         {
             ServiceContract.RequireNotNullOrWhiteSpace(masterId, nameof(masterId));
             ServiceContract.RequireNotNullOrWhiteSpace(slaveId, nameof(slaveId));
@@ -188,12 +223,46 @@ namespace Nexus.Link.Libraries.Crud.AspNet.ControllerHelpers
 
         /// <inheritdoc />
         public async Task ReleaseLockAsync(string masterId, string slaveId, string lockId,
-            CancellationToken token = default(CancellationToken))
+            CancellationToken token = default)
         {
             ServiceContract.RequireNotNullOrWhiteSpace(masterId, nameof(masterId));
             ServiceContract.RequireNotNullOrWhiteSpace(slaveId, nameof(slaveId));
             ServiceContract.RequireNotNullOrWhiteSpace(lockId, nameof(lockId));
             await Logic.ReleaseLockAsync(masterId, slaveId, lockId, token);
+        }
+
+        /// <inheritdoc />
+        public async Task<SlaveLock<string>> ClaimDistributedLockAsync(string masterId, string slaveId, CancellationToken token = default)
+        {
+            ServiceContract.RequireNotNullOrWhiteSpace(masterId, nameof(masterId));
+            ServiceContract.RequireNotNullOrWhiteSpace(slaveId, nameof(slaveId));
+            var @lock = await Logic.ClaimDistributedLockAsync(masterId, slaveId, token);
+            FulcrumAssert.IsNotNull(@lock);
+            FulcrumAssert.IsValidated(@lock);
+            return @lock;
+        }
+
+        /// <inheritdoc />
+        public async Task ReleaseDistributedLockAsync(string masterId, string slaveId, string lockId,
+            CancellationToken token = default)
+        {
+            ServiceContract.RequireNotNullOrWhiteSpace(masterId, nameof(masterId));
+            ServiceContract.RequireNotNullOrWhiteSpace(slaveId, nameof(slaveId));
+            ServiceContract.RequireNotNullOrWhiteSpace(lockId, nameof(lockId));
+            await Logic.ReleaseLockAsync(masterId, slaveId, lockId, token);
+        }
+
+        /// <inheritdoc />
+        public Task ClaimTransactionLockAsync(string masterId, string slaveId, CancellationToken token = default)
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <inheritdoc />
+        public Task<TModel> ClaimTransactionLockAndReadAsync(string masterId, string slaveId,
+            CancellationToken token = default)
+        {
+            return _convenience.ClaimTransactionLockAndReadAsync(masterId, slaveId, token);
         }
     }
 }

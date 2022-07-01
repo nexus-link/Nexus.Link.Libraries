@@ -1,11 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Rest;
+using Nexus.Link.Libraries.Core.Application;
 using Nexus.Link.Libraries.Core.Assert;
 using Nexus.Link.Libraries.Core.Translation;
+using Nexus.Link.Libraries.Web.Pipe;
+#pragma warning disable CS0618
 
 namespace Nexus.Link.Libraries.Web.RestClientHelper
 {
@@ -32,7 +36,7 @@ namespace Nexus.Link.Libraries.Web.RestClientHelper
             InternalContract.RequireNotNull(httpSender, nameof(httpSender));
             InternalContract.RequireNotNullOrWhiteSpace(translationClientName, nameof(translationClientName));
             HttpSender = httpSender;
-            
+
             TranslationClientName = translationClientName;
         }
 
@@ -44,33 +48,84 @@ namespace Nexus.Link.Libraries.Web.RestClientHelper
         }
 
         /// <inheritdoc />
+        public ServiceClientCredentials Credentials => HttpSender?.Credentials;
+
+        /// <inheritdoc />
         public async Task<HttpOperationResponse<TResponse>> SendRequestAsync<TResponse, TBody>(HttpMethod method, string relativeUrl,
-            TBody body = default(TBody), Dictionary<string, List<string>> customHeaders = null,
-            CancellationToken cancellationToken = default(CancellationToken))
+            TBody body = default, Dictionary<string, List<string>> customHeaders = null,
+            CancellationToken cancellationToken = default)
         {
+            var userIds = FulcrumApplication.Context.ValueProvider.GetValue<List<string>>("DecoratedUserIds");
+
             var translator = CreateTranslator();
-            await translator.AddSubStrings(relativeUrl).Add(body).ExecuteAsync(cancellationToken);
+            translator.AddSubStrings(relativeUrl).Add(body);
+
+            if (userIds != null && userIds.Any())
+            {
+                foreach (var decoratedUserId in userIds)
+                {
+                    translator.Add(decoratedUserId);
+                }
+            }
+
+            await translator.ExecuteAsync(cancellationToken);
+
+            if (userIds != null && userIds.Any())
+            {
+                SetupTranslatedUserId(translator, userIds);
+            }
+
             var result = await HttpSender.SendRequestAsync<TResponse, TBody>(
                 method,
                 translator.Translate(relativeUrl),
-                translator.Translate(body), 
+                translator.Translate(body),
                 customHeaders,
                 cancellationToken);
-            result.Body = (TResponse) translator.Decorate(result.Body, typeof(TResponse));
+            result.Body = (TResponse)translator.Decorate(result.Body, typeof(TResponse));
             return result;
         }
 
         /// <inheritdoc />
-        public async Task<HttpResponseMessage> SendRequestAsync<TBody>(HttpMethod method, string relativeUrl,
-            TBody body = default(TBody), Dictionary<string, List<string>> customHeaders = null,
-            CancellationToken cancellationToken = default(CancellationToken))
+        public Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken = default)
         {
+            return HttpSender.SendAsync(request, cancellationToken);
+        }
+
+        /// <inheritdoc />
+        public string GetAbsoluteUrl(string relativeUrl)
+        {
+            return HttpSender.GetAbsoluteUrl(relativeUrl);
+        }
+
+        /// <inheritdoc />
+        public async Task<HttpResponseMessage> SendRequestAsync<TBody>(HttpMethod method, string relativeUrl,
+            TBody body = default, Dictionary<string, List<string>> customHeaders = null,
+            CancellationToken cancellationToken = default)
+        {
+            var userIds = FulcrumApplication.Context.ValueProvider.GetValue<List<string>>("DecoratedUserIds");
+
             var translator = CreateTranslator();
-            await translator.Add(relativeUrl).Add(body).ExecuteAsync(cancellationToken);
+            translator.AddSubStrings(relativeUrl).Add(body);
+
+            if (userIds != null && userIds.Any())
+            {
+                foreach (var decoratedUserId in userIds)
+                {
+                    translator.Add(decoratedUserId);
+                }
+            }
+
+            await translator.ExecuteAsync(cancellationToken);
+
+            if (userIds != null && userIds.Any())
+            {
+                SetupTranslatedUserId(translator, userIds);
+            }
+
             var result = await HttpSender.SendRequestAsync(
                 method,
                 translator.Translate(relativeUrl),
-                translator.Translate(body), 
+                translator.Translate(body),
                 customHeaders,
                 cancellationToken);
             return result;
@@ -78,12 +133,52 @@ namespace Nexus.Link.Libraries.Web.RestClientHelper
 
         /// <inheritdoc />
         public async Task<HttpResponseMessage> SendRequestAsync(HttpMethod method, string relativeUrl,
-            Dictionary<string, List<string>> customHeaders = null, CancellationToken cancellationToken = default(CancellationToken))
+            Dictionary<string, List<string>> customHeaders = null, CancellationToken cancellationToken = default)
         {
+            var userIds = FulcrumApplication.Context.ValueProvider.GetValue<List<string>>("DecoratedUserIds");
+
             var translator = CreateTranslator();
-            await translator.AddSubStrings(relativeUrl).ExecuteAsync(cancellationToken);
+            translator.AddSubStrings(relativeUrl);
+
+            if (userIds != null && userIds.Any())
+            {
+                foreach (var decoratedUserId in userIds)
+                {
+                    translator.Add(decoratedUserId);
+                }
+            }
+
+            await translator.ExecuteAsync(cancellationToken);
+
+            if (userIds != null && userIds.Any())
+            {
+                SetupTranslatedUserId(translator, userIds);
+            }
+
             return await HttpSender.SendRequestAsync(method, translator.Translate(relativeUrl), customHeaders, cancellationToken);
         }
+
+        private void SetupTranslatedUserId(ITranslator translator, List<string> userIds)
+        {
+            string translatedUserId = null;
+            foreach (var userId in userIds)
+            {
+                var translated = translator.Translate(userId);
+                if (!translated.Contains("!~"))
+                {
+                    translatedUserId = translated;
+                }
+            }
+
+            if (translatedUserId != null)
+            {
+                FulcrumApplication.Context.ValueProvider.SetValue(Constants.TranslatedUserIdKey, translator.Translate(translatedUserId));
+                TranslatedUserId_OnlyForUnitTests = FulcrumApplication.Context.ValueProvider.GetValue<string>(Constants.TranslatedUserIdKey);
+            }
+        }
+
+        // ReSharper disable once InconsistentNaming
+        public string TranslatedUserId_OnlyForUnitTests { get; private set; }
 
         private ITranslator CreateTranslator()
         {

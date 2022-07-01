@@ -12,7 +12,7 @@ namespace Nexus.Link.Libraries.Crud.Test.Storage
         private MemoryQueue<TestItemBare> _queue;
 
         [TestInitialize]
-        public void Inititalize()
+        public void Initialize()
         {
             _queue = new MemoryQueue<TestItemBare>("test-queue");
         }

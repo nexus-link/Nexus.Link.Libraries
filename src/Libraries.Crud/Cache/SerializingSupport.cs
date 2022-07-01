@@ -30,12 +30,12 @@ namespace Nexus.Link.Libraries.Crud.Cache
     /// <summary>
     /// A delegate for flushing the cache, ie remove all items in the cache.
     /// </summary>
-    public delegate Task FlushCacheDelegateAsync(CancellationToken token = default(CancellationToken));
+    public delegate Task FlushCacheDelegateAsync(CancellationToken cancellationToken  = default);
 
     /// <summary>
     /// The delegate should decide if we should even should try to get the data from the cache, or if we should go directly to the storage.
     /// </summary>
-    public delegate Task<bool> UseCacheAtAllDelegateAsync(Type cachedItemType);
+    public delegate Task<bool> UseCacheAtAllDelegateAsync(Type cachedItemType, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// The delegate will receive information about a cached item. Based on that information, the delegate should decide if the cached data should be deleted, ignored or used.
@@ -43,8 +43,8 @@ namespace Nexus.Link.Libraries.Crud.Cache
     /// This means for example that you will not have to check if the data is too old in the general sense.
     /// </summary>
     /// <param name="cachedItemInformation">Information about the cached item.</param>
-    /// <param name="token">Propagates notification that operations should be canceled</param>
-    public delegate Task<UseCacheStrategyEnum> UseCacheStrategyDelegateAsync<TId>(CachedItemInformation<TId> cachedItemInformation, CancellationToken token = default(CancellationToken));
+    /// <param name="cancellationToken">Propagates notification that operations should be canceled</param>
+    public delegate Task<UseCacheStrategyEnum> UseCacheStrategyDelegateAsync<TId>(CachedItemInformation<TId> cachedItemInformation, CancellationToken cancellationToken  = default);
 
     /// <summary>
     /// A delegate for getting a unique cache key from an item.

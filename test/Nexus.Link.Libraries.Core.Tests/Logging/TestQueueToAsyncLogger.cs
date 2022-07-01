@@ -33,14 +33,13 @@ namespace Nexus.Link.Libraries.Core.Tests.Logging
             // Mock async logger
             var asyncLoggerMock = new Mock<IAsyncLogger>();
             asyncLoggerMock
-                .Setup(logger => logger.LogAsync(It.IsAny<LogRecord>()))
-                .Callback((LogRecord logRecord) => {
+                .Setup(logger => logger.LogAsync(It.IsAny<LogRecord>(), It.IsAny<CancellationToken>()))
+                .Callback((LogRecord logRecord, CancellationToken ct) => {
                     _loggedRecord = logRecord;
                     _loggedCorrelationId = FulcrumApplication.Context.CorrelationId;
                 })
                 .Returns(Task.CompletedTask);
-            _queueLogger = new QueueToAsyncLogger(asyncLoggerMock.Object);
-            _queueLogger.KeepQueueAliveTimeSpan = TimeSpan.Zero;
+            _queueLogger = new QueueToAsyncLogger(asyncLoggerMock.Object) {KeepQueueAliveTimeSpan = TimeSpan.Zero};
         }
 
         [TestMethod]

@@ -18,6 +18,7 @@ namespace Nexus.Link.Libraries.Web.AspNet.Startup
     /// <summary>
     /// Convenience class for helping with application start from Global.asax.cs
     /// </summary>
+    [Obsolete("We don't use Fundamentals for configuration for service tenants anymore. Obsolete warning since 2021-06-09.")]
     public abstract class NexusWebApiApplication : System.Web.HttpApplication
     {
         /// <summary>
@@ -29,17 +30,17 @@ namespace Nexus.Link.Libraries.Web.AspNet.Startup
         /// <summary>
         /// Returns the <see cref="ILeverConfiguration"/> for the service tenant
         /// </summary>
-        protected abstract Task<ILeverConfiguration> FetchConfigurationAsync();
+        protected abstract Task<ILeverConfiguration> FetchConfigurationAsync(CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Operations to do before fetching Nexus configuration
         /// </summary>
-        protected abstract Task ApplicationStartBeforeFetchingNexusConfigurationAsync();
+        protected abstract Task ApplicationStartBeforeFetchingNexusConfigurationAsync(CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Operations to do after fetching Nexus configuration
         /// </summary>
-        protected abstract Task ApplicationStartAfterFetchingNexusConfigurationAsync(ILeverConfiguration configuration);
+        protected abstract Task ApplicationStartAfterFetchingNexusConfigurationAsync(ILeverConfiguration configuration, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Returns the service tenant
@@ -70,7 +71,7 @@ namespace Nexus.Link.Libraries.Web.AspNet.Startup
             }
         }
 
-        protected async Task<ILeverConfiguration> FetchConfigurationWithRetriesOnFailAsync()
+        protected async Task<ILeverConfiguration> FetchConfigurationWithRetriesOnFailAsync(CancellationToken cancellationToken = default)
         {
             ILeverConfiguration configuration = null;
             var maxRetryTimeSecondsString = new ConfigurationManagerAppSettings().GetAppSetting("MaxStartupRetryTimeInSeconds") ?? "100";
@@ -81,7 +82,7 @@ namespace Nexus.Link.Libraries.Web.AspNet.Startup
             {
                 try
                 {
-                    configuration = await FetchConfigurationAsync();
+                    configuration = await FetchConfigurationAsync(cancellationToken);
                     if (configuration != null) break;
                 }
                 catch (Exception e)
@@ -92,7 +93,7 @@ namespace Nexus.Link.Libraries.Web.AspNet.Startup
                         $"Failed to fetch configuration for service tenant {ServiceTenant}." +
                         $" This was try number {failCount} after {watch.Elapsed.TotalSeconds} s.", e);
 
-                    await Task.Delay(TimeSpan.FromSeconds(1));
+                    await Task.Delay(TimeSpan.FromSeconds(1), cancellationToken);
                 }
             }
 

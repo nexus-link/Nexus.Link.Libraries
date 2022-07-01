@@ -1,8 +1,15 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
+using Newtonsoft.Json.Linq;
 using Nexus.Link.Libraries.Core.Assert;
 using Nexus.Link.Libraries.Core.Error.Logic;
+using Nexus.Link.Libraries.Core.Storage.Logic;
 using Nexus.Link.Libraries.Crud.Interfaces;
 using Nexus.Link.Libraries.Crud.Mappers;
+using Nexus.Link.Libraries.Crud.Model;
 
 namespace Nexus.Link.Libraries.Crud.Helpers
 {
@@ -34,6 +41,7 @@ namespace Nexus.Link.Libraries.Crud.Helpers
                 FulcrumAssert.Fail(null,
                     $"{nameof(CreateNewId)} can handle Guid and string as type for Id, but it can't handle {typeof(TId)}.");
             }
+
             return id;
         }
 
@@ -48,7 +56,8 @@ namespace Nexus.Link.Libraries.Crud.Helpers
         {
             InternalContract.RequireNotNull(service, nameof(service));
             if (service is T implemented) return implemented;
-            throw new FulcrumNotImplementedException($"The service {service.GetType()} does not implement {typeof(T).Name}");
+            throw new FulcrumNotImplementedException(
+                $"The service {service.GetType()} does not implement {typeof(T).Name}");
         }
 
         /// <summary>
@@ -58,11 +67,36 @@ namespace Nexus.Link.Libraries.Crud.Helpers
         /// <typeparam name="T">The type that <paramref name="service"/> must implement.</typeparam>
         /// <returns></returns>
         /// <exception cref="FulcrumNotImplementedException">Thrown if <paramref name="service"/> doesn't implement <typeparamref name="T"/>.</exception>
-        [Obsolete("We no longer recommend to use this mapping technique. Obsolete since 2020-09-23.")]
+        [Obsolete(
+            "We no longer recommend to use this mapping technique. Obsolete warning since 2020-09-23, error since 2021-06-09.",
+            true)]
         public static T GetImplementationOrThrow<T>(IMappable service) where T : IMappable
         {
             if (service is T implemented) return implemented;
-            throw new FulcrumNotImplementedException($"The service {service.GetType()} does not implement {typeof(T).Name}");
+            throw new FulcrumNotImplementedException(
+                $"The service {service.GetType()} does not implement {typeof(T).Name}");
+        }
+
+        /// <summary>
+        /// Read the old item from the storage and compare the Etag values. Throws <see cref="FulcrumConflictException"/> if the etags are different.
+        /// </summary>
+        /// <typeparam name="TModel"></typeparam>
+        /// <typeparam name="TId"></typeparam>
+        /// <exception cref="FulcrumConflictException"></exception>
+        public static async Task ValidateEtagAsync<TModel, TId>(this TModel item, TId id, IRead<TModel, TId> readable, CancellationToken cancellationToken)
+        {
+            InternalContract.RequireNotNull(item, nameof(item));
+            InternalContract.RequireNotNull(readable, nameof(readable));
+            if (item.TryGetOptimisticConcurrencyControl(out var eTag))
+            {
+                var oldItem = await readable.ReadAsync(id, cancellationToken);
+                if (oldItem != null
+                    && item.TryGetOptimisticConcurrencyControl(out var oldEtag)
+                    && oldEtag?.ToLowerInvariant() != eTag?.ToLowerInvariant())
+                {
+                    throw new FulcrumConflictException($"The item ({item}) had an old ETag value.");
+                }
+            }
         }
     }
 }

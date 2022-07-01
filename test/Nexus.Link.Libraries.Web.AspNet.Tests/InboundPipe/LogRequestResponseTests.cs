@@ -13,6 +13,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Internal;
 using System.IO;
 using System.Text.RegularExpressions;
+#pragma warning disable 618
 #else
 using System.Net;
 using System.Net.Http;
@@ -154,6 +155,52 @@ namespace Nexus.Link.Libraries.Web.AspNet.Tests.InboundPipe
         /// LogRequestAndResponse must not come before BatchLogs in the pipe
         /// </summary>
         [TestMethod]
+        public async Task StatusCode423LogInformation()
+        {
+            var highestSeverityLevel = LogSeverityLevel.None;
+            var mockLogger = new Mock<ISyncLogger>();
+            mockLogger.Setup(logger =>
+                    logger.LogSync(
+                        It.IsAny<LogRecord>()))
+                .Callback((LogRecord lr) =>
+                {
+                    if (lr.SeverityLevel > highestSeverityLevel) highestSeverityLevel = lr.SeverityLevel;
+                })
+                .Verifiable();
+            FulcrumApplication.Setup.SynchronousFastLogger = mockLogger.Object;
+            const string url = "https://v-mock.org/v2/smoke-testing-company/ver";
+#if NETCOREAPP
+            var innerHandler = new ReturnResponseWithPresetStatusCode(async ctx => await Task.CompletedTask, 423);
+            var outerHandler =
+                new LogRequestAndResponse(innerHandler.InvokeAsync);
+            var context = new DefaultHttpContext();
+            SetRequest(context, url);
+#else
+            var outerHandler = new LogRequestAndResponse()
+            {
+                InnerHandler = new ReturnResponseWithPresetStatusCode((HttpStatusCode)423)
+                {
+                    InnerHandler = new Mock<HttpMessageHandler>().Object
+                }
+            };
+            var invoker = new HttpMessageInvoker(outerHandler);
+            var request = new HttpRequestMessage(HttpMethod.Get, url);
+#endif
+
+
+#if NETCOREAPP
+            await outerHandler.InvokeAsync(context);
+#else
+            await invoker.SendAsync(request, CancellationToken.None);
+#endif
+
+            Assert.AreEqual(LogSeverityLevel.Information, highestSeverityLevel);
+        }
+
+        /// <summary>
+        /// LogRequestAndResponse must not come before BatchLogs in the pipe
+        /// </summary>
+        [TestMethod]
         public async Task StatusCode500LogError()
         {
             var highestSeverityLevel = LogSeverityLevel.None;
@@ -196,8 +243,54 @@ namespace Nexus.Link.Libraries.Web.AspNet.Tests.InboundPipe
             Assert.AreEqual(LogSeverityLevel.Error, highestSeverityLevel);
         }
 
+        /// <summary>
+        /// LogRequestAndResponse must not come before BatchLogs in the pipe
+        /// </summary>
+        [TestMethod]
+        public async Task StatusCode502LogWarning()
+        {
+            var highestSeverityLevel = LogSeverityLevel.None;
+            var mockLogger = new Mock<ISyncLogger>();
+            mockLogger.Setup(logger =>
+                    logger.LogSync(
+                        It.IsAny<LogRecord>()))
+                .Callback((LogRecord lr) =>
+                {
+                    if (lr.SeverityLevel > highestSeverityLevel) highestSeverityLevel = lr.SeverityLevel;
+                })
+                .Verifiable();
+            FulcrumApplication.Setup.SynchronousFastLogger = mockLogger.Object;
+            const string url = "https://v-mock.org/v2/smoke-testing-company/ver";
 #if NETCOREAPP
-        private void SetRequest(DefaultHttpContext context, string url)
+            var innerHandler = new ReturnResponseWithPresetStatusCode(async ctx => await Task.CompletedTask, 502);
+            var outerHandler =
+                new LogRequestAndResponse(innerHandler.InvokeAsync);
+            var context = new DefaultHttpContext();
+            SetRequest(context, url);
+#else
+            var outerHandler = new LogRequestAndResponse()
+            {
+                InnerHandler = new ReturnResponseWithPresetStatusCode(HttpStatusCode.BadGateway)
+                {
+                    InnerHandler = new Mock<HttpMessageHandler>().Object
+                }
+            };
+            var invoker = new HttpMessageInvoker(outerHandler);
+            var request = new HttpRequestMessage(HttpMethod.Get, url);
+#endif
+
+
+#if NETCOREAPP
+            await outerHandler.InvokeAsync(context);
+#else
+            await invoker.SendAsync(request, CancellationToken.None);
+#endif
+
+            Assert.AreEqual(LogSeverityLevel.Warning, highestSeverityLevel);
+        }
+
+#if NETCOREAPP
+        private void SetRequest(HttpContext context, string url)
         {
             var request = new DefaultHttpRequest(context);
             var match = Regex.Match(url, "^(https?)://([^/]+)(/[^?]+)(\\?.*)?$");

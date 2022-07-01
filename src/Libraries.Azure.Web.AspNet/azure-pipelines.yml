@@ -22,3 +22,4 @@ jobs:
     nugetProjectsPath: 'src/Libraries.Azure.Web.AspNet/*.csproj'
     nuGetFeedType: external
     publishFeedCredentials: 'prd-nexus-nuget-external'
+    publishVstsFeed: 'Nexus Libs/nexus-nugets'

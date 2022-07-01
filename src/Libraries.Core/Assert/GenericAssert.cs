@@ -1,6 +1,10 @@
 ﻿using System;
 using System.Linq.Expressions;
 using System.Text.RegularExpressions;
+using JetBrains.Annotations;
+using Newtonsoft.Json.Linq;
+using Nexus.Link.Libraries.Core.EntityAttributes;
+using Nexus.Link.Libraries.Core.EntityAttributes.Support;
 using Nexus.Link.Libraries.Core.Error.Logic;
 using Nexus.Link.Libraries.Core.Misc;
 
@@ -18,6 +22,7 @@ namespace Nexus.Link.Libraries.Core.Assert
         /// <param name="errorLocation">A unique errorLocation for this exact assertion.</param>
         /// <param name="message">A message that documents/explains this failure. This message should normally start with "Expected ...".</param>
         [StackTraceHidden]
+        [ContractAnnotation("=> halt")]
         public static void Fail(string errorLocation, string message)
         {
             InternalContract.RequireNotNullOrWhiteSpace(message, nameof(message));
@@ -28,6 +33,7 @@ namespace Nexus.Link.Libraries.Core.Assert
         /// </summary>
         /// <param name="message">A message that documents/explains this failure. This message should normally start with "Expected ...".</param>
         [StackTraceHidden]
+        [ContractAnnotation("=> halt")]
         public static void Fail(string message)
         {
             InternalContract.RequireNotNullOrWhiteSpace(message, nameof(message));
@@ -45,18 +51,6 @@ namespace Nexus.Link.Libraries.Core.Assert
         }
 
         /// <summary>
-        /// Verify that the result of <paramref name="expression"/> is true.
-        /// </summary>
-        [Obsolete("Please notify the Fulcrum team if you use this assertion method. We intend to remove it.", true)]
-        [StackTraceHidden]
-        public static void IsTrue(Expression<Func<bool>> expression, string errorLocation = null, string customMessage = null)
-        {
-            var value = expression.Compile()();
-            if (value) return;
-            GenericBase<TException>.ThrowException(customMessage ?? $"Expected '{expression.Body} to be true.", errorLocation);
-        }
-
-        /// <summary>
         /// Verify that <paramref name="value"/> is null.
         /// </summary>
         [StackTraceHidden]
@@ -67,37 +61,14 @@ namespace Nexus.Link.Libraries.Core.Assert
         }
 
         /// <summary>
-        /// Verify that the result of <paramref name="expression"/> is null.
-        /// </summary>
-        [Obsolete("Please notify the Fulcrum team if you use this assertion method. We intend to remove it.", true)]
-        [StackTraceHidden]
-        public static void IsNull(Expression<Func<object>> expression, string errorLocation = null, string customMessage = null)
-        {
-            var value = expression.Compile()();
-            if (value == null) return;
-            GenericBase<TException>.ThrowException(customMessage ?? $"Expected '{expression.Body}' ({value}) to be null.", errorLocation);
-        }
-
-        /// <summary>
         /// Verify that <paramref name="value"/> is not null.
         /// </summary>
         [StackTraceHidden]
+        [ContractAnnotation("value:null => halt")]
         public static void IsNotNull(object value, string errorLocation = null, string customMessage = null)
         {
             if (value != null) return;
             GenericBase<TException>.ThrowException(customMessage ?? "Did not expect value to be null.", errorLocation);
-        }
-
-        /// <summary>
-        /// Verify that the result of <paramref name="expression"/> is null.
-        /// </summary>
-        [Obsolete("Please notify the Fulcrum team if you use this assertion method. We intend to remove it.", true)]
-        [StackTraceHidden]
-        public static void IsNotNull(Expression<Func<object>> expression, string errorLocation = null, string customMessage = null)
-        {
-            var value = expression.Compile()();
-            if (value != null) return;
-            GenericBase<TException>.ThrowException(customMessage ?? $"Did not expect '{expression.Body}' to be null.", errorLocation);
         }
 
         /// <summary>
@@ -114,22 +85,11 @@ namespace Nexus.Link.Libraries.Core.Assert
         /// Verify that <paramref name="value"/> is not null, not empty and has other characters than white space.
         /// </summary>
         [StackTraceHidden]
+        [ContractAnnotation("value:null => halt")]
         public static void IsNotNullOrWhiteSpace(string value, string errorLocation = null, string customMessage = null)
         {
             if (!string.IsNullOrWhiteSpace(value)) return;
             GenericBase<TException>.ThrowException(customMessage ?? $"Did not expect value ({value}) to be null, empty or only contain whitespace.", errorLocation);
-        }
-
-        /// <summary>
-        /// Verify that the result of <paramref name="expression"/> is not null, not empty and contains other characters than white space.
-        /// </summary>
-        [Obsolete("Please notify the Fulcrum team if you use this assertion method. We intend to remove it.", true)]
-        [StackTraceHidden]
-        public static void IsNotNullOrWhiteSpace(Expression<Func<string>> expression, string errorLocation = null, string customMessage = null)
-        {
-            var value = expression.Compile()();
-            if (!string.IsNullOrWhiteSpace(value)) return;
-            GenericBase<TException>.ThrowException(customMessage ?? $"Did not expect '{expression.Body}' ({value}) to be null, empty or only contain whitespace.", errorLocation);
         }
 
         /// <summary>
@@ -150,18 +110,6 @@ namespace Nexus.Link.Libraries.Core.Assert
         {
             if (!Equals(expectedValue, actualValue)) return;
             GenericBase<TException>.ThrowException(customMessage ?? $"Expected ({actualValue}) to not be equal to ({expectedValue}).", errorLocation);
-        }
-
-        /// <summary>
-        /// Verify that the result of <paramref name="expression"/> is equal to <paramref name="expectedValue"/>.
-        /// </summary>
-        [Obsolete("Please notify the Fulcrum team if you use this assertion method. We intend to remove it.", true)]
-        [StackTraceHidden]
-        public static void AreEqual(object expectedValue, Expression<Func<string>> expression, string errorLocation = null, string customMessage = null)
-        {
-            var actualValue = expression.Compile()();
-            if (Equals(expectedValue, actualValue)) return;
-            GenericBase<TException>.ThrowException(customMessage ?? $"Expected '{expression.Body}' ({actualValue}) to be equal to ({expectedValue}).", errorLocation);
         }
 
         /// <summary>
@@ -239,16 +187,63 @@ namespace Nexus.Link.Libraries.Core.Assert
         }
 
         /// <summary>
+        /// Verify that <paramref name="value"/> is null or has one of the values in <paramref name="enumerationType"/>.
+        /// </summary>
+        [StackTraceHidden]
+        [Obsolete("Please use IsInEnumeration(). Obsolete since 2022-01-26.")]
+        public static void InEnumeration(Type enumerationType, string value, string errorLocation = null, string customMessage = null)
+        {
+            IsInEnumeration(enumerationType, value, errorLocation, customMessage);
+        }
+
+        /// <summary>
+        /// Verify that <paramref name="value"/> is null or has one of the values in <paramref name="enumerationType"/>.
+        /// </summary>
+        [StackTraceHidden]
+        public static void IsInEnumeration(Type enumerationType, string value, string errorLocation = null, string customMessage = null)
+        {
+            InternalContract.RequireNotNull(enumerationType, nameof(enumerationType));
+            InternalContract.Require(enumerationType.IsEnum, $"Parameter {nameof(enumerationType)} must be of type enum.");
+            if (value == null) return;
+            var message = customMessage ?? $"Expected  ({value}) to represent one of the enumeration values for ({enumerationType.FullName}).";
+            IsTrue(Enum.IsDefined(enumerationType, value), errorLocation, message);
+        }
+
+        /// <summary>
+        /// Verify that <paramref name="value"/> null or a JSON expression.
+        /// </summary>
+        [StackTraceHidden]
+        public static void IsJson(string value, string errorLocation = null, string customMessage = null)
+        {
+            if (value == null) return;
+            try
+            {
+                JToken.Parse(value);
+            }
+            catch (Exception e)
+            {
+                var message = customMessage ?? $"Expected  ({value}) be a JSON expression: {e.Message}";
+                Fail(errorLocation, message);
+            }
+        }
+
+        /// <summary>
         /// If <paramref name="value"/> is not null, then call the Validate() method of that type.
         /// </summary>
         [StackTraceHidden]
         public static void IsValidated(object value, string customMessage = null)
         {
             if (value == null) return;
-            if (!(value is IValidatable validatable)) return;
+            var result = Validation.Validate(value, null);
+            if (!result.IsValid)
+            {
+                GenericBase<TException>.ThrowException(result.Message);
+            }
             try
             {
-                validatable.Validate(null, value.GetType().Name);
+
+                if (!(value is IValidatable validate)) return;
+                validate.Validate(null, value.GetType().Name);
             }
             catch (ValidationException e)
             {
