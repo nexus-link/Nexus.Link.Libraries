@@ -19,6 +19,7 @@ namespace Nexus.Link.Libraries.Core.Application
         public static void RuntimeSetup(string name, Tenant tenant, RunTimeLevelEnum runTimeLevel)
         {
             FulcrumApplication.Initialize(name, tenant, runTimeLevel);
+            FulcrumApplication.Setup.ClientName = name;
             FulcrumApplication.Setup.ThreadHandler = ThreadHelper.RecommendedForRuntime;
             FulcrumApplication.Setup.SynchronousFastLogger = LogHelper.RecommendedSyncLoggerForRuntime;
             FulcrumApplication.Setup.FallbackLogger = LogHelper.RecommendedFallbackLoggerForRuntime;
@@ -42,6 +43,9 @@ namespace Nexus.Link.Libraries.Core.Application
             var runTimeLevel = appSettings.GetEnum<RunTimeLevelEnum>("RunTimeLevel", true);
             RuntimeSetup(name, tenant, runTimeLevel);
             FulcrumApplication.AppSettings = new AppSettings(appSettingGetter);
+            
+            var clientName = appSettings.GetString("ClientName", true);
+            FulcrumApplication.Setup.ClientName = clientName ?? name;
         }
 
         /// <summary>
@@ -51,6 +55,7 @@ namespace Nexus.Link.Libraries.Core.Application
         public static void UnitTestSetup(string name)
         {
             FulcrumApplication.Initialize(name, new Tenant("unknown", "local"), RunTimeLevelEnum.Development);
+            FulcrumApplication.Setup.ClientName = name;
             FulcrumApplication.Setup.ThreadHandler = ThreadHelper.RecommendedForRuntime;
             FulcrumApplication.Setup.SynchronousFastLogger = LogHelper.RecommendedSyncLoggerForUnitTest;
             FulcrumApplication.Setup.FallbackLogger = LogHelper.RecommendedFallbackLoggerForUnitTest;
