@@ -50,7 +50,7 @@
 
   <PropertyGroup>
     <PackageId>Nexus.Link.Libraries.Core</PackageId>
-    <Version>5.19.0-alpha01</Version>
+    <Version>5.20.0-alpha01</Version>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <PackageTags>nexus;link;fulcrum;lever</PackageTags>
     <Authors>XLENT Link</Authors>
@@ -60,8 +60,9 @@
     <Copyright>Copyright ©2021 Xlent Link AB</Copyright>
     <IncludeSymbols>true</IncludeSymbols>
     <PackageReleaseNotes>
-      5.19.0 Added FulcrumApplication.Setup.ClientName, representing the "formal" identity name of a service, used in value translation, event sending and workflow inspector, etc.
-	  5.18.2 FulcrumAssertFailedException and FulcrumContractException now inherits from FulcrumProgrammersErrorException
+      5.20.0 Added FulcrumApplication.Setup.ClientName, representing the "formal" identity name of a service, used in value translation, event sending and workflow inspector, etc.
+      5.19.0 Added FulcrumApplication.Context.ChildExecutionId, ChildExecutionDescription, ExecutionIsAsynchronous, AsyncRequestId and AsyncPriority. Added ToLogString() for TimeSpan
+      5.18.2 FulcrumAssertFailedException and FulcrumContractException now inherits from FulcrumProgrammersErrorException
       5.18.1 Added Validation.NullAttribute
       5.18.0 Added FulcrumResourceLockedException
       5.17.0 Added Application.Context.ReentryAuthentication
