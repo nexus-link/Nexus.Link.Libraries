@@ -1,6 +1,4 @@
-﻿using System;
-using Nexus.Link.Libraries.Core.Assert;
-using Nexus.Link.Libraries.Core.Context;
+﻿using Nexus.Link.Libraries.Core.Assert;
 using Nexus.Link.Libraries.Core.Logging;
 using Nexus.Link.Libraries.Core.MultiTenant.Model;
 using Nexus.Link.Libraries.Core.Telemetry;
@@ -17,6 +15,13 @@ namespace Nexus.Link.Libraries.Core.Application
         /// The name of the application.
         /// </summary>
         public string Name { get; set; }
+
+        /// <summary>
+        /// The formal identity of the service, used for referencing in value translation, workflow inspector, etc.
+        ///
+        /// If not set, use <see cref="Name"/>.
+        /// </summary>
+        public string ClientName { get; set; }
 
         /// <summary>
         /// The current <see cref="RunTimeLevel"/> of the application. Affects logging, testing, etc.

@@ -25,6 +25,7 @@ namespace Nexus.Link.Libraries.Web.AspNet.Application
         public static void WebBasicSetup(string name, Tenant tenant, RunTimeLevelEnum level)
         {
             FulcrumApplication.Initialize(name, tenant, level);
+            FulcrumApplication.Setup.ClientName = name;
             FulcrumApplication.Setup.ThreadHandler = ThreadHelper.RecommendedForRuntime;
             FulcrumApplication.Setup.SynchronousFastLogger = LogHelper.RecommendedSyncLoggerForRuntime;
             FulcrumApplication.Setup.FallbackLogger = LogHelper.RecommendedFallbackLoggerForRuntime;
@@ -49,6 +50,9 @@ namespace Nexus.Link.Libraries.Web.AspNet.Application
             var runTimeLevel = appSettings.GetEnum<RunTimeLevelEnum>("RunTimeLevel", true);
             WebBasicSetup(name, tenant, runTimeLevel);
             FulcrumApplication.AppSettings = new AppSettings(configuration);
+
+            var clientName = appSettings.GetString("ClientName", true);
+            FulcrumApplication.Setup.ClientName = clientName ?? name;
         }
 #endif
 
