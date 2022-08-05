@@ -40,7 +40,7 @@ namespace Nexus.Link.Libraries.Core.Guards
         public static GuardConfiguration<T> GreaterThanOrEqualTo<T, TValue>(this GuardCondition<T> guard, TValue otherValue, string rationale = null)
             where TValue : T, IComparable
         {
-            guard.MustBeType<T, IComparable>(nameof(GreaterThan), out var thisValue);
+            guard.MustBeType<T, IComparable>(nameof(GreaterThanOrEqualTo), out var thisValue);
             var success = guard.CalculateSuccess(thisValue.CompareTo(otherValue) > 0);
             return guard.MaybeThrowException(success, $"be >= \"{otherValue}\"", true, rationale);
         }
