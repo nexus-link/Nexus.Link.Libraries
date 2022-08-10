@@ -3,7 +3,7 @@ using Nexus.Link.Libraries.Web.Error;
 
 namespace Nexus.Link.Libraries.Web.Pipe
 {
-    [Obsolete("Please use Nexus.Link.Misc.Web.Sdk.OutboundHandlers.Support.NexusHeaderNames and NexusContextNames. Obsolete since 2022-06-27.")]
+    //[Obsolete("Please use Nexus.Link.Misc.Web.Sdk.OutboundHandlers.Support.NexusHeaderNames and NexusContextNames. Obsolete since 2022-06-27.")]
     public class Constants
     {
         /// <summary>
