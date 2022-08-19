@@ -446,8 +446,8 @@ namespace Nexus.Link.Libraries.Core.EntityAttributes
         /// </summary>
         public class LengthIntervalAttribute : PropertyValidationAttribute
         {
-            public int? Min { get; set; }
-            public int? Max { get; set; }
+            public int Min { get; set; } = int.MinValue;
+            public int Max { get; set; } = int.MaxValue;
 
             public LengthIntervalAttribute()
             {
@@ -458,17 +458,17 @@ namespace Nexus.Link.Libraries.Core.EntityAttributes
             {
                 if (propertyValue == null || !(propertyValue is ICollection collection)) return new ValidationResult();
                 var length = collection.Count;
-                if ((Min == null || length >= Min) && (Max == null || length <= Max))
+                if (length >= Min && length <= Max)
                 {
                     return new ValidationResult();
                 }
 
                 string message;
-                if (Min == null)
+                if (Min == int.MinValue)
                 {
                     message = $"{propertyInfo.Name} had a length of {length}, but the length must be <= {Max}.";
                 }
-                else if (Max == null)
+                else if (Max == int.MaxValue)
                 {
                     message = $"{propertyInfo.Name} had a length of {length}, but the length must be >= {Min}.";
                 }
