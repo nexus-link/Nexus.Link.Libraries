@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Reflection;
@@ -441,6 +442,46 @@ namespace Nexus.Link.Libraries.Core.EntityAttributes
         }
 
         /// <summary>
+        /// The property length must be in the interval.
+        /// </summary>
+        public class LengthIntervalAttribute : PropertyValidationAttribute
+        {
+            public int? Min { get; set; }
+            public int? Max { get; set; }
+
+            public LengthIntervalAttribute()
+            {
+            }
+
+            public override ValidationResult Validate(Type entityType, object entityValue, PropertyInfo propertyInfo,
+                object propertyValue, string errorLocation)
+            {
+                if (propertyValue == null || !(propertyValue is ICollection collection)) return new ValidationResult();
+                var length = collection.Count;
+                if ((Min == null || length >= Min) && (Max == null || length <= Max))
+                {
+                    return new ValidationResult();
+                }
+
+                string message;
+                if (Min == null)
+                {
+                    message = $"{propertyInfo.Name} had a length of {length}, but the length must be <= {Max}.";
+                }
+                else if (Max == null)
+                {
+                    message = $"{propertyInfo.Name} had a length of {length}, but the length must be >= {Min}.";
+                }
+                else
+                {
+                    message = $"{propertyInfo.Name} had a length of {length}, but the length must in the interval [{Min},{Max}].";
+                }
+
+                return new ValidationResult(message);
+            }
+        }
+
+        /// <summary>
         /// The property value must match the specified regular expression
         /// </summary>
         public class MatchRegularExpressionAttribute : PropertyValidationAttribute
@@ -637,7 +678,7 @@ namespace Nexus.Link.Libraries.Core.EntityAttributes
                 {
                     return false;
                 }
-                return triggerValue && propertyValidationAttribute.InvertedTrigger 
+                return triggerValue && propertyValidationAttribute.InvertedTrigger
                        || !triggerValue && !propertyValidationAttribute.InvertedTrigger;
             }
         }
