@@ -449,6 +449,12 @@ namespace Nexus.Link.Libraries.Core.EntityAttributes
             public int Min { get; set; } = int.MinValue;
             public int Max { get; set; } = int.MaxValue;
 
+            public LengthIntervalAttribute(int min, int max)
+            {
+                Min = min;
+                Max = max;
+            }
+
             public LengthIntervalAttribute()
             {
             }
