@@ -480,7 +480,7 @@ namespace Nexus.Link.Libraries.Core.EntityAttributes
                 }
                 else
                 {
-                    message = $"{propertyInfo.Name} had a length of {length}, but the length must in the interval [{Min},{Max}].";
+                    message = $"{propertyInfo.Name} had a length of {length}, but the length must be in the interval [{Min},{Max}].";
                 }
 
                 return new ValidationResult(message);

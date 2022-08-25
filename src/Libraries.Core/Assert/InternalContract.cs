@@ -57,8 +57,7 @@ namespace Nexus.Link.Libraries.Core.Assert
         [StackTraceHidden]
         public static void RequireValidated(object parameterValue, string parameterName, string customMessage = null)
         {
-            if (!(parameterValue is IValidatable validatable)) return;
-            GenericContract<FulcrumContractException>.RequireValidated(validatable, parameterName, customMessage);
+            GenericContract<FulcrumContractException>.RequireValidated(parameterValue, parameterName, customMessage);
         }
 
         /// <summary>
@@ -70,8 +69,7 @@ namespace Nexus.Link.Libraries.Core.Assert
             if (parameterValues == null) return;
             foreach (var parameterValue in parameterValues)
             {
-                if (!(parameterValue is IValidatable validatable)) continue;
-                GenericContract<FulcrumContractException>.RequireValidated(validatable, parameterName, customMessage);
+                GenericContract<FulcrumContractException>.RequireValidated(parameterValue, parameterName, customMessage);
             }
         }
 

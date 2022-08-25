@@ -4,6 +4,7 @@ using System.Linq.Expressions;
 using System.Text.RegularExpressions;
 using JetBrains.Annotations;
 using Newtonsoft.Json.Linq;
+using Nexus.Link.Libraries.Core.EntityAttributes;
 using Nexus.Link.Libraries.Core.Error.Logic;
 using Nexus.Link.Libraries.Core.Misc;
 
@@ -221,7 +222,11 @@ namespace Nexus.Link.Libraries.Core.Assert
         [StackTraceHidden]
         public static void RequireValidated(object parameterValue, string parameterName, string customMessage = null)
         {
-            if (parameterValue == null) return;
+            var result = Validation.Validate(parameterValue, null);
+            if (!result.IsValid)
+            {
+                GenericBase<TException>.ThrowException(result.Message);
+            }
             if (!(parameterValue is IValidatable validatable)) return;
             try
             {
