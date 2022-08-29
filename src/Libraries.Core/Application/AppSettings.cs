@@ -65,7 +65,7 @@ namespace Nexus.Link.Libraries.Core.Application
             if (string.IsNullOrWhiteSpace(name)) throw new FulcrumContractException($"Parameter {nameof(name)} was empty.");
             var valueAsString = GetString(name, isMandatory);
             if (valueAsString == null) return default;
-            if (!Enum.TryParse(valueAsString, out T value)) throw new FulcrumContractException($"App setting {name} ({valueAsString}) must have one of the values for {typeof(T).FullName}.");
+            if (!Enum.TryParse(valueAsString, true, out T value)) throw new FulcrumContractException($"App setting {name} ({valueAsString}) must have one of the values for {typeof(T).FullName}.");
             return value;
         }
 
