@@ -13,17 +13,19 @@
     <IncludeSymbols>true</IncludeSymbols>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Remove="EntityAttributes\**" />
+    <EmbeddedResource Remove="EntityAttributes\**" />
+    <None Remove="EntityAttributes\**" />
+  </ItemGroup>
+  <ItemGroup>
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0" PrivateAssets="All" />
     <PackageReference Include="Microsoft.Extensions.Caching.Abstractions" Version="2.1.2" />
     <ProjectReference Include="..\Libraries.Core\Libraries.Core.csproj" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="EntityAttributes\" />
-  </ItemGroup>
 
   <PropertyGroup>
     <PackageId>Nexus.Link.Libraries.Crud</PackageId>
-    <Version>3.13.2</Version>
+    <Version>3.14.0-alfa09</Version>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <PackageTags>nexus;link;fulcrum;lever</PackageTags>
     <Authors>XLENT Link</Authors>
@@ -33,6 +35,7 @@
     <Copyright>Copyright ©2019 Xlent Link AB</Copyright>
     <IncludeSymbols>true</IncludeSymbols>
     <PackageReleaseNotes>
+      3.14.0 Added FileSystem
       3.13.2 Now throws FulcrumResourceLockedException instead of FulcrumTryAgainException if a resource is locked
       3.13.1 More assertions in CrudPersistenceHelper
       3.13.0 Added support in CrudPersistenceHelper for saving items in a particular order
@@ -92,6 +95,22 @@
     </PackageReleaseNotes>
     <RootNamespace>Nexus.Link.Libraries.Crud</RootNamespace>
     <AssemblyName>Nexus.Link.Libraries.Crud</AssemblyName>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net461|AnyCPU'">
+    <LangVersion>latest</LangVersion>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net461|AnyCPU'">
+    <LangVersion>latest</LangVersion>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|netstandard2.0|AnyCPU'">
+    <LangVersion>latest</LangVersion>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|netstandard2.0|AnyCPU'">
+    <LangVersion>latest</LangVersion>
   </PropertyGroup>
 
 </Project>
