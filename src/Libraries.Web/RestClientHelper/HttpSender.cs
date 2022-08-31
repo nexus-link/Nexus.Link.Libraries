@@ -259,7 +259,7 @@ namespace Nexus.Link.Libraries.Web.RestClientHelper
                 {
                     throw new FulcrumResourceException($"The response to request {request.ToLogString()} was expected to have HttpStatusCode {HttpStatusCode.OK} or {HttpStatusCode.Created}, but had {response.StatusCode.ToLogString()}.");
                 }
-                var responseContent = await TryGetContentAsString(response.Content, false, cancellationToken);
+                var responseContent = await TryGetContentAsStringAsync(response.Content, false, cancellationToken);
                 if (responseContent == null) return result;
                 try
                 {
@@ -279,8 +279,8 @@ namespace Nexus.Link.Libraries.Web.RestClientHelper
             InternalContract.RequireNotNull(response.RequestMessage, $"{nameof(response)}.{nameof(response.RequestMessage)}");
             if (!response.IsSuccessStatusCode)
             {
-                var requestContent = await TryGetContentAsString(response.RequestMessage?.Content, true, cancellationToken);
-                var responseContent = await TryGetContentAsString(response.Content, true, cancellationToken);
+                var requestContent = await TryGetContentAsStringAsync(response.RequestMessage?.Content, true, cancellationToken);
+                var responseContent = await TryGetContentAsStringAsync(response.Content, true, cancellationToken);
                 var message = $"{response.StatusCode} {responseContent}";
                 var exception = new HttpOperationException(message)
                 {
@@ -291,7 +291,7 @@ namespace Nexus.Link.Libraries.Web.RestClientHelper
             }
         }
 
-        private async Task<string> TryGetContentAsString(HttpContent content, bool silentlyIgnoreExceptions, CancellationToken cancellationToken)
+        public static async Task<string> TryGetContentAsStringAsync(HttpContent content, bool silentlyIgnoreExceptions, CancellationToken cancellationToken)
         {
             if (content == null) return null;
             try
