@@ -2,7 +2,7 @@
 
 namespace Nexus.Link.Libraries.Crud.Web.FileSystem.AzureDevopsGit.Persistence.Interfaces;
 
-internal interface IConvertibleFromJsonElement
+public interface IConvertibleFromJsonElement
 {
     void From(JsonElement jsonElement);
 }

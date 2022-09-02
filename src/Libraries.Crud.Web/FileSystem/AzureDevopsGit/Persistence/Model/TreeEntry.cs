@@ -6,7 +6,7 @@ using Nexus.Link.Libraries.Crud.Web.FileSystem.AzureDevopsGit.Persistence.Interf
 
 namespace Nexus.Link.Libraries.Crud.Web.FileSystem.AzureDevopsGit.Persistence.Model;
 
-internal class TreeEntry : Resource, IConvertibleFromJsonElement
+public class TreeEntry : Resource, IConvertibleFromJsonElement
 {
     [Validation.NotNullOrWhitespace]
     public GitObjectTypeEnum GitObjectType { get; private set; }

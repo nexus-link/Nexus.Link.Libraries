@@ -7,7 +7,7 @@ using Nexus.Link.Libraries.Crud.Web.FileSystem.AzureDevopsGit.Persistence.Interf
 
 namespace Nexus.Link.Libraries.Crud.Web.FileSystem.AzureDevopsGit.Persistence.Model;
 
-internal class Tree : IUniquelyIdentifiable<string>, IConvertibleFromJsonElement
+public class Tree : IUniquelyIdentifiable<string>, IConvertibleFromJsonElement
 {
     /// <inheritdoc />
     [Validation.NotNullOrWhitespace]

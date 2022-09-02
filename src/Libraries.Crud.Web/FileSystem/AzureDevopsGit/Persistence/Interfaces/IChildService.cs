@@ -2,7 +2,7 @@
 
 namespace Nexus.Link.Libraries.Crud.Web.FileSystem.AzureDevopsGit.Persistence.Interfaces;
 
-internal interface IChildService<T> : IReadChildren<T, string>
+public interface IChildService<T> : IReadChildren<T, string>
 {
     
 }

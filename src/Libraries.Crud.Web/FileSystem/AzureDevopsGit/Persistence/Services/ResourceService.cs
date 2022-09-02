@@ -15,7 +15,7 @@ using Nexus.Link.Libraries.Web.RestClientHelper;
 
 namespace Nexus.Link.Libraries.Crud.Web.FileSystem.AzureDevopsGit.Persistence.Services;
 
-internal class ResourceService<T> : IParentService<T>, IChildService<T>, IRead<T, string>
+public class ResourceService<T> : IParentService<T>, IChildService<T>, IRead<T, string>
 where T : IConvertibleFromJsonElement, new()
 {
     private readonly string _name;

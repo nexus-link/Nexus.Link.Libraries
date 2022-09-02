@@ -3,7 +3,7 @@ using Nexus.Link.Libraries.Web.RestClientHelper;
 
 namespace Nexus.Link.Libraries.Crud.Web.FileSystem.AzureDevopsGit.Persistence.Services;
 
-internal class RepositoryService : ResourceService<Resource>
+public class RepositoryService : ResourceService<Resource>
 {
     public RepositoryService(IHttpSender httpSender, string? projectId = null) : base(httpSender.CreateHttpSender("repositories"), "repository")
     {
