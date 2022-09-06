@@ -17,11 +17,12 @@ public static class MetaModel
     /// Service
     /// </summary>
     [AttributeUsage(AttributeTargets.Interface)]
-    public class ServiceAttribute : UniqueMetaModelAttribute
+    public class ServiceAttribute : Attribute
     {
         [Validation.NotNull]
         public Type EntityType { get; }
         public Type ParentEntity { get; set; }
+        public Type GrandParentEntity { get; set; }
 
         public ServiceAttribute(Type entityType)
         {

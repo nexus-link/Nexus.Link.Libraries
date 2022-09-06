@@ -51,7 +51,7 @@
 
   <PropertyGroup>
     <PackageId>Nexus.Link.Libraries.Core</PackageId>
-    <Version>5.22.1</Version>
+    <Version>5.23.0</Version>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <PackageTags>nexus;link;fulcrum;lever</PackageTags>
     <Authors>XLENT Link</Authors>
@@ -61,6 +61,7 @@
     <Copyright>Copyright ©2021 Xlent Link AB</Copyright>
     <IncludeSymbols>true</IncludeSymbols>
     <PackageReleaseNotes>
+      5.23.0 Removed Id and Name from ServiceAttribute, added GrandParentEntity
       5.22.1 Added MetaModel attributes. Made TypeConversionExtensions.ToEnum() ignore case
       5.21.0 Added Validated.LengthIntervalAttribute. InternalContract now honors Validate attributes
       5.20.1 Removed MetaModel from attributes
