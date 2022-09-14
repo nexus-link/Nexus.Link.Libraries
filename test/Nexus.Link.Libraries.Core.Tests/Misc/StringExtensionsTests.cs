@@ -22,6 +22,8 @@ namespace Nexus.Link.Libraries.Core.Tests.Misc
         [DataRow("a", "abcdef", "bcdef")]
         [DataRow("ab", "abcdef", "cdef")]
         [DataRow("abcdef", "abcdef", "")]
+        [DataRow("Central", "Person", "Person")]
+        [DataRow("ab", "a", "a")]
         public void RemovePrefix_DefaultStringComparison(string prefix, string longString, string expectedResult)
         {
             var actualResult = longString.RemovePrefix(prefix);
@@ -55,9 +57,20 @@ namespace Nexus.Link.Libraries.Core.Tests.Misc
         [DataRow("abcdef", "f", "abcde")]
         [DataRow("abcdef", "ef", "abcd")]
         [DataRow("abcdef", "abcdef", "")]
+        [DataRow("a", "ab", "a")]
         public void RemoveSuffix_DefaultComparison(string longString, string suffix, string expectedResult)
         {
             var actualResult = longString.RemoveSuffix(suffix);
+            actualResult.ShouldBe(expectedResult);
+        }
+
+        [DataTestMethod]
+        [DataRow("a.b.c", '-', "a.b.c")]
+        [DataRow("a.b.c", '.', "a.b")]
+        [DataRow("a.b.last part - with no ellipsis", '.', "a.b")]
+        public void RemoveLastSeparated(string longString, char separator, string expectedResult)
+        {
+            var actualResult = longString.RemoveLastSeparated(separator);
             actualResult.ShouldBe(expectedResult);
         }
     };
