@@ -1,4 +1,4 @@
-﻿using Nexus.Link.Libraries.Core.Crud.Model;
+﻿
 // ReSharper disable RedundantExtendsListEntry
 
 namespace Nexus.Link.Libraries.Crud.Interfaces

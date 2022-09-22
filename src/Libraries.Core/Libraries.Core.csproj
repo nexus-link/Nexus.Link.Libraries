@@ -51,7 +51,7 @@
 
   <PropertyGroup>
     <PackageId>Nexus.Link.Libraries.Core</PackageId>
-    <Version>5.24.1</Version>
+    <Version>5.24.2</Version>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <PackageTags>nexus;link;fulcrum;lever</PackageTags>
     <Authors>XLENT Link</Authors>
@@ -61,6 +61,7 @@
     <Copyright>Copyright ©2021 Xlent Link AB</Copyright>
     <IncludeSymbols>true</IncludeSymbols>
     <PackageReleaseNotes>
+      5.24.2 Hint and MetaModel classes are now not static
       5.24.1 Added StringExtensions with RemovePrefix(), RemoveSuffix() and RemoveLastSeparated()
       5.23.0 Removed Id and Name from ServiceAttribute, added GrandParentEntity
       5.22.1 Added MetaModel attributes. Made TypeConversionExtensions.ToEnum() ignore case

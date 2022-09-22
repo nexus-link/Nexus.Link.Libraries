@@ -1,5 +1,4 @@
-﻿using Nexus.Link.Libraries.Core.Crud.Model;
-using Nexus.Link.Libraries.Core.Storage.Model;
+﻿using Nexus.Link.Libraries.Core.Storage.Model;
 
 // ReSharper disable RedundantExtendsListEntry
 

@@ -1,10 +1,9 @@
 ﻿using System;
 using System.Reflection;
-using Nexus.Link.Libraries.Core.EntityAttributes.Support;
 
 namespace Nexus.Link.Libraries.Core.EntityAttributes
 {
-    public static class Hint
+    public class Hint
     {
         [AttributeUsage(AttributeTargets.Method | AttributeTargets.Property)]
         public class SortOrderAttribute : Attribute
@@ -24,13 +23,6 @@ namespace Nexus.Link.Libraries.Core.EntityAttributes
         [AttributeUsage(AttributeTargets.Property)]
         public class PrimaryKeyAttribute : Attribute
         {
-        }
-
-        public static string GetPrimaryKeyPropertyName<T>(this T entity)
-        {
-            if (!typeof(T).IsClass) return null;
-            var propertyInfo = GetPrimaryKeyProperty<T>();
-            return propertyInfo?.Name;
         }
 
         public static PropertyInfo GetPrimaryKeyProperty<T>()

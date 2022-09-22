@@ -1,6 +1,5 @@
 ﻿using System;
 using Nexus.Link.Libraries.Core.Assert;
-using Nexus.Link.Libraries.Core.Storage.Model;
 
 namespace Nexus.Link.Libraries.Crud.Model
 {

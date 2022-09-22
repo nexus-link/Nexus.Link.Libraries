@@ -3,7 +3,7 @@ using Nexus.Link.Libraries.Core.EntityAttributes.Support;
 
 namespace Nexus.Link.Libraries.Core.EntityAttributes;
 
-public static class MetaModel
+public class MetaModel
 {
     /// <summary>
     /// Capability

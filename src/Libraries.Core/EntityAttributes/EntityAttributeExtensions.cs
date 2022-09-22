@@ -2,12 +2,33 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+
+/* Unmerged change from project 'Libraries.Core (net461)'
+Before:
+using Nexus.Link.Libraries.Core.Assert;
+After:
+using Nexus;
+using Nexus.Link;
+using Nexus.Link.Libraries;
+using Nexus.Link.Libraries.Core.Assert;
+using Nexus.Link.Libraries.Core.EntityAttributes;
+using Nexus.Link.Libraries.Core.EntityAttributes;
+using Nexus.Link.Libraries.Core.EntityAttributes.Support;
+*/
 using Nexus.Link.Libraries.Core.Assert;
 
-namespace Nexus.Link.Libraries.Core.EntityAttributes.Support
+namespace Nexus.Link.Libraries.Core.EntityAttributes
 {
     public static class EntityAttributeExtensions
     {
+
+        public static string GetPrimaryKeyPropertyName<T>(this T entity)
+        {
+            if (!typeof(T).IsClass) return null;
+            var propertyInfo = Hint.GetPrimaryKeyProperty<T>();
+            return propertyInfo?.Name;
+        }
+
         public static PropertyInfo GetPropertyWithCustomAttribute<TCustomAttribute>(this object entity)
             where TCustomAttribute : Attribute
         {
