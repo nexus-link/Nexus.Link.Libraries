@@ -237,17 +237,16 @@ namespace Nexus.Link.Libraries.Core.Assert
             var result = Validation.Validate(value, null);
             if (!result.IsValid)
             {
-                GenericBase<TException>.ThrowException(result.Message);
+                GenericBase<TException>.ThrowException(customMessage ?? $"{result.Path}: {result.Message}");
             }
             try
             {
-
                 if (!(value is IValidatable validate)) return;
                 validate.Validate(null, value.GetType().Name);
             }
             catch (ValidationException e)
             {
-                GenericBase<TException>.ThrowException($"Expected validation to pass ({e.Message}).");
+                GenericBase<TException>.ThrowException(customMessage ?? $"Expected validation to pass ({e.Message}).");
             }
         }
     }

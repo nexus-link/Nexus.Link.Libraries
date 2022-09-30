@@ -26,5 +26,7 @@ namespace Nexus.Link.Libraries.Core.EntityAttributes.Support
         /// If <see cref="IsValid"/> is false, this property contains an error messages, explaining why the property value is not valid.
         /// </summary>
         public string Message { get; set; }
+
+        public string Path { get; set; }
     }
 }

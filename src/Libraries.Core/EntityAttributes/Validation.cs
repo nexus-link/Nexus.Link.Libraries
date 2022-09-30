@@ -656,6 +656,10 @@ namespace Nexus.Link.Libraries.Core.EntityAttributes
                     var propertyValue = propertyInfo.GetValue(entityValue);
                     var validationResult = requireAttribute.Validate(entityType, entityValue, propertyInfo, propertyValue, errorLocation);
                     if (validationResult.IsValid) continue;
+                    var maybeDeeper = string.IsNullOrWhiteSpace(validationResult.Path)
+                        ? ""
+                        : $".{validationResult.Path}";
+                    validationResult.Path = $"{propertyInfo.Name}{maybeDeeper}";
                     return validationResult;
                 }
             }

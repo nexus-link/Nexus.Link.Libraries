@@ -25,6 +25,11 @@ namespace Nexus.Link.Libraries.Core.EntityAttributes
         {
         }
 
+        [AttributeUsage(AttributeTargets.Property | AttributeTargets.Parameter | AttributeTargets.ReturnValue)]
+        public class NullableAttribute : Attribute
+        {
+        }
+
         public static PropertyInfo GetPrimaryKeyProperty<T>()
         {
             if (!typeof(T).IsClass) return null;

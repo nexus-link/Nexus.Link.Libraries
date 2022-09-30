@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Reflection;
 using System.Text.RegularExpressions;
 using JetBrains.Annotations;
 using Newtonsoft.Json.Linq;
@@ -225,7 +226,7 @@ namespace Nexus.Link.Libraries.Core.Assert
             var result = Validation.Validate(parameterValue, null);
             if (!result.IsValid)
             {
-                GenericBase<TException>.ThrowException(result.Message);
+                GenericBase<TException>.ThrowException(customMessage ?? $"{result.Path}.{result.Message}");
             }
             if (!(parameterValue is IValidatable validatable)) return;
             try
@@ -234,7 +235,7 @@ namespace Nexus.Link.Libraries.Core.Assert
             }
             catch (ValidationException e)
             {
-                GenericBase<TException>.ThrowException($"ContractViolation: Validation failed for {parameterName} ({e.Message}).");
+                GenericBase<TException>.ThrowException(customMessage ?? $"ContractViolation: Validation failed for {parameterName} ({e.Message}).");
             }
         }
 
