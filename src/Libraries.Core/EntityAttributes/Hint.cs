@@ -30,6 +30,17 @@ namespace Nexus.Link.Libraries.Core.EntityAttributes
         {
         }
 
+        [AttributeUsage(AttributeTargets.Method)]
+        public class Crud : Attribute
+        {
+            public CrudTypeEnum CrudType { get; }
+
+            public Crud(CrudTypeEnum crudType)
+            {
+                CrudType = crudType;
+            }
+        }
+
         public static PropertyInfo GetPrimaryKeyProperty<T>()
         {
             if (!typeof(T).IsClass) return null;

@@ -1,4 +1,4 @@
-﻿namespace Nexus.Link.Libraries.Crud.EntityAttributes;
+﻿namespace Nexus.Link.Libraries.Core.EntityAttributes;
 
 
 /// <summary>

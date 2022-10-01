@@ -226,7 +226,7 @@ namespace Nexus.Link.Libraries.Core.Assert
             var result = Validation.Validate(parameterValue, null);
             if (!result.IsValid)
             {
-                GenericBase<TException>.ThrowException(customMessage ?? $"{result.Path}.{result.Message}");
+                GenericBase<TException>.ThrowException(customMessage ?? $"{result.Path}: {result.Message}");
             }
             if (!(parameterValue is IValidatable validatable)) return;
             try
