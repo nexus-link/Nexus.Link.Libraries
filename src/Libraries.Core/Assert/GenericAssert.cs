@@ -9,7 +9,7 @@ using Nexus.Link.Libraries.Core.Error.Logic;
 using Nexus.Link.Libraries.Core.Misc;
 
 namespace Nexus.Link.Libraries.Core.Assert
-{ 
+{
     /// <summary>
     /// A generic class for asserting things that the programmer thinks is true. Generic in the meaning that a parameter says what exception that should be thrown when an assumption is false.
     /// </summary>
@@ -231,13 +231,13 @@ namespace Nexus.Link.Libraries.Core.Assert
         /// If <paramref name="value"/> is not null, then call the Validate() method of that type.
         /// </summary>
         [StackTraceHidden]
-        public static void IsValidated(object value, string customMessage = null)
+        public static void IsValidated(object value, string errorLocation = null, string customMessage = null)
         {
             if (value == null) return;
             var result = Validation.Validate(value, null);
             if (!result.IsValid)
             {
-                GenericBase<TException>.ThrowException(customMessage ?? $"{result.Path}: {result.Message}");
+                GenericBase<TException>.ThrowException(customMessage ?? $"{result.Path}: {result.Message}", errorLocation);
             }
             try
             {
@@ -246,7 +246,7 @@ namespace Nexus.Link.Libraries.Core.Assert
             }
             catch (ValidationException e)
             {
-                GenericBase<TException>.ThrowException(customMessage ?? $"Expected validation to pass ({e.Message}).");
+                GenericBase<TException>.ThrowException(customMessage ?? $"Expected validation to pass ({e.Message}).", errorLocation);
             }
         }
     }

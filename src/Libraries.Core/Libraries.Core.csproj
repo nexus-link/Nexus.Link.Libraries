@@ -61,7 +61,7 @@
     <Copyright>Copyright ©2021 Xlent Link AB</Copyright>
     <IncludeSymbols>true</IncludeSymbols>
     <PackageReleaseNotes>
-      5.25.0 Added Hint.Nullable. Better path for validation
+      5.25.0 Added Hint.Nullable. Better path for validation. Validation assertions didn't use codeLocation properly
       5.24.2 Hint and MetaModel classes are now not static
       5.24.1 Added StringExtensions with RemovePrefix(), RemoveSuffix() and RemoveLastSeparated()
       5.23.0 Removed Id and Name from ServiceAttribute, added GrandParentEntity
