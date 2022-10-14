@@ -1,19 +1,18 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Net;
-using System.Net.Http;
-using System.Threading;
-using System.Threading.Tasks;
-using Microsoft.Rest;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Moq;
+﻿using Microsoft.Rest;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Nexus.Link.Libraries.Core.Application;
 using Nexus.Link.Libraries.Core.Error.Logic;
 using Nexus.Link.Libraries.Web.RestClientHelper;
-using Nexus.Link.Libraries.Web.Tests.Support.Models;
+using System.Collections.Generic;
+using System.Net;
+using System.Net.Http;
+using System.Threading;
+using System.Threading.Tasks;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Moq;
 using Shouldly;
+using System.Linq;
 
 namespace Nexus.Link.Libraries.Web.Tests.RestClientHelper
 {
@@ -196,6 +195,24 @@ namespace Nexus.Link.Libraries.Web.Tests.RestClientHelper
             var request = await baseHttpSender.CreateRequestAsync(HttpMethod.Post, "relative",
                 headers);
 
+        }
+
+        [DataRow("application/xml")]
+        [DataRow("random text")]
+        [DataTestMethod]
+        public async Task CustomAcceptHeader(string expectedAcceptHeader)
+        {
+            const string baseUri = "http://example.se";
+            var baseHttpSender = new HttpSenderForTest(baseUri) { HttpClient = _httpClientMock.Object };
+            var headers = new Dictionary<string, List<string>> { { "Accept", new List<string> { expectedAcceptHeader } } };
+            var request = await baseHttpSender.CreateRequestAsync(HttpMethod.Post, "relative",
+                headers);
+
+            var found = request.Headers.TryGetValues("Accept", out var accept);
+            found.ShouldBeTrue();
+            var acceptArray = accept.ToArray();
+            acceptArray.Length.ShouldBe(1);
+            acceptArray[0].ShouldBe(expectedAcceptHeader);
         }
 
         [TestMethod]

@@ -32,7 +32,7 @@
 
   <PropertyGroup>
     <PackageId>Nexus.Link.Libraries.Web</PackageId>
-    <Version>5.31.3</Version>
+    <Version>5.31.4</Version>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <PackageTags>nexus;link;fulcrum;lever</PackageTags>
     <Authors>XLENT Link</Authors>
@@ -42,6 +42,7 @@
     <Copyright>Copyright ©2021 Xlent Link AB</Copyright>
     <IncludeSymbols>true</IncludeSymbols>
     <PackageReleaseNotes>
+      5.31.4 If there is a custom Accept header, we no longer add "application/json"
       5.31.3 Made a private static method public
       5.31.2 Postponed making Constants obsolete 
       5.31.1 Bump

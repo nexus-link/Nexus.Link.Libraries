@@ -204,7 +204,11 @@ namespace Nexus.Link.Libraries.Web.RestClientHelper
                     request.Headers.TryAddWithoutValidation(header.Key, header.Value);
                 }
             }
-            request.Headers.TryAddWithoutValidation("Accept", new List<string> { "application/json" });
+
+            if (!request.Headers.Contains("Accept"))
+            {
+                request.Headers.TryAddWithoutValidation("Accept", new List<string> {"application/json"});
+            }
 
             if (Credentials == null) return request;
 
@@ -212,24 +216,18 @@ namespace Nexus.Link.Libraries.Web.RestClientHelper
             return request;
         }
 
-        private async Task<HttpRequestMessage> CreateRequestAsync<TBody>(HttpMethod method, string relativeUrl, TBody instance, Dictionary<string, List<string>> customHeaders,
+        protected async Task<HttpRequestMessage> CreateRequestAsync<TBody>(HttpMethod method, string relativeUrl, TBody instance, Dictionary<string, List<string>> customHeaders,
             CancellationToken cancellationToken)
         {
             InternalContract.RequireNotNull(relativeUrl, nameof(relativeUrl));
+
             var request = await CreateRequestAsync(method, relativeUrl, customHeaders);
+            if (instance == null) return request;
 
-            if (instance != null)
-            {
-                var requestContent = JsonConvert.SerializeObject(instance, SerializationSettings);
-                request.Content = new StringContent(requestContent, System.Text.Encoding.UTF8);
-                request.Content.Headers.ContentType =
-                    System.Net.Http.Headers.MediaTypeHeaderValue.Parse("application/json; charset=utf-8");
-            }
-
-            if (Credentials == null) return request;
-
-            cancellationToken.ThrowIfCancellationRequested();
-            await Credentials.ProcessHttpRequestAsync(request, cancellationToken).ConfigureAwait(false);
+            var requestContent = JsonConvert.SerializeObject(instance, SerializationSettings);
+            request.Content = new StringContent(requestContent, System.Text.Encoding.UTF8);
+            request.Content.Headers.ContentType =
+                System.Net.Http.Headers.MediaTypeHeaderValue.Parse("application/json; charset=utf-8");
             return request;
         }
 
