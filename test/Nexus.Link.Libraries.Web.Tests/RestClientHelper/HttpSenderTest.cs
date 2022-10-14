@@ -13,6 +13,8 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using Shouldly;
 using System.Linq;
+using System;
+using Microsoft.Extensions.Primitives;
 
 namespace Nexus.Link.Libraries.Web.Tests.RestClientHelper
 {
@@ -21,25 +23,30 @@ namespace Nexus.Link.Libraries.Web.Tests.RestClientHelper
     {
         private Mock<IHttpClient> _httpClientMock;
         private HttpRequestMessage _actualRequestMessage;
-        private string _actualContent;
+        private string _actualRequestContent;
+        private string _expectedResponseContent;
 
         [TestInitialize]
         public void Initialize()
         {
             FulcrumApplicationHelper.UnitTestSetup(typeof(HttpSenderTest).FullName);
+            _expectedResponseContent = Guid.NewGuid().ToString();
             _httpClientMock = new Mock<IHttpClient>();
             _httpClientMock.Setup(s => s.SendAsync(It.IsAny<HttpRequestMessage>(), It.IsAny<CancellationToken>()))
                 .Callback((HttpRequestMessage m, CancellationToken ct) =>
                 {
                     _actualRequestMessage = m;
-                    _actualContent = null;
+                    _actualRequestContent = null;
                     if (m.Content != null)
                     {
                         m.Content.LoadIntoBufferAsync().Wait(ct);
-                        _actualContent = m.Content.ReadAsStringAsync().Result;
+                        _actualRequestContent = m.Content.ReadAsStringAsync().Result;
                     }
                 })
-                .ReturnsAsync(new HttpResponseMessage(HttpStatusCode.OK));
+                .ReturnsAsync(new HttpResponseMessage(HttpStatusCode.OK)
+                {
+                    Content = new StringContent(_expectedResponseContent)
+                });
         }
 
         [TestMethod]
@@ -149,7 +156,7 @@ namespace Nexus.Link.Libraries.Web.Tests.RestClientHelper
 
             // Act
             var response = await sender.SendRequestAsync(HttpMethod.Post, "", contentAsJToken);
-            var actualContentAsObject = JsonConvert.DeserializeObject<TestType>(_actualContent);
+            var actualContentAsObject = JsonConvert.DeserializeObject<TestType>(_actualRequestContent);
 
             // Assert
             Assert.AreEqual(contentAsObject.A, actualContentAsObject.A);
@@ -165,11 +172,11 @@ namespace Nexus.Link.Libraries.Web.Tests.RestClientHelper
                 .Callback((HttpRequestMessage m, CancellationToken ct) =>
                 {
                     _actualRequestMessage = m;
-                    _actualContent = null;
+                    _actualRequestContent = null;
                     if (m.Content != null)
                     {
                         m.Content.LoadIntoBufferAsync().Wait(ct);
-                        _actualContent = m.Content.ReadAsStringAsync().Result;
+                        _actualRequestContent = m.Content.ReadAsStringAsync().Result;
                     }
                 })
                 .ReturnsAsync(new HttpResponseMessage(HttpStatusCode.NoContent));
@@ -230,6 +237,187 @@ namespace Nexus.Link.Libraries.Web.Tests.RestClientHelper
 
             // Assert
             _actualRequestMessage.Headers.Authorization.ShouldNotBeNull();
+        }
+
+        [TestMethod]
+        public async Task Redirect()
+        {
+            // Arrange
+            const string baseUri = "http://example.se/";
+            const string redirectUrl = "http://redirect.example.se/";
+            _httpClientMock = new Mock<IHttpClient>();
+            _httpClientMock.Setup(s => s.SendAsync(It.Is<HttpRequestMessage>(rm => rm.RequestUri.AbsoluteUri == redirectUrl), It.IsAny<CancellationToken>()))
+                .Callback((HttpRequestMessage rm, CancellationToken ct) =>
+                {
+                    _actualRequestMessage = rm;
+                    _actualRequestContent = null;
+                    if (rm.Content != null)
+                    {
+                        rm.Content.LoadIntoBufferAsync().Wait(ct);
+                        _actualRequestContent = rm.Content.ReadAsStringAsync().Result;
+                    }
+                })
+                .ReturnsAsync((HttpRequestMessage rm, CancellationToken ct) => new HttpResponseMessage(HttpStatusCode.OK)
+                {
+                    RequestMessage = rm,
+                    Content = new StringContent(JsonConvert.SerializeObject(_expectedResponseContent))
+                });
+            _httpClientMock.Setup(s => s.SendAsync(It.Is<HttpRequestMessage>(rm => rm.RequestUri.AbsoluteUri == baseUri), It.IsAny<CancellationToken>()))
+                .ReturnsAsync((HttpRequestMessage rm, CancellationToken ct) =>
+                {
+                    var r = new HttpResponseMessage(HttpStatusCode.Redirect)
+                    {
+                        RequestMessage = rm
+                    };
+                    r.Headers.TryAddWithoutValidation("Location", redirectUrl);
+                    return r;
+                });
+            var sender = new HttpSender(baseUri)
+            {
+                HttpClient = _httpClientMock.Object,
+                OptionFollowRedirectsToDepth = 1
+            };
+
+            // Act
+            var result = await sender.SendRequestAsync<string, string>(HttpMethod.Post, "", "body");
+
+            // Assert
+            _actualRequestMessage.RequestUri.OriginalString.ShouldBe(redirectUrl);
+            result.Body.ShouldBe(_expectedResponseContent);
+        }
+
+        [TestMethod]
+        public async Task CircularRedirect()
+        {
+            // Arrange
+            const string baseUri = "http://example.se/";
+            const string redirectUrl = baseUri;
+            _httpClientMock = new Mock<IHttpClient>();
+            _httpClientMock.Setup(s => s.SendAsync(It.Is<HttpRequestMessage>(rm => rm.RequestUri.AbsoluteUri == redirectUrl), It.IsAny<CancellationToken>()))
+                .Callback((HttpRequestMessage rm, CancellationToken ct) =>
+                {
+                    _actualRequestMessage = rm;
+                    _actualRequestContent = null;
+                    if (rm.Content != null)
+                    {
+                        rm.Content.LoadIntoBufferAsync().Wait(ct);
+                        _actualRequestContent = rm.Content.ReadAsStringAsync().Result;
+                    }
+                })
+                .ReturnsAsync((HttpRequestMessage rm, CancellationToken ct) => new HttpResponseMessage(HttpStatusCode.OK)
+                {
+                    RequestMessage = rm,
+                    Content = new StringContent(JsonConvert.SerializeObject(_expectedResponseContent))
+                });
+            _httpClientMock.Setup(s => s.SendAsync(It.Is<HttpRequestMessage>(rm => rm.RequestUri.AbsoluteUri == baseUri), It.IsAny<CancellationToken>()))
+                .ReturnsAsync((HttpRequestMessage rm, CancellationToken ct) =>
+                {
+                    var r = new HttpResponseMessage(HttpStatusCode.Redirect)
+                    {
+                        RequestMessage = rm
+                    };
+                    r.Headers.TryAddWithoutValidation("Location", redirectUrl);
+                    return r;
+                });
+            var sender = new HttpSender(baseUri)
+            {
+                HttpClient = _httpClientMock.Object,
+                OptionFollowRedirectsToDepth = 1
+            };
+
+            // Act
+            var result = await sender.SendRequestAsync<string, string>(HttpMethod.Post, "", "body")
+                .ShouldThrowAsync<FulcrumResourceException>();
+        }
+
+        [DataRow(null)]
+        [DataRow("")]
+        [DataTestMethod]
+        public async Task RedirectWithBadLocationHeader(string locationHeaderValue)
+        {
+            // Arrange
+            const string baseUri = "http://example.se/";
+            _httpClientMock = new Mock<IHttpClient>();
+            _httpClientMock.Setup(s => s.SendAsync(It.Is<HttpRequestMessage>(rm => rm.RequestUri.AbsoluteUri == baseUri), It.IsAny<CancellationToken>()))
+                .ReturnsAsync((HttpRequestMessage rm, CancellationToken ct) =>
+                {
+                    var r = new HttpResponseMessage(HttpStatusCode.Redirect)
+                    {
+                        RequestMessage = rm
+                    };
+                    if (locationHeaderValue == null) return r;
+                    r.Headers.TryAddWithoutValidation("Location", locationHeaderValue);
+                    return r;
+                });
+            var sender = new HttpSender(baseUri)
+            {
+                HttpClient = _httpClientMock.Object,
+                OptionFollowRedirectsToDepth = 1
+            };
+
+            // Act & Assert
+            await sender.SendRequestAsync<string, string>(HttpMethod.Post, "", "body")
+                .ShouldThrowAsync<FulcrumResourceException>();
+        }
+
+        [DataRow(null)]
+        [DataRow("")]
+        [DataTestMethod]
+        public async Task RedirectWithNoDepth(string locationHeaderValue)
+        {
+            // Arrange
+            const string baseUri = "http://example.se/";
+            _httpClientMock = new Mock<IHttpClient>();
+            _httpClientMock.Setup(s => s.SendAsync(It.Is<HttpRequestMessage>(rm => rm.RequestUri.AbsoluteUri == baseUri), It.IsAny<CancellationToken>()))
+                .ReturnsAsync((HttpRequestMessage rm, CancellationToken ct) =>
+                {
+                    var r = new HttpResponseMessage(HttpStatusCode.Redirect)
+                    {
+                        RequestMessage = rm
+                    };
+                    if (locationHeaderValue == null) return r;
+                    r.Headers.TryAddWithoutValidation("Location", locationHeaderValue);
+                    return r;
+                });
+            var sender = new HttpSender(baseUri)
+            {
+                HttpClient = _httpClientMock.Object
+            };
+
+            // Act & Assert
+            await sender.SendRequestAsync<string, string>(HttpMethod.Post, "", "body")
+                .ShouldThrowAsync<FulcrumResourceException>();
+        }
+
+        [TestMethod]
+        public async Task RedirectWithBadLocationHeader()
+        {
+            // Arrange
+            const string baseUri = "http://example.se/";
+            var locationHeaderValues = new[] {"http://a.example.se/", "http://a.example.se/"};
+            _httpClientMock = new Mock<IHttpClient>();
+            _httpClientMock.Setup(s => s.SendAsync(It.Is<HttpRequestMessage>(rm => rm.RequestUri.AbsoluteUri == baseUri), It.IsAny<CancellationToken>()))
+                .ReturnsAsync((HttpRequestMessage rm, CancellationToken ct) =>
+                {
+                    var r = new HttpResponseMessage(HttpStatusCode.Redirect)
+                    {
+                        RequestMessage = rm
+                    };
+                    foreach (var locationHeaderValue in locationHeaderValues)
+                    {
+                        r.Headers.TryAddWithoutValidation("Location", locationHeaderValue);
+                    }
+                    return r;
+                });
+            var sender = new HttpSender(baseUri)
+            {
+                HttpClient = _httpClientMock.Object,
+                OptionFollowRedirectsToDepth = 1
+            };
+
+            // Act & Assert
+            await sender.SendRequestAsync<string, string>(HttpMethod.Post, "", "body")
+                .ShouldThrowAsync<FulcrumNotImplementedException>();
         }
     }
 

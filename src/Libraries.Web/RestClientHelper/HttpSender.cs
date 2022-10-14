@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Threading;
@@ -42,6 +43,11 @@ namespace Nexus.Link.Libraries.Web.RestClientHelper
         /// Credentials that are used when sending requests to the service.
         /// </summary>
         public ServiceClientCredentials Credentials { get; }
+
+        /// <summary>
+        /// To what depth will we follow redirects? 0 means don't follow redirects at all.
+        /// </summary>
+        public int OptionFollowRedirectsToDepth { get; set; }
 
         /// <summary>
         /// Json settings when serializing to strings
@@ -126,12 +132,50 @@ namespace Nexus.Link.Libraries.Web.RestClientHelper
             try
             {
                 response = await SendRequestAsync(method, relativeUrl, body, customHeaders, cancellationToken).ConfigureAwait(false);
-                var request = response.RequestMessage;
-                return await HandleResponseWithBody<TResponse>(method, response, request, cancellationToken);
+                return await HandleResponseWithBody(response);
             }
             finally
             {
                 response?.Dispose();
+            }
+
+
+            async Task<HttpOperationResponse<TResponse>> HandleResponseWithBody(HttpResponseMessage httpResponseMessage)
+            {
+                var result = new HttpOperationResponse<TResponse>
+                {
+                    Request = httpResponseMessage.RequestMessage,
+                    Response = httpResponseMessage,
+                    Body = default
+                };
+
+                // Simple case
+                if (httpResponseMessage.StatusCode == HttpStatusCode.NoContent) return result;
+
+                await VerifySuccessAsync(httpResponseMessage, cancellationToken);
+                if (method == HttpMethod.Get || method == HttpMethod.Put || method == HttpMethod.Post || method == PatchMethod)
+                {
+                    if ((method == HttpMethod.Get || method == HttpMethod.Put || method == PatchMethod) && httpResponseMessage.StatusCode != HttpStatusCode.OK)
+                    {
+                        throw new FulcrumResourceException($"The response to request {httpResponseMessage.RequestMessage.ToLogString()} was expected to have HttpStatusCode {HttpStatusCode.OK}, but had {response.StatusCode.ToLogString()}.");
+                    }
+
+                    if (method == HttpMethod.Post && httpResponseMessage.StatusCode != HttpStatusCode.OK && httpResponseMessage.StatusCode != HttpStatusCode.Created)
+                    {
+                        throw new FulcrumResourceException($"The response to request {httpResponseMessage.RequestMessage.ToLogString()} was expected to have HttpStatusCode {HttpStatusCode.OK} or {HttpStatusCode.Created}, but had {response.StatusCode.ToLogString()}.");
+                    }
+                    var responseContent = await TryGetContentAsStringAsync(httpResponseMessage.Content, false, cancellationToken);
+                    if (responseContent == null) return result;
+                    try
+                    {
+                        result.Body = JsonConvert.DeserializeObject<TResponse>(responseContent, DeserializationSettings);
+                    }
+                    catch (Exception e)
+                    {
+                        throw new FulcrumResourceException($"The response to request {httpResponseMessage.RequestMessage.ToLogString()} could not be deserialized to the type {typeof(TResponse).FullName}. The content was:\r{responseContent}.", e);
+                    }
+                }
+                return result;
             }
         }
 
@@ -180,15 +224,62 @@ namespace Nexus.Link.Libraries.Web.RestClientHelper
                 request?.Dispose();
             }
         }
-        
+
         /// <inheritdoc />
         public async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken = default)
         {
             cancellationToken.ThrowIfCancellationRequested();
-            var response = await HttpClient.SendAsync(request, cancellationToken).ConfigureAwait(false);
-            cancellationToken.ThrowIfCancellationRequested();
-            FulcrumAssert.IsNotNull(response);
-            return response;
+            var urls = new HashSet<string>();
+            do
+            {
+                var response = await HttpClient.SendAsync(request, cancellationToken).ConfigureAwait(false);
+                FulcrumAssert.IsNotNull(response);
+                cancellationToken.ThrowIfCancellationRequested();
+                var statusCodeAsInt = (int) response.StatusCode;
+                if (statusCodeAsInt < 300 || statusCodeAsInt >= 400) return response;
+                    
+                if (OptionFollowRedirectsToDepth < 1)
+                {
+                    throw new FulcrumResourceException(
+                        $"The response for {request} had HTTP status code {statusCodeAsInt} (redirect)," +
+                        $" but {GetType().FullName} had {nameof(OptionFollowRedirectsToDepth)} set to .{OptionFollowRedirectsToDepth}");
+                }
+                var found = response.Headers.TryGetValues("Location", out var locations);
+                string[] locationsArray = null;
+                if (found)
+                {
+                    locationsArray = locations.ToArray();
+                }
+
+                if (!found || !locationsArray.Any())
+                {
+                    throw new FulcrumResourceException(
+                        $"The response for {request} had HTTP status code {statusCodeAsInt} (redirect), but it had no Location URL header.");
+                }
+
+                if (locationsArray.Length > 1)
+                {
+                    throw new FulcrumNotImplementedException(
+                        $"The response for {request} was a redirect. The Location header had more than one value ({string.Join(", ", locationsArray)}) and that is currently not supported by {GetType().FullName}.{nameof(SendAsync)}()");
+                }
+
+                var location = locationsArray[0];
+                if (string.IsNullOrEmpty(location))
+                {
+                    throw new FulcrumResourceException(
+                        $"The response for {request} had HTTP status code {statusCodeAsInt} (redirect), but it the Location URL header was empty.");
+                }
+
+                if (urls.Contains(location))
+                {
+                    throw new FulcrumResourceException(
+                        $"The response for {request} had a circular redirect: {string.Join(", ", urls)}.");
+                }
+
+                urls.Add(location);
+                request.RequestUri = new Uri(location);
+            } while (urls.Count <= OptionFollowRedirectsToDepth);
+            throw new FulcrumResourceException($"The response for {request} had a more than {OptionFollowRedirectsToDepth} redirects: {string.Join(", ", urls)}.");
         }
 
         #region Helpers
@@ -207,7 +298,7 @@ namespace Nexus.Link.Libraries.Web.RestClientHelper
 
             if (!request.Headers.Contains("Accept"))
             {
-                request.Headers.TryAddWithoutValidation("Accept", new List<string> {"application/json"});
+                request.Headers.TryAddWithoutValidation("Accept", new List<string> { "application/json" });
             }
 
             if (Credentials == null) return request;
@@ -229,46 +320,6 @@ namespace Nexus.Link.Libraries.Web.RestClientHelper
             request.Content.Headers.ContentType =
                 System.Net.Http.Headers.MediaTypeHeaderValue.Parse("application/json; charset=utf-8");
             return request;
-        }
-
-
-        private async Task<HttpOperationResponse<TResponse>> HandleResponseWithBody<TResponse>(HttpMethod method, HttpResponseMessage response,
-            HttpRequestMessage request, CancellationToken cancellationToken)
-        {
-            var result = new HttpOperationResponse<TResponse>
-            {
-                Request = request,
-                Response = response,
-                Body = default
-            };
-
-            // Simple case
-            if (response.StatusCode == HttpStatusCode.NoContent) return result;
-
-            await VerifySuccessAsync(response, cancellationToken);
-            if (method == HttpMethod.Get || method == HttpMethod.Put || method == HttpMethod.Post || method == PatchMethod)
-            {
-                if ((method == HttpMethod.Get || method == HttpMethod.Put || method == PatchMethod) && response.StatusCode != HttpStatusCode.OK)
-                {
-                    throw new FulcrumResourceException($"The response to request {request.ToLogString()} was expected to have HttpStatusCode {HttpStatusCode.OK}, but had {response.StatusCode.ToLogString()}.");
-                }
-
-                if (method == HttpMethod.Post && response.StatusCode != HttpStatusCode.OK && response.StatusCode != HttpStatusCode.Created)
-                {
-                    throw new FulcrumResourceException($"The response to request {request.ToLogString()} was expected to have HttpStatusCode {HttpStatusCode.OK} or {HttpStatusCode.Created}, but had {response.StatusCode.ToLogString()}.");
-                }
-                var responseContent = await TryGetContentAsStringAsync(response.Content, false, cancellationToken);
-                if (responseContent == null) return result;
-                try
-                {
-                    result.Body = JsonConvert.DeserializeObject<TResponse>(responseContent, DeserializationSettings);
-                }
-                catch (Exception e)
-                {
-                    throw new FulcrumResourceException($"The response to request {request.ToLogString()} could not be deserialized to the type {typeof(TResponse).FullName}. The content was:\r{responseContent}.", e);
-                }
-            }
-            return result;
         }
 
         private async Task VerifySuccessAsync(HttpResponseMessage response, CancellationToken cancellationToken)
