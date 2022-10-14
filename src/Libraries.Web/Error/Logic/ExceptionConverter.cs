@@ -126,8 +126,8 @@ namespace Nexus.Link.Libraries.Web.Error.Logic
             var contentAsString = "";
             if (response.Content != null)
             {
-                await response.Content?.LoadIntoBufferAsync();
-                contentAsString = await response.Content?.ReadAsStringAsync();
+                await response.Content.LoadIntoBufferAsync();
+                contentAsString = await response.Content.ReadAsStringAsync();
                 var fulcrumError = await FulcrumErrorFromContentAsync(response, contentAsString, cancellationToken);
                 if (fulcrumError != null) return fulcrumError;
             }
