@@ -184,6 +184,25 @@ namespace Nexus.Link.Libraries.Web.Tests.RestClientHelper
             Assert.IsNull(response.Body);
         }
 
+        [TestMethod]
+        public async Task RedirectDoesNotFailEarly()
+        {
+            // Arrange
+            _httpClientMock = new Mock<IHttpClient>();
+            _httpClientMock.Setup(s => s.SendAsync(It.IsAny<HttpRequestMessage>(), It.IsAny<CancellationToken>()))
+               
+                .ReturnsAsync(new HttpResponseMessage(HttpStatusCode.Redirect));
+            const string baseUri = "http://example.se/";
+            var content = "content";
+            var sender = new HttpSender(baseUri) { HttpClient = _httpClientMock.Object };
+
+            // Act
+            var response = await sender.SendRequestAsync<string, string>(HttpMethod.Post, "", content);
+
+            // Assert
+            response.Response.StatusCode.ShouldBe(HttpStatusCode.Redirect);
+        }
+
         [DataRow(":method")]
         [DataRow("Content-Type")]
         [DataTestMethod]

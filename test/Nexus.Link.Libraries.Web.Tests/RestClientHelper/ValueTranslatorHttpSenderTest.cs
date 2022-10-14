@@ -170,6 +170,25 @@ namespace Nexus.Link.Libraries.Web.Tests.RestClientHelper
             public ServiceClientCredentials Credentials { get; }
 
             /// <inheritdoc />
+            public async Task<TResponse> SendRequestThrowIfNotSuccessAsync<TResponse, TBody>(HttpMethod method, string relativeUrl, TBody body = default,
+                Dictionary<string, List<string>> customHeaders = null, CancellationToken cancellationToken = default)
+            {
+                RelativeUrl = relativeUrl;
+                var response =  await SendRequestAsync<TResponse, TBody>(method, relativeUrl, body, customHeaders, cancellationToken);
+                var result = await HttpSender.VerifySuccessAndReturnBodyAsync(response, cancellationToken);
+
+                return result;
+            }
+
+            /// <inheritdoc />
+            public Task SendRequestThrowIfNotSuccessAsync<TBody>(HttpMethod method, string relativeUrl, TBody body = default,
+                Dictionary<string, List<string>> customHeaders = null, CancellationToken cancellationToken = default)
+            {
+                RelativeUrl = relativeUrl;
+                return Task.CompletedTask;
+            }
+
+            /// <inheritdoc />
             public Task<HttpResponseMessage> SendRequestAsync(HttpMethod method, string relativeUrl, Dictionary<string, List<string>> customHeaders = null,
                 CancellationToken cancellationToken = default)
             {

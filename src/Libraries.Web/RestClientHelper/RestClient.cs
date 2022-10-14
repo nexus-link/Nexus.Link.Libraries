@@ -18,7 +18,9 @@ namespace Nexus.Link.Libraries.Web.RestClientHelper
 
         private static readonly HttpMethod PatchMethod = new HttpMethod("PATCH");
 
-        /// <inheritdoc />
+        /// <summary>
+        /// Constructor
+        /// </summary>
         public RestClient(IHttpSender httpSender)
         {
             InternalContract.RequireNotNull(httpSender, nameof(httpSender));
@@ -72,8 +74,8 @@ namespace Nexus.Link.Libraries.Web.RestClientHelper
             CancellationToken cancellationToken = default)
         {
             InternalContract.RequireNotNull(relativeUrl, nameof(relativeUrl));
-            var response = await SendRequestAsync<TResponse, TBody>(HttpMethod.Post, relativeUrl, body, customHeaders, cancellationToken);
-            return response.Body;
+            var result = await SendRequestThrowIfNotSuccessAsync<TResponse, TBody>(HttpMethod.Post, relativeUrl, body, customHeaders, cancellationToken);
+            return result;
         }
 
         /// <inheritdoc />
@@ -97,8 +99,7 @@ namespace Nexus.Link.Libraries.Web.RestClientHelper
             CancellationToken cancellationToken = default)
         {
             InternalContract.RequireNotNull(relativeUrl, nameof(relativeUrl));
-            var response = await SendRequestAsync(HttpMethod.Post, relativeUrl, body, customHeaders, cancellationToken);
-            await VerifySuccessAsync(response, cancellationToken);
+            await SendRequestThrowIfNotSuccessAsync(HttpMethod.Post, relativeUrl, body, customHeaders, cancellationToken);
         }
 
         /// <inheritdoc />
@@ -106,8 +107,7 @@ namespace Nexus.Link.Libraries.Web.RestClientHelper
             CancellationToken cancellationToken = default)
         {
             InternalContract.RequireNotNull(relativeUrl, nameof(relativeUrl));
-            var response = await SendRequestAsync(HttpMethod.Post, relativeUrl, customHeaders, cancellationToken);
-            await VerifySuccessAsync(response, cancellationToken);
+            await SendRequestThrowIfNotSuccessAsync<object>(HttpMethod.Post, relativeUrl, null, customHeaders, cancellationToken);
         }
         #endregion
 
@@ -118,8 +118,8 @@ namespace Nexus.Link.Libraries.Web.RestClientHelper
             CancellationToken cancellationToken = default)
         {
             InternalContract.RequireNotNull(relativeUrl, nameof(relativeUrl));
-            var response = await SendRequestAsync<TResponse, object>(HttpMethod.Get, relativeUrl, null, customHeaders, cancellationToken);
-            return response.Body;
+            var result = await SendRequestThrowIfNotSuccessAsync<TResponse, object>(HttpMethod.Get, relativeUrl, null, customHeaders, cancellationToken);
+            return result;
         }
         #endregion
 
@@ -180,8 +180,7 @@ namespace Nexus.Link.Libraries.Web.RestClientHelper
             CancellationToken cancellationToken = default)
         {
             InternalContract.RequireNotNull(relativeUrl, nameof(relativeUrl));
-            var response = await SendRequestAsync(HttpMethod.Delete, relativeUrl, customHeaders, cancellationToken);
-            await VerifySuccessAsync(response, cancellationToken);
+            await SendRequestThrowIfNotSuccessAsync<object>(HttpMethod.Delete, relativeUrl, null, customHeaders, cancellationToken);
         }
         #endregion
 
@@ -215,6 +214,20 @@ namespace Nexus.Link.Libraries.Web.RestClientHelper
         public ServiceClientCredentials Credentials => HttpSender?.Credentials;
 
         /// <inheritdoc />
+        public Task<TResponse> SendRequestThrowIfNotSuccessAsync<TResponse, TBody>(HttpMethod method, string relativeUrl, TBody body = default,
+            Dictionary<string, List<string>> customHeaders = null, CancellationToken cancellationToken = default)
+        {
+            return HttpSender.SendRequestThrowIfNotSuccessAsync<TResponse, TBody>(method, relativeUrl, body, customHeaders, cancellationToken);
+        }
+
+        /// <inheritdoc />
+        public Task SendRequestThrowIfNotSuccessAsync<TBody>(HttpMethod method, string relativeUrl, TBody body = default,
+            Dictionary<string, List<string>> customHeaders = null, CancellationToken cancellationToken = default)
+        {
+            return HttpSender.SendRequestThrowIfNotSuccessAsync(method, relativeUrl, body, customHeaders, cancellationToken);
+        }
+
+        /// <inheritdoc />
         public Task<HttpResponseMessage> SendRequestAsync(HttpMethod method, string relativeUrl,
             Dictionary<string, List<string>> customHeaders = null, CancellationToken cancellationToken = default)
         {
@@ -241,8 +254,8 @@ namespace Nexus.Link.Libraries.Web.RestClientHelper
             CancellationToken cancellationToken = default)
         {
             InternalContract.RequireNotNull(relativeUrl, nameof(relativeUrl));
-            var response = await SendRequestAsync<TResponse, TBody>(method, relativeUrl, body, customHeaders, cancellationToken);
-            return response.Body;
+            var result = await SendRequestThrowIfNotSuccessAsync<TResponse, TBody>(method, relativeUrl, body, customHeaders, cancellationToken);
+            return result;
         }
 
         private async Task<TBodyAndResponse> PutOrPatchAndReturnUpdatedObjectAsync<TBodyAndResponse>(HttpMethod method, string relativeUrl, TBodyAndResponse body,
@@ -256,26 +269,7 @@ namespace Nexus.Link.Libraries.Web.RestClientHelper
             CancellationToken cancellationToken = default)
         {
             InternalContract.RequireNotNull(relativeUrl, nameof(relativeUrl));
-            var response = await SendRequestAsync(method, relativeUrl, body, customHeaders, cancellationToken);
-            await VerifySuccessAsync(response, cancellationToken);
-        }
-
-        private async Task VerifySuccessAsync(HttpResponseMessage response, CancellationToken cancellationToken)
-        {
-            InternalContract.RequireNotNull(response, nameof(response));
-            if (!response.IsSuccessStatusCode)
-            {
-                InternalContract.RequireNotNull(response.RequestMessage, $"{nameof(response)}.{nameof(response.RequestMessage)}");
-                var requestContent = await TryGetContentAsString(response.RequestMessage?.Content, true, cancellationToken);
-                var responseContent = await TryGetContentAsString(response.Content, true, cancellationToken);
-                var message = $"{response.StatusCode} {responseContent}";
-                var exception = new HttpOperationException(message)
-                {
-                    Response = new HttpResponseMessageWrapper(response, responseContent),
-                    Request = new HttpRequestMessageWrapper(response.RequestMessage, requestContent)
-                };
-                throw exception;
-            }
+            await SendRequestThrowIfNotSuccessAsync<TBody>(method, relativeUrl, body, customHeaders, cancellationToken);
         }
 
         private async Task<string> TryGetContentAsString(HttpContent content, bool silentlyIgnoreExceptions, CancellationToken cancellationToken)
