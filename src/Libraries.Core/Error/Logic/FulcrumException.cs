@@ -130,10 +130,14 @@ namespace Nexus.Link.Libraries.Core.Error.Logic
                     }
                     break;
                 case FulcrumError sourceError:
-                    var data = JsonConvert.DeserializeObject<Dictionary<string, object>>(sourceError.SerializedData);
-                    foreach (var keyValuePair in data)
+                    if (!string.IsNullOrWhiteSpace(sourceError.SerializedData))
                     {
-                        Data[keyValuePair.Key] = keyValuePair.Value;
+                        var data = JsonConvert
+                            .DeserializeObject<Dictionary<string, object>>(sourceError.SerializedData);
+                        foreach (var keyValuePair in data)
+                        {
+                            Data[keyValuePair.Key] = keyValuePair.Value;
+                        }
                     }
                     break;
                 default:
