@@ -350,18 +350,12 @@ namespace Nexus.Link.Libraries.Web.RestClientHelper
         /// <typeparam name="T"></typeparam>
         /// <returns>The Body of <paramref name="operationResponse"/></returns>
         public static async Task<T> VerifySuccessAndReturnBodyAsync<T>(HttpOperationResponse<T> operationResponse,
-            CancellationToken cancellationToken)
+            CancellationToken cancellationToken = default)
         {
             InternalContract.RequireNotNull(operationResponse, nameof(operationResponse));
             InternalContract.RequireNotNull(operationResponse.Response,
                 $"{nameof(operationResponse)}.{nameof(operationResponse.Response)}");
 
-
-            if ((int)operationResponse.Response.StatusCode >= 300 && (int)operationResponse.Response.StatusCode < 400)
-            {
-                // We have a redirect. If we can interpret the old and new id, we could throw a redirect exception
-                if (TryInterpretRedirectException(operationResponse.Response, out var redirectException)) throw redirectException;
-            }
             await VerifySuccessAsync(operationResponse.Response, cancellationToken);
             return operationResponse.Body;
         }
@@ -371,12 +365,18 @@ namespace Nexus.Link.Libraries.Web.RestClientHelper
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <returns>The Body of <paramref name="response"/></returns>
-        public static async Task VerifySuccessAsync(HttpResponseMessage response, CancellationToken cancellationToken)
+        public static async Task VerifySuccessAsync(HttpResponseMessage response, CancellationToken cancellationToken = default)
         {
             InternalContract.RequireNotNull(response, nameof(response));
             InternalContract.RequireNotNull(response.RequestMessage, $"{nameof(response)}.{nameof(response.RequestMessage)}");
 
             if (response.IsSuccessStatusCode) return;
+
+            if ((int)response.StatusCode >= 300 && (int)response.StatusCode < 400)
+            {
+                // We have a redirect. If we can interpret the old and new id, we could throw a redirect exception
+                if (TryInterpretRedirectException(response, out var redirectException)) throw redirectException;
+            }
 
             var requestContent =
                 await TryGetContentAsStringAsync(response.RequestMessage?.Content, true, cancellationToken);

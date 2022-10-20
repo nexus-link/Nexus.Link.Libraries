@@ -191,7 +191,6 @@ namespace Nexus.Link.Libraries.Web.Tests.RestClientHelper
             // Arrange
             _httpClientMock = new Mock<IHttpClient>();
             _httpClientMock.Setup(s => s.SendAsync(It.IsAny<HttpRequestMessage>(), It.IsAny<CancellationToken>()))
-               
                 .ReturnsAsync(new HttpResponseMessage(HttpStatusCode.Redirect));
             const string baseUri = "http://example.se/";
             var content = "content";
@@ -275,7 +274,7 @@ namespace Nexus.Link.Libraries.Web.Tests.RestClientHelper
             };
 
             // Act
-            var redirectException = await HttpSender.VerifySuccessAndReturnBodyAsync(httpOperationResponse, new CancellationToken())
+            var redirectException = await HttpSender.VerifySuccessAndReturnBodyAsync(httpOperationResponse)
                 .ShouldThrowAsync<FulcrumRedirectException>();
 
             // Assert
@@ -309,7 +308,7 @@ namespace Nexus.Link.Libraries.Web.Tests.RestClientHelper
             };
 
             // Act & Assert
-            await HttpSender.VerifySuccessAndReturnBodyAsync(httpOperationResponse, new CancellationToken())
+            await HttpSender.VerifySuccessAndReturnBodyAsync(httpOperationResponse)
                 .ShouldThrowAsync<HttpOperationException>();
         }
     }
