@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using Newtonsoft.Json;
@@ -16,8 +18,8 @@ namespace Nexus.Link.Libraries.Core.Error.Logic
     public abstract class FulcrumException : Exception, IFulcrumError, ILoggable
     {
         /// <summary>
-        /// The current servent name. Can be set by calling <see cref="Initialize"/>.
-        /// Will automaticall be copied to the the field <see cref="ServerTechnicalName"/> for every new error.
+        /// The current server name. Can be set by calling <see cref="Initialize"/>.
+        /// Will automatically be copied to the the field <see cref="ServerTechnicalName"/> for every new error.
         /// </summary>
         private static string _serverTechnicalName;
 
@@ -97,7 +99,7 @@ namespace Nexus.Link.Libraries.Core.Error.Logic
         }
 
         /// <inheritdoc />
-        public IFulcrumError CopyFrom(IFulcrumError fulcrumError)
+        public virtual IFulcrumError CopyFrom(IFulcrumError fulcrumError)
         {
             InternalContract.RequireNotNull(fulcrumError, nameof(fulcrumError));
             TechnicalMessage = TechnicalMessage ?? fulcrumError.TechnicalMessage;
@@ -117,6 +119,27 @@ namespace Nexus.Link.Libraries.Core.Error.Logic
             MoreInfoUrl = fulcrumError.MoreInfoUrl ?? MoreInfoUrl;
             Code = fulcrumError.Code ?? Code;
             ErrorLocation = fulcrumError.ErrorLocation;
+
+            switch (fulcrumError)
+            {
+                case Exception sourceException:
+                    // https://stackoverflow.com/questions/144957/using-exception-data
+                    foreach (DictionaryEntry kvp in sourceException.Data)
+                    {
+                        Data[kvp.Key] = kvp.Value;
+                    }
+                    break;
+                case FulcrumError sourceError:
+                    var data = JsonConvert.DeserializeObject<Dictionary<string, object>>(sourceError.SerializedData);
+                    foreach (var keyValuePair in data)
+                    {
+                        Data[keyValuePair.Key] = keyValuePair.Value;
+                    }
+                    break;
+                default:
+                    FulcrumAssert.Fail(CodeLocation.AsString());
+                    break;
+            }
             return this;
         }
 

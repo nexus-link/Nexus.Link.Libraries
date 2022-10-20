@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Net;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Web;
 using Microsoft.Rest;
 using Newtonsoft.Json;
 using Nexus.Link.Libraries.Core.Assert;
@@ -354,6 +356,12 @@ namespace Nexus.Link.Libraries.Web.RestClientHelper
             InternalContract.RequireNotNull(operationResponse.Response,
                 $"{nameof(operationResponse)}.{nameof(operationResponse.Response)}");
 
+
+            if ((int)operationResponse.Response.StatusCode >= 300 && (int)operationResponse.Response.StatusCode < 400)
+            {
+                // We have a redirect. If we can interpret the old and new id, we could throw a redirect exception
+                if (TryInterpretRedirectException(operationResponse.Response, out var redirectException)) throw redirectException;
+            }
             await VerifySuccessAsync(operationResponse.Response, cancellationToken);
             return operationResponse.Body;
         }
@@ -381,6 +389,65 @@ namespace Nexus.Link.Libraries.Web.RestClientHelper
                 Request = new HttpRequestMessageWrapper(response.RequestMessage, requestContent)
             };
             throw exception;
+        }
+
+        private static bool TryInterpretRedirectException(HttpResponseMessage response, out Exception exception)
+        {
+            exception = null;
+            if (response.Headers.Location == null) return false;
+            if (response.RequestMessage.RequestUri == null) return false;
+            if (response.RequestMessage.RequestUri.Host != response.Headers.Location.Host) return false;
+            var requestPath = WebUtility.UrlDecode(response.RequestMessage.RequestUri.AbsolutePath);
+            if (string.IsNullOrWhiteSpace(requestPath)) return false;
+            var redirectPath = WebUtility.UrlDecode(response.Headers.Location.AbsolutePath);
+            if (string.IsNullOrWhiteSpace(redirectPath)) return false;
+            var differsAt = DiffersAtIndex(requestPath, redirectPath);
+            // Same or totally different
+            if (differsAt < 1) return false;
+            var oldIdWithTail = RemoveHeadToMax(requestPath, differsAt);
+            var newIdWithTail = RemoveHeadToMax(redirectPath, differsAt);
+            var oldId = RemoveTail(oldIdWithTail);
+            if (string.IsNullOrWhiteSpace(oldId)) return false;
+            var newId = RemoveTail(newIdWithTail);
+            if (string.IsNullOrWhiteSpace(newId)) return false;
+            var oldTail = oldIdWithTail.Substring(oldId.Length);
+            var newTail = newIdWithTail.Substring(newId.Length);
+            if (oldTail != newTail) return false;
+            exception = new FulcrumRedirectException(oldId, newId);
+            return true;
+            
+            int DiffersAtIndex(string s1, string s2)
+            {
+                int index = 0;
+                int min = Math.Min(s1.Length, s2.Length);
+                while (index < min && s1[index] == s2[index])
+                    index++;
+
+                return (index == min && s1.Length == s2.Length) ? -1 : index;
+            }
+
+            string RemoveHeadToMax(string s, int max)
+            {
+                for (int i = max; i >=0; i--)
+                {
+                    var c = s[i];
+                    if (c == '/' || c == '?')
+                    {
+                        return s.Substring(i+1, s.Length-i-1);
+                    }
+                }
+                return s;
+            }
+
+            string RemoveTail(string s)
+            {
+                for (int i = 0; i < s.Length; i++)
+                {
+                    var c = s[i];
+                    if (c == '/' || c == '?') return s.Substring(0, i);
+                }
+                return s;
+            }
         }
     }
 }
