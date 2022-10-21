@@ -74,8 +74,7 @@ namespace Nexus.Link.Libraries.Web.Error.Logic
             AddFulcrumException(typeof(FulcrumBusinessRuleException), HttpStatusCode.BadRequest, FulcrumBusinessRuleException.ExceptionType);
             AddFulcrumException(typeof(FulcrumConflictException), HttpStatusCode.BadRequest, FulcrumConflictException.ExceptionType);
             AddFulcrumException(typeof(FulcrumNotFoundException), HttpStatusCode.BadRequest, FulcrumNotFoundException.ExceptionType);
-            AddFulcrumException(typeof(FulcrumRedirectException), HttpStatusCode.Redirect, FulcrumRedirectException.ExceptionType);
-
+            AddFulcrumException(typeof(FulcrumRedirectException), HttpStatusCode.MovedPermanently, FulcrumRedirectException.ExceptionType);
 
             // WebApi
             AddFulcrumException(typeof(FulcrumServiceContractException), HttpStatusCode.BadRequest, FulcrumContractException.ExceptionType);
@@ -120,6 +119,9 @@ namespace Nexus.Link.Libraries.Web.Error.Logic
         public static async Task<FulcrumError> ToFulcrumErrorAsync(HttpResponseMessage response, CancellationToken cancellationToken = default)
         {
             InternalContract.RequireNotNull(response, nameof(response));
+            InternalContract.Require((int)response.StatusCode, sc => sc < 300 || sc >= 400,
+                $"{nameof(response)}.{nameof(response.StatusCode)} ({response.StatusCode}) must not be of type redirect.");
+            InternalContract.RequireNotNull(response, nameof(response));
             if (response.IsSuccessStatusCode)
             {
                 if (response.StatusCode != HttpStatusCode.Accepted) return null;
@@ -140,6 +142,9 @@ namespace Nexus.Link.Libraries.Web.Error.Logic
         private static Task<FulcrumError> FulcrumErrorFromContentAsync(HttpResponseMessage response,
             string contentAsString, CancellationToken cancellationToken)
         {
+            InternalContract.RequireNotNull(response, nameof(response));
+            InternalContract.Require((int)response.StatusCode, sc => sc < 300 || sc >= 400,
+                $"{nameof(response)}.{nameof(response.StatusCode)} ({response.StatusCode}) must not be of type redirect.");
             InternalContract.RequireNotNull(contentAsString, nameof(contentAsString));
             var fulcrumError = SafeParse<FulcrumError>(contentAsString);
             if (fulcrumError?.Type != null)
@@ -261,7 +266,8 @@ namespace Nexus.Link.Libraries.Web.Error.Logic
             }
             else if (statusCodeAsInt >= 300)
             {
-                fulcrumError.Type = FulcrumServiceContractException.ExceptionType;
+                FulcrumAssert.Fail(CodeLocation.AsString(),
+                    "Expected redirect status codes to be taken care of before the call to this method.");
             }
             else if (statusCodeAsInt == 202)
             {
@@ -283,6 +289,10 @@ namespace Nexus.Link.Libraries.Web.Error.Logic
         public static async Task<FulcrumException> ToFulcrumExceptionAsync(HttpResponseMessage response, CancellationToken cancellationToken = default)
         {
             InternalContract.RequireNotNull(response, nameof(response));
+            if ((int)response.StatusCode >= 300 && (int)response.StatusCode < 400)
+            {
+                return new FulcrumHttpRedirectException(response);
+            }
             var fulcrumError = await ToFulcrumErrorAsync(response, cancellationToken);
             if (fulcrumError == null) return null;
             var fulcrumException = ToFulcrumException(fulcrumError);

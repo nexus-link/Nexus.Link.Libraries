@@ -52,7 +52,6 @@ namespace Nexus.Link.Libraries.Web.Pipe.Outbound
                     // This is for unit testing
                     response = await UnitTest_SendAsyncDependencyInjection(request, cancellationToken);
                 }
-
                 requestDescription = $"OUT request-response {await request.ToLogStringAsync(response, cancellationToken: cancellationToken)}";
 
                 if (response.StatusCode == HttpStatusCode.Accepted && response.Content != null)
@@ -73,7 +72,7 @@ namespace Nexus.Link.Libraries.Web.Pipe.Outbound
                     {
                         var timeSpan = postponeInfo.TryAgainAfterMinimumSeconds.HasValue
                             ? TimeSpan.FromSeconds(postponeInfo.TryAgainAfterMinimumSeconds.Value)
-                            : (TimeSpan?) null;
+                            : (TimeSpan?)null;
                         throw new RequestPostponedException(postponeInfo.WaitingForRequestIds)
                         {
                             TryAgain = postponeInfo.TryAgain,
@@ -84,8 +83,12 @@ namespace Nexus.Link.Libraries.Web.Pipe.Outbound
 
                     return response;
                 }
+                if (response.IsSuccessStatusCode) return response;
                 fulcrumException = await ExceptionConverter.ToFulcrumExceptionAsync(response, cancellationToken);
-                if (fulcrumException == null) return response;
+                if (fulcrumException == null)
+                {
+                    return response;
+                }
             }
             catch (FulcrumException e)
             {
@@ -126,7 +129,11 @@ namespace Nexus.Link.Libraries.Web.Pipe.Outbound
                 throw new FulcrumAssertionFailedException(message, e);
             }
 
-            var severityLevel = (int)response.StatusCode >= 500 ? LogSeverityLevel.Error : LogSeverityLevel.Warning;
+            var severityLevel = (int)response.StatusCode >= 500
+                ? LogSeverityLevel.Error
+                : (int)response.StatusCode >= 400
+                    ? LogSeverityLevel.Warning
+                    : LogSeverityLevel.Information;
             Log.LogOnLevel(severityLevel, $"{requestDescription} was converted to (and threw) the exception {fulcrumException.GetType().Name}: {fulcrumException.TechnicalMessage}", fulcrumException);
             throw fulcrumException;
         }

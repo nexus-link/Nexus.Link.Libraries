@@ -251,30 +251,31 @@ namespace Nexus.Link.Libraries.Web.Tests.RestClientHelper
             _actualRequestMessage.Headers.Authorization.ShouldNotBeNull();
         }
 
-        [DataRow("http://example.com/persons/1", "http://example.com/persons/2", "1", "2")]
-        [DataRow("http://example.com/persons/1111", "http://example.com/persons/1112", "1111", "1112")]
-        [DataRow("http://example.com/persons/1113/hello", "http://example.com/persons/1114/hello", "1113", "1114")]
-        [DataRow("http://example.com/persons/1115/invoices/11", "http://example.com/persons/1116/invoices/11", "1115", "1116")]
-        [DataRow("http://example.com/persons/1/invoices/1117", "http://example.com/persons/1/invoices/1118", "1117", "1118")]
+        [DataRow("persons/1", "http://example.com/persons/2", "1", "2")]
+        [DataRow("persons/1111", "http://example.com/persons/1112", "1111", "1112")]
+        [DataRow("persons/1113/hello", "http://example.com/persons/1114/hello", "1113", "1114")]
+        [DataRow("persons/1115/invoices/11", "http://example.com/persons/1116/invoices/11", "1115", "1116")]
+        [DataRow("persons/1/invoices/1117", "http://example.com/persons/1/invoices/1118", "1117", "1118")]
         [DataTestMethod]
-        public async Task ThrowsRedirectException(string requestUrl, string redirectUrl, string expectedOldId, string expectedNewId)
+        public async Task ThrowsRedirectException(string requestRelativeUrl, string redirectUrl, string expectedOldId, string expectedNewId)
         {
             // Arrange
-            var request = new HttpRequestMessage(HttpMethod.Get, requestUrl);
+            const string baseUri = "http://example.com/";
+            var requestUrl = baseUri + requestRelativeUrl;
+            var content = "content";
+            var httpClientMock = new Mock<IHttpClient>();
+            var sender = new HttpSender(baseUri) { HttpClient = httpClientMock.Object };
+            var request = new HttpRequestMessage(HttpMethod.Get, baseUri + requestRelativeUrl);
             var response = new HttpResponseMessage(HttpStatusCode.Redirect)
             {
                 RequestMessage = request
             };
             response.Headers.Location = new Uri(redirectUrl);
-            var httpOperationResponse = new HttpOperationResponse<object>
-            {
-                Request = request,
-                Response = response,
-                Body = null
-            };
+            httpClientMock.Setup(s => s.SendAsync(It.IsAny<HttpRequestMessage>(), It.IsAny<CancellationToken>()))
+                .ThrowsAsync(new FulcrumHttpRedirectException(response));
 
             // Act
-            var redirectException = await HttpSender.VerifySuccessAndReturnBodyAsync(httpOperationResponse)
+            var redirectException = await sender.SendRequestThrowIfNotSuccessAsync(request.Method, requestRelativeUrl, (object) null)
                 .ShouldThrowAsync<FulcrumRedirectException>();
 
             // Assert

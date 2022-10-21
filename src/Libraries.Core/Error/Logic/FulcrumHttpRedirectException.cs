@@ -41,9 +41,12 @@ namespace Nexus.Link.Libraries.Core.Error.Logic
         /// Constructor
         /// </summary>
         public FulcrumHttpRedirectException(HttpResponseMessage response) : this(
-            $"Redirect from {response?.RequestMessage?.RequestUri} to {response?.Headers?.Location}.", (Exception) null)
+            $"Redirect from {response?.RequestMessage?.RequestUri} to {response?.Headers?.Location}.", (Exception)null)
         {
             InternalContract.RequireNotNull(response, nameof(response));
+            InternalContract.RequireGreaterThanOrEqualTo(300, (int)response.StatusCode, $"{nameof(response)}.{nameof(response.StatusCode)}");
+            InternalContract.RequireLessThan(400, (int)response.StatusCode, $"{nameof(response)}.{nameof(response.StatusCode)}");
+
             RequestUri = response.RequestMessage?.RequestUri;
             LocationUri = response.Headers?.Location;
             HttpStatusCode = (int)response.StatusCode;
@@ -139,7 +142,7 @@ namespace Nexus.Link.Libraries.Core.Error.Logic
             if (string.IsNullOrWhiteSpace(oldPath)) return false;
             var newPath = WebUtility.UrlDecode(newUri.AbsolutePath);
             if (string.IsNullOrWhiteSpace(newPath)) return false;
-            
+
             // Find the point where they differ
             var differsAt = DiffersAtIndex(oldPath, newPath);
             // Same or totally different
@@ -151,19 +154,19 @@ namespace Nexus.Link.Libraries.Core.Error.Logic
 
             // Go forward from the difference to find where the id ends
             var oldIdEnd = GetIdEndPosition(oldPath, differsAt);
-            if (oldIdEnd <= differsAt) return false;
+            if (oldIdEnd < differsAt) return false;
             var newIdEnd = GetIdEndPosition(newPath, differsAt);
-            if (newIdEnd <= differsAt) return false;
+            if (newIdEnd < differsAt) return false;
 
             // Verify that they still end with the same string
-            var oldTail = oldPath.Substring(oldIdEnd);
-            var newTail = newPath.Substring(newIdEnd);
+            var oldTail = oldPath.Substring(oldIdEnd + 1);
+            var newTail = newPath.Substring(newIdEnd + 1);
             if (oldTail != newTail) return false;
 
             // Now extract the oldId and the newId
-            OldId = oldPath.Substring(idStart, oldIdEnd - idStart);
+            OldId = oldPath.Substring(idStart, oldIdEnd - idStart + 1);
             FulcrumAssert.IsNotNullOrWhiteSpace(OldId, CodeLocation.AsString());
-            NewId = oldPath.Substring(idStart, oldIdEnd - idStart);
+            NewId = newPath.Substring(idStart, oldIdEnd - idStart + 1);
             FulcrumAssert.IsNotNullOrWhiteSpace(NewId, CodeLocation.AsString());
             return true;
 
@@ -192,7 +195,7 @@ namespace Nexus.Link.Libraries.Core.Error.Logic
                     var c = s[i];
                     if (c is '/' or '?' or ' ') return i - 1;
                 }
-                return s.Length;
+                return s.Length - 1;
             }
         }
     }

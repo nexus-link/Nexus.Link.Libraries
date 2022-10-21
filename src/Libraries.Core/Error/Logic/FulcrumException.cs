@@ -187,7 +187,12 @@ namespace Nexus.Link.Libraries.Core.Error.Logic
         /// <summary>
         /// Save a key-value to <see cref="Exception.Data"/>
         /// </summary>
-        public T GetData<T>(string key) => Data.Contains(key) ? (T) Data[nameof(key)] : default;
+        public T GetData<T>(string key)
+        {
+            if (!Data.Contains(key)) return default;
+            var value = (T)Data[key];
+            return value;
+        }
 
         /// <inheritdoc />
         public override string StackTrace
