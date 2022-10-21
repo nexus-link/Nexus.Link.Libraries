@@ -5,18 +5,19 @@ using System.Net;
 using JetBrains.Annotations;
 using System.Net.Http;
 using Nexus.Link.Libraries.Core.Assert;
+using Nexus.Link.Libraries.Core.Misc;
 
 namespace Nexus.Link.Libraries.Core.Error.Logic
 {
     /// <summary>
     /// The request resulted in an HTTP status code in the 3xx range. We will return the Uri for the request and the location header.
     /// </summary>
-    public class FulcrumHttpRedirectException : FulcrumRedirectException
+    public class FulcrumHttpRedirectException : FulcrumException
     {
         /// <summary>
         /// Factory method
         /// </summary>
-        public new static FulcrumException Create(string message, Exception innerException = null)
+        public static FulcrumException Create(string message, Exception innerException = null)
         {
             return new FulcrumHttpRedirectException(message, innerException);
         }
@@ -24,7 +25,7 @@ namespace Nexus.Link.Libraries.Core.Error.Logic
         /// <summary>
         /// The type for this <see cref="FulcrumException"/>
         /// </summary>
-        public new const string ExceptionType = "Xlent.Fulcrum.Http.Redirect";
+        public const string ExceptionType = "Xlent.Fulcrum.Http.Redirect";
 
         /// <summary>
         /// Constructor
@@ -45,8 +46,9 @@ namespace Nexus.Link.Libraries.Core.Error.Logic
             InternalContract.RequireNotNull(response, nameof(response));
             RequestUri = response.RequestMessage?.RequestUri;
             LocationUri = response.Headers?.Location;
-            HasRedirectIds = TryInterpretRedirectException(response);
-            HttpStatusCode = (int) response.StatusCode;
+            HttpStatusCode = (int)response.StatusCode;
+            // If this call returns true, then OldId and NewId has been set.
+            HasRedirectIds = TryInterpretRedirectException(RequestUri, LocationUri);
         }
 
         /// <summary>
@@ -63,15 +65,6 @@ namespace Nexus.Link.Libraries.Core.Error.Logic
 
         /// <inheritdoc />
         public override string Type => ExceptionType;
-
-        /// <summary>
-        /// The request URI that should be replaced with <see cref="LocationUri"/>.
-        /// </summary>
-        public bool HasRedirectIds
-        {
-            get => GetData<bool>(nameof(HasRedirectIds));
-            set => SetData(nameof(HasRedirectIds), value);
-        }
 
         /// <summary>
         /// The request URI that should be replaced with <see cref="LocationUri"/>.
@@ -100,6 +93,33 @@ namespace Nexus.Link.Libraries.Core.Error.Logic
             set => SetData(nameof(LocationUri), value);
         }
 
+        /// <summary>
+        /// The request URI that should be replaced with <see cref="LocationUri"/>.
+        /// </summary>
+        public bool HasRedirectIds
+        {
+            get => GetData<bool>(nameof(HasRedirectIds));
+            set => SetData(nameof(HasRedirectIds), value);
+        }
+
+        /// <summary>
+        /// The old id that should be replaced with <see cref="NewId"/>.
+        /// </summary>
+        public string OldId
+        {
+            get => GetData<string>(nameof(OldId));
+            set => SetData(nameof(OldId), value);
+        }
+
+        /// <summary>
+        /// The new id that should replace <see cref="OldId"/>.
+        /// </summary>
+        public string NewId
+        {
+            get => GetData<string>(nameof(NewId));
+            set => SetData(nameof(NewId), value);
+        }
+
         /// <inheritdoc />
         public override string FriendlyMessage { get; set; } =
             "The request URI should be replace by the suggested URI.";
@@ -109,62 +129,70 @@ namespace Nexus.Link.Libraries.Core.Error.Logic
             MoreInfoUrl = $"http://lever.xlent-fulcrum.info/FulcrumExceptions#{Type}";
         }
 
-        private bool TryInterpretRedirectException(HttpResponseMessage response)
+        private bool TryInterpretRedirectException(Uri oldUri, Uri newUri)
         {
-            if (response.Headers.Location == null) return false;
-            if (response.RequestMessage.RequestUri == null) return false;
-            if (response.RequestMessage.RequestUri.Host != response.Headers.Location.Host) return false;
-            var requestPath = WebUtility.UrlDecode(response.RequestMessage.RequestUri.AbsolutePath);
-            if (string.IsNullOrWhiteSpace(requestPath)) return false;
-            var redirectPath = WebUtility.UrlDecode(response.Headers.Location.AbsolutePath);
-            if (string.IsNullOrWhiteSpace(redirectPath)) return false;
-            var differsAt = DiffersAtIndex(requestPath, redirectPath);
+            if (oldUri == null || newUri == null) return false;
+            if (oldUri.Host != newUri.Host) return false;
+
+            // Get the path after host
+            var oldPath = WebUtility.UrlDecode(oldUri.AbsolutePath);
+            if (string.IsNullOrWhiteSpace(oldPath)) return false;
+            var newPath = WebUtility.UrlDecode(newUri.AbsolutePath);
+            if (string.IsNullOrWhiteSpace(newPath)) return false;
+            
+            // Find the point where they differ
+            var differsAt = DiffersAtIndex(oldPath, newPath);
             // Same or totally different
             if (differsAt < 1) return false;
-            var oldIdWithTail = RemoveHeadToMax(requestPath, differsAt);
-            var newIdWithTail = RemoveHeadToMax(redirectPath, differsAt);
-            var oldId = RemoveTail(oldIdWithTail);
-            if (string.IsNullOrWhiteSpace(oldId)) return false;
-            var newId = RemoveTail(newIdWithTail);
-            if (string.IsNullOrWhiteSpace(newId)) return false;
-            var oldTail = oldIdWithTail.Substring(oldId.Length);
-            var newTail = newIdWithTail.Substring(newId.Length);
+
+            // Go backwards from the difference to find where the id starts
+            var idStart = GetIdStartPosition(oldPath, differsAt);
+            if (idStart > differsAt) return false;
+
+            // Go forward from the difference to find where the id ends
+            var oldIdEnd = GetIdEndPosition(oldPath, differsAt);
+            if (oldIdEnd <= differsAt) return false;
+            var newIdEnd = GetIdEndPosition(newPath, differsAt);
+            if (newIdEnd <= differsAt) return false;
+
+            // Verify that they still end with the same string
+            var oldTail = oldPath.Substring(oldIdEnd);
+            var newTail = newPath.Substring(newIdEnd);
             if (oldTail != newTail) return false;
-            FromId = oldId;
-            ToId = newId;
+
+            // Now extract the oldId and the newId
+            OldId = oldPath.Substring(idStart, oldIdEnd - idStart);
+            FulcrumAssert.IsNotNullOrWhiteSpace(OldId, CodeLocation.AsString());
+            NewId = oldPath.Substring(idStart, oldIdEnd - idStart);
+            FulcrumAssert.IsNotNullOrWhiteSpace(NewId, CodeLocation.AsString());
             return true;
 
             int DiffersAtIndex(string s1, string s2)
             {
-                int index = 0;
-                int min = Math.Min(s1.Length, s2.Length);
-                while (index < min && s1[index] == s2[index])
-                    index++;
-
+                var index = 0;
+                var min = Math.Min(s1.Length, s2.Length);
+                while (index < min && s1[index] == s2[index]) index++;
                 return (index == min && s1.Length == s2.Length) ? -1 : index;
             }
 
-            string RemoveHeadToMax(string s, int max)
+            int GetIdStartPosition(string s, int max)
             {
-                for (int i = max; i >= 0; i--)
+                for (var i = max; i >= 0; i--)
                 {
                     var c = s[i];
-                    if (c == '/' || c == '?')
-                    {
-                        return s.Substring(i + 1, s.Length - i - 1);
-                    }
+                    if (c is '/' or '?' or ' ') return i + 1;
                 }
-                return s;
+                return 0;
             }
 
-            string RemoveTail(string s)
+            int GetIdEndPosition(string s, int min)
             {
-                for (int i = 0; i < s.Length; i++)
+                for (var i = min; i < s.Length; i++)
                 {
                     var c = s[i];
-                    if (c == '/' || c == '?') return s.Substring(0, i);
+                    if (c is '/' or '?' or ' ') return i - 1;
                 }
-                return s;
+                return s.Length;
             }
         }
     }

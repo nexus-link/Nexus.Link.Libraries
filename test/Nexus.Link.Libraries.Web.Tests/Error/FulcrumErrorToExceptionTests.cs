@@ -348,8 +348,8 @@ namespace Nexus.Link.Libraries.Web.Tests.Error
             Assert.AreEqual(targetType, fulcrumException.Type);
             if (fulcrumException is FulcrumRedirectException redirectException)
             {
-                redirectException.FromId = Guid.NewGuid().ToString();
-                redirectException.ToId = Guid.NewGuid().ToString();
+                redirectException.OldId = Guid.NewGuid().ToString();
+                redirectException.NewId = Guid.NewGuid().ToString();
             }
         }
     }

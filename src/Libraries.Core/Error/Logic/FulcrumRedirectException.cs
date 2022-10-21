@@ -6,11 +6,11 @@ using JetBrains.Annotations;
 namespace Nexus.Link.Libraries.Core.Error.Logic
 {
     /// <summary>
-    /// The object with id <see cref="FromId"/> has been replaced by object with id <see cref="ToId"/>.
+    /// The object with id <see cref="OldId"/> has been replaced by object with id <see cref="NewId"/>.
     /// </summary>
     /// <example>
     /// Two customers (#1 and #2) are duplicates of the same customer. They have been merged into customer #3.
-    /// All requests for customers #1 and #2 should throw this exception that should point to #3 as the <see cref="ToId"/>.
+    /// All requests for customers #1 and #2 should throw this exception that should point to #3 as the <see cref="NewId"/>.
     /// </example>
     public class FulcrumRedirectException : FulcrumException
     {
@@ -40,11 +40,11 @@ namespace Nexus.Link.Libraries.Core.Error.Logic
         /// <summary>
         /// Constructor
         /// </summary>
-        public FulcrumRedirectException(string fromId, string toId) : this(
-            $"The id {fromId} should be replaced with {toId}.", (Exception) null)
+        public FulcrumRedirectException(string oldId, string newId) : this(
+            $"The id {oldId} should be replaced with {newId}.", (Exception) null)
         {
-            FromId = fromId;
-            ToId = toId;
+            OldId = oldId;
+            NewId = newId;
         }
 
         /// <summary>
@@ -64,21 +64,21 @@ namespace Nexus.Link.Libraries.Core.Error.Logic
         public override string Type => ExceptionType;
 
         /// <summary>
-        /// The old id that should be replaced with <see cref="ToId"/>.
+        /// The old id that should be replaced with <see cref="NewId"/>.
         /// </summary>
-        public string FromId
+        public string OldId
         {
-            get => GetData<string>(nameof(FromId));
-            set => SetData(nameof(FromId), value);
+            get => GetData<string>(nameof(OldId));
+            set => SetData(nameof(OldId), value);
         }
 
         /// <summary>
-        /// The new id that should replace <see cref="FromId"/>.
+        /// The new id that should replace <see cref="OldId"/>.
         /// </summary>
-        public string ToId
+        public string NewId
         {
-            get => GetData<string>(nameof(ToId));
-            set => SetData(nameof(ToId), value);
+            get => GetData<string>(nameof(NewId));
+            set => SetData(nameof(NewId), value);
         }
 
         /// <inheritdoc />
