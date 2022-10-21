@@ -6,14 +6,12 @@ using JetBrains.Annotations;
 namespace Nexus.Link.Libraries.Core.Error.Logic
 {
     /// <summary>
-    /// The server failed to execute the request due to a resource not behaving according to the contract.
+    /// The object with id <see cref="OldId"/> has been replaced by object with id <see cref="NewId"/>.
     /// </summary>
     /// <example>
-    /// We call an external service, expecting it to either be successful, or to return a FulcrumError. If it doesn't, this kind of exception is thrown.
+    /// Two customers (#1 and #2) are duplicates of the same customer. They have been merged into customer #3.
+    /// All requests for customers #1 and #2 should throw this exception that should point to #3 as the <see cref="NewId"/>.
     /// </example>
-    /// <remarks>
-    /// This exception is a way to blame someone else for a problem that has occurred in your code.
-    /// </remarks>
     public class FulcrumRedirectException : FulcrumException
     {
         /// <summary>
@@ -56,7 +54,7 @@ namespace Nexus.Link.Libraries.Core.Error.Logic
         {
             
             SetProperties(innerException);
-            if (innerException is FulcrumException innerFulcrumException) InternalCopyFrom(innerFulcrumException);
+            if (innerException is FulcrumException innerFulcrumException) CopyFrom(innerFulcrumException);
         }
 
         /// <inheritdoc />
@@ -70,8 +68,8 @@ namespace Nexus.Link.Libraries.Core.Error.Logic
         /// </summary>
         public string OldId
         {
-            get => Data.Contains(nameof(OldId)) ? (string) Data[nameof(OldId)] : null;
-            set => Data[nameof(OldId)] = value;
+            get => GetData<string>(nameof(OldId));
+            set => SetData(nameof(OldId), value);
         }
 
         /// <summary>
@@ -79,24 +77,13 @@ namespace Nexus.Link.Libraries.Core.Error.Logic
         /// </summary>
         public string NewId
         {
-            get => Data.Contains(nameof(NewId)) ? (string)Data[nameof(NewId)] : null;
-            set => Data[nameof(NewId)] = value;
+            get => GetData<string>(nameof(NewId));
+            set => SetData(nameof(NewId), value);
         }
 
         /// <inheritdoc />
         public override string FriendlyMessage { get; set; } =
             "The specified object id should be replaced with the given object id.";
-
-        private FulcrumRedirectException InternalCopyFrom(IFulcrumError fulcrumError)
-        {
-            base.CopyFrom(fulcrumError);
-            return this;
-        }
-
-        public override IFulcrumError CopyFrom(IFulcrumError fulcrumError)
-        {
-            return InternalCopyFrom(fulcrumError);
-        }
 
         private void SetProperties(Exception innerException = null)
         {
