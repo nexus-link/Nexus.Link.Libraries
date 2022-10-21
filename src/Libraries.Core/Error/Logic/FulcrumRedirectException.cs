@@ -21,13 +21,13 @@ namespace Nexus.Link.Libraries.Core.Error.Logic
         /// </summary>
         public static FulcrumException Create(string message, Exception innerException = null)
         {
-            return new FulcrumResourceException(message, innerException);
+            return new FulcrumRedirectException(message, innerException);
         }
 
         /// <summary>
         /// The type for this <see cref="FulcrumException"/>
         /// </summary>
-        public const string ExceptionType = "Xlent.Fulcrum.Resource";
+        public const string ExceptionType = "Xlent.Fulcrum.Redirect";
 
         /// <summary>
         /// Constructor
