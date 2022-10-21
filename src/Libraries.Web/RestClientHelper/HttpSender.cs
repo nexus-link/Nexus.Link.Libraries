@@ -141,9 +141,20 @@ namespace Nexus.Link.Libraries.Web.RestClientHelper
             CancellationToken cancellationToken = default)
         {
             InternalContract.RequireNotNull(relativeUrl, nameof(relativeUrl));
-            var response = await SendRequestAsync<TResponse, TBody>(method, relativeUrl, body, customHeaders, cancellationToken);
-            var result = await VerifySuccessAndReturnBodyAsync(response, cancellationToken);
-            return result;
+            try
+            {
+                var response = await SendRequestAsync<TResponse, TBody>(method, relativeUrl, body, customHeaders, cancellationToken);
+                var result = await VerifySuccessAndReturnBodyAsync(response, cancellationToken);
+                return result;
+            }
+            catch (FulcrumHttpRedirectException httpRedirectException)
+            {
+                if (httpRedirectException.HasRedirectIds)
+                {
+                    throw new FulcrumRedirectException(httpRedirectException.OldId, httpRedirectException.NewId);
+                }
+                throw;
+            }
         }
 
         /// <inheritdoc />
@@ -155,8 +166,19 @@ namespace Nexus.Link.Libraries.Web.RestClientHelper
             CancellationToken cancellationToken = default)
         {
             InternalContract.RequireNotNull(relativeUrl, nameof(relativeUrl));
-            var response = await SendRequestAsync(method, relativeUrl, body, customHeaders, cancellationToken);
-            await VerifySuccessAsync(response, cancellationToken);
+            try
+            {
+                var response = await SendRequestAsync(method, relativeUrl, body, customHeaders, cancellationToken);
+                await VerifySuccessAsync(response, cancellationToken);
+            }
+            catch (FulcrumHttpRedirectException httpRedirectException)
+            {
+                if (httpRedirectException.HasRedirectIds)
+                {
+                    throw new FulcrumRedirectException(httpRedirectException.OldId, httpRedirectException.NewId);
+                }
+                throw;
+            }
         }
         #endregion
 
@@ -372,12 +394,6 @@ namespace Nexus.Link.Libraries.Web.RestClientHelper
 
             if (response.IsSuccessStatusCode) return;
 
-            if ((int)response.StatusCode >= 300 && (int)response.StatusCode < 400)
-            {
-                // We have a redirect. If we can interpret the old and new id, we could throw a redirect exception
-                if (TryInterpretRedirectException(response, out var redirectException)) throw redirectException;
-            }
-
             var requestContent =
                 await TryGetContentAsStringAsync(response.RequestMessage?.Content, true, cancellationToken);
             var responseContent =
@@ -389,65 +405,6 @@ namespace Nexus.Link.Libraries.Web.RestClientHelper
                 Request = new HttpRequestMessageWrapper(response.RequestMessage, requestContent)
             };
             throw exception;
-        }
-
-        private static bool TryInterpretRedirectException(HttpResponseMessage response, out Exception exception)
-        {
-            exception = null;
-            if (response.Headers.Location == null) return false;
-            if (response.RequestMessage.RequestUri == null) return false;
-            if (response.RequestMessage.RequestUri.Host != response.Headers.Location.Host) return false;
-            var requestPath = WebUtility.UrlDecode(response.RequestMessage.RequestUri.AbsolutePath);
-            if (string.IsNullOrWhiteSpace(requestPath)) return false;
-            var redirectPath = WebUtility.UrlDecode(response.Headers.Location.AbsolutePath);
-            if (string.IsNullOrWhiteSpace(redirectPath)) return false;
-            var differsAt = DiffersAtIndex(requestPath, redirectPath);
-            // Same or totally different
-            if (differsAt < 1) return false;
-            var oldIdWithTail = RemoveHeadToMax(requestPath, differsAt);
-            var newIdWithTail = RemoveHeadToMax(redirectPath, differsAt);
-            var oldId = RemoveTail(oldIdWithTail);
-            if (string.IsNullOrWhiteSpace(oldId)) return false;
-            var newId = RemoveTail(newIdWithTail);
-            if (string.IsNullOrWhiteSpace(newId)) return false;
-            var oldTail = oldIdWithTail.Substring(oldId.Length);
-            var newTail = newIdWithTail.Substring(newId.Length);
-            if (oldTail != newTail) return false;
-            exception = new FulcrumRedirectException(oldId, newId);
-            return true;
-            
-            int DiffersAtIndex(string s1, string s2)
-            {
-                int index = 0;
-                int min = Math.Min(s1.Length, s2.Length);
-                while (index < min && s1[index] == s2[index])
-                    index++;
-
-                return (index == min && s1.Length == s2.Length) ? -1 : index;
-            }
-
-            string RemoveHeadToMax(string s, int max)
-            {
-                for (int i = max; i >=0; i--)
-                {
-                    var c = s[i];
-                    if (c == '/' || c == '?')
-                    {
-                        return s.Substring(i+1, s.Length-i-1);
-                    }
-                }
-                return s;
-            }
-
-            string RemoveTail(string s)
-            {
-                for (int i = 0; i < s.Length; i++)
-                {
-                    var c = s[i];
-                    if (c == '/' || c == '?') return s.Substring(0, i);
-                }
-                return s;
-            }
         }
     }
 }
