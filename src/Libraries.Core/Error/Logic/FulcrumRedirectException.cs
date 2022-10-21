@@ -6,14 +6,12 @@ using JetBrains.Annotations;
 namespace Nexus.Link.Libraries.Core.Error.Logic
 {
     /// <summary>
-    /// The server failed to execute the request due to a resource not behaving according to the contract.
+    /// The object with id <see cref="FromId"/> has been replaced by object with id <see cref="ToId"/>.
     /// </summary>
     /// <example>
-    /// We call an external service, expecting it to either be successful, or to return a FulcrumError. If it doesn't, this kind of exception is thrown.
+    /// Two customers (#1 and #2) are duplicates of the same customer. They have been merged into customer #3.
+    /// All requests for customers #1 and #2 should throw this exception that should point to #3 as the <see cref="ToId"/>.
     /// </example>
-    /// <remarks>
-    /// This exception is a way to blame someone else for a problem that has occurred in your code.
-    /// </remarks>
     public class FulcrumRedirectException : FulcrumException
     {
         /// <summary>
@@ -21,13 +19,13 @@ namespace Nexus.Link.Libraries.Core.Error.Logic
         /// </summary>
         public static FulcrumException Create(string message, Exception innerException = null)
         {
-            return new FulcrumResourceException(message, innerException);
+            return new FulcrumRedirectException(message, innerException);
         }
 
         /// <summary>
         /// The type for this <see cref="FulcrumException"/>
         /// </summary>
-        public const string ExceptionType = "Xlent.Fulcrum.Resource";
+        public const string ExceptionType = "Xlent.Fulcrum.Redirect";
 
         /// <summary>
         /// Constructor
@@ -42,11 +40,11 @@ namespace Nexus.Link.Libraries.Core.Error.Logic
         /// <summary>
         /// Constructor
         /// </summary>
-        public FulcrumRedirectException(string oldId, string newId) : this(
-            $"The id {oldId} should be replaced with {newId}.", (Exception) null)
+        public FulcrumRedirectException(string fromId, string toId) : this(
+            $"The id {fromId} should be replaced with {toId}.", (Exception) null)
         {
-            OldId = oldId;
-            NewId = newId;
+            FromId = fromId;
+            ToId = toId;
         }
 
         /// <summary>
@@ -56,7 +54,7 @@ namespace Nexus.Link.Libraries.Core.Error.Logic
         {
             
             SetProperties(innerException);
-            if (innerException is FulcrumException innerFulcrumException) InternalCopyFrom(innerFulcrumException);
+            if (innerException is FulcrumException innerFulcrumException) CopyFrom(innerFulcrumException);
         }
 
         /// <inheritdoc />
@@ -66,37 +64,26 @@ namespace Nexus.Link.Libraries.Core.Error.Logic
         public override string Type => ExceptionType;
 
         /// <summary>
-        /// The old id that should be replaced with <see cref="NewId"/>.
+        /// The old id that should be replaced with <see cref="ToId"/>.
         /// </summary>
-        public string OldId
+        public string FromId
         {
-            get => Data.Contains(nameof(OldId)) ? (string) Data[nameof(OldId)] : null;
-            set => Data[nameof(OldId)] = value;
+            get => GetData<string>(nameof(FromId));
+            set => SetData(nameof(FromId), value);
         }
 
         /// <summary>
-        /// The new id that should replace <see cref="OldId"/>.
+        /// The new id that should replace <see cref="FromId"/>.
         /// </summary>
-        public string NewId
+        public string ToId
         {
-            get => Data.Contains(nameof(NewId)) ? (string)Data[nameof(NewId)] : null;
-            set => Data[nameof(NewId)] = value;
+            get => GetData<string>(nameof(ToId));
+            set => SetData(nameof(ToId), value);
         }
 
         /// <inheritdoc />
         public override string FriendlyMessage { get; set; } =
             "The specified object id should be replaced with the given object id.";
-
-        private FulcrumRedirectException InternalCopyFrom(IFulcrumError fulcrumError)
-        {
-            base.CopyFrom(fulcrumError);
-            return this;
-        }
-
-        public override IFulcrumError CopyFrom(IFulcrumError fulcrumError)
-        {
-            return InternalCopyFrom(fulcrumError);
-        }
 
         private void SetProperties(Exception innerException = null)
         {

@@ -99,7 +99,7 @@ namespace Nexus.Link.Libraries.Core.Error.Logic
         }
 
         /// <inheritdoc />
-        public virtual IFulcrumError CopyFrom(IFulcrumError fulcrumError)
+        public IFulcrumError CopyFrom(IFulcrumError fulcrumError)
         {
             InternalContract.RequireNotNull(fulcrumError, nameof(fulcrumError));
             TechnicalMessage = TechnicalMessage ?? fulcrumError.TechnicalMessage;
@@ -155,7 +155,7 @@ namespace Nexus.Link.Libraries.Core.Error.Logic
         {
             InternalContract.RequireNotNullOrWhiteSpace(serverTechnicalName, nameof(serverTechnicalName));
             serverTechnicalName = serverTechnicalName.ToLower();
-            if (_serverTechnicalName != null) InternalContract.Require(serverTechnicalName == _serverTechnicalName, 
+            if (_serverTechnicalName != null) InternalContract.Require(serverTechnicalName == _serverTechnicalName,
                 $"Once the server name has been set ({_serverTechnicalName}, it can't be changed ({serverTechnicalName}).");
             _serverTechnicalName = serverTechnicalName;
         }
@@ -167,6 +167,27 @@ namespace Nexus.Link.Libraries.Core.Error.Logic
             FulcrumValidate.IsNotNullOrWhiteSpace(Type, nameof(Type), errorLocation);
             FulcrumValidate.IsNotNullOrWhiteSpace(InstanceId, nameof(InstanceId), errorLocation);
         }
+
+        /// <summary>
+        /// Save a key-value to <see cref="Exception.Data"/>
+        /// </summary>
+        public void SetData<T>(string key, T value)
+        {
+            // https://stackoverflow.com/questions/65351/null-or-default-comparison-of-generic-argument-in-c-sharp
+            if (EqualityComparer<T>.Default.Equals(value, default))
+            {
+                if (Data.Contains(key)) Data.Remove(key);
+            }
+            else
+            {
+                Data[key] = value;
+            }
+        }
+
+        /// <summary>
+        /// Save a key-value to <see cref="Exception.Data"/>
+        /// </summary>
+        public T GetData<T>(string key) => Data.Contains(key) ? (T) Data[nameof(key)] : default;
 
         /// <inheritdoc />
         public override string StackTrace

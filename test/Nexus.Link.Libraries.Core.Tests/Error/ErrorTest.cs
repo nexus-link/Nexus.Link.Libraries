@@ -185,8 +185,8 @@ namespace Nexus.Link.Libraries.Core.Tests.Error
                 MoreInfoUrl = Guid.NewGuid().ToString(),
                 RecommendedWaitTimeInSeconds = 100.0,
                 ServerTechnicalName = Guid.NewGuid().ToString(),
-                OldId = Guid.NewGuid().ToString(),
-                NewId = Guid.NewGuid().ToString()
+                FromId = Guid.NewGuid().ToString(),
+                ToId = Guid.NewGuid().ToString()
             };
             var fulcrumError = new FulcrumError();
             fulcrumError.CopyFrom(fulcrumException);
@@ -205,8 +205,8 @@ namespace Nexus.Link.Libraries.Core.Tests.Error
             UT.Assert.AreEqual(fulcrumError.IsRetryMeaningful, copy.IsRetryMeaningful);
             UT.Assert.AreEqual(fulcrumError.CorrelationId, copy.CorrelationId);
             UT.Assert.AreEqual(fulcrumError.ErrorLocation, copy.ErrorLocation);
-            copy.OldId.ShouldBe(fulcrumException.OldId);
-            copy.NewId.ShouldBe(fulcrumException.NewId);
+            copy.FromId.ShouldBe(fulcrumException.FromId);
+            copy.ToId.ShouldBe(fulcrumException.ToId);
 
             // Other tests
             UT.Assert.IsNull(copy.InnerException);

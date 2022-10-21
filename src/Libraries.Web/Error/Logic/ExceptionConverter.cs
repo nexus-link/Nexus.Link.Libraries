@@ -74,6 +74,8 @@ namespace Nexus.Link.Libraries.Web.Error.Logic
             AddFulcrumException(typeof(FulcrumBusinessRuleException), HttpStatusCode.BadRequest, FulcrumBusinessRuleException.ExceptionType);
             AddFulcrumException(typeof(FulcrumConflictException), HttpStatusCode.BadRequest, FulcrumConflictException.ExceptionType);
             AddFulcrumException(typeof(FulcrumNotFoundException), HttpStatusCode.BadRequest, FulcrumNotFoundException.ExceptionType);
+            AddFulcrumException(typeof(FulcrumRedirectException), HttpStatusCode.Redirect, FulcrumRedirectException.ExceptionType);
+
 
             // WebApi
             AddFulcrumException(typeof(FulcrumServiceContractException), HttpStatusCode.BadRequest, FulcrumContractException.ExceptionType);

@@ -278,8 +278,8 @@ namespace Nexus.Link.Libraries.Web.Tests.RestClientHelper
                 .ShouldThrowAsync<FulcrumRedirectException>();
 
             // Assert
-            redirectException.OldId.ShouldBe(expectedOldId);
-            redirectException.NewId.ShouldBe(expectedNewId);
+            redirectException.FromId.ShouldBe(expectedOldId);
+            redirectException.ToId.ShouldBe(expectedNewId);
         }
 
         [DataRow("http://example.com/persons/1", "http://example.com/invoices/2")] // Another resource

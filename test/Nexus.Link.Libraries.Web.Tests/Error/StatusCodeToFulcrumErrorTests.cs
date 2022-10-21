@@ -30,13 +30,28 @@ namespace Nexus.Link.Libraries.Web.Tests.Error
         public async Task StatusCode300()
         {
             // Represents 3xx
+
+            // 300
             await Verify(HttpStatusCode.Ambiguous, FulcrumServiceContractException.ExceptionType);
             await Verify(HttpStatusCode.MultipleChoices, FulcrumServiceContractException.ExceptionType);
+
+            // 301
             await Verify(HttpStatusCode.MovedPermanently, FulcrumServiceContractException.ExceptionType);
+
+            // 302
+            await Verify(HttpStatusCode.Redirect, FulcrumServiceContractException.ExceptionType);
             await Verify(HttpStatusCode.Found, FulcrumServiceContractException.ExceptionType);
+
+            // 303
             await Verify(HttpStatusCode.SeeOther, FulcrumServiceContractException.ExceptionType);
+
+            // 304
             await Verify(HttpStatusCode.NotModified, FulcrumServiceContractException.ExceptionType);
+
+            // 305
             await Verify(HttpStatusCode.UseProxy, FulcrumServiceContractException.ExceptionType);
+
+            // 307
             await Verify(HttpStatusCode.TemporaryRedirect, FulcrumServiceContractException.ExceptionType);
         }
 

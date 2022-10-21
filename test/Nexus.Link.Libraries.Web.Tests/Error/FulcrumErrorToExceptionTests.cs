@@ -39,6 +39,7 @@ namespace Nexus.Link.Libraries.Web.Tests.Error
         [DataRow(FulcrumNotFoundException.ExceptionType)]
         [DataRow(FulcrumTryAgainException.ExceptionType)]
         [DataRow(FulcrumUnauthorizedException.ExceptionType)]
+        [DataRow(FulcrumRedirectException.ExceptionType)]
         public void ConvertToSameType(string exceptionType)
         {
             Verify(exceptionType);
@@ -345,6 +346,11 @@ namespace Nexus.Link.Libraries.Web.Tests.Error
             var fulcrumException = ExceptionConverter.ToFulcrumException(fulcrumError);
             Assert.IsNotNull(fulcrumException);
             Assert.AreEqual(targetType, fulcrumException.Type);
+            if (fulcrumException is FulcrumRedirectException redirectException)
+            {
+                redirectException.FromId = Guid.NewGuid().ToString();
+                redirectException.ToId = Guid.NewGuid().ToString();
+            }
         }
     }
 }
