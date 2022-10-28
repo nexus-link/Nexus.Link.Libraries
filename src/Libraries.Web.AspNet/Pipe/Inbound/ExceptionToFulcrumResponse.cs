@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Nexus.Link.Libraries.Core.Assert;
 using Nexus.Link.Libraries.Core.Misc;
 using Nexus.Link.Libraries.Web.AspNet.Error.Logic;
+using Nexus.Link.Libraries.Core.Error.Logic;
 #if NETCOREAPP
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
@@ -59,18 +60,9 @@ namespace Nexus.Link.Libraries.Web.AspNet.Pipe.Inbound
         private static async Task ConvertExceptionToResponseAsync(CompabilityInvocationContext context, Exception exception, CancellationToken cancellationToken)
         {
 #if NETCOREAPP
-            var response = AspNetExceptionConverter.ToContentResult(exception);
-            FulcrumAssert.IsTrue(response.StatusCode.HasValue, CodeLocation.AsString());
-            Debug.Assert(response.StatusCode.HasValue);
+            await AspNetExceptionConverter.ConvertExceptionToResponseAsync(exception, context.Context.Response, cancellationToken);
 #else
-            var response = AspNetExceptionConverter.ToHttpResponseMessage(exception);
-#endif
-#if NETCOREAPP
-            context.Context.Response.StatusCode = response.StatusCode.Value;
-            context.Context.Response.ContentType = response.ContentType;
-            await context.Context.Response.WriteAsync(response.Content, cancellationToken: cancellationToken);
-#else
-            context.ResponseMessage = response;
+            context.ResponseMessage = AspNetExceptionConverter.ToHttpResponseMessage(exception);
             await Task.CompletedTask;
 #endif
         }

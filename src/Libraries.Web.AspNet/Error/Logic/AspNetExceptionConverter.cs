@@ -7,7 +7,11 @@ using Nexus.Link.Libraries.Core.Logging;
 using Nexus.Link.Libraries.Core.Misc;
 using Nexus.Link.Libraries.Web.Error;
 using Nexus.Link.Libraries.Web.Error.Logic;
+using System.Diagnostics;
+using System.Threading;
+using System.Threading.Tasks;
 #if NETCOREAPP
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 #else
 using System.Net.Http;
@@ -24,9 +28,31 @@ namespace Nexus.Link.Libraries.Web.AspNet.Error.Logic
     public static class AspNetExceptionConverter
     {
 #if NETCOREAPP
+        public static async Task ConvertExceptionToResponseAsync(Exception exception, HttpResponse response, CancellationToken cancellationToken = default)
+        {
+            InternalContract.RequireNotNull(exception, nameof(exception));
+            InternalContract.RequireNotNull(response, nameof(response));
+
+            var statusAndContent = ToStatusAndContent(exception);
+            var task = response.WriteAsync(statusAndContent.Content, cancellationToken);
+            response.StatusCode = (int) statusAndContent.StatusCode;
+            response.ContentType = "application/json";
+            if (exception is FulcrumHttpRedirectException redirectException)
+            {
+                response.StatusCode = redirectException.HttpStatusCode;
+                response.Headers.Add("Location", redirectException.LocationUri.OriginalString);
+            }
+            else
+            {
+                response.StatusCode = (int)statusAndContent.StatusCode;
+            }
+            await task;
+        }
+
         /// <summary>
         /// Convert an exception (<paramref name="e"/>) into an HTTP response message.
         /// </summary>
+        [Obsolete("Has been replaced with ConvertExceptionToResponse.", true)]
         public static ContentResult ToContentResult(Exception e)
         {
             InternalContract.RequireNotNull(e, nameof(e));
@@ -41,6 +67,8 @@ namespace Nexus.Link.Libraries.Web.AspNet.Error.Logic
 
             return res;
         }
+
+
 #else
         /// <summary>
         /// Convert an exception (<paramref name="e"/>) into an HTTP response message.
@@ -54,6 +82,10 @@ namespace Nexus.Link.Libraries.Web.AspNet.Error.Logic
             {
                 Content = stringContent
             };
+            if (e is FulcrumHttpRedirectException redirectException)
+            {
+                response.Headers.Location = redirectException.LocationUri;
+            }
             return response;
         }
 #endif
@@ -92,6 +124,14 @@ namespace Nexus.Link.Libraries.Web.AspNet.Error.Logic
                     // ReSharper disable once PossibleInvalidOperationException
                     StatusCode = HttpStatusCode.Accepted,
                     Content = JsonConvert.SerializeObject(postponedContent)
+                };
+            }
+            if (e is FulcrumHttpRedirectException redirectException)
+            {
+                return new StatusAndContent
+                {
+                    StatusCode = (HttpStatusCode) redirectException.HttpStatusCode,
+                    Content = JsonConvert.SerializeObject((string)null)
                 };
             }
             if (!(e is FulcrumException fulcrumException))

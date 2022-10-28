@@ -1,4 +1,5 @@
 ﻿using System.Threading.Tasks;
+using Nexus.Link.Libraries.Core.Error.Logic;
 using Nexus.Link.Libraries.Core.Logging;
 using Nexus.Link.Libraries.Web.AspNet.Error.Logic;
 using Nexus.Link.Libraries.Core.Error.Model;
@@ -54,6 +55,11 @@ namespace Nexus.Link.Libraries.Web.AspNet.Pipe.Inbound
                 context.Response.StatusCode = response.StatusCode.Value;
                 context.Response.ContentType = response.ContentType;
                 await context.Response.WriteAsync(response.Content);
+
+                if (exception is FulcrumHttpRedirectException redirectException)
+                {
+                    context.Response.Headers.Add("Location", redirectException.LocationUri.OriginalString);
+                }
             }
         }
     }
