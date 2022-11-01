@@ -84,20 +84,22 @@ namespace Nexus.Link.Libraries.Web.AspNet.Tests.AspNetExceptionConverterTests
                 RequestMessage = requestMessage
             };
             var expectedLocationUrl = "https://new.example.com/redirect-target";
+            var expectedContent = Guid.NewGuid().ToString();
             responseMessage.Headers.Location = new Uri(expectedLocationUrl);
-            var exception = new FulcrumHttpRedirectException(responseMessage);
+            var exception = new FulcrumHttpRedirectException(responseMessage, expectedContent);
 #if NETCOREAPP
             var context = new DefaultHttpContext();
-            var result = context.Response;
-            await AspNetExceptionConverter.ConvertExceptionToResponseAsync(exception, result);
-            Assert.AreEqual((int)expectedStatusCode, result.StatusCode);
-            Assert.IsTrue(result.Headers.ContainsKey("Location"));
-            Assert.AreEqual(expectedLocationUrl, result.Headers["Location"].FirstOrDefault());
+            var actualResponse = context.Response;
+            await AspNetExceptionConverter.ConvertExceptionToResponseAsync(exception, actualResponse);
+            Assert.AreEqual((int)expectedStatusCode, actualResponse.StatusCode);
+            Assert.IsTrue(actualResponse.Headers.ContainsKey("Location"));
+            Assert.AreEqual(expectedLocationUrl, actualResponse.Headers["Location"].FirstOrDefault());
 #else
-            var result = AspNetExceptionConverter.ToHttpResponseMessage(exception);
-            await Task.CompletedTask;
-            Assert.AreEqual((int)expectedStatusCode, (int)result.StatusCode);
-            Assert.AreEqual(expectedLocationUrl, result.Headers.Location.OriginalString);
+            var actualResponse = AspNetExceptionConverter.ToHttpResponseMessage(exception);
+            var actualContent = await actualResponse.Content.ReadAsStringAsync();
+            Assert.AreEqual((int)expectedStatusCode, (int)actualResponse.StatusCode);
+            Assert.AreEqual(expectedLocationUrl, actualResponse.Headers.Location.OriginalString);
+            Assert.AreEqual(expectedContent, actualContent);
 #endif
         }
 

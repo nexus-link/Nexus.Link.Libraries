@@ -6,6 +6,7 @@ using JetBrains.Annotations;
 using System.Net.Http;
 using Nexus.Link.Libraries.Core.Assert;
 using Nexus.Link.Libraries.Core.Misc;
+using System.Linq;
 
 namespace Nexus.Link.Libraries.Core.Error.Logic
 {
@@ -40,7 +41,7 @@ namespace Nexus.Link.Libraries.Core.Error.Logic
         /// <summary>
         /// Constructor
         /// </summary>
-        public FulcrumHttpRedirectException(HttpResponseMessage response) : this(
+        public FulcrumHttpRedirectException(HttpResponseMessage response, string content) : this(
             $"Redirect from {response?.RequestMessage?.RequestUri} to {response?.Headers?.Location}.", (Exception)null)
         {
             InternalContract.RequireNotNull(response, nameof(response));
@@ -50,6 +51,12 @@ namespace Nexus.Link.Libraries.Core.Error.Logic
             RequestUri = response.RequestMessage?.RequestUri;
             LocationUri = response.Headers?.Location;
             HttpStatusCode = (int)response.StatusCode;
+            Content = content;
+            if (response.Content?.Headers?.Contains("Content-Type") == true)
+            {
+                var values = response.Content.Headers.GetValues("Content-Type");
+                ContentType = values.FirstOrDefault();
+            } 
             // If this call returns true, then OldId and NewId has been set.
             HasRedirectIds = TryInterpretRedirectException(RequestUri, LocationUri);
         }
@@ -70,12 +77,30 @@ namespace Nexus.Link.Libraries.Core.Error.Logic
         public override string Type => ExceptionType;
 
         /// <summary>
-        /// The request URI that should be replaced with <see cref="LocationUri"/>.
+        /// The HTTP status code from the response
         /// </summary>
         public int HttpStatusCode
         {
             get => GetData<int>(nameof(HttpStatusCode));
             set => SetData(nameof(HttpStatusCode), value);
+        }
+
+        /// <summary>
+        /// The HTTP Content-Type from the response
+        /// </summary>
+        public string ContentType
+        {
+            get => GetData<string>(nameof(ContentType));
+            set => SetData(nameof(ContentType), value);
+        }
+
+        /// <summary>
+        /// The content from the response
+        /// </summary>
+        public string Content
+        {
+            get => GetData<string>(nameof(Content));
+            set => SetData(nameof(Content), value);
         }
 
         /// <summary>

@@ -33,17 +33,23 @@ namespace Nexus.Link.Libraries.Web.AspNet.Error.Logic
             InternalContract.RequireNotNull(exception, nameof(exception));
             InternalContract.RequireNotNull(response, nameof(response));
 
-            var statusAndContent = ToStatusAndContent(exception);
-            var task = response.WriteAsync(statusAndContent.Content, cancellationToken);
-            response.StatusCode = (int) statusAndContent.StatusCode;
-            response.ContentType = "application/json";
+            Task task;
             if (exception is FulcrumHttpRedirectException redirectException)
             {
+                task = response.WriteAsync(redirectException.Content, cancellationToken);
                 response.StatusCode = redirectException.HttpStatusCode;
-                response.Headers.Add("Location", redirectException.LocationUri.OriginalString);
+                if (redirectException.LocationUri != null)
+                {
+                    response.Headers.Add("Location", redirectException.LocationUri.OriginalString);
+                }
+                response.ContentType = redirectException.ContentType;
             }
             else
             {
+                var statusAndContent = ToStatusAndContent(exception);
+                task = response.WriteAsync(statusAndContent.Content, cancellationToken);
+                response.StatusCode = (int)statusAndContent.StatusCode;
+                response.ContentType = "application/json";
                 response.StatusCode = (int)statusAndContent.StatusCode;
             }
             await task;
@@ -128,11 +134,8 @@ namespace Nexus.Link.Libraries.Web.AspNet.Error.Logic
             }
             if (e is FulcrumHttpRedirectException redirectException)
             {
-                return new StatusAndContent
-                {
-                    StatusCode = (HttpStatusCode) redirectException.HttpStatusCode,
-                    Content = JsonConvert.SerializeObject((string)null)
-                };
+                // FulcrumHttpRedirectException should be handled outside this method, leading to not calling this method at all
+                FulcrumAssert.Fail($"Did not expect an exception of type {nameof(FulcrumHttpRedirectException)} here.");
             }
             if (!(e is FulcrumException fulcrumException))
             {

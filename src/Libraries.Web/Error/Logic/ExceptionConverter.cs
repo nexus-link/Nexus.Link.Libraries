@@ -291,7 +291,13 @@ namespace Nexus.Link.Libraries.Web.Error.Logic
             InternalContract.RequireNotNull(response, nameof(response));
             if ((int)response.StatusCode >= 300 && (int)response.StatusCode < 400)
             {
-                return new FulcrumHttpRedirectException(response);
+                string contentAsString = null;
+                if (response.Content != null)
+                {
+                    await response.Content.LoadIntoBufferAsync();
+                    contentAsString = await response.Content.ReadAsStringAsync();
+                }
+                return new FulcrumHttpRedirectException(response, contentAsString);
             }
             var fulcrumError = await ToFulcrumErrorAsync(response, cancellationToken);
             if (fulcrumError == null) return null;

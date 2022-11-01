@@ -272,7 +272,7 @@ namespace Nexus.Link.Libraries.Web.Tests.RestClientHelper
             };
             response.Headers.Location = new Uri(redirectUrl);
             httpClientMock.Setup(s => s.SendAsync(It.IsAny<HttpRequestMessage>(), It.IsAny<CancellationToken>()))
-                .ThrowsAsync(new FulcrumHttpRedirectException(response));
+                .ThrowsAsync(new FulcrumHttpRedirectException(response, content));
 
             // Act
             var redirectException = await sender.SendRequestThrowIfNotSuccessAsync(request.Method, requestRelativeUrl, (object) null)
