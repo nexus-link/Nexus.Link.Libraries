@@ -1,11 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Net;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Web;
 using Microsoft.Rest;
 using Newtonsoft.Json;
 using Nexus.Link.Libraries.Core.Assert;

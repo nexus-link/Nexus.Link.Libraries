@@ -7,12 +7,11 @@ using Nexus.Link.Libraries.Core.Logging;
 using Nexus.Link.Libraries.Core.Misc;
 using Nexus.Link.Libraries.Web.Error;
 using Nexus.Link.Libraries.Web.Error.Logic;
-using System.Diagnostics;
-using System.Threading;
-using System.Threading.Tasks;
 #if NETCOREAPP
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using System.Threading;
+using System.Threading.Tasks;
 #else
 using System.Net.Http;
 using System.Text;
@@ -82,15 +81,24 @@ namespace Nexus.Link.Libraries.Web.AspNet.Error.Logic
         public static HttpResponseMessage ToHttpResponseMessage(Exception e)
         {
             InternalContract.RequireNotNull(e, nameof(e));
-            var statusAndContent = ToStatusAndContent(e);
-            var stringContent = new StringContent(statusAndContent.Content, Encoding.UTF8);
-            var response = new HttpResponseMessage(statusAndContent.StatusCode)
-            {
-                Content = stringContent
-            };
+            HttpResponseMessage response;
             if (e is FulcrumHttpRedirectException redirectException)
             {
+                var stringContent = new StringContent(redirectException.Content, Encoding.UTF8, redirectException.ContentType);
+                response = new HttpResponseMessage((HttpStatusCode) redirectException.HttpStatusCode)
+                {
+                    Content = stringContent
+                };
                 response.Headers.Location = redirectException.LocationUri;
+            }
+            else
+            {
+                var statusAndContent = ToStatusAndContent(e);
+                var stringContent = new StringContent(statusAndContent.Content, Encoding.UTF8, "application/json");
+                response = new HttpResponseMessage(statusAndContent.StatusCode)
+                {
+                    Content = stringContent
+                };
             }
             return response;
         }

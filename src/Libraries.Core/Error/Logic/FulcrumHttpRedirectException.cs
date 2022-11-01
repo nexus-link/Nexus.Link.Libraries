@@ -52,11 +52,7 @@ namespace Nexus.Link.Libraries.Core.Error.Logic
             LocationUri = response.Headers?.Location;
             HttpStatusCode = (int)response.StatusCode;
             Content = content;
-            if (response.Content?.Headers?.Contains("Content-Type") == true)
-            {
-                var values = response.Content.Headers.GetValues("Content-Type");
-                ContentType = values.FirstOrDefault();
-            } 
+            ContentType = response.Content?.Headers?.ContentType?.MediaType;
             // If this call returns true, then OldId and NewId has been set.
             HasRedirectIds = TryInterpretRedirectException(RequestUri, LocationUri);
         }
