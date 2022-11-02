@@ -299,16 +299,11 @@ namespace Nexus.Link.Libraries.Web.AspNet.Pipe
         #region ConvertExceptionToHttpResponse
         protected static async Task ConvertExceptionToResponseAsync(HttpContext context, Exception exception, CancellationToken cancellationToken)
         {
-            if (exception is RequestPostponedException rpe && rpe.ReentryAuthentication == null)
+            if (exception is RequestPostponedException {ReentryAuthentication: null} rpe)
             {
                 rpe.ReentryAuthentication = CalculateReentryAuthentication(context.Request);
             }
-            var response = AspNetExceptionConverter.ToContentResult(exception);
-            FulcrumAssert.IsTrue(response.StatusCode.HasValue, CodeLocation.AsString());
-            Debug.Assert(response.StatusCode.HasValue);
-            context.Response.StatusCode = response.StatusCode.Value;
-            context.Response.ContentType = response.ContentType;
-            await context.Response.WriteAsync(response.Content, cancellationToken: cancellationToken);
+            await AspNetExceptionConverter.ConvertExceptionToResponseAsync(exception, context.Response, cancellationToken);
         }
 
         private static string CalculateReentryAuthentication(HttpRequest contextRequest)

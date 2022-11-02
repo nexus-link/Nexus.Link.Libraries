@@ -32,6 +32,7 @@ namespace Nexus.Link.Libraries.Web.Tests.Error
         }
 
         [TestMethod]
+        [DataRow(FulcrumRedirectException.ExceptionType)]
         [DataRow(FulcrumBusinessRuleException.ExceptionType)]
         [DataRow(FulcrumConflictException.ExceptionType)]
         [DataRow(FulcrumForbiddenAccessException.ExceptionType)]
@@ -91,13 +92,13 @@ namespace Nexus.Link.Libraries.Web.Tests.Error
             Assert.AreEqual(fulcrumError.TechnicalMessage, fulcrumException.Message);
             Assert.AreEqual(fulcrumError.RecommendedWaitTimeInSeconds, fulcrumException.RecommendedWaitTimeInSeconds);
             Assert.AreEqual(fulcrumError.IsRetryMeaningful, fulcrumException.IsRetryMeaningful);
+            Assert.AreEqual(FulcrumResourceException.ExceptionType, fulcrumException.Type);
 
             // NOT equal
             Assert.AreNotEqual(fulcrumError.CorrelationId, fulcrumException.CorrelationId);
             Assert.AreNotEqual(fulcrumError.ServerTechnicalName, fulcrumException.ServerTechnicalName);
             Assert.AreNotEqual(fulcrumError.Code, fulcrumException.Code);
             Assert.AreNotEqual(fulcrumError.FriendlyMessage, fulcrumException.FriendlyMessage);
-            Assert.AreEqual(FulcrumResourceException.ExceptionType, fulcrumException.Type);
             Assert.AreNotEqual(fulcrumError.InstanceId, fulcrumException.InstanceId);
             Assert.AreNotEqual(fulcrumError.MoreInfoUrl, fulcrumException.MoreInfoUrl);
             Assert.IsNull(fulcrumException.ErrorLocation);
@@ -345,6 +346,11 @@ namespace Nexus.Link.Libraries.Web.Tests.Error
             var fulcrumException = ExceptionConverter.ToFulcrumException(fulcrumError);
             Assert.IsNotNull(fulcrumException);
             Assert.AreEqual(targetType, fulcrumException.Type);
+            if (fulcrumException is FulcrumRedirectException redirectException)
+            {
+                redirectException.OldId = Guid.NewGuid().ToString();
+                redirectException.NewId = Guid.NewGuid().ToString();
+            }
         }
     }
 }

@@ -118,25 +118,121 @@ namespace Nexus.Link.Libraries.Web.RestClientHelper
         }
 
         /// <inheritdoc />
-        public async Task<HttpOperationResponse<TResponse>> SendRequestAsync<TResponse, TBody>(HttpMethod method, string relativeUrl,
-            TBody body = default, Dictionary<string, List<string>> customHeaders = null,
+        public IHttpSender CreateHttpSender(string relativeUrl)
+        {
+            InternalContract.RequireNotNull(relativeUrl, nameof(relativeUrl));
+
+            var newUri = GetAbsoluteUrl(relativeUrl);
+            return new HttpSender(newUri, Credentials)
+            {
+                HttpClient = HttpClient
+            };
+        }
+
+        #region TResponse
+        /// <inheritdoc />
+        public virtual async Task<TResponse> SendRequestThrowIfNotSuccessAsync<TResponse, TBody>(
+            HttpMethod method,
+            string relativeUrl,
+            TBody body = default,
+            Dictionary<string, List<string>> customHeaders = null,
             CancellationToken cancellationToken = default)
         {
-            HttpResponseMessage response = null;
+            InternalContract.RequireNotNull(relativeUrl, nameof(relativeUrl));
             try
             {
-                response = await SendRequestAsync(method, relativeUrl, body, customHeaders, cancellationToken).ConfigureAwait(false);
-                var request = response.RequestMessage;
-                return await HandleResponseWithBody<TResponse>(method, response, request, cancellationToken);
+                var response = await SendRequestAsync<TResponse, TBody>(method, relativeUrl, body, customHeaders, cancellationToken);
+                var result = await VerifySuccessAndReturnBodyAsync(response, cancellationToken);
+                return result;
             }
-            finally
+            catch (FulcrumHttpRedirectException httpRedirectException)
             {
-                response?.Dispose();
+                if (httpRedirectException.HasRedirectIds)
+                {
+                    throw new FulcrumRedirectException(httpRedirectException.OldId, httpRedirectException.NewId);
+                }
+                throw;
             }
         }
 
         /// <inheritdoc />
-        public async Task<HttpResponseMessage> SendRequestAsync<TBody>(HttpMethod method, string relativeUrl,
+        public virtual async Task SendRequestThrowIfNotSuccessAsync<TBody>(
+            HttpMethod method,
+            string relativeUrl,
+            TBody body = default,
+            Dictionary<string, List<string>> customHeaders = null,
+            CancellationToken cancellationToken = default)
+        {
+            InternalContract.RequireNotNull(relativeUrl, nameof(relativeUrl));
+            try
+            {
+                var response = await SendRequestAsync(method, relativeUrl, body, customHeaders, cancellationToken);
+                await VerifySuccessAsync(response, cancellationToken);
+            }
+            catch (FulcrumHttpRedirectException httpRedirectException)
+            {
+                if (httpRedirectException.HasRedirectIds)
+                {
+                    throw new FulcrumRedirectException(httpRedirectException.OldId, httpRedirectException.NewId);
+                }
+                throw;
+            }
+        }
+        #endregion
+
+        #region HttpOperationResponse
+        /// <inheritdoc />
+        public virtual async Task<HttpOperationResponse<TResponse>> SendRequestAsync<TResponse, TBody>(HttpMethod method, string relativeUrl,
+            TBody body = default, Dictionary<string, List<string>> customHeaders = null,
+            CancellationToken cancellationToken = default)
+        {
+            var response = await SendRequestAsync(method, relativeUrl, body, customHeaders, cancellationToken).ConfigureAwait(false);
+            return await HandleResponseWithBody(response);
+
+            async Task<HttpOperationResponse<TResponse>> HandleResponseWithBody(HttpResponseMessage responseMessage)
+            {
+                var requestMessage = responseMessage.RequestMessage;
+                var result = new HttpOperationResponse<TResponse>
+                {
+                    Request = requestMessage,
+                    Response = responseMessage,
+                    Body = default
+                };
+
+                if (!responseMessage.IsSuccessStatusCode) return result;
+
+                // Simple case
+                if (responseMessage.StatusCode == HttpStatusCode.NoContent) return result;
+
+                // Se if we should try to extract a content from the responseMessage;
+                if (method == HttpMethod.Get || method == HttpMethod.Put || method == HttpMethod.Post || method == PatchMethod)
+                {
+                    if ((method == HttpMethod.Get || method == HttpMethod.Put || method == PatchMethod) && responseMessage.StatusCode != HttpStatusCode.OK)
+                    {
+                        throw new FulcrumResourceException($"The responseMessage to requestMessage {requestMessage.ToLogString()} was expected to have HttpStatusCode {HttpStatusCode.OK}, but had {responseMessage.StatusCode.ToLogString()}.");
+                    }
+
+                    if (method == HttpMethod.Post && responseMessage.StatusCode != HttpStatusCode.OK && responseMessage.StatusCode != HttpStatusCode.Created)
+                    {
+                        throw new FulcrumResourceException($"The responseMessage to requestMessage {requestMessage.ToLogString()} was expected to have HttpStatusCode {HttpStatusCode.OK} or {HttpStatusCode.Created}, but had {responseMessage.StatusCode.ToLogString()}.");
+                    }
+                    var responseContent = await TryGetContentAsStringAsync(responseMessage.Content, false, cancellationToken);
+                    if (responseContent == null) return result;
+                    try
+                    {
+                        result.Body = JsonConvert.DeserializeObject<TResponse>(responseContent, DeserializationSettings);
+                    }
+                    catch (Exception e)
+                    {
+                        throw new FulcrumResourceException($"The responseMessage to requestMessage {requestMessage.ToLogString()} could not be deserialized to the type {typeof(TResponse).FullName}. The content was:\r{responseContent}.", e);
+                    }
+                }
+                return result;
+            }
+        }
+
+        /// <inheritdoc />
+        public virtual async Task<HttpResponseMessage> SendRequestAsync<TBody>(HttpMethod method, string relativeUrl,
             TBody body = default, Dictionary<string, List<string>> customHeaders = null,
             CancellationToken cancellationToken = default)
         {
@@ -151,21 +247,11 @@ namespace Nexus.Link.Libraries.Web.RestClientHelper
                 request?.Dispose();
             }
         }
+        #endregion
 
+        #region HttpResponseMessage
         /// <inheritdoc />
-        public IHttpSender CreateHttpSender(string relativeUrl)
-        {
-            InternalContract.RequireNotNull(relativeUrl, nameof(relativeUrl));
-
-            var newUri = GetAbsoluteUrl(relativeUrl);
-            return new HttpSender(newUri, Credentials)
-            {
-                HttpClient = HttpClient
-            };
-        }
-
-        /// <inheritdoc />
-        public async Task<HttpResponseMessage> SendRequestAsync(HttpMethod method, string relativeUrl,
+        public virtual async Task<HttpResponseMessage> SendRequestAsync(HttpMethod method, string relativeUrl,
             Dictionary<string, List<string>> customHeaders = null,
             CancellationToken cancellationToken = default)
         {
@@ -180,9 +266,9 @@ namespace Nexus.Link.Libraries.Web.RestClientHelper
                 request?.Dispose();
             }
         }
-        
+
         /// <inheritdoc />
-        public async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken = default)
+        public virtual async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken = default)
         {
             cancellationToken.ThrowIfCancellationRequested();
             var response = await HttpClient.SendAsync(request, cancellationToken).ConfigureAwait(false);
@@ -190,121 +276,11 @@ namespace Nexus.Link.Libraries.Web.RestClientHelper
             FulcrumAssert.IsNotNull(response);
             return response;
         }
+        #endregion
 
         #region Helpers
 
-        protected async Task<HttpRequestMessage> CreateRequestAsync(HttpMethod method, string relativeUrl, Dictionary<string, List<string>> customHeaders)
-        {
-            var url = GetAbsoluteUrl(relativeUrl);
-            var request = new HttpRequestMessage(method, url);
-            if (customHeaders != null)
-            {
-                foreach (var header in customHeaders)
-                {
-                    request.Headers.TryAddWithoutValidation(header.Key, header.Value);
-                }
-            }
-
-            if (!request.Headers.Contains("Accept"))
-            {
-                request.Headers.TryAddWithoutValidation("Accept", new List<string> {"application/json"});
-            }
-
-            if (Credentials == null) return request;
-
-            await Credentials.ProcessHttpRequestAsync(request, default).ConfigureAwait(false);
-            return request;
-        }
-
-        protected async Task<HttpRequestMessage> CreateRequestAsync<TBody>(HttpMethod method, string relativeUrl, TBody instance, Dictionary<string, List<string>> customHeaders,
-            CancellationToken cancellationToken)
-        {
-            InternalContract.RequireNotNull(relativeUrl, nameof(relativeUrl));
-
-            var request = await CreateRequestAsync(method, relativeUrl, customHeaders);
-            if (instance == null) return request;
-
-            var requestContent = JsonConvert.SerializeObject(instance, SerializationSettings);
-            request.Content = new StringContent(requestContent, System.Text.Encoding.UTF8);
-            request.Content.Headers.ContentType =
-                System.Net.Http.Headers.MediaTypeHeaderValue.Parse("application/json; charset=utf-8");
-            return request;
-        }
-
-
-        private async Task<HttpOperationResponse<TResponse>> HandleResponseWithBody<TResponse>(HttpMethod method, HttpResponseMessage response,
-            HttpRequestMessage request, CancellationToken cancellationToken)
-        {
-            var result = new HttpOperationResponse<TResponse>
-            {
-                Request = request,
-                Response = response,
-                Body = default
-            };
-
-            // Simple case
-            if (response.StatusCode == HttpStatusCode.NoContent) return result;
-
-            await VerifySuccessAsync(response, cancellationToken);
-            if (method == HttpMethod.Get || method == HttpMethod.Put || method == HttpMethod.Post || method == PatchMethod)
-            {
-                if ((method == HttpMethod.Get || method == HttpMethod.Put || method == PatchMethod) && response.StatusCode != HttpStatusCode.OK)
-                {
-                    throw new FulcrumResourceException($"The response to request {request.ToLogString()} was expected to have HttpStatusCode {HttpStatusCode.OK}, but had {response.StatusCode.ToLogString()}.");
-                }
-
-                if (method == HttpMethod.Post && response.StatusCode != HttpStatusCode.OK && response.StatusCode != HttpStatusCode.Created)
-                {
-                    throw new FulcrumResourceException($"The response to request {request.ToLogString()} was expected to have HttpStatusCode {HttpStatusCode.OK} or {HttpStatusCode.Created}, but had {response.StatusCode.ToLogString()}.");
-                }
-                var responseContent = await TryGetContentAsStringAsync(response.Content, false, cancellationToken);
-                if (responseContent == null) return result;
-                try
-                {
-                    result.Body = JsonConvert.DeserializeObject<TResponse>(responseContent, DeserializationSettings);
-                }
-                catch (Exception e)
-                {
-                    throw new FulcrumResourceException($"The response to request {request.ToLogString()} could not be deserialized to the type {typeof(TResponse).FullName}. The content was:\r{responseContent}.", e);
-                }
-            }
-            return result;
-        }
-
-        private async Task VerifySuccessAsync(HttpResponseMessage response, CancellationToken cancellationToken)
-        {
-            InternalContract.RequireNotNull(response, nameof(response));
-            InternalContract.RequireNotNull(response.RequestMessage, $"{nameof(response)}.{nameof(response.RequestMessage)}");
-            if (!response.IsSuccessStatusCode)
-            {
-                var requestContent = await TryGetContentAsStringAsync(response.RequestMessage?.Content, true, cancellationToken);
-                var responseContent = await TryGetContentAsStringAsync(response.Content, true, cancellationToken);
-                var message = $"{response.StatusCode} {responseContent}";
-                var exception = new HttpOperationException(message)
-                {
-                    Response = new HttpResponseMessageWrapper(response, responseContent),
-                    Request = new HttpRequestMessageWrapper(response.RequestMessage, requestContent)
-                };
-                throw exception;
-            }
-        }
-
-        public static async Task<string> TryGetContentAsStringAsync(HttpContent content, bool silentlyIgnoreExceptions, CancellationToken cancellationToken)
-        {
-            if (content == null) return null;
-            try
-            {
-                await content.LoadIntoBufferAsync();
-                return await content.ReadAsStringAsync().ConfigureAwait(false);
-            }
-            catch (Exception e)
-            {
-                if (!silentlyIgnoreExceptions) throw new FulcrumAssertionFailedException("Expected to be able to read an HttpContent.", e);
-            }
-            return null;
-        }
-
-        public string GetAbsoluteUrl(string relativeUrl)
+        public virtual string GetAbsoluteUrl(string relativeUrl)
         {
             string baseUri = BaseUri?.OriginalString ?? HttpClient.ActualHttpClient?.BaseAddress?.OriginalString ?? "";
 
@@ -326,13 +302,107 @@ namespace Nexus.Link.Libraries.Web.RestClientHelper
             var concatenatedUrl = baseUri + relativeUrl?.Trim(' ');
 
             if (!(Uri.TryCreate(concatenatedUrl, UriKind.Absolute, out var uri)
-                && (uri.Scheme == Uri.UriSchemeHttp || uri.Scheme == Uri.UriSchemeHttps)))
+                  && (uri.Scheme == Uri.UriSchemeHttp || uri.Scheme == Uri.UriSchemeHttps)))
             {
                 InternalContract.Fail($"The format of the concatenated url ({concatenatedUrl}) is not correct. BaseUrl: '{baseUri}'. RelativeUrl: '{relativeUrl}'");
             }
 
             return concatenatedUrl;
         }
+
+        protected virtual async Task<HttpRequestMessage> CreateRequestAsync(HttpMethod method, string relativeUrl, Dictionary<string, List<string>> customHeaders)
+        {
+            var url = GetAbsoluteUrl(relativeUrl);
+            var request = new HttpRequestMessage(method, url);
+            if (customHeaders != null)
+            {
+                foreach (var header in customHeaders)
+                {
+                    request.Headers.TryAddWithoutValidation(header.Key, header.Value);
+                }
+            }
+
+            if (!request.Headers.Contains("Accept"))
+            {
+                request.Headers.TryAddWithoutValidation("Accept", new List<string> { "application/json" });
+            }
+
+            if (Credentials == null) return request;
+
+            await Credentials.ProcessHttpRequestAsync(request, default).ConfigureAwait(false);
+            return request;
+        }
+
+        public static async Task<string> TryGetContentAsStringAsync(HttpContent content, bool silentlyIgnoreExceptions, CancellationToken cancellationToken)
+        {
+            if (content == null) return null;
+            try
+            {
+                await content.LoadIntoBufferAsync();
+                return await content.ReadAsStringAsync().ConfigureAwait(false);
+            }
+            catch (Exception e)
+            {
+                if (!silentlyIgnoreExceptions) throw new FulcrumAssertionFailedException("Expected to be able to read an HttpContent.", e);
+            }
+            return null;
+        }
+
+        protected virtual async Task<HttpRequestMessage> CreateRequestAsync<TBody>(HttpMethod method, string relativeUrl, TBody instance, Dictionary<string, List<string>> customHeaders,
+            CancellationToken cancellationToken)
+        {
+            InternalContract.RequireNotNull(relativeUrl, nameof(relativeUrl));
+
+            var request = await CreateRequestAsync(method, relativeUrl, customHeaders);
+            if (instance == null) return request;
+
+            var requestContent = JsonConvert.SerializeObject(instance, SerializationSettings);
+            request.Content = new StringContent(requestContent, System.Text.Encoding.UTF8);
+            request.Content.Headers.ContentType =
+                System.Net.Http.Headers.MediaTypeHeaderValue.Parse("application/json; charset=utf-8");
+            return request;
+        }
         #endregion
+
+        /// <summary>
+        /// Use this method for cases where you always expect the <paramref name="operationResponse"/> to be successful.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <returns>The Body of <paramref name="operationResponse"/></returns>
+        public static async Task<T> VerifySuccessAndReturnBodyAsync<T>(HttpOperationResponse<T> operationResponse,
+            CancellationToken cancellationToken = default)
+        {
+            InternalContract.RequireNotNull(operationResponse, nameof(operationResponse));
+            InternalContract.RequireNotNull(operationResponse.Response,
+                $"{nameof(operationResponse)}.{nameof(operationResponse.Response)}");
+
+            await VerifySuccessAsync(operationResponse.Response, cancellationToken);
+            return operationResponse.Body;
+        }
+
+        /// <summary>
+        /// Use this method for cases where you always expect the <paramref name="response"/> to be successful.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <returns>The Body of <paramref name="response"/></returns>
+        public static async Task VerifySuccessAsync(HttpResponseMessage response, CancellationToken cancellationToken = default)
+        {
+            InternalContract.RequireNotNull(response, nameof(response));
+            InternalContract.RequireNotNull(response.RequestMessage, $"{nameof(response)}.{nameof(response.RequestMessage)}");
+
+            if (response.IsSuccessStatusCode) return;
+
+            var requestContent =
+                await TryGetContentAsStringAsync(response.RequestMessage?.Content, true, cancellationToken);
+            var responseContent =
+                await TryGetContentAsStringAsync(response.Content, true, cancellationToken);
+            var message = $"{response.StatusCode} {responseContent}";
+            var exception = new HttpOperationException(message)
+            {
+                Response = new HttpResponseMessageWrapper(response, responseContent),
+                Request = new HttpRequestMessageWrapper(response.RequestMessage, requestContent)
+            };
+            throw exception;
+        }
     }
 }

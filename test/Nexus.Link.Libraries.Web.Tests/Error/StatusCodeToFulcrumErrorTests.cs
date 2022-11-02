@@ -23,49 +23,64 @@ namespace Nexus.Link.Libraries.Web.Tests.Error
         public async Task StatusCode200()
         {
             // Represents 3xx
-            await Verify(HttpStatusCode.OK, null);
+            await VerifyToFulcrumError(HttpStatusCode.OK, null);
         }
 
         [TestMethod]
         public async Task StatusCode300()
         {
             // Represents 3xx
-            await Verify(HttpStatusCode.Ambiguous, FulcrumServiceContractException.ExceptionType);
-            await Verify(HttpStatusCode.MultipleChoices, FulcrumServiceContractException.ExceptionType);
-            await Verify(HttpStatusCode.MovedPermanently, FulcrumServiceContractException.ExceptionType);
-            await Verify(HttpStatusCode.Found, FulcrumServiceContractException.ExceptionType);
-            await Verify(HttpStatusCode.SeeOther, FulcrumServiceContractException.ExceptionType);
-            await Verify(HttpStatusCode.NotModified, FulcrumServiceContractException.ExceptionType);
-            await Verify(HttpStatusCode.UseProxy, FulcrumServiceContractException.ExceptionType);
-            await Verify(HttpStatusCode.TemporaryRedirect, FulcrumServiceContractException.ExceptionType);
+
+            // 300
+            await VerifyToFulcrumException(HttpStatusCode.Ambiguous, FulcrumHttpRedirectException.ExceptionType);
+            await VerifyToFulcrumException(HttpStatusCode.MultipleChoices, FulcrumHttpRedirectException.ExceptionType);
+
+            // 301
+            await VerifyToFulcrumException(HttpStatusCode.MovedPermanently, FulcrumHttpRedirectException.ExceptionType);
+
+            // 302
+            await VerifyToFulcrumException(HttpStatusCode.Redirect, FulcrumHttpRedirectException.ExceptionType);
+            await VerifyToFulcrumException(HttpStatusCode.Found, FulcrumHttpRedirectException.ExceptionType);
+
+            // 303
+            await VerifyToFulcrumException(HttpStatusCode.SeeOther, FulcrumHttpRedirectException.ExceptionType);
+
+            // 304
+            await VerifyToFulcrumException(HttpStatusCode.NotModified, FulcrumHttpRedirectException.ExceptionType);
+
+            // 305
+            await VerifyToFulcrumException(HttpStatusCode.UseProxy, FulcrumHttpRedirectException.ExceptionType);
+
+            // 307
+            await VerifyToFulcrumException(HttpStatusCode.TemporaryRedirect, FulcrumHttpRedirectException.ExceptionType);
         }
 
         [TestMethod]
         public async Task StatusCode400()
         {
-            await Verify(HttpStatusCode.BadRequest, FulcrumServiceContractException.ExceptionType);
-            await Verify(HttpStatusCode.Unauthorized, FulcrumUnauthorizedException.ExceptionType);
-            await Verify(HttpStatusCode.PaymentRequired, FulcrumServiceContractException.ExceptionType);
-            await Verify(HttpStatusCode.Forbidden, FulcrumForbiddenAccessException.ExceptionType);
-            await Verify(HttpStatusCode.NotFound, FulcrumServiceContractException.ExceptionType);
-            await Verify(HttpStatusCode.MethodNotAllowed, FulcrumServiceContractException.ExceptionType);
-            await Verify(HttpStatusCode.NotAcceptable, FulcrumServiceContractException.ExceptionType);
-            await Verify(HttpStatusCode.ProxyAuthenticationRequired, FulcrumUnauthorizedException.ExceptionType);
-            await Verify(HttpStatusCode.RequestTimeout, FulcrumTryAgainException.ExceptionType);
-            await Verify(HttpStatusCode.Conflict, FulcrumConflictException.ExceptionType);
-            await Verify(HttpStatusCode.Gone, FulcrumNotFoundException.ExceptionType);
+            await VerifyToFulcrumError(HttpStatusCode.BadRequest, FulcrumServiceContractException.ExceptionType);
+            await VerifyToFulcrumError(HttpStatusCode.Unauthorized, FulcrumUnauthorizedException.ExceptionType);
+            await VerifyToFulcrumError(HttpStatusCode.PaymentRequired, FulcrumServiceContractException.ExceptionType);
+            await VerifyToFulcrumError(HttpStatusCode.Forbidden, FulcrumForbiddenAccessException.ExceptionType);
+            await VerifyToFulcrumError(HttpStatusCode.NotFound, FulcrumServiceContractException.ExceptionType);
+            await VerifyToFulcrumError(HttpStatusCode.MethodNotAllowed, FulcrumServiceContractException.ExceptionType);
+            await VerifyToFulcrumError(HttpStatusCode.NotAcceptable, FulcrumServiceContractException.ExceptionType);
+            await VerifyToFulcrumError(HttpStatusCode.ProxyAuthenticationRequired, FulcrumUnauthorizedException.ExceptionType);
+            await VerifyToFulcrumError(HttpStatusCode.RequestTimeout, FulcrumTryAgainException.ExceptionType);
+            await VerifyToFulcrumError(HttpStatusCode.Conflict, FulcrumConflictException.ExceptionType);
+            await VerifyToFulcrumError(HttpStatusCode.Gone, FulcrumNotFoundException.ExceptionType);
             // This will represent 4xx
-            await Verify(HttpStatusCode.ExpectationFailed, FulcrumServiceContractException.ExceptionType);
+            await VerifyToFulcrumError(HttpStatusCode.ExpectationFailed, FulcrumServiceContractException.ExceptionType);
         }
 
         [TestMethod]
         public async Task StatusCode500()
         {
-            await Verify(HttpStatusCode.InternalServerError, FulcrumAssertionFailedException.ExceptionType);
-            await Verify(HttpStatusCode.NotImplemented, FulcrumNotImplementedException.ExceptionType);
-            await Verify(HttpStatusCode.BadGateway, FulcrumResourceException.ExceptionType);
-            await Verify(HttpStatusCode.ServiceUnavailable, FulcrumTryAgainException.ExceptionType);
-            await Verify(HttpStatusCode.GatewayTimeout, FulcrumTryAgainException.ExceptionType);
+            await VerifyToFulcrumError(HttpStatusCode.InternalServerError, FulcrumAssertionFailedException.ExceptionType);
+            await VerifyToFulcrumError(HttpStatusCode.NotImplemented, FulcrumNotImplementedException.ExceptionType);
+            await VerifyToFulcrumError(HttpStatusCode.BadGateway, FulcrumResourceException.ExceptionType);
+            await VerifyToFulcrumError(HttpStatusCode.ServiceUnavailable, FulcrumTryAgainException.ExceptionType);
+            await VerifyToFulcrumError(HttpStatusCode.GatewayTimeout, FulcrumTryAgainException.ExceptionType);
             // This will represent 5xx
             // Compilation error for LoopDetected?
             // await Verify(HttpStatusCode.LoopDetected, FulcrumAssertionFailedException.ExceptionType);
@@ -99,21 +114,39 @@ namespace Nexus.Link.Libraries.Web.Tests.Error
             Assert.IsTrue(fulcrumError.TechnicalMessage.Contains(smallContent));
         }
 
-        private static async Task Verify(HttpStatusCode statusCode, string expectedType)
+        private static async Task VerifyToFulcrumError(HttpStatusCode statusCode, string expectedType)
         {
             var responseMessage = new HttpResponseMessage(statusCode)
             {
                 Content = new StringContent("Response body content", Encoding.UTF8)
             };
-            var fulcrumError = await ExceptionConverter.ToFulcrumErrorAsync(responseMessage);
+            var fulcrumException = await ExceptionConverter.ToFulcrumErrorAsync(responseMessage);
             if (expectedType == null)
             {
-                Assert.IsNull(fulcrumError);
+                Assert.IsNull(fulcrumException);
             }
             else
             {
-                Assert.IsNotNull(fulcrumError);
-                Assert.AreEqual(expectedType, fulcrumError.Type);
+                Assert.IsNotNull(fulcrumException);
+                Assert.AreEqual(expectedType, fulcrumException.Type);
+            }
+        }
+
+        private static async Task VerifyToFulcrumException(HttpStatusCode statusCode, string expectedType)
+        {
+            var responseMessage = new HttpResponseMessage(statusCode)
+            {
+                Content = new StringContent("Response body content", Encoding.UTF8)
+            };
+            var fulcrumException = await ExceptionConverter.ToFulcrumExceptionAsync(responseMessage);
+            if (expectedType == null)
+            {
+                Assert.IsNull(fulcrumException);
+            }
+            else
+            {
+                Assert.IsNotNull(fulcrumException);
+                Assert.AreEqual(expectedType, fulcrumException.Type);
             }
         }
     }

@@ -1,4 +1,5 @@
-﻿using Microsoft.Rest;
+﻿using System;
+using Microsoft.Rest;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Nexus.Link.Libraries.Core.Application;
@@ -184,6 +185,24 @@ namespace Nexus.Link.Libraries.Web.Tests.RestClientHelper
             Assert.IsNull(response.Body);
         }
 
+        [TestMethod]
+        public async Task RedirectDoesNotFailEarly()
+        {
+            // Arrange
+            _httpClientMock = new Mock<IHttpClient>();
+            _httpClientMock.Setup(s => s.SendAsync(It.IsAny<HttpRequestMessage>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(new HttpResponseMessage(HttpStatusCode.Redirect));
+            const string baseUri = "http://example.se/";
+            var content = "content";
+            var sender = new HttpSender(baseUri) { HttpClient = _httpClientMock.Object };
+
+            // Act
+            var response = await sender.SendRequestAsync<string, string>(HttpMethod.Post, "", content);
+
+            // Assert
+            response.Response.StatusCode.ShouldBe(HttpStatusCode.Redirect);
+        }
+
         [DataRow(":method")]
         [DataRow("Content-Type")]
         [DataTestMethod]
@@ -230,6 +249,68 @@ namespace Nexus.Link.Libraries.Web.Tests.RestClientHelper
 
             // Assert
             _actualRequestMessage.Headers.Authorization.ShouldNotBeNull();
+        }
+
+        [DataRow("persons/1", "http://example.com/persons/2", "1", "2")]
+        [DataRow("persons/1111", "http://example.com/persons/1112", "1111", "1112")]
+        [DataRow("persons/1113/hello", "http://example.com/persons/1114/hello", "1113", "1114")]
+        [DataRow("persons/1115/invoices/11", "http://example.com/persons/1116/invoices/11", "1115", "1116")]
+        [DataRow("persons/1/invoices/1117", "http://example.com/persons/1/invoices/1118", "1117", "1118")]
+        [DataTestMethod]
+        public async Task ThrowsRedirectException(string requestRelativeUrl, string redirectUrl, string expectedOldId, string expectedNewId)
+        {
+            // Arrange
+            const string baseUri = "http://example.com/";
+            var requestUrl = baseUri + requestRelativeUrl;
+            var content = "content";
+            var httpClientMock = new Mock<IHttpClient>();
+            var sender = new HttpSender(baseUri) { HttpClient = httpClientMock.Object };
+            var request = new HttpRequestMessage(HttpMethod.Get, baseUri + requestRelativeUrl);
+            var response = new HttpResponseMessage(HttpStatusCode.Redirect)
+            {
+                RequestMessage = request
+            };
+            response.Headers.Location = new Uri(redirectUrl);
+            httpClientMock.Setup(s => s.SendAsync(It.IsAny<HttpRequestMessage>(), It.IsAny<CancellationToken>()))
+                .ThrowsAsync(new FulcrumHttpRedirectException(response, content));
+
+            // Act
+            var redirectException = await sender.SendRequestThrowIfNotSuccessAsync(request.Method, requestRelativeUrl, (object) null)
+                .ShouldThrowAsync<FulcrumRedirectException>();
+
+            // Assert
+            redirectException.OldId.ShouldBe(expectedOldId);
+            redirectException.NewId.ShouldBe(expectedNewId);
+        }
+
+        [DataRow("http://example.com/persons/1", "http://example.com/invoices/2")] // Another resource
+        [DataRow("http://example.com/persons/1115/invoices/11", "http://example.com/persons/1116/invoices/12")] // Different ending
+        [DataRow("http://example.com/persons/1", "http://example.com/persons/1")] // Same
+        [DataRow("http://example1.com/persons/1", "http://example2.com/persons/2")] // Different host
+        [DataRow("http://example.com/persons/1", null)] // Null
+        [DataRow("http://example.com/persons/1", "")] // Empty
+        [DataRow("http://example.com", "http://example.com")] // Only host
+        [DataRow("http://example.com/", "http://example.com/")] // Only host
+        [DataTestMethod]
+        public async Task NotAProperRedirect(string requestUrl, string redirectUrl)
+        {
+            // Arrange
+            var request = new HttpRequestMessage(HttpMethod.Get, requestUrl);
+            var response = new HttpResponseMessage(HttpStatusCode.Redirect)
+            {
+                RequestMessage = request
+            };
+            response.Headers.Location = string.IsNullOrWhiteSpace(redirectUrl) ? null : new Uri(redirectUrl);
+            var httpOperationResponse = new HttpOperationResponse<object>
+            {
+                Request = request,
+                Response = response,
+                Body = null
+            };
+
+            // Act & Assert
+            await HttpSender.VerifySuccessAndReturnBodyAsync(httpOperationResponse)
+                .ShouldThrowAsync<HttpOperationException>();
         }
     }
 

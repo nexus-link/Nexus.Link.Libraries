@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using Newtonsoft.Json;
@@ -16,8 +18,8 @@ namespace Nexus.Link.Libraries.Core.Error.Logic
     public abstract class FulcrumException : Exception, IFulcrumError, ILoggable
     {
         /// <summary>
-        /// The current servent name. Can be set by calling <see cref="Initialize"/>.
-        /// Will automaticall be copied to the the field <see cref="ServerTechnicalName"/> for every new error.
+        /// The current server name. Can be set by calling <see cref="Initialize"/>.
+        /// Will automatically be copied to the the field <see cref="ServerTechnicalName"/> for every new error.
         /// </summary>
         private static string _serverTechnicalName;
 
@@ -117,6 +119,31 @@ namespace Nexus.Link.Libraries.Core.Error.Logic
             MoreInfoUrl = fulcrumError.MoreInfoUrl ?? MoreInfoUrl;
             Code = fulcrumError.Code ?? Code;
             ErrorLocation = fulcrumError.ErrorLocation;
+
+            switch (fulcrumError)
+            {
+                case Exception sourceException:
+                    // https://stackoverflow.com/questions/144957/using-exception-data
+                    foreach (DictionaryEntry kvp in sourceException.Data)
+                    {
+                        Data[kvp.Key] = kvp.Value;
+                    }
+                    break;
+                case FulcrumError sourceError:
+                    if (!string.IsNullOrWhiteSpace(sourceError.SerializedData))
+                    {
+                        var data = JsonConvert
+                            .DeserializeObject<Dictionary<string, object>>(sourceError.SerializedData);
+                        foreach (var keyValuePair in data)
+                        {
+                            Data[keyValuePair.Key] = keyValuePair.Value;
+                        }
+                    }
+                    break;
+                default:
+                    FulcrumAssert.Fail(CodeLocation.AsString());
+                    break;
+            }
             return this;
         }
 
@@ -128,7 +155,7 @@ namespace Nexus.Link.Libraries.Core.Error.Logic
         {
             InternalContract.RequireNotNullOrWhiteSpace(serverTechnicalName, nameof(serverTechnicalName));
             serverTechnicalName = serverTechnicalName.ToLower();
-            if (_serverTechnicalName != null) InternalContract.Require(serverTechnicalName == _serverTechnicalName, 
+            if (_serverTechnicalName != null) InternalContract.Require(serverTechnicalName == _serverTechnicalName,
                 $"Once the server name has been set ({_serverTechnicalName}, it can't be changed ({serverTechnicalName}).");
             _serverTechnicalName = serverTechnicalName;
         }
@@ -139,6 +166,32 @@ namespace Nexus.Link.Libraries.Core.Error.Logic
             FulcrumValidate.IsNotNullOrWhiteSpace(TechnicalMessage, nameof(TechnicalMessage), errorLocation);
             FulcrumValidate.IsNotNullOrWhiteSpace(Type, nameof(Type), errorLocation);
             FulcrumValidate.IsNotNullOrWhiteSpace(InstanceId, nameof(InstanceId), errorLocation);
+        }
+
+        /// <summary>
+        /// Save a key-value to <see cref="Exception.Data"/>
+        /// </summary>
+        public void SetData<T>(string key, T value)
+        {
+            // https://stackoverflow.com/questions/65351/null-or-default-comparison-of-generic-argument-in-c-sharp
+            if (EqualityComparer<T>.Default.Equals(value, default))
+            {
+                if (Data.Contains(key)) Data.Remove(key);
+            }
+            else
+            {
+                Data[key] = value;
+            }
+        }
+
+        /// <summary>
+        /// Save a key-value to <see cref="Exception.Data"/>
+        /// </summary>
+        public T GetData<T>(string key)
+        {
+            if (!Data.Contains(key)) return default;
+            var value = (T)Data[key];
+            return value;
         }
 
         /// <inheritdoc />

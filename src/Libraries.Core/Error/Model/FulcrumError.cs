@@ -1,6 +1,10 @@
 ﻿using System;
+using System.Collections;
+using System.Linq;
+using Newtonsoft.Json;
 using Nexus.Link.Libraries.Core.Assert;
 using Nexus.Link.Libraries.Core.Logging;
+using Nexus.Link.Libraries.Core.Misc;
 
 namespace Nexus.Link.Libraries.Core.Error.Model
 {
@@ -51,6 +55,11 @@ namespace Nexus.Link.Libraries.Core.Error.Model
         public string CorrelationId { get; set; }
 
         /// <summary>
+        /// A place where we save Exception.Data
+        /// </summary>
+        public string SerializedData { get; set; }
+
+        /// <summary>
         /// Something like an inner exception; if this fulcrum error happens when dealing with another error, this is that error.
         /// </summary>
         public FulcrumError InnerError { get; set; }
@@ -70,6 +79,19 @@ namespace Nexus.Link.Libraries.Core.Error.Model
             ErrorLocation = fulcrumError.ErrorLocation;
             Type = fulcrumError.Type;
             CorrelationId = fulcrumError.CorrelationId;
+            switch (fulcrumError)
+            {
+                case Exception sourceException:
+                    SerializedData = JsonConvert.SerializeObject(sourceException.Data);
+                    break;
+                case FulcrumError sourceError:
+                    SerializedData = sourceError.SerializedData;
+                    break;
+                default:
+                    FulcrumAssert.Fail(CodeLocation.AsString());
+                    break;
+            }
+
             return this;
         }
 

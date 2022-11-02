@@ -51,6 +51,25 @@ namespace Nexus.Link.Libraries.Web.RestClientHelper
         public ServiceClientCredentials Credentials => HttpSender?.Credentials;
 
         /// <inheritdoc />
+        public async Task<TResponse> SendRequestThrowIfNotSuccessAsync<TResponse, TBody>(HttpMethod method, string relativeUrl, TBody body = default,
+            Dictionary<string, List<string>> customHeaders = null, CancellationToken cancellationToken = default)
+        {
+            InternalContract.RequireNotNull(relativeUrl, nameof(relativeUrl));
+            var response = await SendRequestAsync<TResponse, TBody>(method, relativeUrl, body, customHeaders, cancellationToken);
+            var result = await RestClientHelper.HttpSender.VerifySuccessAndReturnBodyAsync(response, cancellationToken);
+            return result;
+        }
+
+        /// <inheritdoc />
+        public async Task SendRequestThrowIfNotSuccessAsync<TBody>(HttpMethod method, string relativeUrl, TBody body = default,
+            Dictionary<string, List<string>> customHeaders = null, CancellationToken cancellationToken = default)
+        {
+            InternalContract.RequireNotNull(relativeUrl, nameof(relativeUrl));
+            var response = await SendRequestAsync(method, relativeUrl, body, customHeaders, cancellationToken);
+            await RestClientHelper.HttpSender.VerifySuccessAsync(response, cancellationToken);
+        }
+
+        /// <inheritdoc />
         public async Task<HttpOperationResponse<TResponse>> SendRequestAsync<TResponse, TBody>(HttpMethod method, string relativeUrl,
             TBody body = default, Dictionary<string, List<string>> customHeaders = null,
             CancellationToken cancellationToken = default)
