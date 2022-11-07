@@ -12,6 +12,8 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading;
 using System.Threading.Tasks;
+using Nexus.Link.Libraries.Web.Serialization;
+
 #else
 using System.Net.Http;
 using System.Text;
@@ -32,26 +34,40 @@ namespace Nexus.Link.Libraries.Web.AspNet.Error.Logic
             InternalContract.RequireNotNull(exception, nameof(exception));
             InternalContract.RequireNotNull(response, nameof(response));
 
-            Task task;
+            var customHttpResponse = ConvertExceptionToCustomHttpResponse(exception);
+
+            var task = response.WriteAsync(customHttpResponse.Content, cancellationToken);
+            response.StatusCode = customHttpResponse.StatusCode;
+            if (customHttpResponse.LocationUri != null)
+            {
+                response.Headers.Add("Location", customHttpResponse.LocationUri.OriginalString);
+            }
+            response.ContentType = customHttpResponse.ContentType;
+
+            await task;
+        }
+
+        public static CustomHttpResponse ConvertExceptionToCustomHttpResponse(Exception exception)
+        {
+            InternalContract.RequireNotNull(exception, nameof(exception));
+
+            var response = new CustomHttpResponse();
             if (exception is FulcrumHttpRedirectException redirectException)
             {
-                task = response.WriteAsync(redirectException.Content, cancellationToken);
+                response.Content = redirectException.Content;
                 response.StatusCode = redirectException.HttpStatusCode;
-                if (redirectException.LocationUri != null)
-                {
-                    response.Headers.Add("Location", redirectException.LocationUri.OriginalString);
-                }
+                response.LocationUri = redirectException.LocationUri;
                 response.ContentType = redirectException.ContentType;
             }
             else
             {
                 var statusAndContent = ToStatusAndContent(exception);
-                task = response.WriteAsync(statusAndContent.Content, cancellationToken);
+                response.Content = statusAndContent.Content;
                 response.StatusCode = (int)statusAndContent.StatusCode;
                 response.ContentType = "application/json";
-                response.StatusCode = (int)statusAndContent.StatusCode;
             }
-            await task;
+
+            return response;
         }
 
         /// <summary>
@@ -185,5 +201,13 @@ namespace Nexus.Link.Libraries.Web.AspNet.Error.Logic
             public HttpStatusCode StatusCode;
             public string Content;
         }
+    }
+
+    public class CustomHttpResponse
+    {
+        public int StatusCode;
+        public string ContentType;
+        public string Content;
+        public Uri LocationUri;
     }
 }

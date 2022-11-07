@@ -43,7 +43,7 @@
 
   <PropertyGroup>
     <PackageId>Nexus.Link.Libraries.Web.AspNet</PackageId>
-    <Version>3.3.0</Version>
+    <Version>3.4.0</Version>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <PackageTags>nexus;link;fulcrum;lever</PackageTags>
     <Authors>XLENT Link</Authors>
@@ -53,6 +53,7 @@
     <Copyright>Copyright ©2019 Xlent Link AB</Copyright>
     <IncludeSymbols>true</IncludeSymbols>
     <PackageReleaseNotes>
+      3.4.0 Added AspNetExceptionConverter.ConvertExceptionToCustomHttpResponse()
       3.3.0 ConvertExceptionToResponse now can convert FulcrumHttpRedirectException to HTTP response. Made AspNetExceptionConverter.ToContentResult() obsolete, replaced by ConvertExceptionToResponseAsync()
       3.2.7 LogRequestAndResponse now considers response with status code 502 to be severity level Warning instead of Error
       3.2.6 LogRequestAndResponse now considers response with status code 423 to be severity level Information instead of Warning
