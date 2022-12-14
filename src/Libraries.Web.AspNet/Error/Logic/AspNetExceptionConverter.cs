@@ -36,7 +36,6 @@ namespace Nexus.Link.Libraries.Web.AspNet.Error.Logic
 
             var customHttpResponse = ConvertExceptionToCustomHttpResponse(exception);
 
-            var task = response.WriteAsync(customHttpResponse.Content, cancellationToken);
             response.StatusCode = customHttpResponse.StatusCode;
             if (customHttpResponse.LocationUri != null)
             {
@@ -44,7 +43,7 @@ namespace Nexus.Link.Libraries.Web.AspNet.Error.Logic
             }
             response.ContentType = customHttpResponse.ContentType;
 
-            await task;
+            await response.WriteAsync(customHttpResponse.Content, cancellationToken);
         }
 
         public static CustomHttpResponse ConvertExceptionToCustomHttpResponse(Exception exception)
