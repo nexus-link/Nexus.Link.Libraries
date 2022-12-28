@@ -321,6 +321,7 @@ namespace Nexus.Link.Libraries.SqlServer
         protected internal async Task<IEnumerable<T>> InternalQueryAsync<T>(string statement, object param = null, CancellationToken cancellationToken = default)
         {
             InternalContract.RequireNotNullOrWhiteSpace(statement, nameof(statement));
+            MaybeTransformEtagToRecordVersion(param);
             using (var db = await Database.NewSqlConnectionAsync(cancellationToken))
             {
                 await db.VerifyAvailabilityAsync(null, cancellationToken);

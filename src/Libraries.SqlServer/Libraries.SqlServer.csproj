@@ -29,7 +29,7 @@
 
   <PropertyGroup>
     <PackageId>Nexus.Link.Libraries.SqlServer</PackageId>
-    <Version>2.15.4</Version>
+    <Version>2.15.5</Version>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <PackageTags>nexus;link;fulcrum;lever</PackageTags>
     <Authors>XLENT Link</Authors>
@@ -39,6 +39,7 @@
     <Copyright>Copyright ©2019 Xlent Link AB</Copyright>
     <IncludeSymbols>true</IncludeSymbols>
     <PackageReleaseNotes>
+      2.15.5 InternalQueryAsync now calls MaybeTransformEtagToRecordVersion
       2.15.4 Now throws FulcrumResourceLockedException instead of FulcrumTryAgainException if a resource is locked
       2.15.3 Bump
       2.15.2 Moved IRecordVersion to Core
@@ -98,6 +99,7 @@
       1.0.0 Core lib with support for .net standard
       0.1.0 Release candidate with support for .net standard
     </PackageReleaseNotes>
+    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
   </PropertyGroup>
 
 </Project>
