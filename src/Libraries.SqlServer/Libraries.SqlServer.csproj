@@ -99,7 +99,7 @@
       1.0.0 Core lib with support for .net standard
       0.1.0 Release candidate with support for .net standard
     </PackageReleaseNotes>
-    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+    <GeneratePackageOnBuild>False</GeneratePackageOnBuild>
   </PropertyGroup>
 
 </Project>
