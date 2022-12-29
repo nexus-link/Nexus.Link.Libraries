@@ -29,7 +29,11 @@ namespace Nexus.Link.Libraries.Web.AspNet.Tests.InboundPipe.Support
         public virtual void ConfigureServices(IServiceCollection services)
         {
             var valueTranslatorFilter = new ValueTranslatorFilter(TranslatorService, GetTranslatorClientName);
-            var mvc = services.AddMvc(opts => { opts.Filters.Add(valueTranslatorFilter); });
+            var mvc = services.AddMvc(opts =>
+            {
+                opts.Filters.Add(valueTranslatorFilter);
+                opts.EnableEndpointRouting = false;
+            });
             mvc.SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
         }
 
