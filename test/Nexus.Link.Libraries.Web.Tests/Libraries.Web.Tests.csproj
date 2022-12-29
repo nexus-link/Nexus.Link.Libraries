@@ -35,4 +35,10 @@
     <Folder Include="Clients\" />
   </ItemGroup>
 
+  <ItemGroup Condition="'$(TargetFramework)' == 'netcoreapp3.1'">
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing">
+      <Version>3.1.32</Version>
+    </PackageReference>
+  </ItemGroup>
+
 </Project>
