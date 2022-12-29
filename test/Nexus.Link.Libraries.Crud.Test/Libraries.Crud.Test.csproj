@@ -7,21 +7,14 @@
     <AssemblyName>Nexus.Link.Libraries.Crud.Test</AssemblyName>
   </PropertyGroup>
 
-  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net472|AnyCPU'">
+  <PropertyGroup>
     <LangVersion>latest</LangVersion>
   </PropertyGroup>
 
-  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net472|AnyCPU'">
-    <LangVersion>latest</LangVersion>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|netcoreapp3.1|AnyCPU'">
-    <LangVersion>latest</LangVersion>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|netcoreapp3.1|AnyCPU'">
-    <LangVersion>latest</LangVersion>
-  </PropertyGroup>
+  <!--<PropertyGroup>
+    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+    <GenerateBindingRedirectsOutputType>true</GenerateBindingRedirectsOutputType>
+  </PropertyGroup>-->
 
   <ItemGroup>
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.3.2" />
@@ -29,6 +22,10 @@
     <PackageReference Include="MSTest.TestAdapter" Version="3.0.2" />
     <PackageReference Include="MSTest.TestFramework" Version="3.0.2" />
     <PackageReference Include="System.IO.Abstractions.TestingHelpers" Version="17.2.3" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(TargetFramework)'=='net472'">
+    <PackageReference Include="System.ValueTuple" Version="4.3.1" />
   </ItemGroup>
 
   <ItemGroup>

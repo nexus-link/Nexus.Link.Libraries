@@ -33,7 +33,7 @@ namespace Nexus.Link.Libraries.Crud.Test.Model
 
         public void TestIsWildCard(string searchFor, bool expectedIsWildCard)
         {
-            var (isWildCard, replaced) = SearchDetails<string>.ReplaceWildCard(searchFor);
+            var isWildCard = SearchDetails<string>.ReplaceWildCard(searchFor).Item1;
             Assert.AreEqual(expectedIsWildCard, isWildCard);
         }
 
