@@ -42,7 +42,7 @@ namespace Nexus.Link.Libraries.Crud.UnitTests.ManyToOne
             item.InitializeWithDataForTesting(type);
             item.ParentId = parentId;
             var createdItem = await storage.CreateAndReturnAsync(item, cancellationToken);
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreNotEqual(default(TId), createdItem);
+            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreNotEqual(default(TId), createdItem.Id);
             return createdItem;
         }
 
@@ -51,7 +51,7 @@ namespace Nexus.Link.Libraries.Crud.UnitTests.ManyToOne
             var item = new TestItemId<TId>();
             item.InitializeWithDataForTesting(type);
             var createdItem = await OneStorage.CreateAndReturnAsync(item, cancellationToken);
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreNotEqual(default(TId), createdItem);
+            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreNotEqual(default(TId), createdItem.Id);
             return createdItem;
         }
     }
