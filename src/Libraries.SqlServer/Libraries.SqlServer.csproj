@@ -39,6 +39,7 @@
     <Copyright>Copyright ©2019 Xlent Link AB</Copyright>
     <IncludeSymbols>true</IncludeSymbols>
     <PackageReleaseNotes>
+      2.15.7 Optimized SearchWhereAsync
       2.15.6 TableBase.MaybeTransformEtagToRecordVersion now handles empty Etag
       2.15.5 InternalQueryAsync now calls MaybeTransformEtagToRecordVersion
       2.15.4 Now throws FulcrumResourceLockedException instead of FulcrumTryAgainException if a resource is locked

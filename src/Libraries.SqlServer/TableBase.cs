@@ -78,20 +78,23 @@ namespace Nexus.Link.Libraries.SqlServer
             InternalContract.RequireGreaterThanOrEqualTo(0, offset, nameof(offset));
             InternalContract.RequireGreaterThanOrEqualTo(0, limit.Value, nameof(limit));
             var total = await CountItemsWhereAsync(where, param, token);
-            var data = await InternalSearchWhereAsync(param, where, orderBy, offset, limit.Value, token);
-            var dataAsArray = data as TDatabaseItem[] ?? data.ToArray();
-            return new PageEnvelope<TDatabaseItem>
+            var pageEnvelope = new PageEnvelope<TDatabaseItem>
             {
-                Data = dataAsArray,
+                Data = Enumerable.Empty<TDatabaseItem>(),
                 PageInfo = new PageInfo
                 {
-
                     Offset = offset,
                     Limit = limit.Value,
-                    Returned = dataAsArray.Length,
+                    Returned = 0,
                     Total = total
                 }
             };
+            if (total == 0) return pageEnvelope;
+            var data = await InternalSearchWhereAsync(param, where, orderBy, offset, limit.Value, token);
+            var dataAsArray = data as TDatabaseItem[] ?? data.ToArray();
+            pageEnvelope.Data = dataAsArray;
+            pageEnvelope.PageInfo.Returned = dataAsArray.Length;
+            return pageEnvelope;
         }
 
         /// <inheritdoc />
@@ -101,20 +104,23 @@ namespace Nexus.Link.Libraries.SqlServer
             InternalContract.RequireGreaterThanOrEqualTo(0, offset, nameof(offset));
             InternalContract.RequireGreaterThanOrEqualTo(0, limit.Value, nameof(limit));
             var total = await CountItemsAdvancedAsync("SELECT COUNT(*)", $"FROM [{TableMetadata.TableName}] WITH (NOLOCK) WHERE ({@where})", param, token);
-            var data = await InternalSearchAndLockWhereAsync(param, where, orderBy, offset, limit.Value, token);
-            var dataAsArray = data as TDatabaseItem[] ?? data.ToArray();
-            return new PageEnvelope<TDatabaseItem>
+            var pageEnvelope = new PageEnvelope<TDatabaseItem>
             {
-                Data = dataAsArray,
+                Data = Enumerable.Empty<TDatabaseItem>(),
                 PageInfo = new PageInfo
                 {
-
                     Offset = offset,
                     Limit = limit.Value,
-                    Returned = dataAsArray.Length,
+                    Returned = 0,
                     Total = total
                 }
             };
+            if (total == 0) return pageEnvelope;
+            var data = await InternalSearchAndLockWhereAsync(param, where, orderBy, offset, limit.Value, token);
+            var dataAsArray = data as TDatabaseItem[] ?? data.ToArray();
+            pageEnvelope.Data = dataAsArray;
+            pageEnvelope.PageInfo.Returned = dataAsArray.Length;
+            return pageEnvelope;
         }
 
         /// <inheritdoc />
@@ -198,21 +204,24 @@ namespace Nexus.Link.Libraries.SqlServer
             InternalContract.RequireGreaterThanOrEqualTo(0, offset, nameof(offset));
             InternalContract.RequireGreaterThanOrEqualTo(0, limit.Value, nameof(limit));
             var total = await CountItemsAdvancedAsync(countFirst, selectRest, param, token);
-            var selectStatement = selectRest == null ? null : $"{selectFirst} {selectRest}";
-            var data = await InternalSearchAsync(param, selectStatement, orderBy, offset, limit.Value, token);
-            var dataAsArray = data as TDatabaseItem[] ?? data.ToArray();
-            return new PageEnvelope<TDatabaseItem>
+            var pageEnvelope = new PageEnvelope<TDatabaseItem>
             {
-                Data = dataAsArray,
+                Data = Enumerable.Empty<TDatabaseItem>(),
                 PageInfo = new PageInfo
                 {
-
                     Offset = offset,
                     Limit = limit.Value,
-                    Returned = dataAsArray.Length,
+                    Returned = 0,
                     Total = total
                 }
             };
+            if (total == 0) return pageEnvelope;
+            var selectStatement = selectRest == null ? null : $"{selectFirst} {selectRest}";
+            var data = await InternalSearchAsync(param, selectStatement, orderBy, offset, limit.Value, token);
+            var dataAsArray = data as TDatabaseItem[] ?? data.ToArray();
+            pageEnvelope.Data = dataAsArray;
+            pageEnvelope.PageInfo.Returned = dataAsArray.Length;
+            return pageEnvelope;
         }
 
         /// <summary>
