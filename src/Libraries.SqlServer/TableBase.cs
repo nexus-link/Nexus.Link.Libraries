@@ -352,7 +352,7 @@ namespace Nexus.Link.Libraries.SqlServer
 
         protected void MaybeTransformRecordVersionToEtag(object item)
         {
-            if (item is IRecordVersion r)
+            if (item is IRecordVersion r && r.RecordVersion != null)
             {
                 item.TrySetOptimisticConcurrencyControl(Convert.ToBase64String(r.RecordVersion));
             }
@@ -360,7 +360,7 @@ namespace Nexus.Link.Libraries.SqlServer
 
         protected void MaybeTransformEtagToRecordVersion(object item)
         {
-            if (item is IRecordVersion r && item.TryGetOptimisticConcurrencyControl(out var eTag))
+            if (item is IRecordVersion r && item.TryGetOptimisticConcurrencyControl(out var eTag) && !string.IsNullOrWhiteSpace(eTag))
             {
                 try
                 {
@@ -368,10 +368,9 @@ namespace Nexus.Link.Libraries.SqlServer
                 }
                 catch (Exception)
                 {
-                    var valueAsString = eTag == null ? "null" : eTag;
                     // TODO: Get the proper name for the eTag field
                     throw new FulcrumConflictException(
-                        $"The value in the eTag field ({valueAsString}) was not a proper value for field {nameof(r.RecordVersion)} of type RowVersion.");
+                        $"The value in the eTag field ({eTag}) was not a proper value for field {nameof(r.RecordVersion)} of type RowVersion.");
                 }
             }
         }
