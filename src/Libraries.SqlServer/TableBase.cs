@@ -297,29 +297,26 @@ namespace Nexus.Link.Libraries.SqlServer
         {
             InternalContract.RequireNotNullOrWhiteSpace(statement, nameof(statement));
             MaybeTransformEtagToRecordVersion(param);
-            await using (var db = await Database.NewSqlConnectionAsync(token))
+            using var db = await Database.NewSqlConnectionAsync(token);
+            int count;
+            await db.VerifyAvailabilityAsync(null, token);
+            try
             {
-                int count;
-                await db.VerifyAvailabilityAsync(null, token);
-                try
-                {
-                    count = await db.ExecuteAsync(statement, param);
-                    if (Database.Options.VerboseLogging)
-                    {
-                        var paramAsString = param == null ? "NULL" : JsonConvert.SerializeObject(param);
-                        Log.LogVerbose($"{statement} {JsonConvert.SerializeObject(paramAsString)}");
-                    }
-                }
-                catch (Exception e)
+                count = await db.ExecuteAsync(statement, param);
+                if (Database.Options.VerboseLogging)
                 {
                     var paramAsString = param == null ? "NULL" : JsonConvert.SerializeObject(param);
-                    Log.LogError($"Execution failed:\r{statement}\rwith param:\r{paramAsString}:\r{e.Message}");
-                    throw;
+                    Log.LogVerbose($"{statement} {JsonConvert.SerializeObject(paramAsString)}");
                 }
+            }
+            catch (Exception e)
+            {
+                var paramAsString = param == null ? "NULL" : JsonConvert.SerializeObject(param);
+                Log.LogError($"Execution failed:\r{statement}\rwith param:\r{paramAsString}:\r{e.Message}");
+                throw;
             }
 
             return count;
-
         }
 
         protected internal Task<IEnumerable<TDatabaseItem>> QueryAsync(string statement, object param = null, CancellationToken cancellationToken = default)
@@ -332,32 +329,29 @@ namespace Nexus.Link.Libraries.SqlServer
         {
             InternalContract.RequireNotNullOrWhiteSpace(statement, nameof(statement));
             MaybeTransformEtagToRecordVersion(param);
-            await using (var db = await Database.NewSqlConnectionAsync(cancellationToken))
+            using var db = await Database.NewSqlConnectionAsync(cancellationToken);
+            await db.VerifyAvailabilityAsync(null, cancellationToken);
+            IEnumerable<T> items;
+            try
             {
-                await db.VerifyAvailabilityAsync(null, cancellationToken);
-                IEnumerable<T> items;
-                try
-                {
-                    items = await db.QueryAsync<T>(statement, param);
-                    var paramAsString = param == null ? "NULL" : JsonConvert.SerializeObject(param);
-                    Log.LogVerbose($"{statement} {JsonConvert.SerializeObject(paramAsString)}");
-                }
-                catch (Exception e)
-                {
-                    var paramAsString = param == null ? "NULL" : JsonConvert.SerializeObject(param);
-                    Log.LogError($"Query failed:\r{statement}\rwith param:\r{paramAsString}:\r{e.Message}");
-                    throw;
-                }
-
-                var itemList = items.ToList();
-                foreach (var item in itemList)
-                {
-                    MaybeTransformRecordVersionToEtag(item);
-                }
-
-                return itemList;
-
+                items = await db.QueryAsync<T>(statement, param);
+                var paramAsString = param == null ? "NULL" : JsonConvert.SerializeObject(param);
+                Log.LogVerbose($"{statement} {JsonConvert.SerializeObject(paramAsString)}");
             }
+            catch (Exception e)
+            {
+                var paramAsString = param == null ? "NULL" : JsonConvert.SerializeObject(param);
+                Log.LogError($"Query failed:\r{statement}\rwith param:\r{paramAsString}:\r{e.Message}");
+                throw;
+            }
+
+            var itemList = items.ToList();
+            foreach (var item in itemList)
+            {
+                MaybeTransformRecordVersionToEtag(item);
+            }
+
+            return itemList;
         }
 
         protected void MaybeTransformRecordVersionToEtag(object item)

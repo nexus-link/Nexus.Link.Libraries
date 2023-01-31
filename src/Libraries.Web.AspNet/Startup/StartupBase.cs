@@ -1,5 +1,4 @@
-﻿
-using Nexus.Link.Libraries.Core.Misc;
+﻿using Nexus.Link.Libraries.Core.Misc;
 using Nexus.Link.Libraries.Core.Platform.Services;
 using Nexus.Link.Libraries.Web.AspNet.Pipe;
 #if NETCOREAPP
