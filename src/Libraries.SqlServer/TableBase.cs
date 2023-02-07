@@ -78,20 +78,23 @@ namespace Nexus.Link.Libraries.SqlServer
             InternalContract.RequireGreaterThanOrEqualTo(0, offset, nameof(offset));
             InternalContract.RequireGreaterThanOrEqualTo(0, limit.Value, nameof(limit));
             var total = await CountItemsWhereAsync(where, param, token);
-            var data = await InternalSearchWhereAsync(param, where, orderBy, offset, limit.Value, token);
-            var dataAsArray = data as TDatabaseItem[] ?? data.ToArray();
-            return new PageEnvelope<TDatabaseItem>
+            var pageEnvelope = new PageEnvelope<TDatabaseItem>
             {
-                Data = dataAsArray,
+                Data = Enumerable.Empty<TDatabaseItem>(),
                 PageInfo = new PageInfo
                 {
-
                     Offset = offset,
                     Limit = limit.Value,
-                    Returned = dataAsArray.Length,
+                    Returned = 0,
                     Total = total
                 }
             };
+            if (total == 0) return pageEnvelope;
+            var data = await InternalSearchWhereAsync(param, where, orderBy, offset, limit.Value, token);
+            var dataAsArray = data as TDatabaseItem[] ?? data.ToArray();
+            pageEnvelope.Data = dataAsArray;
+            pageEnvelope.PageInfo.Returned = dataAsArray.Length;
+            return pageEnvelope;
         }
 
         /// <inheritdoc />
@@ -101,20 +104,23 @@ namespace Nexus.Link.Libraries.SqlServer
             InternalContract.RequireGreaterThanOrEqualTo(0, offset, nameof(offset));
             InternalContract.RequireGreaterThanOrEqualTo(0, limit.Value, nameof(limit));
             var total = await CountItemsAdvancedAsync("SELECT COUNT(*)", $"FROM [{TableMetadata.TableName}] WITH (NOLOCK) WHERE ({@where})", param, token);
-            var data = await InternalSearchAndLockWhereAsync(param, where, orderBy, offset, limit.Value, token);
-            var dataAsArray = data as TDatabaseItem[] ?? data.ToArray();
-            return new PageEnvelope<TDatabaseItem>
+            var pageEnvelope = new PageEnvelope<TDatabaseItem>
             {
-                Data = dataAsArray,
+                Data = Enumerable.Empty<TDatabaseItem>(),
                 PageInfo = new PageInfo
                 {
-
                     Offset = offset,
                     Limit = limit.Value,
-                    Returned = dataAsArray.Length,
+                    Returned = 0,
                     Total = total
                 }
             };
+            if (total == 0) return pageEnvelope;
+            var data = await InternalSearchAndLockWhereAsync(param, where, orderBy, offset, limit.Value, token);
+            var dataAsArray = data as TDatabaseItem[] ?? data.ToArray();
+            pageEnvelope.Data = dataAsArray;
+            pageEnvelope.PageInfo.Returned = dataAsArray.Length;
+            return pageEnvelope;
         }
 
         /// <inheritdoc />
@@ -198,21 +204,24 @@ namespace Nexus.Link.Libraries.SqlServer
             InternalContract.RequireGreaterThanOrEqualTo(0, offset, nameof(offset));
             InternalContract.RequireGreaterThanOrEqualTo(0, limit.Value, nameof(limit));
             var total = await CountItemsAdvancedAsync(countFirst, selectRest, param, token);
-            var selectStatement = selectRest == null ? null : $"{selectFirst} {selectRest}";
-            var data = await InternalSearchAsync(param, selectStatement, orderBy, offset, limit.Value, token);
-            var dataAsArray = data as TDatabaseItem[] ?? data.ToArray();
-            return new PageEnvelope<TDatabaseItem>
+            var pageEnvelope = new PageEnvelope<TDatabaseItem>
             {
-                Data = dataAsArray,
+                Data = Enumerable.Empty<TDatabaseItem>(),
                 PageInfo = new PageInfo
                 {
-
                     Offset = offset,
                     Limit = limit.Value,
-                    Returned = dataAsArray.Length,
+                    Returned = 0,
                     Total = total
                 }
             };
+            if (total == 0) return pageEnvelope;
+            var selectStatement = selectRest == null ? null : $"{selectFirst} {selectRest}";
+            var data = await InternalSearchAsync(param, selectStatement, orderBy, offset, limit.Value, token);
+            var dataAsArray = data as TDatabaseItem[] ?? data.ToArray();
+            pageEnvelope.Data = dataAsArray;
+            pageEnvelope.PageInfo.Returned = dataAsArray.Length;
+            return pageEnvelope;
         }
 
         /// <summary>
@@ -288,28 +297,26 @@ namespace Nexus.Link.Libraries.SqlServer
         {
             InternalContract.RequireNotNullOrWhiteSpace(statement, nameof(statement));
             MaybeTransformEtagToRecordVersion(param);
-            using (var db = await Database.NewSqlConnectionAsync(token))
+            using var db = await Database.NewSqlConnectionAsync(token);
+            int count;
+            await db.VerifyAvailabilityAsync(null, token);
+            try
             {
-                int count;
-                await db.VerifyAvailabilityAsync(null, token);
-                try
-                {
-                    count = await db.ExecuteAsync(statement, param);
-                    if (Database.Options.VerboseLogging)
-                    {
-                        var paramAsString = param == null ? "NULL" : JsonConvert.SerializeObject(param);
-                        Log.LogVerbose($"{statement} {JsonConvert.SerializeObject(paramAsString)}");
-                    }
-                }
-                catch (Exception e)
+                count = await db.ExecuteAsync(statement, param);
+                if (Database.Options.VerboseLogging)
                 {
                     var paramAsString = param == null ? "NULL" : JsonConvert.SerializeObject(param);
-                    Log.LogError($"Execution failed:\r{statement}\rwith param:\r{paramAsString}:\r{e.Message}");
-                    throw;
+                    Log.LogVerbose($"{statement} {JsonConvert.SerializeObject(paramAsString)}");
                 }
-                return count;
+            }
+            catch (Exception e)
+            {
+                var paramAsString = param == null ? "NULL" : JsonConvert.SerializeObject(param);
+                Log.LogError($"Execution failed:\r{statement}\rwith param:\r{paramAsString}:\r{e.Message}");
+                throw;
             }
 
+            return count;
         }
 
         protected internal Task<IEnumerable<TDatabaseItem>> QueryAsync(string statement, object param = null, CancellationToken cancellationToken = default)
@@ -322,37 +329,34 @@ namespace Nexus.Link.Libraries.SqlServer
         {
             InternalContract.RequireNotNullOrWhiteSpace(statement, nameof(statement));
             MaybeTransformEtagToRecordVersion(param);
-            using (var db = await Database.NewSqlConnectionAsync(cancellationToken))
+            using var db = await Database.NewSqlConnectionAsync(cancellationToken);
+            await db.VerifyAvailabilityAsync(null, cancellationToken);
+            IEnumerable<T> items;
+            try
             {
-                await db.VerifyAvailabilityAsync(null, cancellationToken);
-                IEnumerable<T> items;
-                try
-                {
-                    items = await db.QueryAsync<T>(statement, param);
-                    var paramAsString = param == null ? "NULL" : JsonConvert.SerializeObject(param);
-                    Log.LogVerbose($"{statement} {JsonConvert.SerializeObject(paramAsString)}");
-                }
-                catch (Exception e)
-                {
-                    var paramAsString = param == null ? "NULL" : JsonConvert.SerializeObject(param);
-                    Log.LogError($"Query failed:\r{statement}\rwith param:\r{paramAsString}:\r{e.Message}");
-                    throw;
-                }
-
-                var itemList = items.ToList();
-                foreach (var item in itemList)
-                {
-                    MaybeTransformRecordVersionToEtag(item);
-                }
-
-                return itemList;
-
+                items = await db.QueryAsync<T>(statement, param);
+                var paramAsString = param == null ? "NULL" : JsonConvert.SerializeObject(param);
+                Log.LogVerbose($"{statement} {JsonConvert.SerializeObject(paramAsString)}");
             }
+            catch (Exception e)
+            {
+                var paramAsString = param == null ? "NULL" : JsonConvert.SerializeObject(param);
+                Log.LogError($"Query failed:\r{statement}\rwith param:\r{paramAsString}:\r{e.Message}");
+                throw;
+            }
+
+            var itemList = items.ToList();
+            foreach (var item in itemList)
+            {
+                MaybeTransformRecordVersionToEtag(item);
+            }
+
+            return itemList;
         }
 
         protected void MaybeTransformRecordVersionToEtag(object item)
         {
-            if (item is IRecordVersion r)
+            if (item is IRecordVersion r && r.RecordVersion != null)
             {
                 item.TrySetOptimisticConcurrencyControl(Convert.ToBase64String(r.RecordVersion));
             }
@@ -360,7 +364,7 @@ namespace Nexus.Link.Libraries.SqlServer
 
         protected void MaybeTransformEtagToRecordVersion(object item)
         {
-            if (item is IRecordVersion r && item.TryGetOptimisticConcurrencyControl(out var eTag))
+            if (item is IRecordVersion r && item.TryGetOptimisticConcurrencyControl(out var eTag) && !string.IsNullOrWhiteSpace(eTag))
             {
                 try
                 {
@@ -368,10 +372,9 @@ namespace Nexus.Link.Libraries.SqlServer
                 }
                 catch (Exception)
                 {
-                    var valueAsString = eTag == null ? "null" : eTag;
                     // TODO: Get the proper name for the eTag field
                     throw new FulcrumConflictException(
-                        $"The value in the eTag field ({valueAsString}) was not a proper value for field {nameof(r.RecordVersion)} of type RowVersion.");
+                        $"The value in the eTag field ({eTag}) was not a proper value for field {nameof(r.RecordVersion)} of type RowVersion.");
                 }
             }
         }

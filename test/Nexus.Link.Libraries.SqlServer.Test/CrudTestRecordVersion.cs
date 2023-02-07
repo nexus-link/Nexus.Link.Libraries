@@ -4,6 +4,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Nexus.Link.Libraries.Core.Application;
 using Nexus.Link.Libraries.Core.Assert;
 using Nexus.Link.Libraries.Crud.Interfaces;
+using Nexus.Link.Libraries.Crud.Model;
 using Nexus.Link.Libraries.Crud.UnitTests.Crd;
 using Nexus.Link.Libraries.Crud.UnitTests.Model;
 using Nexus.Link.Libraries.SqlServer.Model;
@@ -54,6 +55,21 @@ namespace Nexus.Link.Libraries.SqlServer.Test
             initialItem.InitializeWithDataForTesting(TypeOfTestDataEnum.Default);
             var id = await CrdStorage.CreateAsync(initialItem);
             var createdItem = await CrdStorage.ReadAsync(id);
+            Assert.IsNotNull(createdItem);
+            Assert.AreNotEqual(createdItem.Id, Guid.Empty);
+            Assert.IsNotNull(createdItem.Etag);
+        }
+
+        /// <summary>
+        /// Create an item with an id.
+        /// </summary>
+        [TestMethod]
+        public async Task Create_Find_Etag_Async()
+        {
+            var initialItem = new TestItemBare();
+            initialItem.InitializeWithDataForTesting(TypeOfTestDataEnum.Default);
+            var id = await CrdStorage.CreateAsync(initialItem);
+            var createdItem = await CrdStorage.FindUniqueAsync(new SearchDetails<TestRecordVersion>(new {Id = id}));
             Assert.IsNotNull(createdItem);
             Assert.AreNotEqual(createdItem.Id, Guid.Empty);
             Assert.IsNotNull(createdItem.Etag);
