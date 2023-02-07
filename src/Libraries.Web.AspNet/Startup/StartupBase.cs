@@ -1,7 +1,8 @@
-﻿using Nexus.Link.Libraries.Core.Misc;
+﻿#if NETCOREAPP
+using Microsoft.OpenApi.Models;
+using Nexus.Link.Libraries.Core.Misc;
 using Nexus.Link.Libraries.Core.Platform.Services;
 using Nexus.Link.Libraries.Web.AspNet.Pipe;
-#if NETCOREAPP
 using System;
 using System.Reflection;
 using System.Collections.Generic;
@@ -147,7 +148,7 @@ namespace Nexus.Link.Libraries.Web.AspNet.Startup
                     var service = serviceProvider.GetService(serviceType);
                     if (service == null) continue;
                     var controllerTypes = _capabilityInterfaceToControllerClasses[serviceType];
-                    FulcrumAssert.IsNotNull(controllerTypes);        
+                    FulcrumAssert.IsNotNull(controllerTypes);
                     var controllerList = controllerTypes as List<Type> ?? controllerTypes.ToList();
 
                     foreach (var controllerType in controllerList)
@@ -183,7 +184,7 @@ namespace Nexus.Link.Libraries.Web.AspNet.Startup
         public void RegisterControllersForCapability<TControllerInjector>(params Type[] controllerTypes)
             where TControllerInjector : IControllerInjector
         {
-            InternalContract.Require(typeof(TControllerInjector).IsInterface, 
+            InternalContract.Require(typeof(TControllerInjector).IsInterface,
                 $"The type ({typeof(TControllerInjector).Name}) passed to {nameof(RegisterControllersForCapability)} must be an interface.");
             RegisterControllersForCapability(typeof(TControllerInjector), controllerTypes);
         }
@@ -194,9 +195,9 @@ namespace Nexus.Link.Libraries.Web.AspNet.Startup
         public void RegisterControllersForCapability(Type capabilityInterface, params Type[] controllerTypes)
         {
             InternalContract.Require(capabilityInterface, type => type.IsInterface, nameof(capabilityInterface));
-            InternalContract.Require(capabilityInterface.IsInterface, 
+            InternalContract.Require(capabilityInterface.IsInterface,
                 $"The parameter {nameof(capabilityInterface)} must be an interface.");
-            InternalContract.Require(typeof(IControllerInjector).IsAssignableFrom(capabilityInterface), 
+            InternalContract.Require(typeof(IControllerInjector).IsAssignableFrom(capabilityInterface),
                 $"The parameter {nameof(capabilityInterface)} must inherit from {typeof(IControllerInjector).FullName}.");
             foreach (var controllerType in controllerTypes)
             {
@@ -235,7 +236,7 @@ namespace Nexus.Link.Libraries.Web.AspNet.Startup
             }
         }
 
-        #region Configure Services
+#region Configure Services
 
         /// <summary>
         /// Makes the initial most urgent Nexus settings - application properties and logging.
@@ -265,22 +266,34 @@ namespace Nexus.Link.Libraries.Web.AspNet.Startup
         {
             services.AddSwaggerGen(c =>
             {
-                c.SwaggerDoc(ApiVersion, new Info {Title = FulcrumApplication.Setup.Name, Version = ApiVersion});
+                c.SwaggerDoc(ApiVersion, new OpenApiInfo { Title = FulcrumApplication.Setup.Name, Version = ApiVersion });
                 var commentsFilePath = GetCommentsFilePath();
                 if (commentsFilePath != null) c.IncludeXmlComments(commentsFilePath);
                 if (FulcrumApplication.IsInDevelopment) return;
                 c.AddSecurityDefinition("Bearer",
-                    new ApiKeyScheme
+                    new OpenApiSecurityScheme
                     {
-                        In = "header",
+                        In = ParameterLocation.Header,
                         Description = "Please enter into field the word 'Bearer' following by space and JWT",
                         Name = "Authorization",
-                        Type = "apiKey"
+                        Type = SecuritySchemeType.ApiKey
                     });
-                c.AddSecurityRequirement(new Dictionary<string, IEnumerable<string>>
+                // https://stackoverflow.com/questions/56234504/bearer-authentication-in-swagger-ui-when-migrating-to-swashbuckle-aspnetcore-ve
+                var securityRequirement = new OpenApiSecurityRequirement();
+                var securityScheme = new OpenApiSecurityScheme
                 {
-                    {"Bearer", Enumerable.Empty<string>()},
-                });
+                    Reference = new OpenApiReference
+                    {
+                        Type = ReferenceType.SecurityScheme,
+                        Id = "Bearer"
+                    },
+                    Scheme = "oauth2",
+                    Name = "Bearer",
+                    In = ParameterLocation.Header,
+
+                };
+                securityRequirement.Add(securityScheme, new List<string>());
+                c.AddSecurityRequirement(securityRequirement);
             });
         }
 
@@ -339,10 +352,10 @@ namespace Nexus.Link.Libraries.Web.AspNet.Startup
 
         }
 
-        #endregion
+#endregion
 
 
-        #region Configure
+#region Configure
 
         /// <summary>
         /// Configure the Nexus Link middleware 
@@ -363,7 +376,7 @@ namespace Nexus.Link.Libraries.Web.AspNet.Startup
             // Start and stop a batch of logs, see also Nexus.Link.Libraries.Core.Logging.BatchLogger.
             options.Features.BatchLog.Enabled = true;
             // Log all requests and responses
-            options.Features.LogRequestAndResponse.Enabled= true;
+            options.Features.LogRequestAndResponse.Enabled = true;
             // Convert exceptions into error responses (HTTP status codes 400 and 500)
             options.Features.ConvertExceptionToHttpResponse.Enabled = true;
             app.UseNexusLinkMiddleware(options);
@@ -385,7 +398,7 @@ namespace Nexus.Link.Libraries.Web.AspNet.Startup
             });
         }
 
-        #endregion
+#endregion
 
         /// <inheritdoc />
         public virtual void Validate(string errorLocation, string propertyPath = "")

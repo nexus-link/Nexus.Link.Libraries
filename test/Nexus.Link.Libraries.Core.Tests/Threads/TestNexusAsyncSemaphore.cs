@@ -65,6 +65,7 @@ namespace Nexus.Link.Libraries.Core.Tests.Threads
         [TestMethod]
         public async Task VerifyNoParallelism()
         {
+            var cancellationToken = new CancellationTokenSource(TimeSpan.FromSeconds(1000));
             var started1 = false;
             var done1 = false;
             var started2 = false;
@@ -72,21 +73,32 @@ namespace Nexus.Link.Libraries.Core.Tests.Threads
             var task1 = asyncSemaphore.ExecuteAsync(async () =>
             {
                 started1 = true;
-                await Task.Delay(TimeSpan.FromMilliseconds(10));
+                await Task.Delay(TimeSpan.FromMilliseconds(10), cancellationToken.Token);
                 done1 = true;
-            });
+            }, cancellationToken.Token);
             var task2 = asyncSemaphore.ExecuteAsync(async () =>
             {
                 started2 = true;
-                await Task.Delay(TimeSpan.FromMilliseconds(10));
-            });
-            while (!started1) await Task.Delay(TimeSpan.FromMilliseconds(1));
+                await Task.Delay(TimeSpan.FromMilliseconds(10), cancellationToken.Token);
+            }, cancellationToken.Token);
+            while (!started1)
+            {
+                UT.Assert.IsFalse(task1.IsCanceled);
+                await Task.Delay(TimeSpan.FromMilliseconds(1), cancellationToken.Token);
+                cancellationToken.Token.ThrowIfCancellationRequested();
+            }
+            UT.Assert.IsFalse(task1.IsCanceled);
+
             while (!task1.IsCompleted && !done1)
             {
-                UT.Assert.IsFalse(started2);
-                await Task.Delay(TimeSpan.FromMilliseconds(1));
+                UT.Assert.IsFalse(task1.IsCanceled);
+                UT.Assert.IsFalse(task2.IsCanceled);
+                UT.Assert.IsFalse(started2 && !done1);
+                await Task.Delay(TimeSpan.FromMilliseconds(10), cancellationToken.Token);
+                cancellationToken.Token.ThrowIfCancellationRequested();
             }
 
+            
             await Task.WhenAll(task1, task2);
         }
 

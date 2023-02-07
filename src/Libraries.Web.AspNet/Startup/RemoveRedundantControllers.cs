@@ -1,6 +1,5 @@
-﻿
+﻿#if NETCOREAPP
 using System.Reflection;
-#if NETCOREAPP
 using System;
 using System.Collections.Generic;
 using System.Linq;

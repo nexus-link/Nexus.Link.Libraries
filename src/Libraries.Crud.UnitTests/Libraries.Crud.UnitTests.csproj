@@ -20,7 +20,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0" PrivateAssets="All" />
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1" PrivateAssets="All" />
     <PackageReference Include="MSTest.TestFramework" Version="2.2.10" />
   </ItemGroup>
 
@@ -30,7 +30,7 @@
 
   <PropertyGroup>
     <PackageId>Nexus.Link.Libraries.Crud.UnitTests</PackageId>
-    <Version>1.4.4</Version>
+    <Version>1.4.5</Version>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <PackageTags>nexus;link;fulcrum;lever</PackageTags>
     <Authors>XLENT Link</Authors>
@@ -40,6 +40,7 @@
     <Copyright>Copyright ©2019 Xlent Link AB</Copyright>
     <IncludeSymbols>true</IncludeSymbols>
     <PackageReleaseNotes>
+      1.4.5 Bump
       1.4.4 Now should throw FulcrumResourceLockedException instead of FulcrumTryAgainException if a resource is locked
       1.4.3 Bump
       1.4.0 Support for entity attributes such as PrimaryKeyAttribute

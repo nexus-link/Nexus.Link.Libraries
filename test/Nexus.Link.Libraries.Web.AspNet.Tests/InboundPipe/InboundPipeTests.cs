@@ -13,7 +13,6 @@ using Nexus.Link.Libraries.Core.Platform.Configurations;
 using Nexus.Link.Libraries.Web.AspNet.Pipe.Inbound;
 #if NETCOREAPP
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Http.Internal;
 using System.IO;
 using System.Net;
 using System.Text.RegularExpressions;
@@ -225,7 +224,7 @@ namespace Nexus.Link.Libraries.Web.AspNet.Tests.InboundPipe
 #if NETCOREAPP
         private void SetRequest(HttpContext context, string url)
         {
-            var request = new DefaultHttpRequest(context);
+            var request = context.Request;
             var match = Regex.Match(url, "^(https?)://([^/]+)(/[^?]+)(\\?.*)?$");
             request.Scheme = match.Groups[1].Value;
             request.Host = new HostString(match.Groups[2].Value);

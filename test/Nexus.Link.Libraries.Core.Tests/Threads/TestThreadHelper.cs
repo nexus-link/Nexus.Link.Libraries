@@ -191,6 +191,12 @@ namespace Nexus.Link.Libraries.Core.Tests.Threads
             UT.Assert.IsTrue(_done);
         }
 
+        [TestMethod]
+        public async Task Delay()
+        {
+            await Task.Delay(TimeSpan.FromMilliseconds(10));
+        }
+
         private async Task SleepAsync(TimeSpan delay)
         {
             await Task.Delay(delay);
