@@ -35,7 +35,11 @@ namespace Nexus.Link.Libraries.Core.Tests.Logging
         [DataRow(0, 0, 0, 1, 995, "2.0s")]
         [DataRow(0, 0, 0, 2, 0, "2.0s")]
         [DataRow(0, 0, 0, 9, 949, "9.9s")]
+#if NETCOREAPP
         [DataRow(0, 0, 0, 9, 950, "9.9s")]
+#else
+        [DataRow(0, 0, 0, 9, 950, "10.0s")]
+#endif
         [DataRow(0, 0, 0, 9, 951, "9.5s")] // This does not feel right
         [DataRow(0, 0, 0, 10, 0, "10.0s")]
         [DataRow(0, 0, 0, 29, 999, "29.5s")]
