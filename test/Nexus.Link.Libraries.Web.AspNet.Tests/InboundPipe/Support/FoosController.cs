@@ -103,5 +103,17 @@ namespace Nexus.Link.Libraries.Web.AspNet.Tests.InboundPipe.Support
             // Setup by DelegatingHandler registered in TestStartup
             return FulcrumApplication.Context.NexusTestContext ?? "<not setup>";
         }
+
+#if NETCOREAPP
+        [HttpGet("~/api/Delay")]
+        [Produces("application/json")]
+#else
+        [HttpGet]
+        [Route("~/api/Delay")]
+#endif
+        public async Task DelayAsync(int delayMilliseconds, CancellationToken token)
+        {
+            await Task.Delay(delayMilliseconds, token);
+        }
     }
 }

@@ -3,6 +3,7 @@ using Nexus.Link.Libraries.Core.Translation;
 using Nexus.Link.Libraries.Web.AspNet.Pipe.Inbound;
 
 #if NETCOREAPP
+using Microsoft.AspNetCore.Server.Kestrel.Core;
 using System.Collections.Generic;
 using System.Reflection;
 using Microsoft.AspNetCore.Mvc.Controllers;
@@ -11,6 +12,8 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ApplicationParts;
+using Nexus.Link.Libraries.Core.Application;
+
 #pragma warning disable 618
 #else
 using System.Web.Http;
@@ -35,6 +38,13 @@ namespace Nexus.Link.Libraries.Web.AspNet.Tests.InboundPipe.Support
                 opts.EnableEndpointRouting = false;
             });
             mvc.SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
+
+            var keepAliveTimeout = FulcrumApplication.Context.ValueProvider.GetValue<TimeSpan?>("KeepAliveTimeout");
+            if (keepAliveTimeout.HasValue)
+            {
+                services.Configure<KestrelServerOptions>(options => options.Limits.KeepAliveTimeout = keepAliveTimeout.Value);
+                services.Configure<KestrelServerOptions>(options => options.Limits.RequestHeadersTimeout = keepAliveTimeout.Value);
+            }
         }
 
         public virtual void Configure(IApplicationBuilder app, IHostingEnvironment env)

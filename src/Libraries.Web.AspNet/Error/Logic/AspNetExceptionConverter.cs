@@ -100,7 +100,7 @@ namespace Nexus.Link.Libraries.Web.AspNet.Error.Logic
             if (e is FulcrumHttpRedirectException redirectException)
             {
                 var stringContent = new StringContent(redirectException.Content, Encoding.UTF8, redirectException.ContentType);
-                response = new HttpResponseMessage((HttpStatusCode) redirectException.HttpStatusCode)
+                response = new HttpResponseMessage((HttpStatusCode)redirectException.HttpStatusCode)
                 {
                     Content = stringContent
                 };
@@ -155,16 +155,27 @@ namespace Nexus.Link.Libraries.Web.AspNet.Error.Logic
                     Content = JsonConvert.SerializeObject(postponedContent)
                 };
             }
+
+            if (e is not FulcrumException fulcrumException)
+            {
+                switch (e)
+                {
+                    //case OperationCanceledException operationCanceledException:
+                    //    if (operationCanceledException.CancellationToken.)
+                    //    fulcrumException = new Ful
+                    //    break;
+                    default:
+                        var message = $"Application threw an exception that didn't inherit from {typeof(FulcrumException)}.\r{e.GetType().FullName}: {e.Message}\rFull exception:\r{e}";
+                        Log.LogError(message, e);
+                        fulcrumException = new FulcrumAssertionFailedException(message, e);
+                        break;
+                }
+            }
+
             if (e is FulcrumHttpRedirectException redirectException)
             {
                 // FulcrumHttpRedirectException should be handled outside this method, leading to not calling this method at all
                 FulcrumAssert.Fail($"Did not expect an exception of type {nameof(FulcrumHttpRedirectException)} here.");
-            }
-            if (!(e is FulcrumException fulcrumException))
-            {
-                var message = $"Application threw an exception that didn't inherit from {typeof(FulcrumException)}.\r{e.GetType().FullName}: {e.Message}\rFull exception:\r{e}";
-                Log.LogError(message, e);
-                fulcrumException = new FulcrumAssertionFailedException(message, e);
             }
 
             var error = ExceptionConverter.ToFulcrumError(fulcrumException, true);
