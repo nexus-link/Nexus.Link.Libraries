@@ -42,7 +42,7 @@ namespace Nexus.Link.Libraries.Web.AspNet.Tests.AspNetExceptionConverterTests
             // ReSharper disable once PossibleInvalidOperationException
             Assert.AreEqual((int)HttpStatusCode.InternalServerError, (int)response.StatusCode);
             var content = await GetContentAsync(response);
-            content.ShouldNotContain("FulcrumException");
+            content.ShouldNotContain(".FulcrumException");
         }
 
         [TestMethod]

@@ -30,12 +30,12 @@ namespace Nexus.Link.Libraries.Web.AspNet.Error.Logic
     public static class AspNetExceptionConverter
     {
 #if NETCOREAPP
-        public static async Task ConvertExceptionToResponseAsync(Exception exception, HttpResponse response, CancellationToken externalCancellationToken = default)
+        public static async Task ConvertExceptionToResponseAsync(Exception exception, HttpResponse response, CancellationToken originalRequestToken = default)
         {
             InternalContract.RequireNotNull(exception, nameof(exception));
             InternalContract.RequireNotNull(response, nameof(response));
 
-            var customHttpResponse = ConvertExceptionToCustomHttpResponse(exception);
+            var customHttpResponse = ConvertExceptionToCustomHttpResponse(exception, originalRequestToken);
 
             response.StatusCode = customHttpResponse.StatusCode;
             if (customHttpResponse.LocationUri != null)
@@ -48,7 +48,13 @@ namespace Nexus.Link.Libraries.Web.AspNet.Error.Logic
             await response.WriteAsync(customHttpResponse.Content);
         }
 
+        [Obsolete("Please use the overload with cancellation token. Warning since 2023-03-01.")]
         public static CustomHttpResponse ConvertExceptionToCustomHttpResponse(Exception exception)
+        {
+            return ConvertExceptionToCustomHttpResponse(exception, null);
+        }
+
+        public static CustomHttpResponse ConvertExceptionToCustomHttpResponse(Exception exception, CancellationToken? originalRequestToken)
         {
             InternalContract.RequireNotNull(exception, nameof(exception));
 
@@ -62,7 +68,7 @@ namespace Nexus.Link.Libraries.Web.AspNet.Error.Logic
             }
             else
             {
-                var statusAndContent = ToStatusAndContent(exception);
+                var statusAndContent = ToStatusAndContent(exception, originalRequestToken);
                 response.Content = statusAndContent.Content;
                 response.StatusCode = (int)statusAndContent.StatusCode;
                 response.ContentType = "application/json";
@@ -78,7 +84,7 @@ namespace Nexus.Link.Libraries.Web.AspNet.Error.Logic
         public static ContentResult ToContentResult(Exception e)
         {
             InternalContract.RequireNotNull(e, nameof(e));
-            var statusAndContent = ToStatusAndContent(e);
+            var statusAndContent = ToStatusAndContent(e, null);
 
             var res = new ContentResult
             {
@@ -104,7 +110,7 @@ namespace Nexus.Link.Libraries.Web.AspNet.Error.Logic
         /// <summary>
         /// Convert an exception (<paramref name="e"/>) into an HTTP response message.
         /// </summary>
-        public static HttpResponseMessage ToHttpResponseMessage(Exception e, CancellationToken? cancellationToken)
+        public static HttpResponseMessage ToHttpResponseMessage(Exception e, CancellationToken? originalRequestToken)
         {
             InternalContract.RequireNotNull(e, nameof(e));
             HttpResponseMessage response;
@@ -119,7 +125,7 @@ namespace Nexus.Link.Libraries.Web.AspNet.Error.Logic
             }
             else
             {
-                var statusAndContent = ToStatusAndContent(e);
+                var statusAndContent = ToStatusAndContent(e, originalRequestToken);
                 var stringContent = new StringContent(statusAndContent.Content, Encoding.UTF8, "application/json");
                 response = new HttpResponseMessage(statusAndContent.StatusCode)
                 {
@@ -130,51 +136,73 @@ namespace Nexus.Link.Libraries.Web.AspNet.Error.Logic
         }
 #endif
 
-        private static StatusAndContent ToStatusAndContent(Exception e)
+        private static StatusAndContent ToStatusAndContent(Exception e, CancellationToken? originalRequestToken)
         {
-            if (e is RequestAcceptedException acceptedException)
+            switch (e)
             {
-                var acceptedContent = new RequestAcceptedContent()
-                {
-                    RequestId = acceptedException.RequestId,
-                    PollingUrl = acceptedException.PollingUrl,
-                    RegisterCallbackUrl = acceptedException.RegisterCallbackUrl
-                };
-                FulcrumAssert.IsValidated(acceptedContent, CodeLocation.AsString());
-                return new StatusAndContent
-                {
-                    // ReSharper disable once PossibleInvalidOperationException
-                    StatusCode = HttpStatusCode.Accepted,
-                    Content = JsonConvert.SerializeObject(acceptedContent)
-                };
-            }
-            if (e is RequestPostponedException postponedException)
-            {
-                var seconds = postponedException.TryAgainAfterMinimumTimeSpan?.TotalSeconds;
-                var postponedContent = new RequestPostponedContent()
-                {
-                    TryAgain = postponedException.TryAgain,
-                    TryAgainAfterMinimumSeconds = seconds,
-                    WaitingForRequestIds = postponedException.WaitingForRequestIds,
-                    ReentryAuthentication = postponedException.ReentryAuthentication
-                };
-                FulcrumAssert.IsValidated(postponedContent, CodeLocation.AsString());
-                return new StatusAndContent
-                {
-                    // ReSharper disable once PossibleInvalidOperationException
-                    StatusCode = HttpStatusCode.Accepted,
-                    Content = JsonConvert.SerializeObject(postponedContent)
-                };
+                case RequestAcceptedException acceptedException:
+                    {
+                        var acceptedContent = new RequestAcceptedContent()
+                        {
+                            RequestId = acceptedException.RequestId,
+                            PollingUrl = acceptedException.PollingUrl,
+                            RegisterCallbackUrl = acceptedException.RegisterCallbackUrl
+                        };
+                        FulcrumAssert.IsValidated(acceptedContent, CodeLocation.AsString());
+                        return new StatusAndContent
+                        {
+                            // ReSharper disable once PossibleInvalidOperationException
+                            StatusCode = HttpStatusCode.Accepted,
+                            Content = JsonConvert.SerializeObject(acceptedContent)
+                        };
+                    }
+                case RequestPostponedException postponedException:
+                    {
+                        var seconds = postponedException.TryAgainAfterMinimumTimeSpan?.TotalSeconds;
+                        var postponedContent = new RequestPostponedContent()
+                        {
+                            TryAgain = postponedException.TryAgain,
+                            TryAgainAfterMinimumSeconds = seconds,
+                            WaitingForRequestIds = postponedException.WaitingForRequestIds,
+                            ReentryAuthentication = postponedException.ReentryAuthentication
+                        };
+                        FulcrumAssert.IsValidated(postponedContent, CodeLocation.AsString());
+                        return new StatusAndContent
+                        {
+                            // ReSharper disable once PossibleInvalidOperationException
+                            StatusCode = HttpStatusCode.Accepted,
+                            Content = JsonConvert.SerializeObject(postponedContent)
+                        };
+                    }
             }
 
             if (e is not FulcrumException fulcrumException)
             {
                 switch (e)
                 {
-                    //case OperationCanceledException operationCanceledException:
-                    //    if (operationCanceledException.CancellationToken.)
-                    //    fulcrumException = new Ful
-                    //    break;
+                    case OperationCanceledException operationCanceledException:
+                        if (originalRequestToken is { IsCancellationRequested: true })
+                        {
+                            // The cancellation came from the outside, i.e. we will consider this a client error
+                            // This is true for instance if the client has closed the connection.
+                            //
+                            // It is not true if the internet goes down or if the IIS is triggering this because
+                            // the maximum time limit for request execution has been reached.
+                            // This doesn't matter that much, because whatever we do here will not reach the client anyway
+                            // but it might affect monitoring tools like Azure Application Insights.
+                            //
+                            // Eventually we should probably check if we think that this is an IIS time out.
+                            fulcrumException = new FulcrumServiceContractException(
+                                "The request execution was interrupted and the original request cancellation token has been activated for cancellation. " +
+                                "We currently classify this as a client side error.", operationCanceledException);
+                        }
+                        else
+                        {
+                            fulcrumException = new FulcrumAssertionFailedException(
+                                $"The request execution was interrupted due to an internal {typeof(OperationCanceledException)}. " +
+                                "We classify this as a server side error.", operationCanceledException);
+                        }
+                        break;
                     default:
                         var message = $"Application threw an exception that didn't inherit from {typeof(FulcrumException)}.\r{e.GetType().FullName}: {e.Message}\rFull exception:\r{e}";
                         Log.LogError(message, e);
@@ -183,7 +211,7 @@ namespace Nexus.Link.Libraries.Web.AspNet.Error.Logic
                 }
             }
 
-            if (e is FulcrumHttpRedirectException redirectException)
+            if (e is FulcrumHttpRedirectException)
             {
                 // FulcrumHttpRedirectException should be handled outside this method, leading to not calling this method at all
                 FulcrumAssert.Fail($"Did not expect an exception of type {nameof(FulcrumHttpRedirectException)} here.");
