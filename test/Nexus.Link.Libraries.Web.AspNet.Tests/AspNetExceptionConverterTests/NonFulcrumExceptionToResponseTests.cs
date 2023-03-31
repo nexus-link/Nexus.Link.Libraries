@@ -1,17 +1,16 @@
 ﻿using System;
-using System.Diagnostics.CodeAnalysis;
 using System.Net;
-using System.Net.Http;
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Nexus.Link.Libraries.Core.Application;
-using Nexus.Link.Libraries.Core.Error.Logic;
 using Nexus.Link.Libraries.Web.AspNet.Error.Logic;
-using Nexus.Link.Libraries.Web.Error.Logic;
-using System.Linq;
 using System.Threading;
+using Shouldly;
 #if NETCOREAPP
 using Microsoft.AspNetCore.Http;
+using System.IO;
+#else
+using System.Net.Http;
 #endif
 
 namespace Nexus.Link.Libraries.Web.AspNet.Tests.AspNetExceptionConverterTests
@@ -27,49 +26,59 @@ namespace Nexus.Link.Libraries.Web.AspNet.Tests.AspNetExceptionConverterTests
         }
 
         [TestMethod]
-        public async Task Given_ClientCancelled_Gives_HttpStatus400()
+        public async Task Given_InternalCancel_Gives_HttpStatus500()
         {
             var exception = new OperationCanceledException();
+            var tokenSource = new CancellationTokenSource();
 #if NETCOREAPP
             var context = new DefaultHttpContext();
-            var result = context.Response;
-            await AspNetExceptionConverter.ConvertExceptionToResponseAsync(exception, result);
+            var response = context.Response;
+            response.Body = new MemoryStream();
+            await AspNetExceptionConverter.ConvertExceptionToResponseAsync(exception, response, tokenSource.Token);
 #else
-            var result = AspNetExceptionConverter.ToHttpResponseMessage(exception);
+            var response = AspNetExceptionConverter.ToHttpResponseMessage(exception, tokenSource.Token);
             await Task.CompletedTask;
 #endif
             // ReSharper disable once PossibleInvalidOperationException
-            Assert.AreEqual((int)HttpStatusCode.BadRequest, (int)result.StatusCode);
+            Assert.AreEqual((int)HttpStatusCode.InternalServerError, (int)response.StatusCode);
+            var content = await GetContentAsync(response);
+            content.ShouldNotContain("FulcrumException");
         }
 
         [TestMethod]
-        [SuppressMessage("ReSharper", "MethodSupportsCancellation")]
-        public async Task Given_Timeout_Gives_HttpStatus500()
+        public async Task Given_ExternalCancel_Gives_HttpStatus400()
         {
-            var cts = new CancellationTokenSource(1);
-            Exception exception = null;
-            try
-            {
-                await Task.Delay(100, cts.Token);
-            }
-            catch (Exception ex)
-            {
-                exception = ex;
-            }
-
-            Assert.IsNotNull(exception);
-
+            var exception = new OperationCanceledException();
+            var tokenSource = new CancellationTokenSource(1);
+            tokenSource.Cancel();
 #if NETCOREAPP
             var context = new DefaultHttpContext();
-            var result = context.Response;
-            await AspNetExceptionConverter.ConvertExceptionToResponseAsync(exception, result);
+            var response = context.Response;
+            response.Body = new MemoryStream();
+            await AspNetExceptionConverter.ConvertExceptionToResponseAsync(exception, response, tokenSource.Token);
 #else
-            var result = AspNetExceptionConverter.ToHttpResponseMessage(exception);
+            var response = AspNetExceptionConverter.ToHttpResponseMessage(exception, tokenSource.Token);
             await Task.CompletedTask;
 #endif
             // ReSharper disable once PossibleInvalidOperationException
-            Assert.AreEqual((int)HttpStatusCode.InternalServerError, (int)result.StatusCode);
-            // TODO: More assertions
+            Assert.AreEqual((int)HttpStatusCode.BadRequest, (int)response.StatusCode);
         }
+
+#if NETCOREAPP
+        private async Task<string> GetContentAsync(HttpResponse response)
+        {
+            // Read the stream as text
+            response.Body.Position = 0;
+            var content = await new StreamReader(response.Body).ReadToEndAsync();
+            return content;
+        }
+#else
+        private async Task<string> GetContentAsync(HttpResponseMessage response)
+        {
+            var content = await response.Content.ReadAsStringAsync();
+            return content;
+        }
+#endif
+
     }
 }

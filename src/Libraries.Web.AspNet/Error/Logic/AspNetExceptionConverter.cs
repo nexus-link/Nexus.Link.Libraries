@@ -17,6 +17,7 @@ using Nexus.Link.Libraries.Web.Serialization;
 #else
 using System.Net.Http;
 using System.Text;
+using System.Threading;
 #endif
 
 namespace Nexus.Link.Libraries.Web.AspNet.Error.Logic
@@ -29,7 +30,7 @@ namespace Nexus.Link.Libraries.Web.AspNet.Error.Logic
     public static class AspNetExceptionConverter
     {
 #if NETCOREAPP
-        public static async Task ConvertExceptionToResponseAsync(Exception exception, HttpResponse response, CancellationToken cancellationToken = default)
+        public static async Task ConvertExceptionToResponseAsync(Exception exception, HttpResponse response, CancellationToken externalCancellationToken = default)
         {
             InternalContract.RequireNotNull(exception, nameof(exception));
             InternalContract.RequireNotNull(response, nameof(response));
@@ -43,7 +44,8 @@ namespace Nexus.Link.Libraries.Web.AspNet.Error.Logic
             }
             response.ContentType = customHttpResponse.ContentType;
 
-            await response.WriteAsync(customHttpResponse.Content, cancellationToken);
+            // ReSharper disable once MethodSupportsCancellation
+            await response.WriteAsync(customHttpResponse.Content);
         }
 
         public static CustomHttpResponse ConvertExceptionToCustomHttpResponse(Exception exception)
@@ -93,7 +95,16 @@ namespace Nexus.Link.Libraries.Web.AspNet.Error.Logic
         /// <summary>
         /// Convert an exception (<paramref name="e"/>) into an HTTP response message.
         /// </summary>
+        [Obsolete("Please use the overload with cancellation token. Warning since 2023-03-31.")]
         public static HttpResponseMessage ToHttpResponseMessage(Exception e)
+        {
+            return ToHttpResponseMessage(e, null);
+        }
+
+        /// <summary>
+        /// Convert an exception (<paramref name="e"/>) into an HTTP response message.
+        /// </summary>
+        public static HttpResponseMessage ToHttpResponseMessage(Exception e, CancellationToken? cancellationToken)
         {
             InternalContract.RequireNotNull(e, nameof(e));
             HttpResponseMessage response;
