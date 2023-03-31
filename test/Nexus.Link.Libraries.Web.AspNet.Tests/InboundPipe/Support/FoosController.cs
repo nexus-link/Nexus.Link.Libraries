@@ -1,4 +1,5 @@
 ﻿
+using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Threading;
 using System.Threading.Tasks;
@@ -103,6 +104,10 @@ namespace Nexus.Link.Libraries.Web.AspNet.Tests.InboundPipe.Support
             // Setup by DelegatingHandler registered in TestStartup
             return FulcrumApplication.Context.NexusTestContext ?? "<not setup>";
         }
+        public static Exception LatestException { get; private set; }
+        public static CancellationToken? LatestRequestCancellationToken { get; private set; }
+        public static CancellationTokenSource LatestInternalCancellationTokenSource { get; set; }
+        public static int ExecutionCount { get; private set; }
 
 #if NETCOREAPP
         [HttpGet("~/api/Delay")]
@@ -113,7 +118,24 @@ namespace Nexus.Link.Libraries.Web.AspNet.Tests.InboundPipe.Support
 #endif
         public async Task DelayAsync(int delayMilliseconds, CancellationToken token)
         {
-            await Task.Delay(delayMilliseconds, token);
+            LatestException = null;
+            LatestRequestCancellationToken = token;
+            var internalTokenSource = new CancellationTokenSource();
+            LatestInternalCancellationTokenSource = internalTokenSource;
+            var combinedTokenSource = CancellationTokenSource.CreateLinkedTokenSource(internalTokenSource.Token, token);
+            try
+            {
+                await Task.Delay(delayMilliseconds, combinedTokenSource.Token);
+            }
+            catch (Exception ex)
+            {
+                LatestException = ex;
+                throw;
+            }
+            finally
+            {
+                ExecutionCount++;
+            }
         }
     }
 }

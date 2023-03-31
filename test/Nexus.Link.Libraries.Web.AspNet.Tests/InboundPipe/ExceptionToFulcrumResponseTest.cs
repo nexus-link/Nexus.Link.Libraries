@@ -36,7 +36,7 @@ namespace Nexus.Link.Libraries.Web.AspNet.Tests.InboundPipe
 
         [TestMethod]
         [SuppressMessage("ReSharper", "MethodSupportsCancellation")]
-        public async Task ExceptionToFulcrumResponse_Given_ClientCancelled_Gives_ThrowsTaskCanceledException()
+        public async Task ExceptionToFulcrumResponse_Given_ClientCanceled_Gives_ServerMethodThrowsTaskCanceledException()
         {
 
 #if NETCOREAPP
@@ -45,21 +45,24 @@ namespace Nexus.Link.Libraries.Web.AspNet.Tests.InboundPipe
 #else
             _httpClient = TestServer.Create<TestStartup>().HttpClient;
 #endif
-            var request = new HttpRequestMessage(HttpMethod.Get, "/api/Delay?delayMilliseconds=60000");
+            var countBefore = FoosController.ExecutionCount;
+            var request = new HttpRequestMessage(HttpMethod.Get, "/api/Delay?delayMilliseconds=1000");
 
-            var cts = new CancellationTokenSource(100);
+            var cts = new CancellationTokenSource();
 
             var task = _httpClient.SendAsync(request, cts.Token);
             await Task.Delay(10);
             cts.Cancel();
             await task.ShouldThrowAsync<TaskCanceledException>();
+            while (FoosController.ExecutionCount == countBefore) await Task.Delay(1);
+            FoosController.LatestException.ShouldNotBeNull();
+            FoosController.LatestException.ShouldBeAssignableTo<OperationCanceledException>();
         }
 
         [TestMethod]
         [SuppressMessage("ReSharper", "MethodSupportsCancellation")]
-        public async Task ExceptionToFulcrumResponse_Given_ServerTimeout_Gives_HttpStatus500()
+        public async Task ExceptionToFulcrumResponse_Given_InternalCancellation_Gives_ServerMethodThrowsTaskCanceledException()
         {
-            FulcrumApplication.Context.ValueProvider.SetValue<TimeSpan?>("KeepAliveTimeout", TimeSpan.FromMilliseconds(100));
 
 #if NETCOREAPP
             var factory = new CustomWebApplicationFactory();
@@ -67,12 +70,24 @@ namespace Nexus.Link.Libraries.Web.AspNet.Tests.InboundPipe
 #else
             _httpClient = TestServer.Create<TestStartup>().HttpClient;
 #endif
-            var request = new HttpRequestMessage(HttpMethod.Get, "/api/Delay?delayMilliseconds=2000");
+            var countBefore = FoosController.ExecutionCount;
+            FoosController.LatestInternalCancellationTokenSource = null;
+            var request = new HttpRequestMessage(HttpMethod.Get, "/api/Delay?delayMilliseconds=1000");
 
-            var response = await _httpClient.SendAsync(request);
-
-            var resultString = await response.Content.ReadAsStringAsync();
-            Assert.AreEqual(HttpStatusCode.InternalServerError, response.StatusCode, resultString);
+            var cts = new CancellationTokenSource();
+            var task = _httpClient.SendAsync(request, cts.Token);
+            // Wait for the controller to create a token source
+            while (FoosController.LatestInternalCancellationTokenSource == null) await Task.Delay(1);
+            // Trigger a cancel on the token source
+            FoosController.LatestInternalCancellationTokenSource.Cancel();
+            // Wait for the controller to end
+            while (FoosController.ExecutionCount == countBefore) await Task.Delay(1);
+            await task.ShouldThrowAsync<OperationCanceledException>();
+            FoosController.LatestRequestCancellationToken.ShouldNotBeNull();
+            FoosController.LatestRequestCancellationToken.Value.IsCancellationRequested.ShouldBe(false);
+            FoosController.LatestException.ShouldNotBeNull();
+            FoosController.LatestException.ShouldBeAssignableTo<OperationCanceledException>();
+            await task.ShouldThrowAsync<TaskCanceledException>();
         }
     }
 }
