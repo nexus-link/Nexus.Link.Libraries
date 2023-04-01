@@ -51,10 +51,12 @@ namespace Nexus.Link.Libraries.Web.AspNet.Tests.InboundPipe
             var cts = new CancellationTokenSource();
 
             var task = _httpClient.SendAsync(request, cts.Token);
-            await Task.Delay(10);
-            cts.Cancel();
+            await Task.Delay(100);
+            cts.Cancel(true);
             await task.ShouldThrowAsync<TaskCanceledException>();
-            while (FoosController.ExecutionCount == countBefore) await Task.Delay(1);
+
+            var i = 0;
+            while (FoosController.ExecutionCount == countBefore && ++i < 100) await Task.Delay(1);
             FoosController.LatestException.ShouldNotBeNull();
             FoosController.LatestException.ShouldBeAssignableTo<OperationCanceledException>();
         }
@@ -79,12 +81,13 @@ namespace Nexus.Link.Libraries.Web.AspNet.Tests.InboundPipe
             // Wait for the controller to create a token source
             while (FoosController.LatestInternalCancellationTokenSource == null) await Task.Delay(1);
             // Trigger a cancel on the token source
-            FoosController.LatestInternalCancellationTokenSource.Cancel();
+            FoosController.LatestInternalCancellationTokenSource.Cancel(true);
             // Wait for the controller to end
-            while (FoosController.ExecutionCount == countBefore) await Task.Delay(1);
+            var i = 0;
+            while (FoosController.ExecutionCount == countBefore && ++i < 1100) await Task.Delay(1);
             await task.ShouldThrowAsync<OperationCanceledException>();
             FoosController.LatestRequestCancellationToken.ShouldNotBeNull();
-            FoosController.LatestRequestCancellationToken.Value.IsCancellationRequested.ShouldBe(false);
+            FoosController.LatestRequestCancellationTokenIsCancellationRequested.ShouldBe(false);
             FoosController.LatestException.ShouldNotBeNull();
             FoosController.LatestException.ShouldBeAssignableTo<OperationCanceledException>();
             await task.ShouldThrowAsync<TaskCanceledException>();

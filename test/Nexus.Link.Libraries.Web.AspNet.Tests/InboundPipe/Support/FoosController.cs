@@ -106,6 +106,7 @@ namespace Nexus.Link.Libraries.Web.AspNet.Tests.InboundPipe.Support
         }
         public static Exception LatestException { get; private set; }
         public static CancellationToken? LatestRequestCancellationToken { get; private set; }
+        public static bool LatestRequestCancellationTokenIsCancellationRequested { get; private set; }
         public static CancellationTokenSource LatestInternalCancellationTokenSource { get; set; }
         public static int ExecutionCount { get; private set; }
 
@@ -135,6 +136,7 @@ namespace Nexus.Link.Libraries.Web.AspNet.Tests.InboundPipe.Support
             finally
             {
                 ExecutionCount++;
+                LatestRequestCancellationTokenIsCancellationRequested = LatestRequestCancellationToken.Value.IsCancellationRequested;
             }
         }
     }
