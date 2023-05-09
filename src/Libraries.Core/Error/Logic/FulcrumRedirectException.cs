@@ -1,7 +1,4 @@
-﻿using Newtonsoft.Json;
-using Nexus.Link.Libraries.Core.Error.Model;
-using System;
-using JetBrains.Annotations;
+﻿using System;
 
 namespace Nexus.Link.Libraries.Core.Error.Logic
 {

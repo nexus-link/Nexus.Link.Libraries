@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using JetBrains.Annotations;
 using Nexus.Link.Libraries.Core.Misc;
 
 namespace Nexus.Link.Libraries.Core.Assert
@@ -16,7 +15,7 @@ namespace Nexus.Link.Libraries.Core.Assert
         /// <param name="errorLocation">A unique errorLocation for the part of errorLocation where the validation didn't hold.</param>
         /// <param name="message">A message that documents/explains this failure. This message should normally start with "Expected ...".</param>
         [StackTraceHidden]
-        [ContractAnnotation("=> halt")]
+        
         public static void Fail(string errorLocation, string message)
         {
             InternalContract.RequireNotNull(message, nameof(message));
@@ -27,7 +26,7 @@ namespace Nexus.Link.Libraries.Core.Assert
         /// </summary>
         /// <param name="message">A message that documents/explains this failure. This message should normally start with "Expected ...".</param>
         [StackTraceHidden]
-        [ContractAnnotation("=> halt")]
+        
         public static void Fail(string message)
         {
             InternalContract.RequireNotNull(message, nameof(message));
@@ -51,7 +50,7 @@ namespace Nexus.Link.Libraries.Core.Assert
         /// Verify that <paramref name="value"/> is not null.
         /// </summary>
         [StackTraceHidden]
-        [ContractAnnotation("value:null => halt")]
+        
         public static void IsNotNull(object value, string propertyName, string errorLocation, string customMessage = null)
         {
             InternalContract.RequireNotNull(propertyName, nameof(propertyName));
@@ -74,7 +73,7 @@ namespace Nexus.Link.Libraries.Core.Assert
         /// Verify that <paramref name="value"/> is not null, not empty and contains other characters than white space.
         /// </summary>
         [StackTraceHidden]
-        [ContractAnnotation("value:null => halt")]
+        
         public static void IsNotNullOrWhiteSpace(string value, string propertyName, string errorLocation, string customMessage = null)
         {
             InternalContract.RequireNotNull(propertyName, nameof(propertyName));

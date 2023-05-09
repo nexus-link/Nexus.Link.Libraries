@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data.SqlClient;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -154,7 +155,7 @@ namespace Nexus.Link.Libraries.SqlServer
             if (where == null) where = "1=1";
             return SearchAdvancedSingleAsync($"SELECT * FROM [{TableMetadata.TableName}] WHERE ({where})", param, token);
         }
-        
+
         public async Task<TDatabaseItem> SearchSingleAndLockWhereAsync(string @where, object param = null, CancellationToken token = default)
         {
             if (where == null) where = "1=1";
@@ -239,10 +240,10 @@ namespace Nexus.Link.Libraries.SqlServer
             InternalContract.RequireGreaterThanOrEqualTo(0, offset, nameof(offset));
             InternalContract.RequireGreaterThanOrEqualTo(0, limit, nameof(limit));
             where = where ?? "1=1";
-            return await InternalSearchAsync(param, 
+            return await InternalSearchAsync(param,
                 $"SELECT *" +
                 $" FROM [{TableMetadata.TableName}]" +
-                $" WHERE ({where})", 
+                $" WHERE ({where})",
                 orderBy, offset, limit, cancellationToken);
         }
 
@@ -261,7 +262,7 @@ namespace Nexus.Link.Libraries.SqlServer
             InternalContract.RequireGreaterThanOrEqualTo(0, offset, nameof(offset));
             InternalContract.RequireGreaterThanOrEqualTo(0, limit, nameof(limit));
             where = where ?? "1=1";
-            return await InternalSearchAsync(param, 
+            return await InternalSearchAsync(param,
                 $"SELECT *" +
                 $" FROM [{TableMetadata.TableName}]" +
                 " WITH (ROWLOCK, UPDLOCK, READPAST)" +
@@ -297,26 +298,47 @@ namespace Nexus.Link.Libraries.SqlServer
         {
             InternalContract.RequireNotNullOrWhiteSpace(statement, nameof(statement));
             MaybeTransformEtagToRecordVersion(param);
-            using var db = await Database.NewSqlConnectionAsync(token);
-            int count;
-            await db.VerifyAvailabilityAsync(null, token);
             try
             {
-                count = await db.ExecuteAsync(statement, param);
-                if (Database.Options.VerboseLogging)
-                {
-                    var paramAsString = param == null ? "NULL" : JsonConvert.SerializeObject(param);
-                    Log.LogVerbose($"{statement} {JsonConvert.SerializeObject(paramAsString)}");
-                }
+                using var db = await Database.NewSqlConnectionAsync(token);
+                await db.VerifyAvailabilityAsync(null, token);
+                var count = await db.ExecuteAsync(statement, param);
+                if (!Database.Options.VerboseLogging) return count;
+                var paramAsString = param == null ? "NULL" : JsonConvert.SerializeObject(param);
+                Log.LogVerbose($"{statement} {JsonConvert.SerializeObject(paramAsString)}");
+                return count;
             }
             catch (Exception e)
             {
                 var paramAsString = param == null ? "NULL" : JsonConvert.SerializeObject(param);
                 Log.LogError($"Execution failed:\r{statement}\rwith param:\r{paramAsString}:\r{e.Message}");
+                MaybeThrowExceptionAsFulcrumException(e);
                 throw;
             }
+        }
 
-            return count;
+        private void MaybeThrowExceptionAsFulcrumException(Exception e)
+        {
+            if (e is not SqlException sqlException) return;
+            switch(sqlException.Number)
+            {
+                case (int)SqlConstants.SqlErrorEnum.Deadlock:
+                    throw new FulcrumTryAgainException(sqlException.Message, sqlException);
+                // https://stackoverflow.com/questions/6483699/unique-key-violation-in-sql-server-is-it-safe-to-assume-error-2627
+                case (int)SqlConstants.SqlErrorEnum.DuplicateKey:
+                case (int)SqlConstants.SqlErrorEnum.UniqueConstraint:
+                    throw new FulcrumConflictException($"The {TableMetadata.TableName} item must be unique: {e.Message}", e);
+                case (int)SqlConstants.SqlErrorEnum.ConstraintFailed:
+                case (int)SqlConstants.SqlErrorEnum.CheckConstraintFailed:
+                    // A complex constraint in the form of a trigger
+                    throw new FulcrumContractException($"A {TableMetadata.TableName} trigger constraint failed: {e.Message}", e);
+            }
+
+            if (sqlException.Number == Database.Options.TriggerConstraintSqlExceptionErrorNumber)
+            {
+                // A complex constraint in the form of a trigger
+                throw new FulcrumContractException($"A {TableMetadata.TableName} trigger constraint failed: {e.Message}", e);
+            }
         }
 
         protected internal Task<IEnumerable<TDatabaseItem>> QueryAsync(string statement, object param = null, CancellationToken cancellationToken = default)
@@ -329,29 +351,27 @@ namespace Nexus.Link.Libraries.SqlServer
         {
             InternalContract.RequireNotNullOrWhiteSpace(statement, nameof(statement));
             MaybeTransformEtagToRecordVersion(param);
-            using var db = await Database.NewSqlConnectionAsync(cancellationToken);
-            await db.VerifyAvailabilityAsync(null, cancellationToken);
-            IEnumerable<T> items;
             try
             {
-                items = await db.QueryAsync<T>(statement, param);
+                using var db = await Database.NewSqlConnectionAsync(cancellationToken);
+                await db.VerifyAvailabilityAsync(null, cancellationToken);
+                var items = await db.QueryAsync<T>(statement, param);
                 var paramAsString = param == null ? "NULL" : JsonConvert.SerializeObject(param);
                 Log.LogVerbose($"{statement} {JsonConvert.SerializeObject(paramAsString)}");
+                var itemList = items.ToList();
+                foreach (var item in itemList)
+                {
+                    MaybeTransformRecordVersionToEtag(item);
+                }
+                return itemList;
             }
             catch (Exception e)
             {
                 var paramAsString = param == null ? "NULL" : JsonConvert.SerializeObject(param);
                 Log.LogError($"Query failed:\r{statement}\rwith param:\r{paramAsString}:\r{e.Message}");
+                MaybeThrowExceptionAsFulcrumException(e);
                 throw;
             }
-
-            var itemList = items.ToList();
-            foreach (var item in itemList)
-            {
-                MaybeTransformRecordVersionToEtag(item);
-            }
-
-            return itemList;
         }
 
         protected void MaybeTransformRecordVersionToEtag(object item)

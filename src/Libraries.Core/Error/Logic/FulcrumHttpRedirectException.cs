@@ -1,12 +1,8 @@
-﻿using Newtonsoft.Json;
-using Nexus.Link.Libraries.Core.Error.Model;
-using System;
+﻿using System;
 using System.Net;
-using JetBrains.Annotations;
 using System.Net.Http;
 using Nexus.Link.Libraries.Core.Assert;
 using Nexus.Link.Libraries.Core.Misc;
-using System.Linq;
 
 namespace Nexus.Link.Libraries.Core.Error.Logic
 {

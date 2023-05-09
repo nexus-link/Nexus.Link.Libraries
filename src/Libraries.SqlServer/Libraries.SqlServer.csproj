@@ -1,6 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFrameworks>netstandard2.0;netstandard2.1;net461</TargetFrameworks>
+    <TargetFrameworks>netstandard2.0;netstandard2.1</TargetFrameworks>
     <AssemblyName>Nexus.Link.Libraries.SqlServer</AssemblyName>
     <RootNamespace>Nexus.Link.Libraries.SqlServer</RootNamespace>
 
@@ -30,7 +30,7 @@
 
   <PropertyGroup>
     <PackageId>Nexus.Link.Libraries.SqlServer</PackageId>
-    <Version>2.15.8</Version>
+    <Version>2.17.0</Version>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <PackageTags>nexus;link;fulcrum;lever</PackageTags>
     <Authors>XLENT Link</Authors>
@@ -40,6 +40,8 @@
     <Copyright>Copyright ©2019 Xlent Link AB</Copyright>
     <IncludeSymbols>true</IncludeSymbols>
     <PackageReleaseNotes>
+      2.17.0 Now returns FulcrumException for some SqlException
+      2.16.0 Dropped support for net461
       2.15.8 Bump
       2.15.7 Optimized SearchWhereAsync
       2.15.6 TableBase.MaybeTransformEtagToRecordVersion now handles empty Etag

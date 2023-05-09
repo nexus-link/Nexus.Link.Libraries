@@ -99,15 +99,7 @@ namespace Nexus.Link.Libraries.SqlServer
             var dbItem = PrepareDbItem(id, item);
             InternalContract.RequireValidated(dbItem, nameof(item));
             var sql = SqlHelper.Create(TableMetadata);
-            try
-            {
-                await ExecuteAsync(sql, dbItem, token);
-            }
-            catch (SqlException e)
-            {
-                MaybeThrowInsertExceptionAsFulcrumException(e);
-                throw;
-            }
+            await ExecuteAsync(sql, dbItem, token);
         }
 
         /// <inheritdoc />
@@ -126,19 +118,11 @@ namespace Nexus.Link.Libraries.SqlServer
             InternalContract.RequireValidated(dbItem, nameof(item));
             var sql = SqlHelper.CreateAndRead(TableMetadata);
 
-            try
-            {
-                var items = await QueryAsync(sql, dbItem, token);
-                FulcrumAssert.IsNotNull(items);
-                var array = items.ToArray();
-                FulcrumAssert.AreEqual(1, array.Length);
-                return array[0];
-            }
-            catch (SqlException e)
-            {
-                MaybeThrowInsertExceptionAsFulcrumException(e);
-                throw;
-            }
+            var items = await QueryAsync(sql, dbItem, token);
+            FulcrumAssert.IsNotNull(items);
+            var array = items.ToArray();
+            FulcrumAssert.AreEqual(1, array.Length);
+            return array[0];
         }
 
         private TDatabaseItem PrepareDbItem(Guid id, TDatabaseItemCreate item)
@@ -160,48 +144,6 @@ namespace Nexus.Link.Libraries.SqlServer
             }
             StorageHelper.MaybeUpdateTimeStamps(dbItem, true);
             return dbItem;
-        }
-
-        private void MaybeThrowInsertExceptionAsFulcrumException(SqlException e)
-        {
-            // https://stackoverflow.com/questions/6483699/unique-key-violation-in-sql-server-is-it-safe-to-assume-error-2627
-            if (e.Number == (int)SqlConstants.SqlErrorEnum.DuplicateKey ||
-                e.Number == (int)SqlConstants.SqlErrorEnum.UniqueConstraint)
-            {
-                // Unique constraint
-                throw new FulcrumConflictException($"The new {TableMetadata.TableName} item must be unique: {e.Message}",
-                    e);
-            }
-
-            if (e.Number == (int)SqlConstants.SqlErrorEnum.ConstraintFailed
-                || e.Number == (int)SqlConstants.SqlErrorEnum.CheckConstraintFailed
-                || e.Number == Database.Options.TriggerConstraintSqlExceptionErrorNumber)
-            {
-                // A complex constraint in the form of a trigger
-                throw new FulcrumContractException(
-                    $"A {TableMetadata.TableName} trigger on table with a constraint failed during insert: {e.Message}", e);
-            }
-        }
-
-        private void MaybeThrowUpdateExceptionAsFulcrumException(SqlException e)
-        {
-            // https://stackoverflow.com/questions/6483699/unique-key-violation-in-sql-server-is-it-safe-to-assume-error-2627
-            if (e.Number == (int)SqlConstants.SqlErrorEnum.DuplicateKey ||
-                e.Number == (int)SqlConstants.SqlErrorEnum.UniqueConstraint)
-            {
-                // Unique constraint
-                throw new FulcrumConflictException($"The updated {TableMetadata.TableName} item must be unique: {e.Message}",
-                    e);
-            }
-
-            if (e.Number == (int)SqlConstants.SqlErrorEnum.ConstraintFailed
-                || e.Number == (int)SqlConstants.SqlErrorEnum.CheckConstraintFailed
-                || e.Number == Database.Options.TriggerConstraintSqlExceptionErrorNumber)
-            {
-                // A complex constraint in the form of a trigger
-                throw new FulcrumContractException(
-                    $"A {TableMetadata.TableName} trigger on table with a constraint failed during update: {e.Message}", e);
-            }
         }
 
         /// <inheritdoc />
@@ -286,16 +228,7 @@ namespace Nexus.Link.Libraries.SqlServer
                     break;
             }
 
-            int count;
-            try
-            {
-                count = await ExecuteAsync(sql, item, token);
-            }
-            catch (SqlException e)
-            {
-                MaybeThrowUpdateExceptionAsFulcrumException(e);
-                throw;
-            }
+            var count = await ExecuteAsync(sql, item, token);
             if (count == 0)
             {
                 if (item is IRecordVersion || item is IOptimisticConcurrencyControlByETag)
@@ -340,18 +273,9 @@ namespace Nexus.Link.Libraries.SqlServer
                     break;
             }
 
-            TDatabaseItem[] array = null;
-            try
-            {
-                var items = await QueryAsync(sql, item, token);
-                FulcrumAssert.IsNotNull(items);
-                array = items.ToArray();
-            }
-            catch (SqlException e)
-            {
-                MaybeThrowUpdateExceptionAsFulcrumException(e);
-                throw;
-            }
+            var items = await QueryAsync(sql, item, token);
+            FulcrumAssert.IsNotNull(items);
+            var array = items.ToArray();
             if (array.Length == 0)
             {
                 if (item is IRecordVersion || item.TryGetOptimisticConcurrencyControl(out _))

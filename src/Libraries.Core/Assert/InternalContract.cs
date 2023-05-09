@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
-using JetBrains.Annotations;
 using Nexus.Link.Libraries.Core.Error.Logic;
 using Nexus.Link.Libraries.Core.Misc;
 
@@ -26,7 +25,7 @@ namespace Nexus.Link.Libraries.Core.Assert
         /// Verify that <paramref name="parameterValue"/> is not null.
         /// </summary>
         [StackTraceHidden]
-        [ContractAnnotation("parameterValue:null => halt")]
+        
         public static void RequireNotNull(object parameterValue, string parameterName, string customMessage = null)
         {
             GenericContract<FulcrumContractException>.RequireNotNull(parameterValue, parameterName, customMessage);
@@ -45,7 +44,7 @@ namespace Nexus.Link.Libraries.Core.Assert
         /// Verify that <paramref name="parameterValue"/> is not null, not empty and contains other characters than white space.
         /// </summary>
         [StackTraceHidden]
-        [ContractAnnotation("parameterValue:null => halt")]
+        
         public static void RequireNotNullOrWhiteSpace(string parameterValue, string parameterName, string customMessage = null)
         {
             GenericContract<FulcrumContractException>.RequireNotNullOrWhiteSpace(parameterValue, parameterName, customMessage);
@@ -223,7 +222,7 @@ namespace Nexus.Link.Libraries.Core.Assert
         /// Always fail, with the given <paramref name="message"/>.
         /// </summary>
         [StackTraceHidden]
-        [ContractAnnotation("=> halt")]
+        
         public static void Fail(string message)
         {
             RequireNotNull(message, nameof(message));

@@ -38,6 +38,11 @@ namespace Nexus.Link.Libraries.SqlServer.Logic
             /// </summary>
             UniqueConstraint = 2627,
 
+            /// <summary>
+            /// Transaction (Process ID %d) was deadlocked on %.*ls resources with another process and has been chosen as the deadlock victim. Rerun the transaction.
+            /// </summary>
+            Deadlock = 1205,
+
         }
     }
 }
