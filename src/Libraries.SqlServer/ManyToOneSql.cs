@@ -24,7 +24,7 @@ namespace Nexus.Link.Libraries.SqlServer
         private readonly ManyToOneConvenience<TManyModel, TManyModel, Guid> _convenience;
 
         public string ParentColumnName { get; }
-        protected CrudSql<TOneModel> ParentTable { get; }
+        protected TableBase<TOneModel> ParentTable { get; }
 
         /// <summary>
         /// Constructor
@@ -35,7 +35,7 @@ namespace Nexus.Link.Libraries.SqlServer
         /// <param name="parentTable"></param>
         [Obsolete("Use ManyToOneSql(IDatabaseOptions, ISqlTableMetadata, ...) instead. Obsolete since 2021-01-07.", error: false)]
         public ManyToOneSql(string connectionString, ISqlTableMetadata tableMetadata, string parentColumnName,
-            CrudSql<TOneModel> parentTable)
+            TableBase<TOneModel> parentTable)
             : base(connectionString, tableMetadata)
         {
             ParentColumnName = parentColumnName;
@@ -174,7 +174,7 @@ namespace Nexus.Link.Libraries.SqlServer
         private readonly ManyToOneConvenience<TManyModelCreate, TManyModel, Guid> _convenience;
 
         public string ParentColumnName { get; }
-        protected CrudSql<TOneModel> ParentTable { get; }
+        protected TableBase<TOneModel> ParentTable { get; }
 
         /// <summary>
         /// Constructor
@@ -184,7 +184,7 @@ namespace Nexus.Link.Libraries.SqlServer
         /// <param name="parentColumnName"></param>
         /// <param name="parentTable"></param>
         [Obsolete("Use ManyToOneSql(IDatabaseOptions, ISqlTableMetadata, ...) instead. Obsolete since 2021-01-07.", error: false)]
-        public ManyToOneSql(string connectionString, ISqlTableMetadata tableMetadata, string parentColumnName, CrudSql<TOneModel> parentTable)
+        public ManyToOneSql(string connectionString, ISqlTableMetadata tableMetadata, string parentColumnName, TableBase<TOneModel> parentTable)
             : base(connectionString, tableMetadata)
         {
             ParentColumnName = parentColumnName;
@@ -199,7 +199,7 @@ namespace Nexus.Link.Libraries.SqlServer
         /// <param name="tableMetadata">The configuration for this table</param>
         /// <param name="parentColumnName">The name of the column that points out an id in the parent table.</param>
         /// <param name="parentTable">The parent table </param>
-        public ManyToOneSql(IDatabaseOptions options, ISqlTableMetadata tableMetadata, string parentColumnName, CrudSql<TOneModel> parentTable)
+        public ManyToOneSql(IDatabaseOptions options, ISqlTableMetadata tableMetadata, string parentColumnName, TableBase<TOneModel> parentTable)
             : base(options, tableMetadata)
         {
             ParentColumnName = parentColumnName;
