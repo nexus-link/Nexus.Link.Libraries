@@ -51,7 +51,7 @@ namespace Nexus.Link.Libraries.SqlServer
         /// <param name="parentColumnName">The name of the column that points out an id in the parent table.</param>
         /// <param name="parentTable">The parent table </param>
         public ManyToOneSql(IDatabaseOptions options, ISqlTableMetadata tableMetadata, string parentColumnName,
-            CrudSql<TOneModel> parentTable)
+            TableBase<TOneModel> parentTable)
             : base(options, tableMetadata)
         {
             ParentColumnName = parentColumnName;
