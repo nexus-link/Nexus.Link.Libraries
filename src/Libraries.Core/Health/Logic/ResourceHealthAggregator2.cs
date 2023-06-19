@@ -46,9 +46,9 @@ namespace Nexus.Link.Libraries.Core.Health.Logic
         private void MaybeAddHealthTrackerProblems()
         {
             var problems = Tenant == null
-                ? FulcrumApplication.Setup.HealthTracker.GetAllProblems()
-                : FulcrumApplication.Setup.HealthTracker.GetProblems(Tenant)
-                    .Concat(FulcrumApplication.Setup.HealthTracker.GetProblems())
+                ? FulcrumApplication.Setup.HealthTracker.GetAllHealthProblems()
+                : FulcrumApplication.Setup.HealthTracker.GetHealthProblems(Tenant)
+                    .Concat(FulcrumApplication.Setup.HealthTracker.GetHealthProblems())
                     .ToList();
 
             foreach (var problem in problems)
@@ -57,7 +57,7 @@ namespace Nexus.Link.Libraries.Core.Health.Logic
                 {
                     Status = problem.Warning ? HealthInfo.StatusEnum.Warning : HealthInfo.StatusEnum.Error,
                     Resource = problem.Resource,
-                    Message = problem.Title,
+                    Message = problem.GetHealthMessage(),
                     SerializedData = JsonConvert.SerializeObject(problem)
                 });
             }
