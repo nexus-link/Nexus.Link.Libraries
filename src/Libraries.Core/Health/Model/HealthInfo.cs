@@ -56,5 +56,10 @@
         ///  The name of the service/resource
         /// </summary>
         public string Resource { get; set; }
+
+        /// <summary>
+        /// Nullable extra data
+        /// </summary>
+        public string SerializedData { get; set; }
     }
 }

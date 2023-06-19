@@ -1,6 +1,9 @@
 ﻿using System;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Newtonsoft.Json;
+using Nexus.Link.Libraries.Core.Application;
 using Nexus.Link.Libraries.Core.Health.Model;
 using Nexus.Link.Libraries.Core.MultiTenant.Model;
 
@@ -36,6 +39,28 @@ namespace Nexus.Link.Libraries.Core.Health.Logic
         {
             Tenant = tenant;
             _health = new Model.Health(serviceName);
+
+            MaybeAddHealthTrackerProblems();
+        }
+
+        private void MaybeAddHealthTrackerProblems()
+        {
+            var problems = Tenant == null
+                ? FulcrumApplication.Setup.HealthTracker.GetAllProblems()
+                : FulcrumApplication.Setup.HealthTracker.GetProblems(Tenant)
+                    .Concat(FulcrumApplication.Setup.HealthTracker.GetProblems())
+                    .ToList();
+
+            foreach (var problem in problems)
+            {
+                AddHealthResponse(new()
+                {
+                    Status = problem.Warning ? HealthInfo.StatusEnum.Warning : HealthInfo.StatusEnum.Error,
+                    Resource = problem.Resource,
+                    Message = problem.Title,
+                    SerializedData = JsonConvert.SerializeObject(problem)
+                });
+            }
         }
 
         /// <summary>
@@ -57,6 +82,8 @@ namespace Nexus.Link.Libraries.Core.Health.Logic
         /// <param name="cancellationToken"></param>
         public async Task AddResourceHealthAsync(string resourceName, GetResourceHealthDelegate healthDelegate, CancellationToken cancellationToken = default)
         {
+            if (Tenant == null) return;
+
             HealthInfo response;
             try
             {

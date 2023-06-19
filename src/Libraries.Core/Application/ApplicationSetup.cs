@@ -1,4 +1,5 @@
 ﻿using Nexus.Link.Libraries.Core.Assert;
+using Nexus.Link.Libraries.Core.Health.Logic;
 using Nexus.Link.Libraries.Core.Logging;
 using Nexus.Link.Libraries.Core.MultiTenant.Model;
 using Nexus.Link.Libraries.Core.Telemetry;
@@ -59,6 +60,11 @@ namespace Nexus.Link.Libraries.Core.Application
         /// A log must have at least this level to be sent for logging.
         /// </summary>
         public LogSeverityLevel LogSeverityLevelThreshold{ get; set; }
+
+        /// <summary>
+        /// A handler for tracking health on an instance, e.g. fatal errors in the in pipe.
+        /// </summary>
+        public IHealthTracker HealthTracker { get; } = new HealthTracker();
 
         /// <inheritdoc />
         public void Validate(string errorLocation, string propertyPath = "")
