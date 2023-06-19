@@ -8,6 +8,7 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Nexus.Link.Libraries.Core.Application;
 using Nexus.Link.Libraries.Core.Logging;
+using Shouldly;
 using UT = Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Nexus.Link.Libraries.Core.Tests.Logging
@@ -38,6 +39,8 @@ namespace Nexus.Link.Libraries.Core.Tests.Logging
             while (RecursiveSyncLogger.IsRunning) Thread.Sleep(TimeSpan.FromMilliseconds(10));
             UT.Assert.IsFalse(RecursiveSyncLogger.HasFailed, RecursiveSyncLogger.Message);
             UT.Assert.AreEqual(1, _callsToFallback); // The log about the recursive call
+            var problems = FulcrumApplication.Setup.HealthTracker.GetAllHealthProblems();
+            problems.Count.ShouldBe(1);
         }
 
         [TestMethod]

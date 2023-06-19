@@ -40,6 +40,14 @@ public class HealthProblem
     [JsonProperty]
     public Dictionary<string, int> MessageCounters { get; }
 
+    public DateTimeOffset? ExpiresAt { get; set; }
+
+    public bool HasExpired(DateTimeOffset? now = null)
+    {
+        now ??= DateTimeOffset.UtcNow;
+        return ExpiresAt.HasValue && ExpiresAt.Value <= now.Value;
+    }
+
     /// <summary>
     /// Adds the error message and count how many times it has occurred
     /// </summary>

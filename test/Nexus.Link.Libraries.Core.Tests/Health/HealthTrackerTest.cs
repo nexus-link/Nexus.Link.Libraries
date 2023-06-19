@@ -1,8 +1,10 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using System;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Nexus.Link.Libraries.Core.Application;
 using Nexus.Link.Libraries.Core.Health.Logic;
 using Nexus.Link.Libraries.Core.MultiTenant.Model;
 using Shouldly;
+using System.Linq;
 using UT = Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Nexus.Link.Libraries.Core.Tests.Health
@@ -18,6 +20,59 @@ namespace Nexus.Link.Libraries.Core.Tests.Health
             FulcrumApplicationHelper.UnitTestSetup(nameof(HealthTrackerTest));
             _iut = FulcrumApplication.Setup.HealthTracker;
             _iut.ResetAllHealthProblems();
+        }
+
+        [TestMethod]
+        public void GetProblems_Given_NothingAdded_Gives_EmptyResult()
+        {
+            // Arrange
+
+            // Act
+            var problems = _iut.GetHealthProblems();
+
+            // Assert
+            problems.Count.ShouldBe(0);
+        }
+
+        [TestMethod]
+        public void GetProblems_Given_Added_Gives_Result()
+        {
+            // Arrange
+            var expectedId = Guid.NewGuid().ToString();
+            var expectedResource = Guid.NewGuid().ToString();
+            var expectedTitle = Guid.NewGuid().ToString();
+            var expectedMessage = Guid.NewGuid().ToString();
+            var expectedTenant = new Tenant(Guid.NewGuid().ToString(), Guid.NewGuid().ToString());
+            _iut.AddHealthProblemMessage(expectedId, expectedResource, expectedTitle, expectedMessage, expectedTenant);
+
+            // Act
+            var problems = _iut.GetHealthProblems(expectedTenant);
+
+            // Assert
+            problems.Count.ShouldBe(1);
+            problems[0].Id.ShouldBe(expectedId);
+            problems[0].Tenant.ShouldBe(expectedTenant);
+            problems[0].Resource.ShouldBe(expectedResource);
+            problems[0].Title.ShouldBe(expectedTitle);
+            problems[0].MessageCounters.Count.ShouldBe(1);
+            problems[0].MessageCounters.Keys.First().ShouldBe(expectedMessage);
+            problems[0].MessageCounters.Values.First().ShouldBe(1);
+        }
+
+        [TestMethod]
+        public void GetProblems_Given_Expired_Gives_EmptyResult()
+        {
+            // Arrange
+            _iut.AddHealthProblemMessage("id1", "resource", "title", "message", null, TimeSpan.FromMilliseconds(100));
+            var problems = _iut.GetHealthProblems();
+            problems.Count.ShouldBe(1);
+            System.Threading.Thread.Sleep(TimeSpan.FromMilliseconds(100));
+
+            // Act
+            problems = _iut.GetHealthProblems();
+
+            // Assert
+            problems.Count.ShouldBe(0);
         }
 
         [DataTestMethod]

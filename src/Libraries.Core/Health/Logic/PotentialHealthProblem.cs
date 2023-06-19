@@ -25,14 +25,16 @@ public class PotentialHealthProblem
     /// </summary>
     public bool Warning { get; set; }
 
+    public TimeSpan? KeepFor { get; set; }
+
     public void Fail(string message)
     {
-        FulcrumApplication.Setup.HealthTracker.AddHealthProblemMessage(Id, Resource, Title, message, Tenant);
+        FulcrumApplication.Setup.HealthTracker.AddHealthProblemMessage(Id, Resource, Title, message, Tenant, KeepFor);
     }
 
     public void Fail(Exception e)
     {
-        FulcrumApplication.Setup.HealthTracker.AddHealthProblemMessage(Id, Resource, Title, $"{e.GetType().FullName}: {e.Message}", Tenant);
+        FulcrumApplication.Setup.HealthTracker.AddHealthProblemMessage(Id, Resource, Title, $"{e.GetType().FullName}: {e.Message}", Tenant, KeepFor);
     }
 
     public void Success()
