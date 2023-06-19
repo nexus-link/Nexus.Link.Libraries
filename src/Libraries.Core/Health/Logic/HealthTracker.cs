@@ -12,9 +12,9 @@ public interface IHealthTracker
     ProblemState GetProblemState(string id, Tenant tenant = null);
     void SetProblemState(ProblemState state);
     void ResetProblemState(string id, Tenant tenant = null);
-    void ResetAllProblemStates();
     IReadOnlyList<ProblemState> GetProblems(Tenant tenant = null);
     IReadOnlyList<ProblemState> GetAllProblems();
+    void ResetAllProblemStates();
 }
 
 public class HealthTracker : IHealthTracker
@@ -38,8 +38,7 @@ public class HealthTracker : IHealthTracker
     public void SetProblemState(ProblemState state)
     {
         var key = CreateKey(state.Id, state.Tenant);
-
-        state.Count++; // Note: maybe we should use Interlocked.Increment here
+        
         state.LatestAt = DateTimeOffset.UtcNow;
 
         lock (States)
@@ -113,7 +112,6 @@ public class ProblemState
     [JsonProperty]
     public DateTimeOffset StartedAt { get; }
     public DateTimeOffset LatestAt { get; internal set; }
-    public int Count { get; set; }
 
     [JsonProperty]
     public ConcurrentDictionary<string, int> ErrorMessages { get; }
@@ -121,9 +119,8 @@ public class ProblemState
     /// <summary>
     /// Adds the error message and count how many times it has occurred
     /// </summary>
-    public void AddError(Exception e)
+    public void AddError(string message)
     {
-        var message = $"{e.GetType().FullName}: {e.Message}";
         lock (ErrorMessages)
         {
             if (!ErrorMessages.TryGetValue(message, out var count))
@@ -133,5 +130,13 @@ public class ProblemState
             count++;
             ErrorMessages[message] = count;
         }
+    }
+
+    /// <summary>
+    /// Adds an error message constructed from <paramref name="e"/> and a count how many times it has occurred
+    /// </summary>
+    public void AddError(Exception e)
+    {
+        AddError($"{e.GetType().FullName}: {e.Message}");
     }
 }
