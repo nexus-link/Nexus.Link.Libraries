@@ -30,7 +30,7 @@
 
   <PropertyGroup>
     <PackageId>Nexus.Link.Libraries.SqlServer</PackageId>
-    <Version>2.17.3</Version>
+    <Version>2.17.4</Version>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <PackageTags>nexus;link;fulcrum;lever</PackageTags>
     <Authors>XLENT Link</Authors>
@@ -40,6 +40,7 @@
     <Copyright>Copyright ©2019 Xlent Link AB</Copyright>
     <IncludeSymbols>true</IncludeSymbols>
     <PackageReleaseNotes>
+      2.17.4 Bump
       2.17.3 Relaxed the requirements for the parent table in ManyToOneSql: From CrudSql to TabelBase
       2.17.1 Now returns FulcrumException for some SqlException
       2.16.0 Dropped support for net461

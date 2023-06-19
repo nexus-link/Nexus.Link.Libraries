@@ -41,7 +41,7 @@
 
   <PropertyGroup>
     <PackageId>Nexus.Link.Libraries.Azure.Web.AspNet</PackageId>
-    <Version>1.5.0</Version>
+    <Version>1.5.1</Version>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <PackageTags>nexus;link;fulcrum;lever</PackageTags>
     <Authors>XLENT Link</Authors>
@@ -51,6 +51,7 @@
     <Copyright>Copyright ©2020 Xlent Link AB</Copyright>
     <IncludeSymbols>true</IncludeSymbols>
     <PackageReleaseNotes>
+      1.5.1 Bump
       1.5.0 Dropped support for net461
       1.4.10 Bump
       1.4.4 Symbols
