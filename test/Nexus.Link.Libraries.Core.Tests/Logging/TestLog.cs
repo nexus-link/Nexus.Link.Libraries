@@ -39,8 +39,9 @@ namespace Nexus.Link.Libraries.Core.Tests.Logging
             while (RecursiveSyncLogger.IsRunning) Thread.Sleep(TimeSpan.FromMilliseconds(10));
             UT.Assert.IsFalse(RecursiveSyncLogger.HasFailed, RecursiveSyncLogger.Message);
             UT.Assert.AreEqual(1, _callsToFallback); // The log about the recursive call
-            var problems = FulcrumApplication.Setup.HealthTracker.GetAllHealthProblems();
-            problems.Count.ShouldBe(1);
+            // TODO: Restore this code when we use HealthTracker in logging
+            //var problems = FulcrumApplication.Setup.HealthTracker.GetAllHealthProblems();
+            //problems.Count.ShouldBe(1);
         }
 
         [TestMethod]

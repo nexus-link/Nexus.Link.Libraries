@@ -25,7 +25,7 @@
 
   <PropertyGroup>
     <PackageId>Nexus.Link.Libraries.Crud</PackageId>
-    <Version>3.16.1</Version>
+    <Version>3.16.2</Version>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <PackageTags>nexus;link;fulcrum;lever</PackageTags>
     <Authors>XLENT Link</Authors>
@@ -35,7 +35,7 @@
     <Copyright>Copyright ©2019 Xlent Link AB</Copyright>
     <IncludeSymbols>true</IncludeSymbols>
     <PackageReleaseNotes>
-      3.16.1 Bump
+      3.16.2 Bump
       3.16.0 Dropped support for net461
       3.15.2 Bump
       3.15.1 Removed Hint again

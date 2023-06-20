@@ -299,44 +299,46 @@ namespace Nexus.Link.Libraries.Core.Logging
                 return;
             }
 
-            var php = new PotentialHealthProblem("30F55CB6-53F4-4F78-9CAA-8B4F41E17200",
-                "Logging", "Recursive logging")
-            {
-                Tenant = FulcrumApplication.Context.ClientTenant,
-                KeepFor = TimeSpan.FromMinutes(10)
-            };
+            // TODO: Use health tracker
+            //var php = new PotentialHealthProblem("30F55CB6-53F4-4F78-9CAA-8B4F41E17200",
+            //    "Logging", "Recursive logging")
+            //{
+            //    Tenant = FulcrumApplication.Context.ClientTenant,
+            //    KeepFor = TimeSpan.FromMinutes(10)
+            //};
             if (LoggingInProgress)
             {
                 // Recursive logging detected
                 if (logRecord.IsGreaterThanOrEqualTo(LogSeverityLevel.Warning))
                 {
-                    php.Fail($"Log message with severity level {logRecord.SeverityLevel} sent to fallback logger");
+                    //php.Fail($"Log message with severity level {logRecord.SeverityLevel} sent to fallback logger");
                     const string abortMessage =
                         "Log recursion! Will send the following inner log to the fallback logger instead of the configured logger.";
                     LogHelper.FallbackToSimpleLoggingFailSafe(abortMessage, logRecord);
                 }
-                else
-                {
-                    php.Fail($"Ignored log message with severity level {logRecord.SeverityLevel}");
-                }
+                //else
+                //{
+                //    php.Fail($"Ignored log message with severity level {logRecord.SeverityLevel}");
+                //}
 
                 return;
             }
 
             LoggingInProgress = true;
-            php = new PotentialHealthProblem("95FD20DF-F202-40F3-A7F7-B6F6DA8B3A4B",
-                "Logging", "SynchronousFastLogger throw exception, message sent to fallback logger")
-            {
-                Tenant = FulcrumApplication.Context.ClientTenant
-            };
+            // TODO: Use health tracker
+            //php = new PotentialHealthProblem("95FD20DF-F202-40F3-A7F7-B6F6DA8B3A4B",
+            //    "Logging", "SynchronousFastLogger throw exception, message sent to fallback logger")
+            //{
+            //    Tenant = FulcrumApplication.Context.ClientTenant
+            //};
             try
             {
                 FulcrumApplication.Setup.SynchronousFastLogger.LogSync(logRecord);
-                php.Success();
+                //php.Success();
             }
             catch (Exception e)
             {
-                php.Fail(e);
+                //php.Fail(e);
                 var typeName = FulcrumApplication.Setup.SynchronousFastLogger.GetType().FullName;
                 LogHelper.FallbackToSimpleLoggingFailSafe($"The configured logging method ({typeName}.{nameof(ISyncLogger.LogSync)}) failed.", logRecord, e);
             }
