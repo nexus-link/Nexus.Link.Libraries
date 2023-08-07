@@ -405,6 +405,24 @@ namespace Nexus.Link.Libraries.Core.Queue.Logic
                 triedItems.Add(envelope.Id, envelope);
             }
         }
+
+        private readonly NexusAsyncSemaphore _queueSemaphore = new NexusAsyncSemaphore();
+
+        /// <inheritdoc />
+        public async Task<T> GetOneMessageNoBlockAsync(Func<T, CancellationToken, Task<T>> action, CancellationToken cancellationToken = default)
+        {
+            var message = await GetOneMessageNoBlockAsync(cancellationToken);
+            try
+            {
+                var result = await action(message, cancellationToken);
+                return result;
+            }
+            catch (Exception)
+            {
+                await AddMessageAsync(message, null, cancellationToken);
+                throw;
+            }
+        }
     }
 
     public partial class MemoryQueue<T> : IPeekableQueue<T>

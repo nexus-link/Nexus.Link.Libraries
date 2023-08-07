@@ -7,6 +7,7 @@ using Nexus.Link.Libraries.Azure.Storage.Test.V12.Model;
 using Nexus.Link.Libraries.Azure.Storage.V12.Queue;
 using Nexus.Link.Libraries.Core.Application;
 using Nexus.Link.Libraries.Core.Error.Logic;
+using Shouldly;
 
 namespace Nexus.Link.Libraries.Azure.Storage.Test.V12
 {
@@ -39,20 +40,6 @@ namespace Nexus.Link.Libraries.Azure.Storage.Test.V12
         }
 
         [TestMethod]
-        public async Task GetDoesNotBlockAsync()
-        {
-            var stopwatch = new Stopwatch();
-            var getTask = _queue.GetOneMessageNoBlockAsync();
-            stopwatch.Start();
-            while (!getTask.IsCompleted)
-            {
-                Assert.IsTrue(stopwatch.Elapsed < TimeSpan.FromSeconds(1), "Expected the method to finish quickly.");
-                await Task.Delay(TimeSpan.FromMilliseconds(10));
-            }
-            Assert.IsNull(await getTask);
-        }
-
-        [TestMethod]
         public async Task PeekDoesNotBlockAsync()
         {
             var stopwatch = new Stopwatch();
@@ -68,6 +55,38 @@ namespace Nexus.Link.Libraries.Azure.Storage.Test.V12
         }
 
         [TestMethod]
+        public async Task GetDoesNotBlockAsync()
+        {
+            var stopwatch = new Stopwatch();
+            var getTask = _queue.GetOneMessageNoBlockAsync();
+            stopwatch.Start();
+            while (!getTask.IsCompleted)
+            {
+                Assert.IsTrue(stopwatch.Elapsed < TimeSpan.FromSeconds(1), "Expected the method to finish quickly.");
+                await Task.Delay(TimeSpan.FromMilliseconds(10));
+            }
+            Assert.IsNull(await getTask);
+            var found = await _queue.PeekNoBlockAsync();
+            found.ShouldBeNull();
+        }
+
+        [TestMethod]
+        public async Task GetWithActionDoesNotBlockAsync()
+        {
+            var stopwatch = new Stopwatch();
+            var getTask = _queue.GetOneMessageNoBlockAsync((m, ct) => Task.FromResult(m));
+            stopwatch.Start();
+            while (!getTask.IsCompleted)
+            {
+                Assert.IsTrue(stopwatch.Elapsed < TimeSpan.FromSeconds(1), "Expected the method to finish quickly.");
+                await Task.Delay(TimeSpan.FromMilliseconds(10));
+            }
+            Assert.IsNull(await getTask);
+            var found = await _queue.PeekNoBlockAsync();
+            found.ShouldBeNull();
+        }
+
+        [TestMethod]
         public async Task MessageGetsThroughAsync()
         {
             var message = new Message { Name = "Message1" };
@@ -75,6 +94,49 @@ namespace Nexus.Link.Libraries.Azure.Storage.Test.V12
             var result = await _queue.GetOneMessageNoBlockAsync();
             Assert.IsNotNull(result);
             Assert.AreEqual(message.Name, result.Name);
+            var found = await _queue.PeekNoBlockAsync();
+            found.ShouldBeNull();
+        }
+
+        [TestMethod]
+        public async Task MessageGetsThroughWithActionAsync()
+        {
+            var message = new Message { Name = "Message1" };
+            await _queue.AddMessageAsync(message);
+            var result = await _queue.GetOneMessageNoBlockAsync((m, ct) => Task.FromResult(m));
+            Assert.IsNotNull(result);
+            Assert.AreEqual(message.Name, result.Name);
+            var found = await _queue.PeekNoBlockAsync();
+            found.ShouldBeNull();
+        }
+
+        [TestMethod]
+        public async Task ActionCanChangeMessage()
+        {
+            var expectedName = "Message2";
+            var message = new Message { Name = "Message1" };
+            await _queue.AddMessageAsync(message);
+            var result = await _queue.GetOneMessageNoBlockAsync((m, ct) =>
+            {
+                m.Name = expectedName;
+                return Task.FromResult(m);
+            });
+            Assert.IsNotNull(result);
+            Assert.AreEqual(expectedName, result.Name);
+            var found = await _queue.PeekNoBlockAsync();
+            found.ShouldBeNull();
+        }
+
+        [TestMethod]
+        public async Task FailedActionKeepsMessageOnQueue()
+        {
+            var message = new Message { Name = "Message1" };
+            await _queue.AddMessageAsync(message);
+            await _queue.GetOneMessageNoBlockAsync((m, ct) => throw new FulcrumTryAgainException())
+                .ShouldThrowAsync<FulcrumTryAgainException>();
+            var found = await _queue.PeekNoBlockAsync();
+            found.ShouldNotBeNull();
+            found.Name.ShouldBe(message.Name);
         }
 
         [TestMethod]

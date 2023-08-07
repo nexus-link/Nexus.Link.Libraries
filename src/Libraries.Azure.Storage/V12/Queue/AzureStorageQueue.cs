@@ -55,9 +55,56 @@ namespace Nexus.Link.Libraries.Azure.Storage.V12.Queue
             var response = await queue.ReceiveMessageAsync(null, cancellationToken);
             var queueMessage = response.Value;
             if (queueMessage == null) return default;
-            await queue.DeleteMessageAsync(queueMessage.MessageId, queueMessage.PopReceipt, cancellationToken);
+            try
+            {
+                await queue.DeleteMessageAsync(queueMessage.MessageId, queueMessage.PopReceipt, cancellationToken);
+            }
+            catch (Exception)
+            {
+                // Ignore exceptions from delete. This could result in that the same message from the queue is executed more than once.
+                // The alternative is to risk losing messages and that is worse.
+            }
+
             var messageAsString = queueMessage.MessageText;
             return messageAsString == null ? default : JsonHelper.SafeDeserializeObject<T>(messageAsString);
+        }
+
+        /// <inheritdoc />
+        public async Task<T> GetOneMessageNoBlockAsync(Func<T, CancellationToken, Task<T>> action, CancellationToken cancellationToken = default)
+        {
+            var queue = await _cloudQueueTask;
+            if (!await queue.ExistsAsync(cancellationToken)) return default;
+
+            var response = await queue.ReceiveMessageAsync(null, cancellationToken);
+            var queueMessage = response.Value;
+            if (queueMessage == null) return default;
+            var messageAsString = queueMessage.MessageText;
+            var item =  messageAsString == null ? default : JsonHelper.SafeDeserializeObject<T>(messageAsString);
+            T result;
+            try
+            {
+                result = await action(item, cancellationToken);
+            }
+            catch (Exception)
+            {
+                // Release the message
+                await queue.UpdateMessageAsync(queueMessage.MessageId, queueMessage.PopReceipt,
+                    queueMessage.MessageText, TimeSpan.Zero, cancellationToken);
+                throw;
+            }
+
+            try
+            {
+                await queue.DeleteMessageAsync(queueMessage.MessageId, queueMessage.PopReceipt, cancellationToken);
+            }
+            catch (Exception)
+            {
+                // This could result in  the same message from the queue is executed more than once.
+                // The alternative is to risk losing messages and that is worse.
+                // It is up to the action method to deal with this.
+            }
+
+            return result;
         }
 
         public async Task<T> PeekNoBlockAsync(CancellationToken cancellationToken = default)

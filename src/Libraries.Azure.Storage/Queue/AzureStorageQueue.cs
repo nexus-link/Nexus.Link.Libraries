@@ -55,6 +55,11 @@ namespace Nexus.Link.Libraries.Azure.Storage.Queue
             return response;
         }
 
+        public Task<T> GetOneMessageNoBlockAsync(Func<T, CancellationToken, Task<T>> action, CancellationToken cancellationToken = default)
+        {
+            throw new FulcrumNotImplementedException("This method is only implemented in the V12 version of this queue.");
+        }
+
         public async Task<T> PeekNoBlockAsync(CancellationToken cancellationToken = default)
         {
             var message = await (await _cloudQueueTask).PeekMessageAsync(null, null, cancellationToken);
