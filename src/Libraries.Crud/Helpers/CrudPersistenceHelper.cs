@@ -240,6 +240,10 @@ namespace Nexus.Link.Libraries.Crud.Helpers
                         throw new ArgumentOutOfRangeException();
                 }
             }
+            finally
+            {
+                if (item.Etag == "ignore") item.Etag = null;
+            }
         }
 
         public Task<TModel> SaveAsync(TModel item, CancellationToken cancellationToken = default)
