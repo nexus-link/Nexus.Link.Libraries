@@ -1,10 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using Nexus.Link.Libraries.Core.Application;
 using Nexus.Link.Libraries.Core.Translation;
+using Shouldly;
 using UT = Microsoft.VisualStudio.TestTools.UnitTesting;
 // ReSharper disable MemberCanBePrivate.Local
 // ReSharper disable AutoPropertyCanBeMadeGetOnly.Local
@@ -81,6 +84,59 @@ namespace Nexus.Link.Libraries.Core.Tests.Translate
             var item = new ObjectWithVariousTypes();
             var decoratedItem = _consumerTranslator.Decorate(item);
             decoratedItem.VerifyAfterDecoration();
+        }
+
+        [TestMethod]
+        public async Task Add_SimpleObject()
+        {
+            // Arrange
+            var expectedConceptValue = $"({Guid.NewGuid()}!{Guid.NewGuid()}!{Guid.NewGuid()})";
+            var item = new { Value = expectedConceptValue };
+            List<string> actualConcepts = null;
+            _translatorServiceMock
+                .Setup(ts => ts.TranslateAsync(It.IsAny<IEnumerable<string>>(), It.IsAny<string>(),
+                    It.IsAny<CancellationToken>()))
+                .Callback((IEnumerable<string> a, string b, CancellationToken c) => actualConcepts = a.ToList())
+                .ReturnsAsync(new Dictionary<string, string>());
+
+            // Act
+            _consumerTranslator.Add(item);
+
+            // Assert
+            await _consumerTranslator.ExecuteAsync();
+            actualConcepts.ShouldNotBeNull();
+            actualConcepts.Count.ShouldBe(1);
+            var conceptValue = actualConcepts[0];
+            conceptValue.ShouldBe(expectedConceptValue);
+        }
+
+        [DataTestMethod]
+        [DataRow("(")]
+        [DataRow("()")]
+        [DataRow("(!)")]
+        [DataRow("(!!)")]
+        public async Task Add_Given_ConfusingValue_Gives_Works(string confuser)
+        {
+            // Arrange
+            var expectedConceptValue = $"({Guid.NewGuid()}!{Guid.NewGuid()}!{Guid.NewGuid()})";
+            var item = new { Confuser = confuser, Value = expectedConceptValue };
+            List<string> actualConcepts = null;
+            _translatorServiceMock
+                .Setup(ts => ts.TranslateAsync(It.IsAny<IEnumerable<string>>(), It.IsAny<string>(),
+                    It.IsAny<CancellationToken>()))
+                .Callback((IEnumerable<string> a, string b, CancellationToken c) => actualConcepts = a.ToList())
+                .ReturnsAsync(new Dictionary<string, string>());
+
+            // Act
+            _consumerTranslator.Add(item);
+            
+            // Assert
+            await _consumerTranslator.ExecuteAsync();
+            actualConcepts.ShouldNotBeNull();
+            actualConcepts.Count.ShouldBe(1);
+            var conceptValue = actualConcepts[0];
+            conceptValue.ShouldBe(expectedConceptValue);
+
         }
 
         private class ObjectWithString

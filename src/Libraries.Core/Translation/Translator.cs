@@ -43,8 +43,8 @@ namespace Nexus.Link.Libraries.Core.Translation
             _service = service;
             _conceptValues = new HashSet<string>();
             _translations = new Dictionary<string, string>();
-            _conceptValueRegex = new Regex(@"\(([^!]+)!([^!]+)!(.+)\)", RegexOptions.Compiled);
-            _conceptValueAndNothingElseInStringRegex = new Regex("\"" + @"(\(([^!]+)!([^!]+)!(?:(?!\)" + "\"" + @").)+\))" + "\"", RegexOptions.Compiled);
+            _conceptValueRegex = new Regex(@"\(([^(!]+)!([^!]+)!(.+)\)", RegexOptions.Compiled);
+            _conceptValueAndNothingElseInStringRegex = new Regex("\"(\\(([^(!]+)!([^(!]+)!((?:(?!\\)\").)+)\\))\"", RegexOptions.Compiled);
         }
 
         /// <inheritdoc/>
