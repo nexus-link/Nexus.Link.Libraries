@@ -20,13 +20,12 @@
   </ItemGroup>
 
   <ItemGroup Condition="'$(TargetFramework)'=='net472'">
-    <PackageReference Include="Microsoft.ApplicationInsights" Version="2.10.0" />
-    <PackageReference Include="Microsoft.ApplicationInsights.Agent.Intercept" Version="2.4.0" />
-    <PackageReference Include="Microsoft.ApplicationInsights.DependencyCollector" Version="2.10.0" />
-    <PackageReference Include="Microsoft.ApplicationInsights.PerfCounterCollector" Version="2.10.0" />
-    <PackageReference Include="Microsoft.ApplicationInsights.Web" Version="2.10.0" />
-    <PackageReference Include="Microsoft.ApplicationInsights.WindowsServer" Version="2.10.0" />
-    <PackageReference Include="Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel" Version="2.10.0" />
+    <PackageReference Include="Microsoft.ApplicationInsights" Version="2.21.0" />
+    <PackageReference Include="Microsoft.ApplicationInsights.DependencyCollector" Version="2.21.0" />
+    <PackageReference Include="Microsoft.ApplicationInsights.PerfCounterCollector" Version="2.21.0" />
+    <PackageReference Include="Microsoft.ApplicationInsights.Web" Version="2.21.0" />
+    <PackageReference Include="Microsoft.ApplicationInsights.WindowsServer" Version="2.21.0" />
+    <PackageReference Include="Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel" Version="2.21.0" />
   </ItemGroup>
 
   <ItemGroup Condition="'$(TargetFramework)'=='netcoreapp3.1'">
