@@ -87,8 +87,10 @@ namespace Nexus.Link.Libraries.Core.Misc
         public static TimeSpan Exponential(int consecutiveFails, TimeSpan max, TimeSpan constant, TimeSpan coefficient, double exponentiationBase = 2.0)
         {
             InternalContract.RequireGreaterThan(0, consecutiveFails, nameof(consecutiveFails));
-            var calculatedTimeSpan = TimeSpan.FromSeconds(constant.TotalSeconds + Math.Pow(exponentiationBase, consecutiveFails - 1) * coefficient.TotalSeconds);
-            return calculatedTimeSpan < max ? calculatedTimeSpan : max;
+            var totalSeconds = constant.TotalSeconds + Math.Pow(exponentiationBase, consecutiveFails - 1) * coefficient.TotalSeconds;
+            if (totalSeconds > max.TotalSeconds) return max;
+            var calculatedTimeSpan = TimeSpan.FromSeconds(totalSeconds);
+            return calculatedTimeSpan;
         }
     }
 }
