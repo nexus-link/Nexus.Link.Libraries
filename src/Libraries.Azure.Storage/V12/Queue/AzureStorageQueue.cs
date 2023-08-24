@@ -20,6 +20,11 @@ namespace Nexus.Link.Libraries.Azure.Storage.V12.Queue
 
         private readonly Task<QueueClient> _cloudQueueTask;
 
+        private Exception _lastWarningException;
+        private int _warningExceptions;
+        private Exception _lastErrorException;
+        private int _errorsExceptions;
+
         public AzureStorageQueue(string connectionString, string name) : this(connectionString, name, null)
         {
         }
@@ -59,8 +64,10 @@ namespace Nexus.Link.Libraries.Azure.Storage.V12.Queue
             {
                 await queue.DeleteMessageAsync(queueMessage.MessageId, queueMessage.PopReceipt, cancellationToken);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                _warningExceptions++;
+                _lastWarningException = ex;
                 // Ignore exceptions from delete. This could result in that the same message from the queue is executed more than once.
                 // The alternative is to risk losing messages and that is worse.
             }
@@ -79,7 +86,7 @@ namespace Nexus.Link.Libraries.Azure.Storage.V12.Queue
             var queueMessage = response.Value;
             if (queueMessage == null) return default;
             var messageAsString = queueMessage.MessageText;
-            var item =  messageAsString == null ? default : JsonHelper.SafeDeserializeObject<T>(messageAsString);
+            var item = messageAsString == null ? default : JsonHelper.SafeDeserializeObject<T>(messageAsString);
             T result;
             try
             {
@@ -97,8 +104,10 @@ namespace Nexus.Link.Libraries.Azure.Storage.V12.Queue
             {
                 await queue.DeleteMessageAsync(queueMessage.MessageId, queueMessage.PopReceipt, cancellationToken);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                _warningExceptions++;
+                _lastWarningException = ex;
                 // This could result in  the same message from the queue is executed more than once.
                 // The alternative is to risk losing messages and that is worse.
                 // It is up to the action method to deal with this.
@@ -136,23 +145,63 @@ namespace Nexus.Link.Libraries.Azure.Storage.V12.Queue
             var client = new QueueClient(connectionString, name, _queueClientOptions);
             FulcrumAssert.IsNotNull(client, CodeLocation.AsString(),
                 $"Could not create a cloud queue client for queue {name}.");
-            
+
             try
             {
                 await client.CreateIfNotExistsAsync(null, cancellationToken);
             }
-            catch (Exception e)
+            catch (Exception ex)
             {
-                throw new FulcrumResourceException($"Could not create queue '{name}' on storage '{client.Uri}': {e.Message}", e);
+                _errorsExceptions++;
+                _lastErrorException = ex;
+                throw new FulcrumResourceException($"Could not create queue '{name}' on storage '{client.Uri}': {ex.Message}", ex);
             }
 
             return client;
         }
 
-        // TODO: Remove dependency to IResourceHealth?
+        /// <inheritdoc />
         public Task<HealthResponse> GetResourceHealthAsync(Tenant tenant, CancellationToken cancellationToken = default)
         {
-            throw new NotImplementedException();
+            var healthResponse = new HealthResponse("Azure Storage Queue")
+            {
+                Status = HealthResponse.StatusEnum.Ok
+            };
+            if (_lastErrorException != null)
+            {
+                healthResponse.Status = HealthResponse.StatusEnum.Error;
+                healthResponse.Message =
+                    $"Error exceptions: {_errorsExceptions}. Last error exception: {_lastErrorException}\rWarnings: {_warningExceptions}. Last warning exception: {_lastWarningException}";
+            }
+            else if (_lastWarningException != null)
+            {
+                healthResponse.Status = HealthResponse.StatusEnum.Warning;
+                healthResponse.Message =
+                    $"Warning exceptions: {_warningExceptions}. Last warning exception: {_lastWarningException}";
+            }
+            return Task.FromResult(healthResponse);
+        }
+
+        /// <inheritdoc />
+        public Task<HealthInfo> GetResourceHealth2Async(Tenant tenant, CancellationToken cancellationToken = default)
+        {
+            var healthInfo = new HealthInfo("Azure Storage Queue")
+            {
+                Status = HealthInfo.StatusEnum.Ok
+            };
+            if (_lastErrorException != null)
+            {
+                healthInfo.Status = HealthInfo.StatusEnum.Error;
+                healthInfo.Message =
+                    $"Error exceptions: {_errorsExceptions}. Last error exception: {_lastErrorException}\rWarnings: {_warningExceptions}. Last warning exception: {_lastWarningException}";
+            }
+            else if (_lastWarningException != null)
+            {
+                healthInfo.Status = HealthInfo.StatusEnum.Warning;
+                healthInfo.Message =
+                    $"Warning exceptions: {_warningExceptions}. Last warning exception: {_lastWarningException}";
+            }
+            return Task.FromResult(healthInfo);
         }
     }
 }

@@ -29,7 +29,7 @@
 
   <PropertyGroup>
     <PackageId>Nexus.Link.Libraries.Azure</PackageId>
-    <Version>3.9.1</Version>
+    <Version>3.9.2-alfa01</Version>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <PackageTags>nexus;link;fulcrum;lever</PackageTags>
     <Authors>XLENT Link</Authors>
@@ -39,6 +39,7 @@
     <Copyright>Copyright ©2019 Xlent Link AB</Copyright>
     <IncludeSymbols>true</IncludeSymbols>
     <PackageReleaseNotes>
+      3.9.2 Support healthcheck
       3.9.1 Updated nuget packages
       3.9.0 Now can rollback if a enqued message can't be processed
       3.8.2 Bump
@@ -84,5 +85,12 @@
     </PackageReleaseNotes>
     <RootNamespace>Nexus.Link.Libraries.Azure.Storage</RootNamespace>
     <AssemblyName>Nexus.Link.Libraries.Azure.Storage</AssemblyName>
+  </PropertyGroup>
+
+  <!-- Automatic generation of local alpha packages -->
+  <PropertyGroup Condition="$([System.Text.RegularExpressions.Regex]::IsMatch('$(Version)', '(-alpha|-alfa)')) ">
+    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+    <LocalPackageOutputPath Condition="'$(LocalPackageOutputPath)'==''">c:\dev\local-nugets</LocalPackageOutputPath>
+    <PackageOutputPath>$(LocalPackageOutputPath)</PackageOutputPath>
   </PropertyGroup>
 </Project>

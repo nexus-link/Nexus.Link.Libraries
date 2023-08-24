@@ -138,35 +138,26 @@ namespace Nexus.Link.Libraries.Core.Queue.Logic
         ///     This is a specifically for unit testing. Stop the background thread.
         /// </summary>
         // ReSharper disable once InconsistentNaming
-        public void OnlyForUnitTest_AbortBackgroundWorker()
+        public void OnlyForUnitTest_AbortBackgroundWorker(bool onlyIfEmpty)
         {
-            AbortBackgroundWorker();
+            AbortBackgroundWorker(onlyIfEmpty);
         }
 
-        private void AbortBackgroundWorker()
+        private void AbortBackgroundWorker(bool onlyIfEmpty)
         {
             lock (_queue)
             {
                 if (_backgroundWorkerThread == null) return;
-                _abortBackgroundThread = true;
+                if (!onlyIfEmpty || _queue.IsEmpty) _abortBackgroundThread = true;
             }
-            while (HasAliveBackgroundWorker && _abortBackgroundThread) Thread.Sleep(1);
+            while (HasAliveBackgroundWorker && _abortBackgroundThread) Thread.Sleep(10);
         }
 
         /// <summary>
         ///     This is a property specifically for unit testing.
         /// </summary>
         // ReSharper disable once InconsistentNaming
-        private bool HasAliveBackgroundWorker
-        {
-            get
-            {
-                lock (_queue)
-                {
-                    return _backgroundWorkerThread is { IsAlive: true };
-                }
-            }
-        }
+        private bool HasAliveBackgroundWorker => _backgroundWorkerThread is { IsAlive: true };
 
         /// <inheritdoc />
         public string Name { get; }
@@ -433,12 +424,21 @@ namespace Nexus.Link.Libraries.Core.Queue.Logic
     }
 
 
-    public partial class MemoryQueue<T> : IResourceHealth
+    public partial class MemoryQueue<T> : IResourceHealth, IResourceHealth2
     {
         /// <inheritdoc />
-        public async Task<HealthResponse> GetResourceHealthAsync(Tenant tenant, CancellationToken cancellationToken = default)
+        public Task<HealthResponse> GetResourceHealthAsync(Tenant tenant, CancellationToken cancellationToken = default)
         {
-            return await Task.FromResult(new HealthResponse("MemoryQueue"));
+            return Task.FromResult(new HealthResponse("MemoryQueue"));
+        }
+
+        /// <inheritdoc />
+        public Task<HealthInfo> GetResourceHealth2Async(Tenant tenant, CancellationToken cancellationToken = default)
+        {
+            return Task.FromResult(new HealthInfo("MemoryQueue")
+            {
+                Status = HealthInfo.StatusEnum.Ok
+            });
         }
     }
 }

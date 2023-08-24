@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Nexus.Link.Libraries.Core.Application;
 using Nexus.Link.Libraries.Core.Queue.Logic;
+using Shouldly;
 using UT = Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Nexus.Link.Libraries.Core.Tests.Queue
@@ -31,8 +32,7 @@ namespace Nexus.Link.Libraries.Core.Tests.Queue
             {
                 queue.AddMessage($"item {i}");
             }
-
-            UT.Assert.IsTrue(queue.OnlyForUnitTest_HasAliveBackgroundWorker);
+            queue.OnlyForUnitTest_HasAliveBackgroundWorker.ShouldBeTrue();
             while (queue.OnlyForUnitTest_HasAliveBackgroundWorker)
             {
                 Console.WriteLine($"LatestItemFetchedAfterActiveTimeSpan: {queue.LatestItemFetchedAfterActiveTimeSpan.TotalMilliseconds} milliseconds.");
@@ -44,6 +44,7 @@ namespace Nexus.Link.Libraries.Core.Tests.Queue
             Console.WriteLine($"Total time: {stopWatch.Elapsed.TotalMilliseconds} milliseconds");
             UT.Assert.AreEqual(TimeSpan.Zero, queue.LatestItemFetchedAfterActiveTimeSpan);
             UT.Assert.IsTrue(stopWatch.ElapsedMilliseconds < 2000);
+            queue.OnlyForUnitTest_HasAliveBackgroundWorker.ShouldBeFalse();
         }
 
         [TestMethod]
@@ -57,7 +58,8 @@ namespace Nexus.Link.Libraries.Core.Tests.Queue
             }
 
             var count = queue.GetApproximateMessageCountAsync().Result;
-            UT.Assert.AreEqual(expectedCount, count);
+            count.ShouldBe(expectedCount);
+            queue.OnlyForUnitTest_HasAliveBackgroundWorker.ShouldBeFalse();
         }
 
         private static async Task SlowItemAction(string item, CancellationToken cancellationToken = default)

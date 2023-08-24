@@ -114,10 +114,24 @@ namespace Nexus.Link.Libraries.Azure.Storage.Queue
             return JsonHelper.SafeDeserializeObject<T>(messageAsString);
         }
 
-        // TODO: Remove dependency to IResourceHealth?
+        /// <inheritdoc />
         public Task<HealthResponse> GetResourceHealthAsync(Tenant tenant, CancellationToken cancellationToken = default)
         {
-            throw new NotImplementedException();
+            var healthResponse = new HealthResponse("Azure Storage Queue")
+            {
+                Status = HealthResponse.StatusEnum.Ok
+            };
+            return Task.FromResult(healthResponse);
+        }
+
+        /// <inheritdoc />
+        public Task<HealthInfo> GetResourceHealth2Async(Tenant tenant, CancellationToken cancellationToken = default)
+        {
+            var healthInfo = new HealthInfo("Azure Storage Queue")
+            {
+                Status = HealthInfo.StatusEnum.Ok
+            };
+            return Task.FromResult(healthInfo);
         }
     }
 }

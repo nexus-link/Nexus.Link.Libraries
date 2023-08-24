@@ -43,7 +43,7 @@
 
   <PropertyGroup>
     <PackageId>Nexus.Link.Libraries.Core</PackageId>
-    <Version>5.29.3</Version>
+    <Version>5.29.4</Version>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <PackageTags>nexus;link;fulcrum;lever</PackageTags>
     <Authors>XLENT Link</Authors>
@@ -53,7 +53,7 @@
     <Copyright>Copyright ©2021 Xlent Link AB</Copyright>
     <IncludeSymbols>true</IncludeSymbols>
     <PackageReleaseNotes>
-      5.29.3 Safer code in MemoryQueue
+      5.29.4 Safer code in MemoryQueue
       5.29.2 Safer code in CoolDownStrategy
       5.29.1 Corrected a regex in Translator.cs
       5.29.0 Added a method to apply an action to a queue item.
