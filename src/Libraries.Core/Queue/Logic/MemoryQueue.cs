@@ -142,15 +142,15 @@ namespace Nexus.Link.Libraries.Core.Queue.Logic
         {
             AbortBackgroundWorker();
         }
-        
+
         private void AbortBackgroundWorker()
         {
             lock (_queue)
             {
                 if (_backgroundWorkerThread == null) return;
                 _abortBackgroundThread = true;
-                while (HasAliveBackgroundWorker && _abortBackgroundThread) Thread.Sleep(1);
             }
+            while (HasAliveBackgroundWorker && _abortBackgroundThread) Thread.Sleep(1);
         }
 
         /// <summary>
@@ -163,7 +163,7 @@ namespace Nexus.Link.Libraries.Core.Queue.Logic
             {
                 lock (_queue)
                 {
-                    return _backgroundWorkerThread != null && _backgroundWorkerThread.IsAlive;
+                    return _backgroundWorkerThread is { IsAlive: true };
                 }
             }
         }
@@ -223,14 +223,7 @@ namespace Nexus.Link.Libraries.Core.Queue.Logic
         {
             while (!_queue.IsEmpty)
             {
-                if (_abortBackgroundThread)
-                {
-                    lock (_queue)
-                    {
-                        _abortBackgroundThread = false;
-                        return;
-                    }
-                }
+                if (_abortBackgroundThread) break;
                 if (_actionsCanExecuteWithoutIndividualAwait)
                     await CallCallbackUntilQueueIsEmptyWithCollectionAwaitAsync(cancellationToken);
                 else
@@ -239,6 +232,10 @@ namespace Nexus.Link.Libraries.Core.Queue.Logic
                 // As it is somewhat expensive to start a new background worker, we will hang around 
                 // for a short while to see if new items appear on the queue.
                 await WaitForAdditionalItemsAsync(KeepQueueAliveTimeSpan, cancellationToken);
+            }
+            lock (_queue)
+            {
+                _abortBackgroundThread = false;
             }
             LatestItemFetchedAfterActiveTimeSpan = TimeSpan.Zero;
         }
