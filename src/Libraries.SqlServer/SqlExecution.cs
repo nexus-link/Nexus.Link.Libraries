@@ -30,6 +30,7 @@ public class SqlExecution
     private static int _totalUpdates;
     private static int _totalInserts;
     private static int _totalDeletes;
+    private static int _totalOthers;
 
     public Database Database { get; }
     public ISqlTableMetadata TableMetadata { get; }
@@ -85,6 +86,11 @@ public class SqlExecution
     /// </summary>
     public static int TotalDeletes => _totalDeletes;
 
+    /// <summary>
+    /// The total number of other statements
+    /// </summary>
+    public static int TotalOthers => _totalOthers;
+
     public static void ResetCounters()
     {
         _totalExecutionsStarted = 0;
@@ -95,6 +101,7 @@ public class SqlExecution
         _totalInserts = 0;
         _totalDeletes = 0;
         _totalUpdates = 0;
+        _totalOthers = 0;
     }
 
     protected SqlExecution(ISqlTableMetadata tableMetadata, IDatabaseOptions options)
@@ -107,6 +114,7 @@ public class SqlExecution
     protected internal async Task<int> ExecuteAsync(string statement, object param = null, CancellationToken token = default)
     {
         Interlocked.Increment(ref _totalExecutionsStarted);
+        IncrementStatementTypeCounters(statement);
         InternalContract.RequireNotNullOrWhiteSpace(statement, nameof(statement));
         MaybeTransformEtagToRecordVersion(param);
         try
@@ -132,25 +140,7 @@ public class SqlExecution
     protected internal async Task<IEnumerable<T>> InternalQueryAsync<T>(string statement, object param = null, CancellationToken cancellationToken = default)
     {
         Interlocked.Increment(ref _totalQueriesStarted);
-        if (statement.StartsWith("SELECT", true, CultureInfo.InvariantCulture))
-        {
-            Interlocked.Increment(ref _totalSelects);
-        }
-        else
-        if (statement.StartsWith("UPDATE", true, CultureInfo.InvariantCulture))
-        {
-            Interlocked.Increment(ref _totalUpdates);
-        }
-        else
-        if (statement.StartsWith("INSERT", true, CultureInfo.InvariantCulture))
-        {
-            Interlocked.Increment(ref _totalInserts);
-        }
-        else
-        if (statement.StartsWith("DELETE", true, CultureInfo.InvariantCulture))
-        {
-            Interlocked.Increment(ref _totalDeletes);
-        }
+        IncrementStatementTypeCounters(statement);
         InternalContract.RequireNotNullOrWhiteSpace(statement, nameof(statement));
         MaybeTransformEtagToRecordVersion(param);
         try
@@ -223,6 +213,30 @@ public class SqlExecution
         {
             // A complex constraint in the form of a trigger
             throw new FulcrumContractException($"A {TableMetadata.TableName} trigger constraint failed: {e.Message}", e);
+        }
+    }
+
+    private static void IncrementStatementTypeCounters(string statement)
+    {
+        if (statement.StartsWith("SELECT", true, CultureInfo.InvariantCulture))
+        {
+            Interlocked.Increment(ref _totalSelects);
+        }
+        else if (statement.StartsWith("UPDATE", true, CultureInfo.InvariantCulture))
+        {
+            Interlocked.Increment(ref _totalUpdates);
+        }
+        else if (statement.StartsWith("INSERT", true, CultureInfo.InvariantCulture))
+        {
+            Interlocked.Increment(ref _totalInserts);
+        }
+        else if (statement.StartsWith("DELETE", true, CultureInfo.InvariantCulture))
+        {
+            Interlocked.Increment(ref _totalDeletes);
+        }
+        else
+        {
+            Interlocked.Increment(ref _totalOthers);
         }
     }
 }
