@@ -3,18 +3,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Dapper;
-using Microsoft.Data.SqlClient;
-using Newtonsoft.Json;
 using Nexus.Link.Libraries.Core.Assert;
 using Nexus.Link.Libraries.Core.Error.Logic;
-using Nexus.Link.Libraries.Core.Logging;
 using Nexus.Link.Libraries.Core.Misc;
-using Nexus.Link.Libraries.Core.Storage.Logic;
 using Nexus.Link.Libraries.Core.Storage.Model;
 using Nexus.Link.Libraries.SqlServer.Logic;
 using Nexus.Link.Libraries.SqlServer.Model;
-using IRecordVersion = Nexus.Link.Libraries.Core.Storage.Model.IRecordVersion;
 
 namespace Nexus.Link.Libraries.SqlServer
 {
@@ -22,11 +16,8 @@ namespace Nexus.Link.Libraries.SqlServer
     /// Helper class for advanced SELECT statements
     /// </summary>
     /// <typeparam name="TDatabaseItem"></typeparam>
-    public abstract class TableBase<TDatabaseItem> : ISearch<TDatabaseItem>
+    public abstract class TableBase<TDatabaseItem> : SqlExecution, ISearch<TDatabaseItem>
     {
-        public Database Database { get; }
-        public ISqlTableMetadata TableMetadata { get; }
-
         /// <summary>
         /// Constructor
         /// </summary>
@@ -43,12 +34,10 @@ namespace Nexus.Link.Libraries.SqlServer
         /// <param name="options"></param>
         /// <param name="tableMetadata"></param>
         protected TableBase(IDatabaseOptions options, ISqlTableMetadata tableMetadata)
+        :base(tableMetadata, options)
         {
             InternalContract.RequireNotNull(options, nameof(options));
             InternalContract.RequireValidated(tableMetadata, nameof(tableMetadata));
-
-            Database = new Database(options);
-            TableMetadata = tableMetadata;
         }
 
         /// <summary>
@@ -292,110 +281,10 @@ namespace Nexus.Link.Libraries.SqlServer
             return await QueryAsync(sqlQuery, param, cancellationToken);
         }
 
-
-        protected internal async Task<int> ExecuteAsync(string statement, object param = null, CancellationToken token = default)
-        {
-            InternalContract.RequireNotNullOrWhiteSpace(statement, nameof(statement));
-            MaybeTransformEtagToRecordVersion(param);
-            try
-            {
-                using var db = await Database.NewSqlConnectionAsync(token);
-                await db.VerifyAvailabilityAsync(null, token);
-                var count = await db.ExecuteAsync(statement, param);
-                if (!Database.Options.VerboseLogging) return count;
-                var paramAsString = param == null ? "NULL" : JsonConvert.SerializeObject(param);
-                Log.LogVerbose($"{statement} {JsonConvert.SerializeObject(paramAsString)}");
-                return count;
-            }
-            catch (Exception e)
-            {
-                var paramAsString = param == null ? "NULL" : JsonConvert.SerializeObject(param);
-                Log.LogError($"Execution failed:\r{statement}\rwith param:\r{paramAsString}:\r{e.Message}");
-                MaybeThrowExceptionAsFulcrumException(e);
-                throw;
-            }
-        }
-
-        private void MaybeThrowExceptionAsFulcrumException(Exception e)
-        {
-            if (e is not SqlException sqlException) return;
-            switch(sqlException.Number)
-            {
-                case (int)SqlConstants.SqlErrorEnum.Deadlock:
-                    throw new FulcrumTryAgainException(sqlException.Message, sqlException);
-                // https://stackoverflow.com/questions/6483699/unique-key-violation-in-sql-server-is-it-safe-to-assume-error-2627
-                case (int)SqlConstants.SqlErrorEnum.DuplicateKey:
-                case (int)SqlConstants.SqlErrorEnum.UniqueConstraint:
-                    throw new FulcrumConflictException($"The {TableMetadata.TableName} item must be unique: {e.Message}", e);
-                case (int)SqlConstants.SqlErrorEnum.ConstraintFailed:
-                case (int)SqlConstants.SqlErrorEnum.CheckConstraintFailed:
-                    // A complex constraint in the form of a trigger
-                    throw new FulcrumContractException($"A {TableMetadata.TableName} trigger constraint failed: {e.Message}", e);
-            }
-
-            if (sqlException.Number == Database.Options.TriggerConstraintSqlExceptionErrorNumber)
-            {
-                // A complex constraint in the form of a trigger
-                throw new FulcrumContractException($"A {TableMetadata.TableName} trigger constraint failed: {e.Message}", e);
-            }
-        }
-
         protected internal Task<IEnumerable<TDatabaseItem>> QueryAsync(string statement, object param = null, CancellationToken cancellationToken = default)
         {
             InternalContract.RequireNotNullOrWhiteSpace(statement, nameof(statement));
             return InternalQueryAsync<TDatabaseItem>(statement, param, cancellationToken);
-        }
-
-        protected internal async Task<IEnumerable<T>> InternalQueryAsync<T>(string statement, object param = null, CancellationToken cancellationToken = default)
-        {
-            InternalContract.RequireNotNullOrWhiteSpace(statement, nameof(statement));
-            MaybeTransformEtagToRecordVersion(param);
-            try
-            {
-                using var db = await Database.NewSqlConnectionAsync(cancellationToken);
-                await db.VerifyAvailabilityAsync(null, cancellationToken);
-                var items = await db.QueryAsync<T>(statement, param);
-                var paramAsString = param == null ? "NULL" : JsonConvert.SerializeObject(param);
-                Log.LogVerbose($"{statement} {JsonConvert.SerializeObject(paramAsString)}");
-                var itemList = items.ToList();
-                foreach (var item in itemList)
-                {
-                    MaybeTransformRecordVersionToEtag(item);
-                }
-                return itemList;
-            }
-            catch (Exception e)
-            {
-                var paramAsString = param == null ? "NULL" : JsonConvert.SerializeObject(param);
-                Log.LogError($"Query failed:\r{statement}\rwith param:\r{paramAsString}:\r{e.Message}");
-                MaybeThrowExceptionAsFulcrumException(e);
-                throw;
-            }
-        }
-
-        protected void MaybeTransformRecordVersionToEtag(object item)
-        {
-            if (item is IRecordVersion r && r.RecordVersion != null)
-            {
-                item.TrySetOptimisticConcurrencyControl(Convert.ToBase64String(r.RecordVersion));
-            }
-        }
-
-        protected void MaybeTransformEtagToRecordVersion(object item)
-        {
-            if (item is IRecordVersion r && item.TryGetOptimisticConcurrencyControl(out var eTag) && !string.IsNullOrWhiteSpace(eTag))
-            {
-                try
-                {
-                    r.RecordVersion = Convert.FromBase64String(eTag);
-                }
-                catch (Exception)
-                {
-                    // TODO: Get the proper name for the eTag field
-                    throw new FulcrumConflictException(
-                        $"The value in the eTag field ({eTag}) was not a proper value for field {nameof(r.RecordVersion)} of type RowVersion.");
-                }
-            }
         }
     }
 }
