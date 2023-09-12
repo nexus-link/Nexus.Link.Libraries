@@ -142,7 +142,9 @@ namespace Nexus.Link.Libraries.Web.AspNet.Error.Logic
                 var seconds = postponedException.TryAgainAfterMinimumTimeSpan?.TotalSeconds;
                 var postponedContent = new RequestPostponedContent()
                 {
+#pragma warning disable CS0618
                     TryAgain = postponedException.TryAgain,
+#pragma warning restore CS0618
                     TryAgainAfterMinimumSeconds = seconds,
                     WaitingForRequestIds = postponedException.WaitingForRequestIds,
                     ReentryAuthentication = postponedException.ReentryAuthentication

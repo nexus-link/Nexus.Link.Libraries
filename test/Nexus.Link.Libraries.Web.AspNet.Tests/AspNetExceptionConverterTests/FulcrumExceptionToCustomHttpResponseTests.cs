@@ -1,5 +1,6 @@
 ﻿#if NETCOREAPP
 using System;
+using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Net;
 using System.Net.Http;
@@ -49,7 +50,7 @@ namespace Nexus.Link.Libraries.Web.AspNet.Tests.AspNetExceptionConverterTests
         public void RequestPostponedException()
         {
             var id = Guid.NewGuid().ToString();
-            var exception = new RequestPostponedException(id);
+            var exception = new TestRequestPostponedException(id);
             var result = AspNetExceptionConverter.ConvertExceptionToCustomHttpResponse(exception);
             // ReSharper disable once PossibleInvalidOperationException
             Assert.AreEqual((int)HttpStatusCode.Accepted, (int)result.StatusCode);

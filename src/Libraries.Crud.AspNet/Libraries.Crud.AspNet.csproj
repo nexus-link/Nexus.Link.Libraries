@@ -28,7 +28,7 @@
 
   <PropertyGroup>
     <PackageId>Nexus.Link.Libraries.Crud.AspNet</PackageId>
-    <Version>2.8.4</Version>
+    <Version>2.8.5-beta01</Version>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <PackageTags>nexus;link;fulcrum;lever</PackageTags>
     <Authors>XLENT Link</Authors>
@@ -38,7 +38,7 @@
     <Copyright>Copyright ©2019 Xlent Link AB</Copyright>
     <IncludeSymbols>true</IncludeSymbols>
     <PackageReleaseNotes>
-      2.8.4 Bump
+      2.8.5 Bump
       2.8.1 Dropped support for net461
       2.7.8 Bump
       2.7.2 Added ICreateChild and ICreateChildAndReturn
@@ -78,5 +78,12 @@
       1.0.0 First release
       0.1.0 Release candidate
     </PackageReleaseNotes>
+  </PropertyGroup>
+
+  <!-- Automatic generation of local alpha packages -->
+  <PropertyGroup Condition="$([System.Text.RegularExpressions.Regex]::IsMatch('$(Version)', '(-alpha|-alfa)')) ">
+    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+    <LocalPackageOutputPath Condition="'$(LocalPackageOutputPath)'==''">c:\dev\local-nugets</LocalPackageOutputPath>
+    <PackageOutputPath>$(LocalPackageOutputPath)</PackageOutputPath>
   </PropertyGroup>
 </Project>

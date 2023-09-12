@@ -73,12 +73,12 @@ namespace Nexus.Link.Libraries.Web.Pipe.Outbound
                         var timeSpan = postponeInfo.TryAgainAfterMinimumSeconds.HasValue
                             ? TimeSpan.FromSeconds(postponeInfo.TryAgainAfterMinimumSeconds.Value)
                             : (TimeSpan?)null;
-                        throw new RequestPostponedException(postponeInfo.WaitingForRequestIds)
+                        var exception =  new InternalRequestPostponedException(postponeInfo?.WaitingForRequestIds)
                         {
-                            TryAgain = postponeInfo.TryAgain,
                             TryAgainAfterMinimumTimeSpan = timeSpan,
                             ReentryAuthentication = postponeInfo.ReentryAuthentication
                         };
+                        throw exception;
                     }
 
                     return response;

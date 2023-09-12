@@ -36,7 +36,7 @@
 
   <PropertyGroup>
     <PackageId>Nexus.Link.Libraries.Crud.Web</PackageId>
-    <Version>2.13.4</Version>
+    <Version>2.13.5-beta01</Version>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <PackageTags>nexus;link;fulcrum;lever</PackageTags>
     <Authors>XLENT Link</Authors>
@@ -46,7 +46,7 @@
     <Copyright>Copyright ©2019 Xlent Link AB</Copyright>
     <IncludeSymbols>true</IncludeSymbols>
     <PackageReleaseNotes>
-      2.13.4 Bump
+      2.13.5 Bump
       2.13.1 Dropped support for net461
       2.12.0 Remvoed the FileSystem code again. First to meta-model. Later to SDK
       2.11.1 Made AzureDevopsGit services public
@@ -84,5 +84,12 @@
       1.1.0 Removed everything with dependencies on ASP.NET and ASP.NET Core and added new constructors for CrudRestClients
       1.0.0 First release
     </PackageReleaseNotes>
+  </PropertyGroup>
+
+  <!-- Automatic generation of local alpha packages -->
+  <PropertyGroup Condition="$([System.Text.RegularExpressions.Regex]::IsMatch('$(Version)', '(-alpha|-alfa)')) ">
+    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+    <LocalPackageOutputPath Condition="'$(LocalPackageOutputPath)'==''">c:\dev\local-nugets</LocalPackageOutputPath>
+    <PackageOutputPath>$(LocalPackageOutputPath)</PackageOutputPath>
   </PropertyGroup>
 </Project>

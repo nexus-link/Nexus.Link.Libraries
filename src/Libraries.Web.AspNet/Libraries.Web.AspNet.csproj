@@ -2,6 +2,7 @@
 
   <PropertyGroup>
     <TargetFrameworks>netcoreapp3.1;net472</TargetFrameworks>
+    <LangVersion>latest</LangVersion>
 
     <!-- Publish the repository URL in the built .nupkg (in the NuSpec <Repository> element) -->
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
@@ -39,7 +40,7 @@
 
   <PropertyGroup>
     <PackageId>Nexus.Link.Libraries.Web.AspNet</PackageId>
-    <Version>3.4.6</Version>
+    <Version>3.4.7-beta01</Version>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <PackageTags>nexus;link;fulcrum;lever</PackageTags>
     <Authors>XLENT Link</Authors>
@@ -49,7 +50,7 @@
     <Copyright>Copyright ©2019 Xlent Link AB</Copyright>
     <IncludeSymbols>true</IncludeSymbols>
     <PackageReleaseNotes>
-      3.4.6 Bump
+      3.4.7 Bump
       3.4.3 Removed deprectated nuget packages
       3.4.2 Bump
       3.4.1 Fixed an issue where we tried to set information on response after beginning to write response content.
@@ -160,8 +161,12 @@
     </PackageReleaseNotes>
     <RootNamespace>Nexus.Link.Libraries.Web.AspNet</RootNamespace>
     <AssemblyName>Nexus.Link.Libraries.Web.AspNet</AssemblyName>
-    <LangVersion>latest</LangVersion>
-	  <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
-	  <PackageOutputPath>../../../nugets</PackageOutputPath>
+  </PropertyGroup>
+
+  <!-- Automatic generation of local alpha packages -->
+  <PropertyGroup Condition="$([System.Text.RegularExpressions.Regex]::IsMatch('$(Version)', '(-alpha|-alfa)')) ">
+    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+    <LocalPackageOutputPath Condition="'$(LocalPackageOutputPath)'==''">c:\dev\local-nugets</LocalPackageOutputPath>
+    <PackageOutputPath>$(LocalPackageOutputPath)</PackageOutputPath>
   </PropertyGroup>
 </Project>
