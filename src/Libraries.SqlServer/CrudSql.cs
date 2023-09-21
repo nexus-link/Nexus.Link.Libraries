@@ -175,7 +175,7 @@ namespace Nexus.Link.Libraries.SqlServer
             if (limit != null) InternalContract.RequireGreaterThan(0, limit.Value, nameof(limit));
 
             var where = CrudSearchHelper.GetWhereStatement(details);
-            var orderBy = CrudSearchHelper.GetOrderByStatement(details);
+            var orderBy = CrudSearchHelper.GetOrderByStatement(details) ?? TableMetadata.GetOrderBy();
 
             return await SearchWhereAsync(where, orderBy, details.GetWhereAsModel("%", "_"), offset, limit, cancellationToken);
         }
