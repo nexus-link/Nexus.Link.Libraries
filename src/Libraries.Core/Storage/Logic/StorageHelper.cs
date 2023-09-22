@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
@@ -178,7 +179,7 @@ namespace Nexus.Link.Libraries.Core.Storage.Logic
             }
 
             var isSuccess = item.TryGetValueForPropertyWithCustomAttribute<Hint.OptimisticConcurrencyControlAttribute>(out var eTagAsObject);
-            eTag = isSuccess ? (string)eTagAsObject: null;
+            eTag = isSuccess ? (string)eTagAsObject : null;
             return isSuccess;
         }
 
@@ -262,7 +263,40 @@ namespace Nexus.Link.Libraries.Core.Storage.Logic
                 result.Add(enumerator.Current);
                 count++;
             }
-            return result;
+
+            // Paging can result in duplicates
+
+            if (GetUnique<Guid>(out var unique)) return unique;
+            if (GetUnique<string>(out unique)) return unique;
+            if (GetUnique<int>(out unique)) return unique;
+
+            var uniqueSet = new HashSet<TModel>();
+            foreach (var item in result)
+            {
+                uniqueSet.Add(item);
+            }
+
+            return uniqueSet;
+
+            bool GetUnique<T>(out IEnumerable<TModel> enumerable)
+            {
+                enumerable = Enumerable.Empty<TModel>();
+                if (!typeof(IUniquelyIdentifiable<T>).IsAssignableFrom(typeof(TModel))) return false;
+                var ids = new HashSet<T>();
+                var uniqueList = new List<TModel>();
+                foreach (var item in result)
+                {
+                    var identifiable = item as IUniquelyIdentifiable<T>;
+                    if (identifiable == null) continue;
+                    if (ids.Contains(identifiable.Id)) continue;
+                    ids.Add(identifiable.Id);
+                    uniqueList.Add(item);
+                }
+
+                enumerable = uniqueList;
+                return true;
+
+            }
         }
     }
 }
