@@ -30,7 +30,7 @@
 
   <PropertyGroup>
     <PackageId>Nexus.Link.Libraries.SqlServer</PackageId>
-    <Version>3.1.4</Version>
+    <Version>3.1.5</Version>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <PackageTags>nexus;link;fulcrum;lever</PackageTags>
     <Authors>XLENT Link</Authors>
@@ -40,7 +40,7 @@
     <Copyright>Copyright ©2019 Xlent Link AB</Copyright>
     <IncludeSymbols>true</IncludeSymbols>
     <PackageReleaseNotes>
-      3.1.4 Bump
+      3.1.5 Bump
       3.1.2 Added the table default order by for CrudSql.SearchAsync()
       3.1.1 Added counters for the number of Executions, Queries, INSERT, SELECT, UPDATE, DELETE
       3.0.1 Bump
