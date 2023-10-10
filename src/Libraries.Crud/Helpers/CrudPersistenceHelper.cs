@@ -107,9 +107,9 @@ namespace Nexus.Link.Libraries.Crud.Helpers
             {
                 FulcrumAssert.IsNotNull(item, CodeLocation.AsString());
                 var itemTask = SaveAsync(item.Id, item, cancellationToken);
-                if (_saveOrderComparer != null)
+                if (_options.OnlySequential || _saveOrderComparer != null)
                 {
-                    // If the save order is important, we can't use parallelism
+                    // If the options says so, or if the save order is important, we can't use parallelism
                     await itemTask;
                 }
                 itemTaskList.Add(itemTask);
@@ -293,5 +293,7 @@ namespace Nexus.Link.Libraries.Crud.Helpers
     public class CrudPersistenceHelperOptions
     {
         public PersistenceConflictStrategyEnum ConflictStrategy { get; set; } = PersistenceConflictStrategyEnum.Throw;
+
+        public bool OnlySequential { get; set; }
     }
 }
