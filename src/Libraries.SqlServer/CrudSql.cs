@@ -316,7 +316,7 @@ namespace Nexus.Link.Libraries.SqlServer
         }
 
         /// <inheritdoc />
-        public Task ReleaseDistributedLockAsync(Guid id, Guid lockId, CancellationToken cancellationToken = default)
+        public async Task ReleaseDistributedLockAsync(Guid id, Guid lockId, CancellationToken cancellationToken = default)
         {
             var lockTable = Database.Options.DistributedLockTable;
             if (lockTable == null)
@@ -324,21 +324,27 @@ namespace Nexus.Link.Libraries.SqlServer
                 throw new FulcrumContractException(
                     $"You must set {nameof(IDatabaseOptions)}.{nameof(IDatabaseOptions.DistributedLockTable)} to use distributed locks.");
             }
-            return lockTable.RemoveAsync(id, lockId, cancellationToken);
+
+            try
+            {
+                await lockTable.RemoveAsync(id, lockId, cancellationToken);
+            }
+            catch (Exception)
+            {
+                // Never fail. The distributed lock will be released at some point anyway (due to time limitation for the lock)
+            }
         }
 
         /// <inheritdoc />
         public async Task ClaimTransactionLockAsync(Guid id, CancellationToken token = default)
         {
             var result = await SearchSingleAndLockWhereAsync("Id=@Id", new { Id = id }, token);
-            if (result == null)
+            if (result != null) return;
+            throw new FulcrumResourceLockedException(
+                $"Item {id} in table {TableMetadata.TableName} was already locked by another client.")
             {
-                throw new FulcrumResourceLockedException(
-                        $"Item {id} in table {TableMetadata.TableName} was already locked by another client.")
-                {
-                    RecommendedWaitTimeInSeconds = 1
-                };
-            }
+                RecommendedWaitTimeInSeconds = 1
+            };
         }
 
         /// <inheritdoc />
