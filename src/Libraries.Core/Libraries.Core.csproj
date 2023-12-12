@@ -189,7 +189,6 @@
     </PackageReleaseNotes>
     <RootNamespace>Nexus.Link.Libraries.Core</RootNamespace>
     <AssemblyName>Nexus.Link.Libraries.Core</AssemblyName>
-    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
   </PropertyGroup>
 
   <!-- Automatic generation of local alpha packages -->
