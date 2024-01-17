@@ -62,7 +62,7 @@ namespace Nexus.Link.Libraries.Web.AspNet.Pipe.Inbound
 #if NETCOREAPP
             await AspNetExceptionConverter.ConvertExceptionToResponseAsync(exception, context.Context.Response, cancellationToken);
 #else
-            context.ResponseMessage = AspNetExceptionConverter.ToHttpResponseMessage(exception);
+            context.ResponseMessage = AspNetExceptionConverter.ToHttpResponseMessage(exception, cancellationToken);
             await Task.CompletedTask;
 #endif
         }

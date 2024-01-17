@@ -36,7 +36,7 @@ namespace Nexus.Link.Libraries.Web.AspNet.Tests.AspNetExceptionConverterTests
 #if NETCOREAPP
             await AspNetExceptionConverter.ConvertExceptionToResponseAsync(null, null);
 #else
-            AspNetExceptionConverter.ToHttpResponseMessage(null);
+            AspNetExceptionConverter.ToHttpResponseMessage(null, null);
             await Task.CompletedTask;
 #endif
         }
@@ -51,7 +51,7 @@ namespace Nexus.Link.Libraries.Web.AspNet.Tests.AspNetExceptionConverterTests
             var result = context.Response;
             await AspNetExceptionConverter.ConvertExceptionToResponseAsync(exception, result);
 #else
-            var result = AspNetExceptionConverter.ToHttpResponseMessage(exception);
+            var result = AspNetExceptionConverter.ToHttpResponseMessage(exception, null);
             await Task.CompletedTask;
 #endif
             // ReSharper disable once PossibleInvalidOperationException
@@ -68,7 +68,7 @@ namespace Nexus.Link.Libraries.Web.AspNet.Tests.AspNetExceptionConverterTests
             var result = context.Response;
             await AspNetExceptionConverter.ConvertExceptionToResponseAsync(exception, result);
 #else
-            var result = AspNetExceptionConverter.ToHttpResponseMessage(exception);
+            var result = AspNetExceptionConverter.ToHttpResponseMessage(exception, null);
             await Task.CompletedTask;
 #endif
             // ReSharper disable once PossibleInvalidOperationException
@@ -87,7 +87,7 @@ namespace Nexus.Link.Libraries.Web.AspNet.Tests.AspNetExceptionConverterTests
             var result = context.Response;
             await AspNetExceptionConverter.ConvertExceptionToResponseAsync(exception, result);
 #else
-            var result = AspNetExceptionConverter.ToHttpResponseMessage(exception);
+            var result = AspNetExceptionConverter.ToHttpResponseMessage(exception, null);
             await Task.CompletedTask;
 #endif
             // ReSharper disable once PossibleInvalidOperationException
@@ -115,7 +115,7 @@ namespace Nexus.Link.Libraries.Web.AspNet.Tests.AspNetExceptionConverterTests
             Assert.IsTrue(actualResponse.Headers.ContainsKey("Location"));
             Assert.AreEqual(expectedLocationUrl, actualResponse.Headers["Location"].FirstOrDefault());
 #else
-            var actualResponse = AspNetExceptionConverter.ToHttpResponseMessage(exception);
+            var actualResponse = AspNetExceptionConverter.ToHttpResponseMessage(exception, null);
             var actualContent = await actualResponse.Content.ReadAsStringAsync();
             Assert.AreEqual((int)expectedStatusCode, (int)actualResponse.StatusCode);
             Assert.AreEqual(expectedLocationUrl, actualResponse.Headers.Location.OriginalString);
@@ -133,7 +133,7 @@ namespace Nexus.Link.Libraries.Web.AspNet.Tests.AspNetExceptionConverterTests
             var result = context.Response;
             await AspNetExceptionConverter.ConvertExceptionToResponseAsync(exception, result);
 #else
-            var result = AspNetExceptionConverter.ToHttpResponseMessage(exception);
+            var result = AspNetExceptionConverter.ToHttpResponseMessage(exception, null);
             await Task.CompletedTask;
 #endif
             // ReSharper disable once PossibleInvalidOperationException
@@ -150,7 +150,7 @@ namespace Nexus.Link.Libraries.Web.AspNet.Tests.AspNetExceptionConverterTests
             var result = context.Response;
             await AspNetExceptionConverter.ConvertExceptionToResponseAsync(exception, result);
 #else
-            var result = AspNetExceptionConverter.ToHttpResponseMessage(exception);
+            var result = AspNetExceptionConverter.ToHttpResponseMessage(exception, null);
             await Task.CompletedTask;
 #endif
             // ReSharper disable once PossibleInvalidOperationException
@@ -167,7 +167,7 @@ namespace Nexus.Link.Libraries.Web.AspNet.Tests.AspNetExceptionConverterTests
             var result = context.Response;
             await AspNetExceptionConverter.ConvertExceptionToResponseAsync(exception, result);
 #else
-            var result = AspNetExceptionConverter.ToHttpResponseMessage(exception);
+            var result = AspNetExceptionConverter.ToHttpResponseMessage(exception, null);
             await Task.CompletedTask;
 #endif
             // ReSharper disable once PossibleInvalidOperationException
