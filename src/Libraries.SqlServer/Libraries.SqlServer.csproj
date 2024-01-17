@@ -1,6 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFrameworks>netstandard2.0;netstandard2.1;net461</TargetFrameworks>
+    <TargetFrameworks>netstandard2.0;netstandard2.1</TargetFrameworks>
     <AssemblyName>Nexus.Link.Libraries.SqlServer</AssemblyName>
     <RootNamespace>Nexus.Link.Libraries.SqlServer</RootNamespace>
 
@@ -17,9 +17,9 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Microsoft.Data.SqlClient" Version="5.1.1" />
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1" PrivateAssets="All" />
-    <PackageReference Include="Dapper" Version="1.50.5" />
-    <PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="2.1.1" />
+    <PackageReference Include="Dapper" Version="2.0.151" />
   </ItemGroup>
 
   <ItemGroup>
@@ -30,7 +30,7 @@
 
   <PropertyGroup>
     <PackageId>Nexus.Link.Libraries.SqlServer</PackageId>
-    <Version>2.15.8</Version>
+    <Version>3.2.0</Version>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <PackageTags>nexus;link;fulcrum;lever</PackageTags>
     <Authors>XLENT Link</Authors>
@@ -40,6 +40,16 @@
     <Copyright>Copyright ©2019 Xlent Link AB</Copyright>
     <IncludeSymbols>true</IncludeSymbols>
     <PackageReleaseNotes>
+      3.2.0 Now run distributed lock in its own transaction, ignoring surrounding transactions. Release distributed lock now never fails
+      3.1.5 Bump
+      3.1.2 Added the table default order by for CrudSql.SearchAsync()
+      3.1.1 Added counters for the number of Executions, Queries, INSERT, SELECT, UPDATE, DELETE
+      3.0.1 Bump
+      3.0.0 Updated to Dapper 2.0 and now uses Microsoft.Data.SqlClient instead of System.Data.SqlClient
+      2.17.5 Bump
+      2.17.3 Relaxed the requirements for the parent table in ManyToOneSql: From CrudSql to TabelBase
+      2.17.1 Now returns FulcrumException for some SqlException
+      2.16.0 Dropped support for net461
       2.15.8 Bump
       2.15.7 Optimized SearchWhereAsync
       2.15.6 TableBase.MaybeTransformEtagToRecordVersion now handles empty Etag
@@ -104,6 +114,13 @@
       0.1.0 Release candidate with support for .net standard
     </PackageReleaseNotes>
     <GeneratePackageOnBuild>False</GeneratePackageOnBuild>
+  </PropertyGroup>
+
+  <!-- Automatic generation of local alpha packages -->
+  <PropertyGroup Condition="$([System.Text.RegularExpressions.Regex]::IsMatch('$(Version)', '(-alpha|-alfa)')) ">
+    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+    <LocalPackageOutputPath Condition="'$(LocalPackageOutputPath)'==''">c:\dev\local-nugets</LocalPackageOutputPath>
+    <PackageOutputPath>$(LocalPackageOutputPath)</PackageOutputPath>
   </PropertyGroup>
 
 </Project>

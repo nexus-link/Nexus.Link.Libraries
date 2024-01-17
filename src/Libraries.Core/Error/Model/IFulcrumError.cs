@@ -1,5 +1,4 @@
-﻿using System;
-using Nexus.Link.Libraries.Core.Assert;
+﻿using Nexus.Link.Libraries.Core.Assert;
 using Nexus.Link.Libraries.Core.Error.Logic;
 
 namespace Nexus.Link.Libraries.Core.Error.Model

@@ -3,18 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 
-/* Unmerged change from project 'Libraries.Core (net461)'
-Before:
-using Nexus.Link.Libraries.Core.Assert;
-After:
-using Nexus;
-using Nexus.Link;
-using Nexus.Link.Libraries;
-using Nexus.Link.Libraries.Core.Assert;
-using Nexus.Link.Libraries.Core.EntityAttributes;
-using Nexus.Link.Libraries.Core.EntityAttributes;
-using Nexus.Link.Libraries.Core.EntityAttributes.Support;
-*/
 using Nexus.Link.Libraries.Core.Assert;
 
 namespace Nexus.Link.Libraries.Core.EntityAttributes

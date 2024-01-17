@@ -2,6 +2,7 @@
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Nexus.Link.Libraries.Core.Application;
 using Nexus.Link.Libraries.Core.Health.Logic;
 using Nexus.Link.Libraries.Core.Health.Model;
 using Nexus.Link.Libraries.Core.MultiTenant.Model;
@@ -18,6 +19,8 @@ namespace Nexus.Link.Libraries.Core.Tests.Health
         [TestInitialize]
         public void Initialize()
         {
+            FulcrumApplicationHelper.UnitTestSetup(nameof(HealthTest));
+            FulcrumApplication.Setup.HealthTracker.ResetAllHealthProblems();
             _goombaResource = new GoombaResource();
         }
 

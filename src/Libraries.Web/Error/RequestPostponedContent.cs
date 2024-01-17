@@ -10,13 +10,13 @@ namespace Nexus.Link.Libraries.Web.Error
         /// <summary>
         /// True means that there was a problem, so the caller should try to call us again.
         /// </summary>
+        [Obsolete($"Obsolete since 2023-09-12. Please set {nameof(TryAgainAfterMinimumSeconds)} to mark for try again. You might set it to TimeSpan.Zero for ASAP retry.")]
         public bool TryAgain { get; set; }
 
         /// <summary>
         /// If you set <see cref="TryAgain"/>, you may optionally set this property to
         /// give the expected number of seconds before a retry is made.
         /// </summary>
-        [Validation.Null(InvertedTrigger = true, TriggerPropertyName = nameof(TryAgain))]
         public double? TryAgainAfterMinimumSeconds { get; set; }
 
         /// <summary>

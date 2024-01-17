@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Data.SqlClient;
-using System.Text;
+﻿using Microsoft.Data.SqlClient;
 
 namespace Nexus.Link.Libraries.SqlServer.Logic
 {
@@ -37,6 +34,11 @@ namespace Nexus.Link.Libraries.SqlServer.Logic
             /// Violation of %ls constraint '%.*ls'. Cannot insert duplicate key in object '%.*ls'. The duplicate key value is %ls.
             /// </summary>
             UniqueConstraint = 2627,
+
+            /// <summary>
+            /// Transaction (Process ID %d) was deadlocked on %.*ls resources with another process and has been chosen as the deadlock victim. Rerun the transaction.
+            /// </summary>
+            Deadlock = 1205,
 
         }
     }

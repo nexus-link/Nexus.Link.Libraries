@@ -3,18 +3,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Dapper;
-using Newtonsoft.Json;
 using Nexus.Link.Libraries.Core.Assert;
-using Nexus.Link.Libraries.Core.EntityAttributes;
 using Nexus.Link.Libraries.Core.Error.Logic;
-using Nexus.Link.Libraries.Core.Logging;
 using Nexus.Link.Libraries.Core.Misc;
-using Nexus.Link.Libraries.Core.Storage.Logic;
 using Nexus.Link.Libraries.Core.Storage.Model;
 using Nexus.Link.Libraries.SqlServer.Logic;
 using Nexus.Link.Libraries.SqlServer.Model;
-using IRecordVersion = Nexus.Link.Libraries.Core.Storage.Model.IRecordVersion;
 
 namespace Nexus.Link.Libraries.SqlServer
 {
@@ -22,11 +16,8 @@ namespace Nexus.Link.Libraries.SqlServer
     /// Helper class for advanced SELECT statements
     /// </summary>
     /// <typeparam name="TDatabaseItem"></typeparam>
-    public abstract class TableBase<TDatabaseItem> : ISearch<TDatabaseItem>
+    public abstract class TableBase<TDatabaseItem> : SqlExecution, ISearch<TDatabaseItem>
     {
-        public Database Database { get; }
-        public ISqlTableMetadata TableMetadata { get; }
-
         /// <summary>
         /// Constructor
         /// </summary>
@@ -43,12 +34,10 @@ namespace Nexus.Link.Libraries.SqlServer
         /// <param name="options"></param>
         /// <param name="tableMetadata"></param>
         protected TableBase(IDatabaseOptions options, ISqlTableMetadata tableMetadata)
+        :base(tableMetadata, options)
         {
             InternalContract.RequireNotNull(options, nameof(options));
             InternalContract.RequireValidated(tableMetadata, nameof(tableMetadata));
-
-            Database = new Database(options);
-            TableMetadata = tableMetadata;
         }
 
         /// <summary>
@@ -154,7 +143,7 @@ namespace Nexus.Link.Libraries.SqlServer
             if (where == null) where = "1=1";
             return SearchAdvancedSingleAsync($"SELECT * FROM [{TableMetadata.TableName}] WHERE ({where})", param, token);
         }
-        
+
         public async Task<TDatabaseItem> SearchSingleAndLockWhereAsync(string @where, object param = null, CancellationToken token = default)
         {
             if (where == null) where = "1=1";
@@ -239,10 +228,10 @@ namespace Nexus.Link.Libraries.SqlServer
             InternalContract.RequireGreaterThanOrEqualTo(0, offset, nameof(offset));
             InternalContract.RequireGreaterThanOrEqualTo(0, limit, nameof(limit));
             where = where ?? "1=1";
-            return await InternalSearchAsync(param, 
+            return await InternalSearchAsync(param,
                 $"SELECT *" +
                 $" FROM [{TableMetadata.TableName}]" +
-                $" WHERE ({where})", 
+                $" WHERE ({where})",
                 orderBy, offset, limit, cancellationToken);
         }
 
@@ -261,7 +250,7 @@ namespace Nexus.Link.Libraries.SqlServer
             InternalContract.RequireGreaterThanOrEqualTo(0, offset, nameof(offset));
             InternalContract.RequireGreaterThanOrEqualTo(0, limit, nameof(limit));
             where = where ?? "1=1";
-            return await InternalSearchAsync(param, 
+            return await InternalSearchAsync(param,
                 $"SELECT *" +
                 $" FROM [{TableMetadata.TableName}]" +
                 " WITH (ROWLOCK, UPDLOCK, READPAST)" +
@@ -292,91 +281,10 @@ namespace Nexus.Link.Libraries.SqlServer
             return await QueryAsync(sqlQuery, param, cancellationToken);
         }
 
-
-        protected internal async Task<int> ExecuteAsync(string statement, object param = null, CancellationToken token = default)
-        {
-            InternalContract.RequireNotNullOrWhiteSpace(statement, nameof(statement));
-            MaybeTransformEtagToRecordVersion(param);
-            using var db = await Database.NewSqlConnectionAsync(token);
-            int count;
-            await db.VerifyAvailabilityAsync(null, token);
-            try
-            {
-                count = await db.ExecuteAsync(statement, param);
-                if (Database.Options.VerboseLogging)
-                {
-                    var paramAsString = param == null ? "NULL" : JsonConvert.SerializeObject(param);
-                    Log.LogVerbose($"{statement} {JsonConvert.SerializeObject(paramAsString)}");
-                }
-            }
-            catch (Exception e)
-            {
-                var paramAsString = param == null ? "NULL" : JsonConvert.SerializeObject(param);
-                Log.LogError($"Execution failed:\r{statement}\rwith param:\r{paramAsString}:\r{e.Message}");
-                throw;
-            }
-
-            return count;
-        }
-
         protected internal Task<IEnumerable<TDatabaseItem>> QueryAsync(string statement, object param = null, CancellationToken cancellationToken = default)
         {
             InternalContract.RequireNotNullOrWhiteSpace(statement, nameof(statement));
             return InternalQueryAsync<TDatabaseItem>(statement, param, cancellationToken);
-        }
-
-        protected internal async Task<IEnumerable<T>> InternalQueryAsync<T>(string statement, object param = null, CancellationToken cancellationToken = default)
-        {
-            InternalContract.RequireNotNullOrWhiteSpace(statement, nameof(statement));
-            MaybeTransformEtagToRecordVersion(param);
-            using var db = await Database.NewSqlConnectionAsync(cancellationToken);
-            await db.VerifyAvailabilityAsync(null, cancellationToken);
-            IEnumerable<T> items;
-            try
-            {
-                items = await db.QueryAsync<T>(statement, param);
-                var paramAsString = param == null ? "NULL" : JsonConvert.SerializeObject(param);
-                Log.LogVerbose($"{statement} {JsonConvert.SerializeObject(paramAsString)}");
-            }
-            catch (Exception e)
-            {
-                var paramAsString = param == null ? "NULL" : JsonConvert.SerializeObject(param);
-                Log.LogError($"Query failed:\r{statement}\rwith param:\r{paramAsString}:\r{e.Message}");
-                throw;
-            }
-
-            var itemList = items.ToList();
-            foreach (var item in itemList)
-            {
-                MaybeTransformRecordVersionToEtag(item);
-            }
-
-            return itemList;
-        }
-
-        protected void MaybeTransformRecordVersionToEtag(object item)
-        {
-            if (item is IRecordVersion r && r.RecordVersion != null)
-            {
-                item.TrySetOptimisticConcurrencyControl(Convert.ToBase64String(r.RecordVersion));
-            }
-        }
-
-        protected void MaybeTransformEtagToRecordVersion(object item)
-        {
-            if (item is IRecordVersion r && item.TryGetOptimisticConcurrencyControl(out var eTag) && !string.IsNullOrWhiteSpace(eTag))
-            {
-                try
-                {
-                    r.RecordVersion = Convert.FromBase64String(eTag);
-                }
-                catch (Exception)
-                {
-                    // TODO: Get the proper name for the eTag field
-                    throw new FulcrumConflictException(
-                        $"The value in the eTag field ({eTag}) was not a proper value for field {nameof(r.RecordVersion)} of type RowVersion.");
-                }
-            }
         }
     }
 }

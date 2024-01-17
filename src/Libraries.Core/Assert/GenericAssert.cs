@@ -1,10 +1,7 @@
 ﻿using System;
-using System.Linq.Expressions;
 using System.Text.RegularExpressions;
-using JetBrains.Annotations;
 using Newtonsoft.Json.Linq;
 using Nexus.Link.Libraries.Core.EntityAttributes;
-using Nexus.Link.Libraries.Core.EntityAttributes.Support;
 using Nexus.Link.Libraries.Core.Error.Logic;
 using Nexus.Link.Libraries.Core.Misc;
 
@@ -22,7 +19,7 @@ namespace Nexus.Link.Libraries.Core.Assert
         /// <param name="errorLocation">A unique errorLocation for this exact assertion.</param>
         /// <param name="message">A message that documents/explains this failure. This message should normally start with "Expected ...".</param>
         [StackTraceHidden]
-        [ContractAnnotation("=> halt")]
+        
         public static void Fail(string errorLocation, string message)
         {
             InternalContract.RequireNotNullOrWhiteSpace(message, nameof(message));
@@ -33,7 +30,7 @@ namespace Nexus.Link.Libraries.Core.Assert
         /// </summary>
         /// <param name="message">A message that documents/explains this failure. This message should normally start with "Expected ...".</param>
         [StackTraceHidden]
-        [ContractAnnotation("=> halt")]
+        
         public static void Fail(string message)
         {
             InternalContract.RequireNotNullOrWhiteSpace(message, nameof(message));
@@ -64,7 +61,7 @@ namespace Nexus.Link.Libraries.Core.Assert
         /// Verify that <paramref name="value"/> is not null.
         /// </summary>
         [StackTraceHidden]
-        [ContractAnnotation("value:null => halt")]
+        
         public static void IsNotNull(object value, string errorLocation = null, string customMessage = null)
         {
             if (value != null) return;
@@ -85,7 +82,7 @@ namespace Nexus.Link.Libraries.Core.Assert
         /// Verify that <paramref name="value"/> is not null, not empty and has other characters than white space.
         /// </summary>
         [StackTraceHidden]
-        [ContractAnnotation("value:null => halt")]
+        
         public static void IsNotNullOrWhiteSpace(string value, string errorLocation = null, string customMessage = null)
         {
             if (!string.IsNullOrWhiteSpace(value)) return;

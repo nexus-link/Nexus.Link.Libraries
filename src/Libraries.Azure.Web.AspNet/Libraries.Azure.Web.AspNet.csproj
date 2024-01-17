@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>netcoreapp3.1;net461</TargetFrameworks>
+    <TargetFrameworks>netcoreapp3.1;net472</TargetFrameworks>
 
     <!-- Publish the repository URL in the built .nupkg (in the NuSpec <Repository> element) -->
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
@@ -13,24 +13,8 @@
     <DebugType>embedded</DebugType>
     <IncludeSymbols>true</IncludeSymbols>
   </PropertyGroup>
-
   <ItemGroup>
-    <!--<PackageReference Include="Microsoft.AspNet.WebApi.Core" Version="5.2.9" />-->
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1" PrivateAssets="All" />
-  </ItemGroup>
-
-  <ItemGroup Condition="'$(TargetFramework)'=='net461'">
-    <PackageReference Include="Microsoft.ApplicationInsights" Version="2.10.0" />
-    <PackageReference Include="Microsoft.ApplicationInsights.Agent.Intercept" Version="2.4.0" />
-    <PackageReference Include="Microsoft.ApplicationInsights.DependencyCollector" Version="2.10.0" />
-    <PackageReference Include="Microsoft.ApplicationInsights.PerfCounterCollector" Version="2.10.0" />
-    <PackageReference Include="Microsoft.ApplicationInsights.Web" Version="2.10.0" />
-    <PackageReference Include="Microsoft.ApplicationInsights.WindowsServer" Version="2.10.0" />
-    <PackageReference Include="Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel" Version="2.10.0" />
-  </ItemGroup>
-
-  <ItemGroup Condition="'$(TargetFramework)'=='netcoreapp3.1'">
-
   </ItemGroup>
 
   <ItemGroup>
@@ -38,10 +22,22 @@
     <ProjectReference Include="..\Libraries.Web.AspNet\Libraries.Web.AspNet.csproj" />
   </ItemGroup>
 
+  <ItemGroup Condition="'$(TargetFramework)'=='net472'">
+    <PackageReference Include="Microsoft.ApplicationInsights" Version="2.21.0" />
+    <PackageReference Include="Microsoft.ApplicationInsights.DependencyCollector" Version="2.21.0" />
+    <PackageReference Include="Microsoft.ApplicationInsights.PerfCounterCollector" Version="2.21.0" />
+    <PackageReference Include="Microsoft.ApplicationInsights.Web" Version="2.21.0" />
+    <PackageReference Include="Microsoft.ApplicationInsights.WindowsServer" Version="2.21.0" />
+    <PackageReference Include="Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel" Version="2.21.0" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(TargetFramework)'=='netcoreapp3.1'">
+  </ItemGroup>
+
 
   <PropertyGroup>
     <PackageId>Nexus.Link.Libraries.Azure.Web.AspNet</PackageId>
-    <Version>1.4.10</Version>
+    <Version>1.5.9</Version>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <PackageTags>nexus;link;fulcrum;lever</PackageTags>
     <Authors>XLENT Link</Authors>
@@ -51,6 +47,10 @@
     <Copyright>Copyright ©2020 Xlent Link AB</Copyright>
     <IncludeSymbols>true</IncludeSymbols>
     <PackageReleaseNotes>
+      1.5.9 Bump
+      1.5.4 Updated nuget packages
+      1.5.2 Bump
+      1.5.0 Dropped support for net461
       1.4.10 Bump
       1.4.4 Symbols
       1.4.3 Bump

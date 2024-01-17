@@ -1,8 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using JetBrains.Annotations;
-using Nexus.Link.Libraries.Core.EntityAttributes;
-using Nexus.Link.Libraries.Core.EntityAttributes.Support;
 using Nexus.Link.Libraries.Core.Error.Logic;
 using Nexus.Link.Libraries.Core.Misc;
 
@@ -19,7 +16,7 @@ namespace Nexus.Link.Libraries.Core.Assert
         /// <param name="errorLocation">A unique errorLocation for this exact assertion. </param>
         /// <param name="message">A message that documents/explains this failure. This message should normally start with "Expected ...".</param>
         [StackTraceHidden]
-        [ContractAnnotation("=> halt")]
+
         public static void Fail(string errorLocation, string message)
         {
             InternalContract.RequireNotNullOrWhiteSpace(errorLocation, nameof(errorLocation));
@@ -31,7 +28,7 @@ namespace Nexus.Link.Libraries.Core.Assert
         /// </summary>
         /// <param name="message">A message that documents/explains this failure. This message should normally start with "Expected ...".</param>
         [StackTraceHidden]
-        [ContractAnnotation("=> halt")]
+
         public static void Fail(string message)
         {
             InternalContract.RequireNotNullOrWhiteSpace(message, nameof(message));
@@ -59,9 +56,9 @@ namespace Nexus.Link.Libraries.Core.Assert
         /// <summary>
         /// Verify that <paramref name="value"/> is not null.
         /// </summary>
-        
+
         [StackTraceHidden]
-        [ContractAnnotation("value:null => halt")]
+        
         public static void IsNotNull(object value, string errorLocation = null, string customMessage = null)
         {
             GenericAssert<FulcrumAssertionFailedException>.IsNotNull(value, errorLocation, customMessage);
@@ -80,7 +77,7 @@ namespace Nexus.Link.Libraries.Core.Assert
         /// Verify that <paramref name="value"/> is not null, not empty and contains other characters than white space.
         /// </summary>
         [StackTraceHidden]
-        [ContractAnnotation("value:null => halt")]
+        
         public static void IsNotNullOrWhiteSpace(string value, string errorLocation = null, string customMessage = null)
         {
             GenericAssert<FulcrumAssertionFailedException>.IsNotNullOrWhiteSpace(value, errorLocation, customMessage);

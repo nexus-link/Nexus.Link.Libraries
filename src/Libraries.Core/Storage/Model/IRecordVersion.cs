@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Nexus.Link.Libraries.Core.Storage.Model
+﻿namespace Nexus.Link.Libraries.Core.Storage.Model
 {
     /// <summary>
     /// Properties required for record version.

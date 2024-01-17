@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>netcoreapp3.1;net461</TargetFrameworks>
+    <TargetFrameworks>netcoreapp3.1;net472</TargetFrameworks>
     <RootNamespace>Nexus.Link.Libraries.Crud.AspNet</RootNamespace>
     <AssemblyName>Nexus.Link.Libraries.Crud.AspNet</AssemblyName>
 
@@ -28,7 +28,7 @@
 
   <PropertyGroup>
     <PackageId>Nexus.Link.Libraries.Crud.AspNet</PackageId>
-    <Version>2.7.8</Version>
+    <Version>2.8.8</Version>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <PackageTags>nexus;link;fulcrum;lever</PackageTags>
     <Authors>XLENT Link</Authors>
@@ -38,6 +38,8 @@
     <Copyright>Copyright ©2019 Xlent Link AB</Copyright>
     <IncludeSymbols>true</IncludeSymbols>
     <PackageReleaseNotes>
+      2.8.8 Bump
+      2.8.1 Dropped support for net461
       2.7.8 Bump
       2.7.2 Added ICreateChild and ICreateChildAndReturn
       2.6.3 Symbols
@@ -76,5 +78,12 @@
       1.0.0 First release
       0.1.0 Release candidate
     </PackageReleaseNotes>
+  </PropertyGroup>
+
+  <!-- Automatic generation of local alpha packages -->
+  <PropertyGroup Condition="$([System.Text.RegularExpressions.Regex]::IsMatch('$(Version)', '(-alpha|-alfa)')) ">
+    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+    <LocalPackageOutputPath Condition="'$(LocalPackageOutputPath)'==''">c:\dev\local-nugets</LocalPackageOutputPath>
+    <PackageOutputPath>$(LocalPackageOutputPath)</PackageOutputPath>
   </PropertyGroup>
 </Project>

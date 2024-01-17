@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Net;
 using System.Net.Http;
@@ -61,7 +62,26 @@ namespace Nexus.Link.Libraries.Web.AspNet.Tests.AspNetExceptionConverterTests
         public async Task RequestPostponedException()
         {
             var id = Guid.NewGuid().ToString();
-            var exception = new RequestPostponedException(id);
+            var exception = new TestRequestPostponedException(id);
+#if NETCOREAPP
+            var context = new DefaultHttpContext();
+            var result = context.Response;
+            await AspNetExceptionConverter.ConvertExceptionToResponseAsync(exception, result);
+#else
+            var result = AspNetExceptionConverter.ToHttpResponseMessage(exception);
+            await Task.CompletedTask;
+#endif
+            // ReSharper disable once PossibleInvalidOperationException
+            Assert.AreEqual((int)HttpStatusCode.Accepted, (int)result.StatusCode);
+        }
+
+        [TestMethod]
+        public async Task RequestAggregatedPostponedException()
+        {
+            var id = Guid.NewGuid().ToString();
+            var exception = new TestRequestPostponedException(id);
+            exception.WaitingForRequestIds = new List<string> { Guid.NewGuid().ToString(), Guid.NewGuid().ToString() };
+            exception.TryAgainAfterMinimumTimeSpan = TimeSpan.FromSeconds(10);
 #if NETCOREAPP
             var context = new DefaultHttpContext();
             var result = context.Response;
@@ -152,6 +172,17 @@ namespace Nexus.Link.Libraries.Web.AspNet.Tests.AspNetExceptionConverterTests
 #endif
             // ReSharper disable once PossibleInvalidOperationException
             Assert.AreEqual((int) HttpStatusCode.InternalServerError, (int) result.StatusCode);
+        }
+    }
+
+    /// <summary>
+    /// To be used internally as a concrete implementation
+    /// </summary>
+    public class TestRequestPostponedException : RequestPostponedException
+    {
+        public TestRequestPostponedException(params string[] postponeInfoWaitingForRequestIds)
+            : base(postponeInfoWaitingForRequestIds)
+        {
         }
     }
 }

@@ -1,7 +1,6 @@
-﻿using System;
-using System.Data.SqlClient;
-using System.Threading;
+﻿using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Data.SqlClient;
 using Nexus.Link.Libraries.Core.Assert;
 using Nexus.Link.Libraries.Core.Threads;
 

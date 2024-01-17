@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Linq.Expressions;
-using System.Reflection;
 using System.Text.RegularExpressions;
-using JetBrains.Annotations;
 using Newtonsoft.Json.Linq;
 using Nexus.Link.Libraries.Core.EntityAttributes;
 using Nexus.Link.Libraries.Core.Error.Logic;
@@ -32,7 +30,7 @@ namespace Nexus.Link.Libraries.Core.Assert
         /// Verify that <paramref name="parameterValue"/> is not null.
         /// </summary>
         [StackTraceHidden]
-        [ContractAnnotation("parameterValue:null => halt")]
+        
         public static void RequireNotNull<TParameter>(TParameter parameterValue, string parameterName, string customMessage = null)
         {
             var message = GetErrorMessageIfNull(parameterValue, parameterName, customMessage);
@@ -53,7 +51,7 @@ namespace Nexus.Link.Libraries.Core.Assert
         /// Verify that <paramref name="parameterValue"/> is not null, not empty and contains other characters than white space.
         /// </summary>
         [StackTraceHidden]
-        [ContractAnnotation("parameterValue:null => halt")]
+        
         public static void RequireNotNullOrWhiteSpace(string parameterValue, string parameterName, string customMessage = null)
         {
             var message = GetErrorMessageIfNullOrWhiteSpace(parameterValue, parameterName, customMessage);
@@ -75,7 +73,7 @@ namespace Nexus.Link.Libraries.Core.Assert
         /// Always fail, with the given <paramref name="message"/>.
         /// </summary>
         [StackTraceHidden]
-        [ContractAnnotation("=> halt")]
+        
         public static void Fail(string message)
         {
             InternalContract.RequireNotNullOrWhiteSpace(message, nameof(message));

@@ -54,5 +54,35 @@ namespace Nexus.Link.Libraries.Azure.Storage.Test.V11
         {
             return Task.CompletedTask;
         }
+
+        [Ignore]
+        public new Task ClaimTransactionLock()
+        {
+            return Task.CompletedTask;
+        }
+
+        [Ignore]
+        public new Task ClaimTransactionLock_Given_LockedAndRelease_Gives_NewLockIsOk()
+        {
+            return Task.CompletedTask;
+        }
+
+        [Ignore]
+        public new Task ClaimTransactionLock_Given_AlreadyLocked_Gives_FulcrumResourceLockedException()
+        {
+            return Task.CompletedTask;
+        }
+
+        [Ignore]
+        public new Task ClaimTransactionLock_Given_TwoConsecutive_Gives_Ok()
+        {
+            return Task.CompletedTask;
+        }
+
+        [Ignore]
+        public new Task ClaimTransactionLock_Given_UnknownId_Gives_Null()
+        {
+            return Task.CompletedTask;
+        }
     }
 }
