@@ -17,7 +17,7 @@ namespace Nexus.Link.Libraries.Core.Storage.Logic
     /// </summary>
     public static class StorageHelper
     {
-        private static readonly SpinLock SpinLock = new SpinLock(false);
+        private static SpinLock _spinLock = new SpinLock(false);
         private static GuidOptimization _optimization = GuidOptimization.None;
         private static IGuidGenerator _guidGenerator = null;
 
@@ -34,7 +34,7 @@ namespace Nexus.Link.Libraries.Core.Storage.Logic
                 if (_optimization == value)
                     return;
                 var lockTaken = false;
-                SpinLock.Enter(ref lockTaken);
+                _spinLock.Enter(ref lockTaken);
                 _optimization = value;
                 switch (_optimization)
                 {
@@ -58,7 +58,7 @@ namespace Nexus.Link.Libraries.Core.Storage.Logic
                         throw new ArgumentOutOfRangeException();
                 }
                 if (lockTaken)
-                    SpinLock.Exit();
+                    _spinLock.Exit();
             }
         }
 
