@@ -4,6 +4,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Transactions;
 using Nexus.Link.Libraries.Core.Error.Logic;
+using Nexus.Link.Libraries.Core.Storage.Logic;
 using Nexus.Link.Libraries.Crud.Model;
 using Nexus.Link.Libraries.SqlServer.Model;
 
@@ -59,7 +60,7 @@ namespace Nexus.Link.Libraries.SqlServer.Logic
                 {
                     distributedLock = new DistributedLockRecord
                     {
-                        LockId = Guid.NewGuid(),
+                        LockId = StorageHelper.CreateNewId<Guid>(),
                         TableName = TableName,
                         LockedRecordId = recordToLockId,
                         ValidUntil = DateTimeOffset.UtcNow + lockTimeSpan.Value
@@ -97,7 +98,7 @@ namespace Nexus.Link.Libraries.SqlServer.Logic
             if (distributedLock.LockId != currentLockId)
             {
                 // The lock was owned by someone else, but it is stale. Steal it
-                distributedLock.LockId = Guid.NewGuid();
+                distributedLock.LockId = StorageHelper.CreateNewId<Guid>();
             }
             distributedLock.ValidUntil = DateTimeOffset.UtcNow + lockTimeSpan.Value;
 

@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using Newtonsoft.Json;
 using Nexus.Link.Libraries.Core.Assert;
 using Nexus.Link.Libraries.Core.EntityAttributes;
+using Nexus.Link.Libraries.Core.Storage.Logic.SequentialGuid;
 using Nexus.Link.Libraries.Core.Storage.Model;
 
 namespace Nexus.Link.Libraries.Core.Storage.Logic
@@ -16,6 +17,59 @@ namespace Nexus.Link.Libraries.Core.Storage.Logic
     /// </summary>
     public static class StorageHelper
     {
+        private static readonly SpinLock SpinLock = new SpinLock(false);
+        private static GuidOptimization _optimization = GuidOptimization.None;
+        private static IGuidGenerator _guidGenerator = null;
+
+        public static IGuidGenerator GuidGenerator => _guidGenerator;
+
+        /// <summary>
+        /// Gets or sets the type of sequential <see cref="Guid"/> that should be generated.
+        /// </summary>
+        public static GuidOptimization Optimization
+        {
+            get => _optimization;
+            set
+            {
+                if (_optimization == value)
+                    return;
+                var lockTaken = false;
+                SpinLock.Enter(ref lockTaken);
+                _optimization = value;
+                switch (_optimization)
+                {
+                    case GuidOptimization.None:
+                        _guidGenerator = null;
+                        break;
+                    case GuidOptimization.SqlServer:
+                        _guidGenerator = new SqlServerGuidGenerator();
+                        break;
+                    case GuidOptimization.SqlServerWithProcessId:
+                        _guidGenerator = new SqlServerGuidGenerator();
+                        break;
+                    case GuidOptimization.MySql:
+                    case GuidOptimization.RavenDb:
+                        _guidGenerator = new GenericGuidGenerator(SequentialGuidType.AsString);
+                        break;
+                    case GuidOptimization.Oracle:
+                        _guidGenerator = new GenericGuidGenerator(SequentialGuidType.AsBinary);
+                        break;
+                    default:
+                        throw new ArgumentOutOfRangeException();
+                }
+                if (lockTaken)
+                    SpinLock.Exit();
+            }
+        }
+
+        /// <summary>
+        /// Creates a sequential GUID according to <see cref="StorageHelper.Optimization"/> ordering rules.
+        /// </summary>
+        public static Guid NewSequentialGuid()
+        {
+            return StorageHelper.Optimization is GuidOptimization.None ? System.Guid.NewGuid() : StorageHelper.CreateNewId<Guid>();
+        }
+
         /// <summary>
         /// Create a new Id of type <see cref="string"/> or type <see cref="Guid"/>.
         /// </summary>
@@ -26,13 +80,25 @@ namespace Nexus.Link.Libraries.Core.Storage.Logic
             var id = default(TId);
             if (typeof(TId) == typeof(Guid))
             {
-                // ReSharper disable once SuspiciousTypeConversion.Global
-                id = (dynamic)Guid.NewGuid();
+                if (Optimization is GuidOptimization.None)
+                    id = (dynamic)Guid.NewGuid();
+                else
+                    id = (dynamic)_guidGenerator.NewSequentialGuid();
             }
             else if (typeof(TId) == typeof(string))
             {
-                // ReSharper disable once SuspiciousTypeConversion.Global
-                id = (dynamic)Guid.NewGuid().ToString();
+
+                if (Optimization is GuidOptimization.None)
+                {
+                    id = (dynamic)Guid.NewGuid().ToString();
+                }
+                else
+                {
+                    if (_guidGenerator is GenericGuidGenerator { SequentialGuidType: SequentialGuidType.AsString } generator)
+                        id = (dynamic)generator.NewSequentialGuid().ToString();
+                    else
+                        id = (dynamic)new GenericGuidGenerator(SequentialGuidType.AsString).NewSequentialGuid().ToString();
+                }
             }
             else
             {
