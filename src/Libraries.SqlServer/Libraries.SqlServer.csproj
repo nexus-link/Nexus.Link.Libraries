@@ -30,7 +30,7 @@
 
   <PropertyGroup>
     <PackageId>Nexus.Link.Libraries.SqlServer</PackageId>
-    <Version>3.2.0</Version>
+    <Version>3.3.0-beta01-EN</Version>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <PackageTags>nexus;link;fulcrum;lever</PackageTags>
     <Authors>XLENT Link</Authors>
@@ -40,79 +40,80 @@
     <Copyright>Copyright ©2019 Xlent Link AB</Copyright>
     <IncludeSymbols>true</IncludeSymbols>
     <PackageReleaseNotes>
-      3.2.0 Now run distributed lock in its own transaction, ignoring surrounding transactions. Release distributed lock now never fails
-      3.1.5 Bump
-      3.1.2 Added the table default order by for CrudSql.SearchAsync()
-      3.1.1 Added counters for the number of Executions, Queries, INSERT, SELECT, UPDATE, DELETE
-      3.0.1 Bump
-      3.0.0 Updated to Dapper 2.0 and now uses Microsoft.Data.SqlClient instead of System.Data.SqlClient
-      2.17.5 Bump
-      2.17.3 Relaxed the requirements for the parent table in ManyToOneSql: From CrudSql to TabelBase
-      2.17.1 Now returns FulcrumException for some SqlException
-      2.16.0 Dropped support for net461
-      2.15.8 Bump
-      2.15.7 Optimized SearchWhereAsync
-      2.15.6 TableBase.MaybeTransformEtagToRecordVersion now handles empty Etag
-      2.15.5 InternalQueryAsync now calls MaybeTransformEtagToRecordVersion
-      2.15.4 Now throws FulcrumResourceLockedException instead of FulcrumTryAgainException if a resource is locked
-      2.15.3 Bump
-      2.15.2 Moved IRecordVersion to Core
-      2.15.1 Changed Has*Trigger to *CanUseOutput, as it better declares what the option is about
-      2.15.0 Added ISqlTableMetadata.HasInsertTrigger and HasUpdateTrigger to know if we can use OUTPUT or not
-      2.14.0 Support for entity attributes such as PrimaryKeyAttribute
-      2.13.6 Optimizations. CreateAndReturn and UpdateAndReturn now does their jobb in one SQL query instead of two
-      2.13.5 SqlCrud now throws FulcrumContractException when constraints fail
-      2.13.4 Database.NewSqlConnection() is no longer obsolete
-      2.13.3 Use NOLOCK when confirm that object exists in lock method
-      2.13.2 SearchSingleAndLockWhereAsync() now throws FulcrumTryAgainException() if the item is already locked
-      2.13.1 ClaimTransactionLockAndReadAsync() now does this in one operation instead of Lock + Read
-      2.13.0 Added SearchAndLock and InternalQueryAsync. Made SqlExtensions.ConnectAsync thread safe
-      2.12.2 Bad Etag is now considered a FulcrumConflictException
-      2.12.1 Bump
-      2.12.0 Added support for IDistributedLock
-      2.11.0 Added IDatabaseOptions.VerboseLogging
-      2.10.1 Added IDatabaseOptions
-      2.9.4 Bug: Could not search for null values
-      2.9.3 CrudSql now throws FulcrumConflictException instead of SqlException when a unique constraint fails
-      2.9.2 Added ICreateChild and ICreateChildAndReturn
-      2.8.1 Bump
-      2.8.0 Added DependentToMasterWithUniqueId
-      2.7.2 Symbols
-      2.7.1 Added DependentToMaster
-      2.6.3 Added missing cancellation support
-      2.6.2 Old obsolete stuff with errors has been deleted and old with warning has been updated to error.
-      2.6.1 Removed assertion that CreateWithSpecifiedIdAsync should have affected 1 row. (E.g. with triggers, more rows can be affected.)
-      2.6.0 Added ClaimTransactionLockAndReadAsycn()
-      2.5.0 Added Crud ISearch and ISearchChildren
-      2.4.2 Corrected failing SQL statement
-      2.4.1 Added logging of statement when execution fails.
-      2.4.0 Added ITransactionLock.
-      2.3.2 Now uses sysutcdatetime() for RecordUpdatedAt.
-      2.3.1 Added synchronous CircuitBreaker.
-      2.3.0 Now uses the new CircuitBreaker functionality from Core.
-      2.2.0 Sql connection circuit breaker
-      2.1.4 Now sets RecordUpdatedAt to DateTimeOffset.UtcNow. Also bump Libraries.Core.
-      2.1.3 Bug: Validated the wrong item. Fixed.
-      2.1.2 Bug: IRecordVersion was not supported in general. Fix: Moved the support into methods close to DB to cover more methods, even custom methods.
-      2.1.1 Bug: IRecordVersion was not supported in ReadAllAsync() and ReadAllByPagingAsync(). Fixed.
-      2.1.0 Now supports IRecordVersion.
-      2.0.15 Bug: Validate at the wrong place.
-      2.0.14 Bump
-      2.0.13 Bump
-      2.0.10 Fixed an issue where some order by prefixes included a '.' which caused errors
-      2.0.8 Bump
-      2.0.7 Fix: Wrong inheritence for ManyToOneSql
-      2.0.6 Fix: PackageProjectUrl for this nuget package
-      2.0.5 Bump
-      2.0.1 Depends on major change in Libraries.Core
-      1.0.9 Bumped version
-      1.0.8 Bugfix in ManyToOneSql
-      1.0.7 Bumped version. New solution and build pipeline.
-      1.0.6 Bugfix in SlaveToMasterSql
-      1.0.5 Updated dependencies
-      1.0.0 Core lib with support for .net standard
-      0.1.0 Release candidate with support for .net standard
-    </PackageReleaseNotes>
+		3.3.0 Now supports possibilty to choose SequentialGuids for Id generation. Added implementation for IMaintainableCrudSql to allow for database maintenance jobs.
+		3.2.0 Now run distributed lock in its own transaction, ignoring surrounding transactions. Release distributed lock now never fails
+		3.1.5 Bump
+		3.1.2 Added the table default order by for CrudSql.SearchAsync()
+		3.1.1 Added counters for the number of Executions, Queries, INSERT, SELECT, UPDATE, DELETE
+		3.0.1 Bump
+		3.0.0 Updated to Dapper 2.0 and now uses Microsoft.Data.SqlClient instead of System.Data.SqlClient
+		2.17.5 Bump
+		2.17.3 Relaxed the requirements for the parent table in ManyToOneSql: From CrudSql to TabelBase
+		2.17.1 Now returns FulcrumException for some SqlException
+		2.16.0 Dropped support for net461
+		2.15.8 Bump
+		2.15.7 Optimized SearchWhereAsync
+		2.15.6 TableBase.MaybeTransformEtagToRecordVersion now handles empty Etag
+		2.15.5 InternalQueryAsync now calls MaybeTransformEtagToRecordVersion
+		2.15.4 Now throws FulcrumResourceLockedException instead of FulcrumTryAgainException if a resource is locked
+		2.15.3 Bump
+		2.15.2 Moved IRecordVersion to Core
+		2.15.1 Changed Has*Trigger to *CanUseOutput, as it better declares what the option is about
+		2.15.0 Added ISqlTableMetadata.HasInsertTrigger and HasUpdateTrigger to know if we can use OUTPUT or not
+		2.14.0 Support for entity attributes such as PrimaryKeyAttribute
+		2.13.6 Optimizations. CreateAndReturn and UpdateAndReturn now does their jobb in one SQL query instead of two
+		2.13.5 SqlCrud now throws FulcrumContractException when constraints fail
+		2.13.4 Database.NewSqlConnection() is no longer obsolete
+		2.13.3 Use NOLOCK when confirm that object exists in lock method
+		2.13.2 SearchSingleAndLockWhereAsync() now throws FulcrumTryAgainException() if the item is already locked
+		2.13.1 ClaimTransactionLockAndReadAsync() now does this in one operation instead of Lock + Read
+		2.13.0 Added SearchAndLock and InternalQueryAsync. Made SqlExtensions.ConnectAsync thread safe
+		2.12.2 Bad Etag is now considered a FulcrumConflictException
+		2.12.1 Bump
+		2.12.0 Added support for IDistributedLock
+		2.11.0 Added IDatabaseOptions.VerboseLogging
+		2.10.1 Added IDatabaseOptions
+		2.9.4 Bug: Could not search for null values
+		2.9.3 CrudSql now throws FulcrumConflictException instead of SqlException when a unique constraint fails
+		2.9.2 Added ICreateChild and ICreateChildAndReturn
+		2.8.1 Bump
+		2.8.0 Added DependentToMasterWithUniqueId
+		2.7.2 Symbols
+		2.7.1 Added DependentToMaster
+		2.6.3 Added missing cancellation support
+		2.6.2 Old obsolete stuff with errors has been deleted and old with warning has been updated to error.
+		2.6.1 Removed assertion that CreateWithSpecifiedIdAsync should have affected 1 row. (E.g. with triggers, more rows can be affected.)
+		2.6.0 Added ClaimTransactionLockAndReadAsycn()
+		2.5.0 Added Crud ISearch and ISearchChildren
+		2.4.2 Corrected failing SQL statement
+		2.4.1 Added logging of statement when execution fails.
+		2.4.0 Added ITransactionLock.
+		2.3.2 Now uses sysutcdatetime() for RecordUpdatedAt.
+		2.3.1 Added synchronous CircuitBreaker.
+		2.3.0 Now uses the new CircuitBreaker functionality from Core.
+		2.2.0 Sql connection circuit breaker
+		2.1.4 Now sets RecordUpdatedAt to DateTimeOffset.UtcNow. Also bump Libraries.Core.
+		2.1.3 Bug: Validated the wrong item. Fixed.
+		2.1.2 Bug: IRecordVersion was not supported in general. Fix: Moved the support into methods close to DB to cover more methods, even custom methods.
+		2.1.1 Bug: IRecordVersion was not supported in ReadAllAsync() and ReadAllByPagingAsync(). Fixed.
+		2.1.0 Now supports IRecordVersion.
+		2.0.15 Bug: Validate at the wrong place.
+		2.0.14 Bump
+		2.0.13 Bump
+		2.0.10 Fixed an issue where some order by prefixes included a '.' which caused errors
+		2.0.8 Bump
+		2.0.7 Fix: Wrong inheritence for ManyToOneSql
+		2.0.6 Fix: PackageProjectUrl for this nuget package
+		2.0.5 Bump
+		2.0.1 Depends on major change in Libraries.Core
+		1.0.9 Bumped version
+		1.0.8 Bugfix in ManyToOneSql
+		1.0.7 Bumped version. New solution and build pipeline.
+		1.0.6 Bugfix in SlaveToMasterSql
+		1.0.5 Updated dependencies
+		1.0.0 Core lib with support for .net standard
+		0.1.0 Release candidate with support for .net standard
+	</PackageReleaseNotes>
     <GeneratePackageOnBuild>False</GeneratePackageOnBuild>
   </PropertyGroup>
 
