@@ -13,7 +13,7 @@ namespace Nexus.Link.Libraries.Core.Storage.Logic.SequentialGuid;
 /// <summary>
 /// Optimized Guid generator for SQL Server.
 /// </summary>
-/// Source: https://github.com/phatboyg/NewId/tree/develop/src/NewId (simplified and modified)
+/// Source: https://github.com/phatboyg/NewId/tree/develop/src/NewId (simplified and modified by IRM)
 public class SqlServerGuidGenerator : IGuidGenerator
 {
     private readonly int _c;
