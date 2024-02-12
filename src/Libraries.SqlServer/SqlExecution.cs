@@ -11,6 +11,7 @@ using Nexus.Link.Libraries.Core.Assert;
 using Nexus.Link.Libraries.Core.Error.Logic;
 using Nexus.Link.Libraries.Core.Logging;
 using Nexus.Link.Libraries.Core.Storage.Logic;
+using Nexus.Link.Libraries.Core.Storage.Logic.SequentialGuid;
 using Nexus.Link.Libraries.SqlServer.Logic;
 using Nexus.Link.Libraries.SqlServer.Model;
 using IRecordVersion = Nexus.Link.Libraries.Core.Storage.Model.IRecordVersion;
@@ -106,6 +107,11 @@ public class SqlExecution
 
     protected SqlExecution(ISqlTableMetadata tableMetadata, IDatabaseOptions options)
     {
+        if (options.GuidOptimization is not (GuidOptimization.None or GuidOptimization.SqlServer or GuidOptimization.SqlServerWithProcessId))
+        {
+            FulcrumAssert.Fail($"{nameof(options.GuidOptimization)} must be one of {nameof(GuidOptimization.None)}, {nameof(GuidOptimization.SqlServer)} or {GuidOptimization.SqlServerWithProcessId} for SQL server");
+        }
+
         Database = new Database(options);
         TableMetadata = tableMetadata;
     }

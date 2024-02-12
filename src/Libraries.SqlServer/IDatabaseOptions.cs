@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
+using Nexus.Link.Libraries.Core.Storage.Logic.SequentialGuid;
 using Nexus.Link.Libraries.SqlServer.Model;
 
 namespace Nexus.Link.Libraries.SqlServer
@@ -39,6 +40,11 @@ namespace Nexus.Link.Libraries.SqlServer
         /// This is the number that the database implementor has used as error number from triggers that are advanced constraints.
         /// </summary>
         int? TriggerConstraintSqlExceptionErrorNumber { get; set;  }
+
+        /// <summary>
+        /// The optimization to use for GUIDs
+        /// </summary>
+        GuidOptimization? GuidOptimization { get; set; }
     }
 
     public class DatabaseOptions : IDatabaseOptions
@@ -60,5 +66,7 @@ namespace Nexus.Link.Libraries.SqlServer
 
         /// <inheritdoc />
         public int? TriggerConstraintSqlExceptionErrorNumber { get; set; }
+
+        public GuidOptimization? GuidOptimization { get; set; }
     }
 }

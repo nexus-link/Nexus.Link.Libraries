@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using Newtonsoft.Json;
 using Nexus.Link.Libraries.Core.Assert;
 using Nexus.Link.Libraries.Core.EntityAttributes;
+using Nexus.Link.Libraries.Core.Error.Logic;
 using Nexus.Link.Libraries.Core.Storage.Logic.SequentialGuid;
 using Nexus.Link.Libraries.Core.Storage.Model;
 
@@ -45,7 +46,7 @@ namespace Nexus.Link.Libraries.Core.Storage.Logic
                         _guidGenerator = new SqlServerGuidGenerator();
                         break;
                     case GuidOptimization.SqlServerWithProcessId:
-                        _guidGenerator = new SqlServerGuidGenerator();
+                        _guidGenerator = new SqlServerGuidGenerator(useProcessId: true);
                         break;
                     case GuidOptimization.MySql:
                     case GuidOptimization.RavenDb:
@@ -71,7 +72,7 @@ namespace Nexus.Link.Libraries.Core.Storage.Logic
         }
 
         /// <summary>
-        /// Create a new Id of type <see cref="string"/> or type <see cref="Guid"/>.
+        /// Create a new Id of type <see cref="string"/> or type <see cref="Guid"/> based on StorageHelper.Optimization.
         /// </summary>
         /// <typeparam name="TId"></typeparam>
         /// <returns></returns>
@@ -87,7 +88,6 @@ namespace Nexus.Link.Libraries.Core.Storage.Logic
             }
             else if (typeof(TId) == typeof(string))
             {
-
                 if (Optimization is GuidOptimization.None)
                 {
                     id = (dynamic)Guid.NewGuid().ToString();
@@ -106,6 +106,49 @@ namespace Nexus.Link.Libraries.Core.Storage.Logic
                     $"{nameof(CreateNewId)} can handle Guid and string as type for Id, but it can't handle {typeof(TId)}.");
             }
             return id;
+        }
+
+        /// <summary>
+        /// Create a new Id of type <see cref="string"/> or type <see cref="Guid"/> based on the inputted optimization.
+        /// </summary>
+        /// <typeparam name="TId"></typeparam>
+        /// <returns></returns>
+        public static TId CreateNewId<TId>(GuidOptimization optimization)
+        {
+            if (optimization == StorageHelper.Optimization)
+                return CreateNewId<TId>();
+
+            Guid idAsGuid;
+            switch (optimization)
+            {
+                case GuidOptimization.None:
+                    idAsGuid = Guid.NewGuid();
+                    break;
+                case GuidOptimization.SqlServer:
+                    idAsGuid = new SqlServerGuidGenerator().NewSequentialGuid();
+                    break;
+                case GuidOptimization.SqlServerWithProcessId:
+                    idAsGuid = new SqlServerGuidGenerator(useProcessId: true).NewSequentialGuid();
+                    break;
+                case GuidOptimization.MySql:
+                case GuidOptimization.RavenDb:
+                    idAsGuid = new GenericGuidGenerator(SequentialGuidType.AsString).NewSequentialGuid();
+                    break;
+                case GuidOptimization.Oracle:
+                    idAsGuid = new GenericGuidGenerator(SequentialGuidType.AsBinary).NewSequentialGuid();
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
+
+            if (typeof(TId) == typeof(Guid))
+                return (dynamic)idAsGuid;
+
+            if (typeof(TId) == typeof(string))
+                return (dynamic)idAsGuid.ToString();
+
+            FulcrumAssert.Fail(null, $"{nameof(CreateNewId)} can handle Guid and string as type for Id, but it can't handle {typeof(TId)}.");
+            throw new FulcrumAssertionFailedException($"Should never happen - F4D024E5-F613-4438-B948-60BD0590ED88");
         }
 
         /// <summary>

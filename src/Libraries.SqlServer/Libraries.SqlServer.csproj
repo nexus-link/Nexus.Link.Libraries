@@ -17,7 +17,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.Data.SqlClient" Version="5.1.1" />
+    <PackageReference Include="Microsoft.Data.SqlClient" Version="5.1.5" />
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1" PrivateAssets="All" />
     <PackageReference Include="Dapper" Version="2.0.151" />
   </ItemGroup>
@@ -115,6 +115,7 @@
 		0.1.0 Release candidate with support for .net standard
 	</PackageReleaseNotes>
     <GeneratePackageOnBuild>False</GeneratePackageOnBuild>
+    <UserSecretsId>dbbb227c-aa4a-4588-8701-15405ac5b035</UserSecretsId>
   </PropertyGroup>
 
   <!-- Automatic generation of local alpha packages -->

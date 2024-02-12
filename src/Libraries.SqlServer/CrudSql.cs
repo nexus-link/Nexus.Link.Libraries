@@ -78,7 +78,7 @@ namespace Nexus.Link.Libraries.SqlServer
         /// <inheritdoc />
         public async Task<Guid> CreateAsync(TDatabaseItemCreate item, CancellationToken token = default)
         {
-            var id = StorageHelper.CreateNewId<Guid>();
+            var id = this.CreateNewId<Guid>();
             await CreateWithSpecifiedIdAsync(id, item, token);
             return id;
         }
@@ -86,7 +86,7 @@ namespace Nexus.Link.Libraries.SqlServer
         /// <inheritdoc />
         public async Task<TDatabaseItem> CreateAndReturnAsync(TDatabaseItemCreate item, CancellationToken token = default)
         {
-            var id = StorageHelper.CreateNewId<Guid>();
+            var id = this.CreateNewId<Guid>();
             return await CreateWithSpecifiedIdAndReturnAsync(id, item, token);
         }
 

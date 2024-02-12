@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System;
+using System.Threading;
 using Nexus.Link.Libraries.Core.Storage.Logic;
 using Nexus.Link.Libraries.Core.Storage.Logic.SequentialGuid;
 
@@ -39,6 +40,10 @@ namespace Nexus.Link.Libraries.Core.Tests.Storage
                 .Any(x => x.Count > 1);
 
             Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsFalse(duplicatesExists);
+            for (var i = 0; i < list.Count - 1; i++)
+            {
+                Console.WriteLine(list[i]);
+            }
         }
 
         [TestMethod]
@@ -84,6 +89,7 @@ namespace Nexus.Link.Libraries.Core.Tests.Storage
 
             foreach (IGrouping<Guid, Guid> newId in duplicates)
                 Console.WriteLine("{0} {1}", newId.Key, newId.Count());
+
         }
 
         [TestMethod]
@@ -101,7 +107,9 @@ namespace Nexus.Link.Libraries.Core.Tests.Storage
 
             var ids = new Guid[limit];
             for (var i = 0; i < limit; i++)
+            {
                 ids[i] = GuidExtensions.NewSequentialGuid();
+            }
 
             for (var i = 0; i < limit - 1; i++)
             {
