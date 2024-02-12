@@ -107,7 +107,7 @@ public class SqlExecution
 
     protected SqlExecution(ISqlTableMetadata tableMetadata, IDatabaseOptions options)
     {
-        if (options.GuidOptimization is not (GuidOptimization.None or GuidOptimization.SqlServer or GuidOptimization.SqlServerWithProcessId))
+        if (options.GuidOptimization is not (null or GuidOptimization.None or GuidOptimization.SqlServer or GuidOptimization.SqlServerWithProcessId))
         {
             FulcrumAssert.Fail($"{nameof(options.GuidOptimization)} must be one of {nameof(GuidOptimization.None)}, {nameof(GuidOptimization.SqlServer)} or {GuidOptimization.SqlServerWithProcessId} for SQL server");
         }
