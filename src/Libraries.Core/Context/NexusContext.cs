@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Security.Principal;
 using Nexus.Link.Libraries.Core.MultiTenant.Model;
 using Nexus.Link.Libraries.Core.Platform.Configurations;
@@ -26,6 +27,7 @@ namespace Nexus.Link.Libraries.Core.Context
         private readonly OneValueProvider<string> _nexusTestContext;
         private readonly OneValueProvider<string> _managedAsynchronousRequestId;
         private readonly OneValueProvider<string> _reentryAuthentication;
+        private readonly OneValueProvider<Stopwatch> _requestStopwatch;
 
         public NexusContext(IContextValueProvider valueProvider)
         {
@@ -47,6 +49,7 @@ namespace Nexus.Link.Libraries.Core.Context
             _executionIsAsynchronous = new OneValueProvider<bool>(ValueProvider, "ExecutionIsAsynchronous");
             _asyncRequestId = new OneValueProvider<string>(ValueProvider, "AsyncRequestId");
             _asyncPriority = new OneValueProvider<double>(ValueProvider, "AsyncPriority");
+            _requestStopwatch = new OneValueProvider<Stopwatch>(ValueProvider, "RequestStopwatch");
         }
 
         /// <summary>
@@ -206,6 +209,18 @@ namespace Nexus.Link.Libraries.Core.Context
         {
             get => _reentryAuthentication.GetValue();
             set => _reentryAuthentication.SetValue(value);
+        }
+
+        /// <summary>
+        /// If non-null, a stopwatch that was started at the beginning of executing an inbound request
+        /// </summary>
+        /// <remarks>
+        /// This is used in a WEB API environment.
+        /// </remarks>
+        public Stopwatch RequestStopwatch
+        {
+            get => _requestStopwatch.GetValue();
+            set => _requestStopwatch.SetValue(value);
         }
 
     }
