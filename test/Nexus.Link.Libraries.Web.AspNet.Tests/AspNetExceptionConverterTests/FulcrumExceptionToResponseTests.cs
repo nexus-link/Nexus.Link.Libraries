@@ -58,7 +58,7 @@ namespace Nexus.Link.Libraries.Web.AspNet.Tests.AspNetExceptionConverterTests
             await Task.CompletedTask;
 #endif
             // ReSharper disable once PossibleInvalidOperationException
-            Assert.AreEqual((int) HttpStatusCode.Accepted, (int) result.StatusCode);
+            Assert.AreEqual((int)HttpStatusCode.Accepted, (int)result.StatusCode);
         }
 
         [TestMethod]
@@ -140,7 +140,7 @@ namespace Nexus.Link.Libraries.Web.AspNet.Tests.AspNetExceptionConverterTests
             await Task.CompletedTask;
 #endif
             // ReSharper disable once PossibleInvalidOperationException
-            Assert.AreEqual((int) (HttpStatusCode)423, (int) result.StatusCode);
+            Assert.AreEqual((int)(HttpStatusCode)423, (int)result.StatusCode);
         }
 
         [TestMethod]
@@ -174,7 +174,7 @@ namespace Nexus.Link.Libraries.Web.AspNet.Tests.AspNetExceptionConverterTests
             await Task.CompletedTask;
 #endif
             // ReSharper disable once PossibleInvalidOperationException
-            Assert.AreEqual((int) HttpStatusCode.InternalServerError, (int) result.StatusCode);
+            Assert.AreEqual((int)HttpStatusCode.InternalServerError, (int)result.StatusCode);
         }
 
         [TestMethod]
@@ -218,20 +218,29 @@ namespace Nexus.Link.Libraries.Web.AspNet.Tests.AspNetExceptionConverterTests
         [TestMethod]
         public async Task OperationCanceledException_With_Server_Timeout()
         {
-            AspNetExceptionConverter.WebServerExecutionTimeLimit = TimeSpan.Zero;
-            FulcrumApplication.Context.RequestStopwatch = new Stopwatch();
-            FulcrumApplication.Context.RequestStopwatch.Start();
+            var originalLimit = AspNetExceptionConverter.WebServerExecutionTimeLimit;
 
-            var exception = new OperationCanceledException("message");
+            try
+            {
+                AspNetExceptionConverter.WebServerExecutionTimeLimit = TimeSpan.Zero;
+                FulcrumApplication.Context.RequestStopwatch = new Stopwatch();
+                FulcrumApplication.Context.RequestStopwatch.Start();
+
+                var exception = new OperationCanceledException("message");
 #if NETCOREAPP
-            var context = new DefaultHttpContext();
-            var result = context.Response;
-            await AspNetExceptionConverter.ConvertExceptionToResponseAsync(exception, result);
+                var context = new DefaultHttpContext();
+                var result = context.Response;
+                await AspNetExceptionConverter.ConvertExceptionToResponseAsync(exception, result);
 #else
             var result = AspNetExceptionConverter.ToHttpResponseMessage(exception, null);
             await Task.CompletedTask;
 #endif
-            ((int)result.StatusCode).ShouldBe(500);
+                ((int)result.StatusCode).ShouldBe(500);
+            }
+            finally
+            {
+                AspNetExceptionConverter.WebServerExecutionTimeLimit = originalLimit;
+            }
         }
 
         [TestMethod]

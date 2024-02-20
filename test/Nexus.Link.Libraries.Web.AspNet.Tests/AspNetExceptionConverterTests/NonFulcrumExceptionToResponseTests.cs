@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Net;
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -46,22 +47,29 @@ namespace Nexus.Link.Libraries.Web.AspNet.Tests.AspNetExceptionConverterTests
         }
 
         [TestMethod]
-        public async Task Given_ExternalCancel_Gives_HttpStatus400()
+        public async Task Given_ClientCancel_Gives_HttpStatus499()
         {
+            FulcrumApplication.Context.RequestStopwatch = new Stopwatch();
+            FulcrumApplication.Context.RequestStopwatch.Start();
+
             var exception = new OperationCanceledException();
             var tokenSource = new CancellationTokenSource(1);
             tokenSource.Cancel();
+
+            string responseContent;
 #if NETCOREAPP
             var context = new DefaultHttpContext();
             var response = context.Response;
             response.Body = new MemoryStream();
             await AspNetExceptionConverter.ConvertExceptionToResponseAsync(exception, response, tokenSource.Token);
+            responseContent = await GetContentAsync(response);
 #else
             var response = AspNetExceptionConverter.ToHttpResponseMessage(exception, tokenSource.Token);
             await Task.CompletedTask;
+            responseContent = await response.Content.ReadAsStringAsync();
 #endif
             // ReSharper disable once PossibleInvalidOperationException
-            Assert.AreEqual((int)HttpStatusCode.BadRequest, (int)response.StatusCode);
+            Assert.AreEqual(499, (int)response.StatusCode, responseContent);
         }
 
 #if NETCOREAPP

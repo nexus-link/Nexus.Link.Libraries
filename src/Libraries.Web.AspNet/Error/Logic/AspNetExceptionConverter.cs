@@ -192,7 +192,7 @@ namespace Nexus.Link.Libraries.Web.AspNet.Error.Logic
                 switch (e)
                 {
                     case OperationCanceledException operationCanceledException:
-                        if ((!originalRequestToken.HasValue || originalRequestToken.Value.IsCancellationRequested) &&
+                        if (originalRequestToken is { IsCancellationRequested: true } &&
                             FulcrumApplication.Context.RequestStopwatch != null &&
                             FulcrumApplication.Context.RequestStopwatch.Elapsed < WebServerExecutionTimeLimit)
                         {
