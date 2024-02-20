@@ -1,5 +1,6 @@
 ﻿using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Newtonsoft.Json;
 using Nexus.Link.Libraries.Core.Error.Logic;
 using Nexus.Link.Libraries.Core.Error.Model;
 using Shouldly;
@@ -75,7 +76,8 @@ namespace Nexus.Link.Libraries.Core.Tests.Error
                 IsRetryMeaningful = true,
                 MoreInfoUrl = Guid.NewGuid().ToString(),
                 RecommendedWaitTimeInSeconds = 100.0,
-                ServerTechnicalName = Guid.NewGuid().ToString()
+                ServerTechnicalName = Guid.NewGuid().ToString(),
+                SerializedData = "{\"MS_LoggedBy\":[{}]}"
             };
             var fulcrumException = new FulcrumConflictException(Guid.NewGuid().ToString());
             fulcrumException.CopyFrom(fulcrumError);

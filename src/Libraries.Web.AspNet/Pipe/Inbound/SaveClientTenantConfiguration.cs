@@ -4,6 +4,8 @@ using System.Threading.Tasks;
 using Nexus.Link.Libraries.Core.Application;
 using Nexus.Link.Libraries.Core.Assert;
 using Nexus.Link.Libraries.Core.Error.Logic;
+using Nexus.Link.Libraries.Core.Misc;
+using Nexus.Link.Libraries.Core.MultiTenant.Model;
 using Nexus.Link.Libraries.Core.Platform.Configurations;
 
 #if NETCOREAPP
@@ -48,34 +50,45 @@ namespace Nexus.Link.Libraries.Web.AspNet.Pipe.Inbound
         protected override async Task InvokeAsync(CompabilityInvocationContext context, CancellationToken cancellationToken)
         {
             InternalContract.Require(!DelegateState.HasStarted, $"{nameof(SaveClientTenantConfiguration)} has already been started in this http request.");
-            InternalContract.Require(SaveClientTenant.HasStarted,
-                $"{nameof(SaveClientTenantConfiguration)} must be preceded by {nameof(SaveClientTenant)}.");
-            InternalContract.Require(!SaveCorrelationId.HasStarted,
-                $"{nameof(SaveCorrelationId)} must not precede {nameof(SaveClientTenantConfiguration)}");
+            InternalContract.Require(SaveClientTenant.HasStarted, $"{nameof(SaveClientTenantConfiguration)} must be preceded by {nameof(SaveClientTenant)}.");
+            InternalContract.Require(!SaveCorrelationId.HasStarted, $"{nameof(SaveCorrelationId)} must not precede {nameof(SaveClientTenantConfiguration)}");
+
             HasStarted = true;
             var tenant = FulcrumApplication.Context.ClientTenant;
             if (tenant != null)
             {
-                try
+                // SaveConfiguration should be run before SaveCorrelationId, so setup correlation id from request header if necessary
+                if (string.IsNullOrWhiteSpace(FulcrumApplication.Context.CorrelationId))
                 {
-                    // SaveConfiguration should be run before SaveCorrelationId, so setup correlation id from request header if necessary
-                    if (string.IsNullOrWhiteSpace(FulcrumApplication.Context.CorrelationId))
-                    {
-                        var correlationId = SaveCorrelationId.ExtractCorrelationIdFromHeader(context);
-                        if (!string.IsNullOrWhiteSpace(correlationId))
-                            FulcrumApplication.Context.CorrelationId = correlationId;
-                    }
+                    var correlationId = SaveCorrelationId.ExtractCorrelationIdFromHeader(context);
+                    if (!string.IsNullOrWhiteSpace(correlationId)) FulcrumApplication.Context.CorrelationId = correlationId;
+                }
 
-                    FulcrumApplication.Context.LeverConfiguration =
-                        await _serviceConfiguration.GetConfigurationForAsync(tenant, cancellationToken);
-                }
-                catch (FulcrumNotFoundException e)
+                // TODO: timer?
+                for (var i = 0; i < 3; i++)
                 {
-                    throw new FulcrumNotFoundException($"{FulcrumApplication.Setup.Name} could not find its configuration in Fundamentals for tenant {tenant}: {e}", e);
-                }
-                catch (Exception e)
-                {
-                    throw new FulcrumAssertionFailedException($"{FulcrumApplication.Setup.Name} could not get its configuration in Fundamentals for tenant {tenant}: {e}", e); ;
+                    try
+                    {
+                        FulcrumApplication.Context.LeverConfiguration = await _serviceConfiguration.GetConfigurationForAsync(tenant, cancellationToken);
+                        break;
+                    }
+                    catch (FulcrumTryAgainException)
+                    {
+                        await TaskHelper.RandomDelayAsync(TimeSpan.FromSeconds(0.2), TimeSpan.FromSeconds(0.5), cancellationToken);
+                        continue;
+                    }
+                    catch (FulcrumNotFoundException e)
+                    {
+                        throw new FulcrumNotFoundException($"{FulcrumApplication.Setup.Name} could not find its configuration in Fundamentals for tenant {tenant}: {e}", e);
+                    }
+                    catch (Exception e)
+                    {
+                        if (cancellationToken.IsCancellationRequested) // AND 120 s
+                        {
+                            // TODO: Another exception?
+                        }
+                        throw new FulcrumAssertionFailedException($"{FulcrumApplication.Setup.Name} could not get its configuration in Fundamentals for tenant {tenant}: {e}", e); ;
+                    }
                 }
             }
 
