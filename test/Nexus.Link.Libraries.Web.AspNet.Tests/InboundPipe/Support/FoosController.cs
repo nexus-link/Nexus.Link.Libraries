@@ -104,6 +104,8 @@ namespace Nexus.Link.Libraries.Web.AspNet.Tests.InboundPipe.Support
             // Setup by DelegatingHandler registered in TestStartup
             return FulcrumApplication.Context.NexusTestContext ?? "<not setup>";
         }
+        
+        public static bool DelayMethodStarted { get; private set; }
         public static Exception LatestException { get; private set; }
         public static CancellationToken? LatestRequestCancellationToken { get; private set; }
         public static bool LatestRequestCancellationTokenIsCancellationRequested { get; private set; }
@@ -126,6 +128,7 @@ namespace Nexus.Link.Libraries.Web.AspNet.Tests.InboundPipe.Support
             var combinedTokenSource = CancellationTokenSource.CreateLinkedTokenSource(internalTokenSource.Token, token);
             try
             {
+                DelayMethodStarted = true;
                 await Task.Delay(delayMilliseconds, combinedTokenSource.Token);
             }
             catch (Exception ex)
@@ -137,6 +140,7 @@ namespace Nexus.Link.Libraries.Web.AspNet.Tests.InboundPipe.Support
             {
                 ExecutionCount++;
                 LatestRequestCancellationTokenIsCancellationRequested = LatestRequestCancellationToken.Value.IsCancellationRequested;
+                DelayMethodStarted = false;
             }
         }
     }

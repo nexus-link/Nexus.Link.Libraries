@@ -51,7 +51,8 @@ namespace Nexus.Link.Libraries.Web.AspNet.Tests.InboundPipe
             var cts = new CancellationTokenSource();
 
             var task = _httpClient.SendAsync(request, cts.Token);
-            await Task.Delay(100);
+
+            while (!FoosController.DelayMethodStarted) await Task.Delay(1);
             cts.Cancel(true);
             await task.ShouldThrowAsync<TaskCanceledException>();
 
