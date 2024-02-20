@@ -9,6 +9,8 @@ using Nexus.Link.Libraries.Core.Application;
 using Nexus.Link.Libraries.Core.Error.Logic;
 using Nexus.Link.Libraries.Core.Error.Model;
 using Nexus.Link.Libraries.Web.Error.Logic;
+using Nexus.Link.Libraries.Web.Pipe;
+using Shouldly;
 
 namespace Nexus.Link.Libraries.Web.Tests.Error
 {
@@ -129,6 +131,26 @@ namespace Nexus.Link.Libraries.Web.Tests.Error
             Assert.AreEqual(FulcrumContractException.ExceptionType, result.Type);
             var contentAfter = await responseMessage.Content.ReadAsStringAsync();
             Assert.AreEqual(content, contentAfter);
+        }
+
+        [TestMethod]
+        public async Task Convert499()
+        {
+            var fulcrumException = new FulcrumServiceContractException("Test message") { Code = Constants.CanceledByClient };
+            var fulcrumError = new FulcrumError();
+            fulcrumError.CopyFrom(fulcrumException);
+            Assert.IsNotNull(fulcrumError);
+            var json = JObject.FromObject(fulcrumError);
+            var content = json.ToString(Formatting.Indented);
+            var responseMessage = new HttpResponseMessage(HttpStatusCode.BadRequest)
+            {
+                Content = new StringContent(content, Encoding.UTF8)
+            };
+            var result = await ExceptionConverter.ToFulcrumExceptionAsync(responseMessage);
+            result.ShouldNotBeNull();
+            result.InnerException.ShouldNotBeNull();
+            var innerException = result.InnerException.ShouldBeOfType<FulcrumServiceContractException>();
+            innerException.Code.ShouldBe(Constants.CanceledByClient);
         }
     }
 }

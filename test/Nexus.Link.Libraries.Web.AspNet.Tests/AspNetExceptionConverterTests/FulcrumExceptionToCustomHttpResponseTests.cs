@@ -33,7 +33,7 @@ namespace Nexus.Link.Libraries.Web.AspNet.Tests.AspNetExceptionConverterTests
         [ExpectedException(typeof(FulcrumContractException))]
         public void Null()
         {
-            AspNetExceptionConverter.ConvertExceptionToCustomHttpResponse(null);
+            AspNetExceptionConverter.ConvertExceptionToCustomHttpResponse(null, null);
         }
 
         [TestMethod]
@@ -41,7 +41,7 @@ namespace Nexus.Link.Libraries.Web.AspNet.Tests.AspNetExceptionConverterTests
         {
             var url = Guid.NewGuid().ToString();
             var exception = new RequestAcceptedException(url);
-            var result = AspNetExceptionConverter.ConvertExceptionToCustomHttpResponse(exception);
+            var result = AspNetExceptionConverter.ConvertExceptionToCustomHttpResponse(exception, null);
             // ReSharper disable once PossibleInvalidOperationException
             Assert.AreEqual((int) HttpStatusCode.Accepted, (int) result.StatusCode);
         }
@@ -51,7 +51,7 @@ namespace Nexus.Link.Libraries.Web.AspNet.Tests.AspNetExceptionConverterTests
         {
             var id = Guid.NewGuid().ToString();
             var exception = new TestRequestPostponedException(id);
-            var result = AspNetExceptionConverter.ConvertExceptionToCustomHttpResponse(exception);
+            var result = AspNetExceptionConverter.ConvertExceptionToCustomHttpResponse(exception, null);
             // ReSharper disable once PossibleInvalidOperationException
             Assert.AreEqual((int)HttpStatusCode.Accepted, (int)result.StatusCode);
         }
@@ -69,7 +69,7 @@ namespace Nexus.Link.Libraries.Web.AspNet.Tests.AspNetExceptionConverterTests
             var expectedContent = Guid.NewGuid().ToString();
             responseMessage.Headers.Location = new Uri(expectedLocationUrl);
             var exception = new FulcrumHttpRedirectException(responseMessage, expectedContent);
-            var actualResponse = AspNetExceptionConverter.ConvertExceptionToCustomHttpResponse(exception);
+            var actualResponse = AspNetExceptionConverter.ConvertExceptionToCustomHttpResponse(exception, null);
             Assert.AreEqual((int)expectedStatusCode, actualResponse.StatusCode);
             Assert.AreEqual(expectedLocationUrl, actualResponse.LocationUri.OriginalString);
         }
@@ -79,7 +79,7 @@ namespace Nexus.Link.Libraries.Web.AspNet.Tests.AspNetExceptionConverterTests
         {
             var message = Guid.NewGuid().ToString();
             var exception = new FulcrumResourceLockedException(message);
-            var result = AspNetExceptionConverter.ConvertExceptionToCustomHttpResponse(exception);
+            var result = AspNetExceptionConverter.ConvertExceptionToCustomHttpResponse(exception, null);
             // ReSharper disable once PossibleInvalidOperationException
             Assert.AreEqual((int) (HttpStatusCode)423, (int) result.StatusCode);
         }
@@ -89,7 +89,7 @@ namespace Nexus.Link.Libraries.Web.AspNet.Tests.AspNetExceptionConverterTests
         {
             var message = Guid.NewGuid().ToString();
             var exception = new FulcrumAssertionFailedException(message);
-            var result = AspNetExceptionConverter.ConvertExceptionToCustomHttpResponse(exception);
+            var result = AspNetExceptionConverter.ConvertExceptionToCustomHttpResponse(exception, null);
             // ReSharper disable once PossibleInvalidOperationException
             Assert.AreEqual((int)HttpStatusCode.InternalServerError, (int)result.StatusCode);
         }
@@ -99,7 +99,7 @@ namespace Nexus.Link.Libraries.Web.AspNet.Tests.AspNetExceptionConverterTests
         {
             var message = Guid.NewGuid().ToString();
             var exception = new ArgumentNullException("the-parameter-name", message);
-            var result = AspNetExceptionConverter.ConvertExceptionToCustomHttpResponse(exception);
+            var result = AspNetExceptionConverter.ConvertExceptionToCustomHttpResponse(exception, null);
             // ReSharper disable once PossibleInvalidOperationException
             Assert.AreEqual((int) HttpStatusCode.InternalServerError, (int) result.StatusCode);
         }

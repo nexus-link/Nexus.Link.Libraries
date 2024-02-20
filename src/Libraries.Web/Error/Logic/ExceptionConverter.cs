@@ -13,6 +13,7 @@ using Nexus.Link.Libraries.Core.Error.Model;
 using Nexus.Link.Libraries.Core.Logging;
 using Nexus.Link.Libraries.Core.Misc;
 using Nexus.Link.Libraries.Web.Logging;
+using Nexus.Link.Libraries.Web.Pipe;
 
 namespace Nexus.Link.Libraries.Web.Error.Logic
 {
@@ -258,6 +259,10 @@ namespace Nexus.Link.Libraries.Web.Error.Logic
                         fulcrumError.Type = FulcrumTryAgainException.ExceptionType;
                         fulcrumError.IsRetryMeaningful = true;
                         fulcrumError.RecommendedWaitTimeInSeconds = 30;
+                        break;
+                    case (HttpStatusCode) 499: // HttpCode: Client closed the connection
+                        fulcrumError.Type = FulcrumContractException.ExceptionType;
+                        fulcrumError.Code = Constants.CanceledByClient;
                         break;
                     default:
                         fulcrumError.Type = FulcrumServiceContractException.ExceptionType;

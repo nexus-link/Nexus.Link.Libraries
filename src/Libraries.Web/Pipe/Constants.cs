@@ -1,4 +1,5 @@
 ﻿using System;
+using Nexus.Link.Libraries.Core.Error.Logic;
 using Nexus.Link.Libraries.Web.Error;
 
 namespace Nexus.Link.Libraries.Web.Pipe
@@ -68,5 +69,10 @@ namespace Nexus.Link.Libraries.Web.Pipe
         /// Key for setting up translated user id on async local context
         /// </summary>
         public const string TranslatedUserIdKey = "NexusTranslatedUserId";
+
+        /// <summary>
+        /// <see cref="FulcrumException.Code"/> used in <see cref="FulcrumServiceContractException"/> meaning a request was canceled by the client
+        /// </summary>
+        public static string CanceledByClient = "CanceledByClient";
     }
 }

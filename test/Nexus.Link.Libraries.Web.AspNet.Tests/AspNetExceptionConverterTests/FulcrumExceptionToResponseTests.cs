@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Net;
 using System.Net.Http;
@@ -10,6 +11,8 @@ using Nexus.Link.Libraries.Core.Error.Logic;
 using Nexus.Link.Libraries.Web.AspNet.Error.Logic;
 using Nexus.Link.Libraries.Web.Error.Logic;
 using System.Linq;
+using System.Threading;
+using Shouldly;
 #if NETCOREAPP
 using Microsoft.AspNetCore.Http;
 #endif
@@ -36,7 +39,7 @@ namespace Nexus.Link.Libraries.Web.AspNet.Tests.AspNetExceptionConverterTests
 #if NETCOREAPP
             await AspNetExceptionConverter.ConvertExceptionToResponseAsync(null, null);
 #else
-            AspNetExceptionConverter.ToHttpResponseMessage(null);
+            AspNetExceptionConverter.ToHttpResponseMessage(null, null);
             await Task.CompletedTask;
 #endif
         }
@@ -51,7 +54,7 @@ namespace Nexus.Link.Libraries.Web.AspNet.Tests.AspNetExceptionConverterTests
             var result = context.Response;
             await AspNetExceptionConverter.ConvertExceptionToResponseAsync(exception, result);
 #else
-            var result = AspNetExceptionConverter.ToHttpResponseMessage(exception);
+            var result = AspNetExceptionConverter.ToHttpResponseMessage(exception, null);
             await Task.CompletedTask;
 #endif
             // ReSharper disable once PossibleInvalidOperationException
@@ -68,7 +71,7 @@ namespace Nexus.Link.Libraries.Web.AspNet.Tests.AspNetExceptionConverterTests
             var result = context.Response;
             await AspNetExceptionConverter.ConvertExceptionToResponseAsync(exception, result);
 #else
-            var result = AspNetExceptionConverter.ToHttpResponseMessage(exception);
+            var result = AspNetExceptionConverter.ToHttpResponseMessage(exception, null);
             await Task.CompletedTask;
 #endif
             // ReSharper disable once PossibleInvalidOperationException
@@ -87,7 +90,7 @@ namespace Nexus.Link.Libraries.Web.AspNet.Tests.AspNetExceptionConverterTests
             var result = context.Response;
             await AspNetExceptionConverter.ConvertExceptionToResponseAsync(exception, result);
 #else
-            var result = AspNetExceptionConverter.ToHttpResponseMessage(exception);
+            var result = AspNetExceptionConverter.ToHttpResponseMessage(exception, null);
             await Task.CompletedTask;
 #endif
             // ReSharper disable once PossibleInvalidOperationException
@@ -115,7 +118,7 @@ namespace Nexus.Link.Libraries.Web.AspNet.Tests.AspNetExceptionConverterTests
             Assert.IsTrue(actualResponse.Headers.ContainsKey("Location"));
             Assert.AreEqual(expectedLocationUrl, actualResponse.Headers["Location"].FirstOrDefault());
 #else
-            var actualResponse = AspNetExceptionConverter.ToHttpResponseMessage(exception);
+            var actualResponse = AspNetExceptionConverter.ToHttpResponseMessage(exception, null);
             var actualContent = await actualResponse.Content.ReadAsStringAsync();
             Assert.AreEqual((int)expectedStatusCode, (int)actualResponse.StatusCode);
             Assert.AreEqual(expectedLocationUrl, actualResponse.Headers.Location.OriginalString);
@@ -133,7 +136,7 @@ namespace Nexus.Link.Libraries.Web.AspNet.Tests.AspNetExceptionConverterTests
             var result = context.Response;
             await AspNetExceptionConverter.ConvertExceptionToResponseAsync(exception, result);
 #else
-            var result = AspNetExceptionConverter.ToHttpResponseMessage(exception);
+            var result = AspNetExceptionConverter.ToHttpResponseMessage(exception, null);
             await Task.CompletedTask;
 #endif
             // ReSharper disable once PossibleInvalidOperationException
@@ -150,7 +153,7 @@ namespace Nexus.Link.Libraries.Web.AspNet.Tests.AspNetExceptionConverterTests
             var result = context.Response;
             await AspNetExceptionConverter.ConvertExceptionToResponseAsync(exception, result);
 #else
-            var result = AspNetExceptionConverter.ToHttpResponseMessage(exception);
+            var result = AspNetExceptionConverter.ToHttpResponseMessage(exception, null);
             await Task.CompletedTask;
 #endif
             // ReSharper disable once PossibleInvalidOperationException
@@ -167,11 +170,83 @@ namespace Nexus.Link.Libraries.Web.AspNet.Tests.AspNetExceptionConverterTests
             var result = context.Response;
             await AspNetExceptionConverter.ConvertExceptionToResponseAsync(exception, result);
 #else
-            var result = AspNetExceptionConverter.ToHttpResponseMessage(exception);
+            var result = AspNetExceptionConverter.ToHttpResponseMessage(exception, null);
             await Task.CompletedTask;
 #endif
             // ReSharper disable once PossibleInvalidOperationException
             Assert.AreEqual((int) HttpStatusCode.InternalServerError, (int) result.StatusCode);
+        }
+
+        [TestMethod]
+        public async Task OperationCanceledException_With_InternalCancellation()
+        {
+            FulcrumApplication.Context.RequestStopwatch = new Stopwatch();
+            FulcrumApplication.Context.RequestStopwatch.Start();
+
+            var exception = new OperationCanceledException("message");
+#if NETCOREAPP
+            var context = new DefaultHttpContext();
+            var result = context.Response;
+            await AspNetExceptionConverter.ConvertExceptionToResponseAsync(exception, result);
+#else
+            var result = AspNetExceptionConverter.ToHttpResponseMessage(exception, null);
+            await Task.CompletedTask;
+#endif
+            ((int)result.StatusCode).ShouldBe(500);
+        }
+
+        [TestMethod]
+        public async Task OperationCanceledException_With_Client_Cancellation()
+        {
+            FulcrumApplication.Context.RequestStopwatch = new Stopwatch();
+            FulcrumApplication.Context.RequestStopwatch.Start();
+
+            var exception = new OperationCanceledException("message");
+            var cancellationTokenSource = new CancellationTokenSource();
+            cancellationTokenSource.Cancel();
+#if NETCOREAPP
+            var context = new DefaultHttpContext();
+            var result = context.Response;
+            await AspNetExceptionConverter.ConvertExceptionToResponseAsync(exception, result, cancellationTokenSource.Token);
+#else
+            var result = AspNetExceptionConverter.ToHttpResponseMessage(exception, cancellationTokenSource.Token);
+            await Task.CompletedTask;
+#endif
+            ((int)result.StatusCode).ShouldBe(499);
+        }
+
+        [TestMethod]
+        public async Task OperationCanceledException_With_Server_Timeout()
+        {
+            AspNetExceptionConverter.WebServerExecutionTimeLimit = TimeSpan.Zero;
+            FulcrumApplication.Context.RequestStopwatch = new Stopwatch();
+            FulcrumApplication.Context.RequestStopwatch.Start();
+
+            var exception = new OperationCanceledException("message");
+#if NETCOREAPP
+            var context = new DefaultHttpContext();
+            var result = context.Response;
+            await AspNetExceptionConverter.ConvertExceptionToResponseAsync(exception, result);
+#else
+            var result = AspNetExceptionConverter.ToHttpResponseMessage(exception, null);
+            await Task.CompletedTask;
+#endif
+            ((int)result.StatusCode).ShouldBe(500);
+        }
+
+        [TestMethod]
+        public async Task OperationCanceledException_Without_Stopwatch()
+        {
+            var exception = new OperationCanceledException("message");
+#if NETCOREAPP
+            var context = new DefaultHttpContext();
+            var result = context.Response;
+            await AspNetExceptionConverter.ConvertExceptionToResponseAsync(exception, result);
+#else
+            var result = AspNetExceptionConverter.ToHttpResponseMessage(exception, null);
+            await Task.CompletedTask;
+#endif
+            ((int)result.StatusCode).ShouldBe(500);
         }
     }
 
