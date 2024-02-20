@@ -1,12 +1,14 @@
 ﻿using System;
 using System.Net;
 using Newtonsoft.Json;
+using Nexus.Link.Libraries.Core.Application;
 using Nexus.Link.Libraries.Core.Assert;
 using Nexus.Link.Libraries.Core.Error.Logic;
 using Nexus.Link.Libraries.Core.Logging;
 using Nexus.Link.Libraries.Core.Misc;
 using Nexus.Link.Libraries.Web.Error;
 using Nexus.Link.Libraries.Web.Error.Logic;
+using Nexus.Link.Libraries.Web.Pipe;
 #if NETCOREAPP
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -29,6 +31,13 @@ namespace Nexus.Link.Libraries.Web.AspNet.Error.Logic
     /// </summary>
     public static class AspNetExceptionConverter
     {
+
+        /// <summary>
+        /// If a request takes shorter than this, and an <see cref="OperationCanceledException"/> is captured,
+        /// we consider the request as cancelled by the client.
+        /// </summary>
+        public static TimeSpan WebServerExecutionTimeLimit { get; set; } = TimeSpan.FromSeconds(99);
+
 #if NETCOREAPP
         public static async Task ConvertExceptionToResponseAsync(Exception exception, HttpResponse response, CancellationToken originalRequestToken = default)
         {
@@ -183,20 +192,15 @@ namespace Nexus.Link.Libraries.Web.AspNet.Error.Logic
                 switch (e)
                 {
                     case OperationCanceledException operationCanceledException:
-                        if (originalRequestToken is { IsCancellationRequested: true })
+                        if (FulcrumApplication.Context.RequestStopwatch != null &&
+                            FulcrumApplication.Context.RequestStopwatch.Elapsed < WebServerExecutionTimeLimit)
                         {
-                            // The cancellation came from the outside, i.e. we will consider this a client error
-                            // This is true for instance if the client has closed the connection.
-                            //
-                            // It is not true if the internet goes down or if the IIS is triggering this because
-                            // the maximum time limit for request execution has been reached.
-                            // This doesn't matter that much, because whatever we do here will not reach the client anyway
-                            // but it might affect monitoring tools like Azure Application Insights.
-                            //
-                            // Eventually we should probably check if we think that this is an IIS time out.
                             fulcrumException = new FulcrumServiceContractException(
-                                "The request execution was interrupted and the original request cancellation token has been activated for cancellation. " +
-                                "We currently classify this as a client side error.", operationCanceledException);
+                                "The request execution was probably interrupted by the client. " +
+                                "We currently classify this as a client side error.", operationCanceledException)
+                            {
+                                Code = Constants.CanceledByClient
+                            };
                         }
                         else
                         {
