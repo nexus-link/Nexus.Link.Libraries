@@ -201,13 +201,16 @@ namespace Nexus.Link.Libraries.Web.AspNet.Error.Logic
                             {
                                 Code = Constants.CanceledByClient
                             };
+                            return new StatusAndContent
+                            {
+                                StatusCode = (HttpStatusCode)499,
+                                Content = ExceptionConverter.ToJsonString(fulcrumException, Formatting.Indented)
+                            };
                         }
-                        else
-                        {
-                            fulcrumException = new FulcrumAssertionFailedException(
-                                $"The request execution was interrupted due to an internal {typeof(OperationCanceledException)}. " +
-                                "We classify this as a server side error.", operationCanceledException);
-                        }
+
+                        fulcrumException = new FulcrumAssertionFailedException(
+                            $"The request execution was interrupted due to an internal {typeof(OperationCanceledException)}. " +
+                            "We classify this as a server side error.", operationCanceledException);
                         break;
                     default:
                         var message = $"Application threw an exception that didn't inherit from {typeof(FulcrumException)}.\r{e.GetType().FullName}: {e.Message}\rFull exception:\r{e}";
