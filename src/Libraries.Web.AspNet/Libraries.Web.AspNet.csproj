@@ -50,7 +50,7 @@
     <Copyright>Copyright ©2019 Xlent Link AB</Copyright>
     <IncludeSymbols>true</IncludeSymbols>
     <PackageReleaseNotes>
-      3.5.1 Added handling in pipeline
+      3.5.1 Added client cancellation handling in pipeline
       3.5.0 Handle client request cancellations (response code 499)
       3.4.9 Bump
       3.4.3 Removed deprectated nuget packages
