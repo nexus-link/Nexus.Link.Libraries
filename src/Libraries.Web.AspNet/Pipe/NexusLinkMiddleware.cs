@@ -74,8 +74,13 @@ namespace Nexus.Link.Libraries.Web.AspNet.Pipe
         /// <param name="context">The information about the current HTTP request.</param>
         public virtual async Task InvokeAsync(HttpContext context)
         {
-            var stopwatch = new Stopwatch();
-            stopwatch.Start();
+            if (FulcrumApplication.Context.RequestStopwatch == null)
+            {
+                FulcrumApplication.Context.RequestStopwatch = new Stopwatch();
+                FulcrumApplication.Context.RequestStopwatch.Start();
+            }
+
+            var stopwatch = FulcrumApplication.Context.RequestStopwatch;
             var cancellationToken = context.RequestAborted;
             // Enable multiple reads of the content
             context.Request.EnableBuffering();
@@ -299,7 +304,7 @@ namespace Nexus.Link.Libraries.Web.AspNet.Pipe
         #region ConvertExceptionToHttpResponse
         protected static async Task ConvertExceptionToResponseAsync(HttpContext context, Exception exception, CancellationToken cancellationToken)
         {
-            if (exception is RequestPostponedException {ReentryAuthentication: null} rpe)
+            if (exception is RequestPostponedException { ReentryAuthentication: null } rpe)
             {
                 rpe.ReentryAuthentication = CalculateReentryAuthentication(context.Request);
             }

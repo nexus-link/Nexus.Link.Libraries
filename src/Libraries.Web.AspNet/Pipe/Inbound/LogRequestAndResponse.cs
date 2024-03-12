@@ -2,6 +2,7 @@
 using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
+using Nexus.Link.Libraries.Core.Application;
 using Nexus.Link.Libraries.Core.Assert;
 using Nexus.Link.Libraries.Core.Logging;
 
@@ -49,8 +50,12 @@ namespace Nexus.Link.Libraries.Web.AspNet.Pipe.Inbound
             InternalContract.Require(!ExceptionToFulcrumResponse.HasStarted,
                 $"{nameof(ExceptionToFulcrumResponse)} must not precede {nameof(LogRequestAndResponse)}");
             DelegateState.HasStarted = true;
-            var stopwatch = new Stopwatch();
-            stopwatch.Start();
+            if (FulcrumApplication.Context.RequestStopwatch == null)
+            {
+                FulcrumApplication.Context.RequestStopwatch = new Stopwatch();
+                FulcrumApplication.Context.RequestStopwatch.Start();
+            }
+            var stopwatch = FulcrumApplication.Context.RequestStopwatch;
             try
             {
                 await CallNextDelegateAsync(context, cancellationToken);

@@ -3,14 +3,15 @@ using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
 using Nexus.Link.Libraries.Core.Assert;
-using Nexus.Link.Libraries.Core.Misc;
 using Nexus.Link.Libraries.Web.AspNet.Error.Logic;
-using Nexus.Link.Libraries.Core.Error.Logic;
+using Nexus.Link.Libraries.Core.Application;
 #if NETCOREAPP
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 #else
 using Nexus.Link.Libraries.Web.Logging;
+using Nexus.Link.Libraries.Core.Misc;
+using Nexus.Link.Libraries.Core.Error.Logic;
 #endif
 
 namespace Nexus.Link.Libraries.Web.AspNet.Pipe.Inbound
@@ -49,6 +50,11 @@ namespace Nexus.Link.Libraries.Web.AspNet.Pipe.Inbound
             DelegateState.HasStarted = true;
             try
             {
+                if (FulcrumApplication.Context.RequestStopwatch == null)
+                {
+                    FulcrumApplication.Context.RequestStopwatch = new Stopwatch();
+                    FulcrumApplication.Context.RequestStopwatch.Start();
+                }
                 await CallNextDelegateAsync(context, cancellationToken);
             }
             catch (Exception exception)

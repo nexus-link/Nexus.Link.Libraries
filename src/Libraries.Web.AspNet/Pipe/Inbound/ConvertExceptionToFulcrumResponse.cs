@@ -1,10 +1,11 @@
 ﻿using System.Threading.Tasks;
-using Nexus.Link.Libraries.Core.Error.Logic;
+using Nexus.Link.Libraries.Core.Application;
 using Nexus.Link.Libraries.Core.Logging;
 using Nexus.Link.Libraries.Web.AspNet.Error.Logic;
 using Nexus.Link.Libraries.Core.Error.Model;
-using Nexus.Link.Libraries.Core.Misc;
 #if NETCOREAPP
+using Nexus.Link.Libraries.Core.Misc;
+using Nexus.Link.Libraries.Core.Error.Logic;
 using System;
 using System.Diagnostics;
 using Microsoft.AspNetCore.Builder;
@@ -16,7 +17,6 @@ using System.Threading;
 using System.Net.Http;
 using System.Web.Http;
 using System.Web.Http.ExceptionHandling;
-using Nexus.Link.Libraries.Core.Application;
 #endif
 
 namespace Nexus.Link.Libraries.Web.AspNet.Pipe.Inbound
@@ -29,8 +29,10 @@ namespace Nexus.Link.Libraries.Web.AspNet.Pipe.Inbound
     public class ConvertExceptionToFulcrumResponse
     {
         private readonly RequestDelegate _next;
-
-        /// <inheritdoc />
+        
+        /// <summary>
+        /// Constructor
+        /// </summary>
         public ConvertExceptionToFulcrumResponse(RequestDelegate next)
         {
             _next = next;
@@ -40,6 +42,11 @@ namespace Nexus.Link.Libraries.Web.AspNet.Pipe.Inbound
         {
             try
             {
+                if (FulcrumApplication.Context.RequestStopwatch == null)
+                {
+                    FulcrumApplication.Context.RequestStopwatch = new Stopwatch();
+                    FulcrumApplication.Context.RequestStopwatch.Start();
+                }
                 await _next(context);
             }
             catch (Exception exception)
@@ -87,7 +94,7 @@ namespace Nexus.Link.Libraries.Web.AspNet.Pipe.Inbound
             {
                 Log.LogError($"The web service had an internal exception ({context.Exception.Message})", context.Exception);
 
-                var response = AspNetExceptionConverter.ToHttpResponseMessage(context.Exception);
+                var response = AspNetExceptionConverter.ToHttpResponseMessage(context.Exception, cancellationToken);
                 Log.LogInformation($"Exception ({context.Exception.Message}) was converted to an HTTP response ({response.StatusCode}).");
 
                 context.Result = new ErrorResult(context.Request, response, FulcrumApplication.Context.CorrelationId);
