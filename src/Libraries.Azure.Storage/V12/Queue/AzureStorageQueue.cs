@@ -154,7 +154,12 @@ namespace Nexus.Link.Libraries.Azure.Storage.V12.Queue
             {
                 _errorsExceptions++;
                 _lastErrorException = ex;
-                throw new FulcrumResourceException($"Could not create queue '{name}' on storage '{client.Uri}': {ex.Message}", ex);
+                throw new FulcrumResourceException(
+                    $"Could not create queue '{name}' on storage '{client.Uri}': {ex.Message}", ex)
+                {
+                    IsRetryMeaningful = true,
+                    RecommendedWaitTimeInSeconds = 10
+                };
             }
 
             return client;

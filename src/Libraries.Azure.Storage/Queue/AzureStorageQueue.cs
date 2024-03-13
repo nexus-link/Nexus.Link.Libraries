@@ -98,7 +98,11 @@ namespace Nexus.Link.Libraries.Azure.Storage.Queue
             }
             catch (Exception e)
             {
-                throw new FulcrumResourceException($"Could not connect to queue '{name}' on storage '{storageAccount.QueueEndpoint}': {e.Message}", e);
+                throw new FulcrumResourceException($"Could not connect to queue '{name}' on storage '{storageAccount.QueueEndpoint}': {e.Message}", e)
+                {
+                    IsRetryMeaningful = true,
+                    RecommendedWaitTimeInSeconds = 10
+                };
             }
             return queue;
         }

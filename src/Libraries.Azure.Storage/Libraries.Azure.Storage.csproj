@@ -29,7 +29,7 @@
 
   <PropertyGroup>
     <PackageId>Nexus.Link.Libraries.Azure</PackageId>
-    <Version>3.9.5</Version>
+    <Version>3.9.6</Version>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <PackageTags>nexus;link;fulcrum;lever</PackageTags>
     <Authors>XLENT Link</Authors>
@@ -39,6 +39,7 @@
     <Copyright>Copyright ©2019 Xlent Link AB</Copyright>
     <IncludeSymbols>true</IncludeSymbols>
     <PackageReleaseNotes>
+      3.9.6 When throwing FulcrumResourceException we now set IsRetryMeaningful to true
       3.9.5 Bump
       3.9.2 Support healthcheck
       3.9.1 Updated nuget packages

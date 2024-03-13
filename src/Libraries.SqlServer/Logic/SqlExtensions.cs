@@ -77,7 +77,11 @@ namespace Nexus.Link.Libraries.SqlServer.Logic
                 var dataSource = sqlConnection?.DataSource ?? "(unknown data source)";
                 var exception =
                     new FulcrumResourceException(
-                        $"Could not open database connection to {database} on {dataSource}", e);
+                        $"Could not open database connection to {database} on {dataSource}", e)
+                    {
+                        IsRetryMeaningful = true,
+                        RecommendedWaitTimeInSeconds = 10
+                    };
                 throw new CircuitBreakerException(exception);
             }
             finally
@@ -124,7 +128,11 @@ namespace Nexus.Link.Libraries.SqlServer.Logic
                 var sqlConnection = connection as SqlConnection;
                 var database = connection.Database ?? "(unknown database)";
                 var dataSource = sqlConnection?.DataSource ?? "(unknown data source)";
-                var exception = new FulcrumResourceException($"Could not open database connection to {database} on {dataSource}", e);
+                var exception = new FulcrumResourceException($"Could not open database connection to {database} on {dataSource}", e)
+                {
+                    IsRetryMeaningful = true,
+                    RecommendedWaitTimeInSeconds = 10
+                };
                 throw new CircuitBreakerException(exception);
             }
             finally

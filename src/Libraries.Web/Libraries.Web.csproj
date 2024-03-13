@@ -33,7 +33,7 @@
 
   <PropertyGroup>
     <PackageId>Nexus.Link.Libraries.Web</PackageId>
-    <Version>6.1.0</Version>
+    <Version>6.1.1</Version>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <PackageTags>nexus;link;fulcrum;lever</PackageTags>
     <Authors>XLENT Link</Authors>
@@ -43,6 +43,7 @@
     <Copyright>Copyright ©2021 Xlent Link AB</Copyright>
     <IncludeSymbols>true</IncludeSymbols>
     <PackageReleaseNotes>
+      6.1.1 For some cases when we throw FulcrumResourceException we now set IsRetryMeaningful to true
       6.1.0 ExceptionConverter supports response code 499
       6.0.2 Bump
       6.0.0 RequestPostponedException is now abstract

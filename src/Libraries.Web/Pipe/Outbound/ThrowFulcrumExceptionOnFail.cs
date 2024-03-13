@@ -111,14 +111,21 @@ namespace Nexus.Link.Libraries.Web.Pipe.Outbound
                 Log.LogWarning(message, e);
                 throw new FulcrumTryAgainException(message, e);
             }
-            catch (Exception e) when (
-                e is HttpRequestException
-                || e is JsonReaderException
-                )
+            catch (JsonReaderException e)
             {
                 var message = $"{requestDescription} failed: {e.Message}.";
                 Log.LogWarning(message, e);
                 throw new FulcrumResourceException(message, e);
+            }
+            catch (HttpRequestException e)
+            {
+                var message = $"{requestDescription} failed: {e.Message}.";
+                Log.LogWarning(message, e);
+                throw new FulcrumResourceException(message, e)
+                {
+                    IsRetryMeaningful = true,
+                    RecommendedWaitTimeInSeconds = 10
+                };
             }
             catch (Exception e)
             {
