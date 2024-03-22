@@ -40,7 +40,7 @@ public class SqlServerGuidGenerator: IGuidGenerator
     /// We don't know much about the implications of the parameters yet, so we recommend going with
     /// the default values.
     /// </remarks>
-    private SqlServerGuidGenerator(int workerIndex, bool useProcessId)
+    protected internal SqlServerGuidGenerator(int workerIndex, bool useProcessId)
     {
         if (!AllowInstancesWithDifferentConfigurations
             && _lastWorkerIndex.HasValue
