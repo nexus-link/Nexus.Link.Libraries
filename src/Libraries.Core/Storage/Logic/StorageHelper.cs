@@ -7,6 +7,8 @@ using System.Threading.Tasks;
 using Newtonsoft.Json;
 using Nexus.Link.Libraries.Core.Assert;
 using Nexus.Link.Libraries.Core.EntityAttributes;
+using Nexus.Link.Libraries.Core.Error.Logic;
+using Nexus.Link.Libraries.Core.Storage.Logic.SequentialGuids;
 using Nexus.Link.Libraries.Core.Storage.Model;
 
 namespace Nexus.Link.Libraries.Core.Storage.Logic
@@ -17,29 +19,37 @@ namespace Nexus.Link.Libraries.Core.Storage.Logic
     public static class StorageHelper
     {
         /// <summary>
-        /// Create a new Id of type <see cref="string"/> or type <see cref="Guid"/>.
+        /// The guid generator that we will use in <see cref="CreateNewId{TId}()"/>
+        /// </summary>
+        public static IGuidGenerator GuidGenerator { get; set; } = new DotNetGuidGenerator();
+
+        /// <summary>
+        /// Create a new Id of type <see cref="string"/> or type <see cref="Guid"/> using the GUID generator <see cref="GuidGenerator"/>.
         /// </summary>
         /// <typeparam name="TId"></typeparam>
         /// <returns></returns>
         public static TId CreateNewId<TId>()
         {
-            var id = default(TId);
-            if (typeof(TId) == typeof(Guid))
-            {
-                // ReSharper disable once SuspiciousTypeConversion.Global
-                id = (dynamic)Guid.NewGuid();
-            }
-            else if (typeof(TId) == typeof(string))
-            {
-                // ReSharper disable once SuspiciousTypeConversion.Global
-                id = (dynamic)Guid.NewGuid().ToString();
-            }
-            else
-            {
-                FulcrumAssert.Fail(null,
-                    $"{nameof(CreateNewId)} can handle Guid and string as type for Id, but it can't handle {typeof(TId)}.");
-            }
-            return id;
+            return CreateNewId<TId>(GuidGenerator);
+        }
+
+        /// <summary>
+        /// Create a new Id of type <see cref="string"/> or type <see cref="Guid"/> using the GUID generator <paramref name="guidGenerator"/>.
+        /// </summary>
+        /// <typeparam name="TId"></typeparam>
+        /// <returns></returns>
+        public static TId CreateNewId<TId>(IGuidGenerator guidGenerator)
+        {
+            InternalContract.RequireNotNull(guidGenerator, nameof(guidGenerator));
+
+            var idAsGuid = guidGenerator.NewGuid();
+
+            if (typeof(TId) == typeof(Guid)) return (dynamic)idAsGuid;
+
+            if (typeof(TId) == typeof(string)) return (dynamic)idAsGuid.ToString();
+
+            FulcrumAssert.Fail(null, $"{nameof(CreateNewId)} can handle Guid and string as type for Id, but it can't handle {typeof(TId)}.");
+            throw new FulcrumAssertionFailedException($"Should never happen - F4D024E5-F613-4438-B948-60BD0590ED88");
         }
 
         /// <summary>

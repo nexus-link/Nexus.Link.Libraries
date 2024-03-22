@@ -11,6 +11,7 @@ using Nexus.Link.Libraries.Core.Assert;
 using Nexus.Link.Libraries.Core.Error.Logic;
 using Nexus.Link.Libraries.Core.Logging;
 using Nexus.Link.Libraries.Core.Storage.Logic;
+using Nexus.Link.Libraries.Core.Storage.Logic.SequentialGuids;
 using Nexus.Link.Libraries.SqlServer.Logic;
 using Nexus.Link.Libraries.SqlServer.Model;
 using IRecordVersion = Nexus.Link.Libraries.Core.Storage.Model.IRecordVersion;
@@ -22,6 +23,7 @@ namespace Nexus.Link.Libraries.SqlServer;
 /// </summary>
 public class SqlExecution
 {
+    private readonly IGuidGenerator _guidGenerator;
     private static int _totalExecutionsStarted;
     private static int _totalExecutionsSucceeded;
     private static int _totalQueriesStarted;
@@ -106,10 +108,14 @@ public class SqlExecution
 
     protected SqlExecution(ISqlTableMetadata tableMetadata, IDatabaseOptions options)
     {
+        _guidGenerator = options.GuidGenerator ?? StorageHelper.GuidGenerator;
         Database = new Database(options);
         TableMetadata = tableMetadata;
     }
-
+    public Guid CreateNewId()
+    {
+        return _guidGenerator.NewGuid();
+    }
 
     protected internal async Task<int> ExecuteAsync(string statement, object param = null, CancellationToken token = default)
     {

@@ -42,7 +42,7 @@
 
   <PropertyGroup>
     <PackageId>Nexus.Link.Libraries.Core</PackageId>
-    <Version>5.30.0</Version>
+    <Version>5.31.0</Version>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <PackageTags>nexus;link;fulcrum;lever</PackageTags>
     <Authors>XLENT Link</Authors>
@@ -52,6 +52,7 @@
     <Copyright>Copyright ©2024 Xlent Link AB</Copyright>
     <IncludeSymbols>true</IncludeSymbols>
     <PackageReleaseNotes>
+      5.31.0 Added possibilty to choose SequentialGuids for Ids
       5.30.0 Added RequestStopwatch to NexusContext
       5.29.7 Added try-catch when copying from FulrcumException from IFulcrumError
       5.29.6 Bump of versions

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Nexus.Link.Libraries.Core.Storage.Logic;
 using Nexus.Link.Libraries.SqlServer.Model;
 
 namespace Nexus.Link.Libraries.SqlServer.Logic
@@ -52,7 +53,7 @@ namespace Nexus.Link.Libraries.SqlServer.Logic
         private static IEnumerable<string> UpdatesForStandardColumns(ISqlTableMetadata tableMetadata)
         {
             var list = new List<string>();
-            if (tableMetadata.EtagColumnName != null) list.Add($"{tableMetadata.EtagColumnName}='{Guid.NewGuid()}'");
+            if (tableMetadata.EtagColumnName != null) list.Add($"{tableMetadata.EtagColumnName}='{StorageHelper.CreateNewId<Guid>()}'");
             if (tableMetadata.UpdatedAtColumnName != null) list.Add($"{tableMetadata.UpdatedAtColumnName}=sysutcdatetime()");
             return list;
         }

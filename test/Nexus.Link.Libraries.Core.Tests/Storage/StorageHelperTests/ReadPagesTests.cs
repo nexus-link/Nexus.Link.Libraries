@@ -9,10 +9,10 @@ using Nexus.Link.Libraries.Core.Storage.Logic;
 using Nexus.Link.Libraries.Core.Storage.Model;
 using Shouldly;
 
-namespace Nexus.Link.Libraries.Core.Tests.Storage
+namespace Nexus.Link.Libraries.Core.Tests.Storage.StorageHelperTests
 {
     [TestClass]
-    public class StorageHelperTests
+    public class ReadPagesTests
     {
 
         [TestInitialize]
