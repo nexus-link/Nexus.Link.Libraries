@@ -21,7 +21,7 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1" PrivateAssets="All" />
-    <PackageReference Include="MSTest.TestFramework" Version="3.1.1" />
+    <PackageReference Include="MSTest.TestFramework" Version="3.3.1" />
   </ItemGroup>
 
   <ItemGroup>
@@ -40,6 +40,7 @@
     <Copyright>Copyright ©2019 Xlent Link AB</Copyright>
     <IncludeSymbols>true</IncludeSymbols>
     <PackageReleaseNotes>
+      1.5.8 Updated nuget packages
       1.5.7 Bump
       1.5.1 Dropped support for net461
       1.4.5 Bump

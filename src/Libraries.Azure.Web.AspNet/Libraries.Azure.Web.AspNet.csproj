@@ -23,12 +23,12 @@
   </ItemGroup>
 
   <ItemGroup Condition="'$(TargetFramework)'=='net472'">
-    <PackageReference Include="Microsoft.ApplicationInsights" Version="2.21.0" />
-    <PackageReference Include="Microsoft.ApplicationInsights.DependencyCollector" Version="2.21.0" />
-    <PackageReference Include="Microsoft.ApplicationInsights.PerfCounterCollector" Version="2.21.0" />
-    <PackageReference Include="Microsoft.ApplicationInsights.Web" Version="2.21.0" />
-    <PackageReference Include="Microsoft.ApplicationInsights.WindowsServer" Version="2.21.0" />
-    <PackageReference Include="Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel" Version="2.21.0" />
+    <PackageReference Include="Microsoft.ApplicationInsights" Version="2.22.0" />
+    <PackageReference Include="Microsoft.ApplicationInsights.DependencyCollector" Version="2.22.0" />
+    <PackageReference Include="Microsoft.ApplicationInsights.PerfCounterCollector" Version="2.22.0" />
+    <PackageReference Include="Microsoft.ApplicationInsights.Web" Version="2.22.0" />
+    <PackageReference Include="Microsoft.ApplicationInsights.WindowsServer" Version="2.22.0" />
+    <PackageReference Include="Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel" Version="2.22.0" />
   </ItemGroup>
 
   <ItemGroup Condition="'$(TargetFramework)'=='netcoreapp3.1'">
@@ -47,6 +47,7 @@
     <Copyright>Copyright ©2020 Xlent Link AB</Copyright>
     <IncludeSymbols>true</IncludeSymbols>
     <PackageReleaseNotes>
+      1.5.12 Updated nuget packages
       1.5.11 Bump
       1.5.4 Updated nuget packages
       1.5.2 Bump

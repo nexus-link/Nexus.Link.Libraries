@@ -22,10 +22,6 @@
     <ProjectReference Include="..\Libraries.Web.AspNet\Libraries.Web.AspNet.csproj" />
   </ItemGroup>
 
-  <ItemGroup Condition="'$(TargetFramework)'=='netcoreapp3.1'">
-    <PackageReference Include="Microsoft.AspNetCore.Http.Abstractions" Version="[2.2.0, 3.0)" />
-  </ItemGroup>
-
   <PropertyGroup>
     <PackageId>Nexus.Link.Libraries.Crud.AspNet</PackageId>
     <Version>2.8.10</Version>
@@ -38,6 +34,7 @@
     <Copyright>Copyright ©2019 Xlent Link AB</Copyright>
     <IncludeSymbols>true</IncludeSymbols>
     <PackageReleaseNotes>
+      2.8.11 Removed nuget packages
       2.8.10 Bump
       2.8.1 Dropped support for net461
       2.7.8 Bump
