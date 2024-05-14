@@ -30,7 +30,7 @@
 
   <PropertyGroup>
     <PackageId>Nexus.Link.Libraries.SqlServer</PackageId>
-    <Version>3.3.1</Version>
+    <Version>3.4.0</Version>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <PackageTags>nexus;link;fulcrum;lever</PackageTags>
     <Authors>XLENT Link</Authors>
@@ -40,7 +40,8 @@
     <Copyright>Copyright ©2019 Xlent Link AB</Copyright>
     <IncludeSymbols>true</IncludeSymbols>
     <PackageReleaseNotes>
-			3.3.1 Updated Microsoft.Data.SqlClient to 5.2.0, due to a known bug https://stackoverflow.com/questions/77575760/could-not-load-type-sqlguidcaster-from-assembly-microsoft-data-sqlclient-ver
+			3.4.0 Now logs a critical error and throws FulcrumResourceException when SQL Exception 823 is encountered
+      3.3.1 Updated Microsoft.Data.SqlClient to 5.2.0, due to a known bug https://stackoverflow.com/questions/77575760/could-not-load-type-sqlguidcaster-from-assembly-microsoft-data-sqlclient-ver
       3.3.0 Now supports possibilty to choose SequentialGuids for Id generation. Added implementation for IMaintainableCrudSql to allow for database maintenance jobs.
       3.2.1 When throwing FulcrumResourceException we now set IsRetryMeaningful to true
 		  3.2.0 Now run distributed lock in its own transaction, ignoring surrounding transactions. Release distributed lock now never fails

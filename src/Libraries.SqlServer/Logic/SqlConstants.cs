@@ -40,6 +40,12 @@ namespace Nexus.Link.Libraries.SqlServer.Logic
             /// </summary>
             Deadlock = 1205,
 
+            /// <summary>
+            /// The operating system returned error %ls to SQL Server during a %S_MSG at offset %#016I64x in file '%ls'.
+            /// Additional messages in the SQL Server error log and operating system error log may provide more detail.
+            /// This is a severe system-level error condition 
+            /// </summary>
+            SevereSystemError = 823
         }
     }
 }

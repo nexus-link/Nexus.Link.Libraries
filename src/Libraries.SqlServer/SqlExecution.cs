@@ -213,6 +213,9 @@ public class SqlExecution
             case (int)SqlConstants.SqlErrorEnum.CheckConstraintFailed:
                 // A complex constraint in the form of a trigger
                 throw new FulcrumContractException($"A {TableMetadata.TableName} trigger constraint failed: {e.Message}", e);
+            case (int)SqlConstants.SqlErrorEnum.SevereSystemError:
+                Log.LogCritical($"The SQL server has a sever system error. {e.Message}");
+                throw new FulcrumResourceException(sqlException.Message, e);
         }
 
         if (sqlException.Number == Database.Options.TriggerConstraintSqlExceptionErrorNumber)
