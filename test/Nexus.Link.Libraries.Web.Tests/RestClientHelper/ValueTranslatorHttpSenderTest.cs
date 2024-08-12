@@ -40,7 +40,7 @@ namespace Nexus.Link.Libraries.Web.Tests.RestClientHelper
                     It.IsAny<IEnumerable<string>>(),
                     It.IsAny<string>(),
                     It.IsAny<CancellationToken>()))
-                .ReturnsAsync(new Dictionary<string, string>{{$"{_decoratedConsumerId}", ProducerId}});
+                .ReturnsAsync(new Dictionary<string, string> { { $"{_decoratedConsumerId}", ProducerId } });
             ValueTranslatorHttpSender.TranslatorService = _translatorServiceMock.Object;
         }
 
@@ -58,7 +58,7 @@ namespace Nexus.Link.Libraries.Web.Tests.RestClientHelper
         {
             var httpSenderMock = new HttpSenderMock();
             var sender = new ValueTranslatorHttpSender(httpSenderMock, "producer");
-            var inBody = new Foo {Id = _decoratedConsumerId, Name = "name"};
+            var inBody = new Foo { Id = _decoratedConsumerId, Name = "name" };
             await sender.SendRequestAsync(HttpMethod.Get, $"Foos/{ProducerId}", inBody);
             Assert.IsNotNull(httpSenderMock.ReceivedBody);
             var outBody = httpSenderMock.ReceivedBody as Foo;
@@ -72,8 +72,8 @@ namespace Nexus.Link.Libraries.Web.Tests.RestClientHelper
         {
             var httpSenderMock = new HttpSenderMock();
             var sender = new ValueTranslatorHttpSender(httpSenderMock, "producer");
-            var sentBody = new Foo {Id = _decoratedConsumerId, Name = "name"};
-            var result = await sender.SendRequestAsync<Foo,Foo>(HttpMethod.Get, $"Foos/{ProducerId}", sentBody);
+            var sentBody = new Foo { Id = _decoratedConsumerId, Name = "name" };
+            var result = await sender.SendRequestAsync<Foo, Foo>(HttpMethod.Get, $"Foos/{ProducerId}", sentBody);
             Assert.IsNotNull(httpSenderMock.ReceivedBody);
             var receivedBody = httpSenderMock.ReceivedBody as Foo;
             Assert.IsNotNull(receivedBody);
@@ -86,7 +86,7 @@ namespace Nexus.Link.Libraries.Web.Tests.RestClientHelper
         }
 
         [TestMethod]
-        public async Task TranslateUserId()
+        public async Task SendRequestAsync_TranslateUserId()
         {
             FulcrumApplication.Context.ValueProvider.SetValue("DecoratedUserIds", DecoratedConsumerIds);
 
@@ -98,12 +98,24 @@ namespace Nexus.Link.Libraries.Web.Tests.RestClientHelper
         }
 
         [TestMethod]
+        public async Task SendAsync_TranslateUserId()
+        {
+            FulcrumApplication.Context.ValueProvider.SetValue("DecoratedUserIds", DecoratedConsumerIds);
+
+            var httpSenderMock = new HttpSenderMock();
+            var sender = new ValueTranslatorHttpSender(httpSenderMock, "producer");
+            await sender.SendAsync(new HttpRequestMessage(HttpMethod.Get, $"Foos/{_decoratedConsumerId}"));
+
+            Assert.AreEqual(ProducerId, sender.TranslatedUserId_OnlyForUnitTests);
+        }
+
+        [TestMethod]
         public async Task TranslateListBody()
         {
             var httpSenderMock = new HttpSenderMock();
             var sender = new ValueTranslatorHttpSender(httpSenderMock, "producer");
-            var sentBody = new Foo {Id = _decoratedConsumerId, Name = "name"};
-            var result = await sender.SendRequestAsync<IEnumerable<Foo>,Foo>(HttpMethod.Get, $"Foos", sentBody);
+            var sentBody = new Foo { Id = _decoratedConsumerId, Name = "name" };
+            var result = await sender.SendRequestAsync<IEnumerable<Foo>, Foo>(HttpMethod.Get, $"Foos", sentBody);
             var resultBody = result.Body;
             Assert.IsNotNull(resultBody);
             var foo = resultBody.FirstOrDefault();
@@ -116,7 +128,7 @@ namespace Nexus.Link.Libraries.Web.Tests.RestClientHelper
         {
             var httpSenderMock = new HttpSenderMock();
             var sender = new ValueTranslatorHttpSender(httpSenderMock, "producer");
-            var inBody = new Foo {Id = _decoratedConsumerId, Name = "name"};
+            var inBody = new Foo { Id = _decoratedConsumerId, Name = "name" };
             var result = await sender.SendRequestAsync<PageEnvelope<Foo>, Foo>(HttpMethod.Get, $"Foos/{ProducerId}", inBody);
             Assert.IsNotNull(result?.Body);
             Assert.IsNotNull(result.Body.Data);
@@ -174,7 +186,7 @@ namespace Nexus.Link.Libraries.Web.Tests.RestClientHelper
                 Dictionary<string, List<string>> customHeaders = null, CancellationToken cancellationToken = default)
             {
                 RelativeUrl = relativeUrl;
-                var response =  await SendRequestAsync<TResponse, TBody>(method, relativeUrl, body, customHeaders, cancellationToken);
+                var response = await SendRequestAsync<TResponse, TBody>(method, relativeUrl, body, customHeaders, cancellationToken);
                 var result = await HttpSender.VerifySuccessAndReturnBodyAsync(response, cancellationToken);
 
                 return result;
@@ -214,7 +226,8 @@ namespace Nexus.Link.Libraries.Web.Tests.RestClientHelper
                 var httpOperationResponse = new HttpOperationResponse<TResponse>();
                 var foo = new Foo
                 {
-                    Id = ProducerId, Name = "out-name"
+                    Id = ProducerId,
+                    Name = "out-name"
                 };
                 foo.IdList.Add(ProducerId);
                 foo.IdArray[0] = ProducerId;
@@ -224,16 +237,16 @@ namespace Nexus.Link.Libraries.Web.Tests.RestClientHelper
                 }
                 else if (typeof(TResponse) == typeof(Foo))
                 {
-                    httpOperationResponse.Body = (TResponse) (object) foo;
+                    httpOperationResponse.Body = (TResponse)(object)foo;
                 }
                 else if (typeof(TResponse) == typeof(IEnumerable<Foo>))
                 {
                     httpOperationResponse.Body =
-                        (TResponse) (object) new List<Foo> {foo};
+                        (TResponse)(object)new List<Foo> { foo };
                 }
                 else if (typeof(TResponse) == typeof(PageEnvelope<Foo>))
                 {
-                    httpOperationResponse.Body = (TResponse)(object)new PageEnvelope<Foo>(0, 1, 1, new List<Foo> {foo});
+                    httpOperationResponse.Body = (TResponse)(object)new PageEnvelope<Foo>(0, 1, 1, new List<Foo> { foo });
                 }
                 else
                 {
@@ -261,10 +274,10 @@ namespace Nexus.Link.Libraries.Web.Tests.RestClientHelper
             [TranslationConcept("foo.id")]
             public string Id { get; set; }
 
-            [TranslationConcept("foo.id")] 
+            [TranslationConcept("foo.id")]
             public List<string> IdList { get; } = new List<string>();
 
-            [TranslationConcept("foo.id")] 
+            [TranslationConcept("foo.id")]
             public string[] IdArray { get; } = new string[1];
 
             public string Name { get; set; }
