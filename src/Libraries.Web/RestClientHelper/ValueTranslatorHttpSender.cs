@@ -105,9 +105,28 @@ namespace Nexus.Link.Libraries.Web.RestClientHelper
         }
 
         /// <inheritdoc />
-        public Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken = default)
+        public async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken = default)
         {
-            return HttpSender.SendAsync(request, cancellationToken);
+            var userIds = FulcrumApplication.Context.ValueProvider.GetValue<List<string>>("DecoratedUserIds");
+
+            var translator = CreateTranslator();
+
+            if (userIds != null && userIds.Any())
+            {
+                foreach (var decoratedUserId in userIds)
+                {
+                    translator.Add(decoratedUserId);
+                }
+            }
+
+            await translator.ExecuteAsync(cancellationToken);
+
+            if (userIds != null && userIds.Any())
+            {
+                SetupTranslatedUserId(translator, userIds);
+            }
+
+            return await HttpSender.SendAsync(request, cancellationToken);
         }
 
         /// <inheritdoc />
