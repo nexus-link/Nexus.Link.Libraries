@@ -258,7 +258,7 @@ namespace Nexus.Link.Libraries.Web.Tests.RestClientHelper
             /// <inheritdoc />
             public Task<HttpResponseMessage> SendAsync(HttpRequestMessage requestMessage, CancellationToken cancellationToken = default)
             {
-                throw new NotImplementedException();
+                return Task.FromResult(new HttpResponseMessage(HttpStatusCode.OK));
             }
 
             /// <inheritdoc />
