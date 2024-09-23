@@ -44,6 +44,7 @@
     <IncludeSymbols>true</IncludeSymbols>
     <PackageReleaseNotes>
       6.2.0 Added a ValueTranslationHandler
+      6.1.2 ValueTranslatorHttpSender.SendAsync now tries to translate userId if it exists
       6.1.1 For some cases when we throw FulcrumResourceException we now set IsRetryMeaningful to true
       6.1.0 ExceptionConverter supports response code 499
       6.0.2 Bump
