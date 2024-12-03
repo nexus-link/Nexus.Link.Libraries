@@ -25,7 +25,7 @@
 
 	<PropertyGroup>
 		<PackageId>Nexus.Link.Libraries.Crud</PackageId>
-		<Version>3.18.0</Version>
+		<Version>3.19.1</Version>
 		<PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
 		<PackageTags>nexus;link;fulcrum;lever</PackageTags>
 		<Authors>XLENT Link</Authors>
@@ -35,7 +35,8 @@
 		<Copyright>Copyright ©2019 Xlent Link AB</Copyright>
 		<IncludeSymbols>true</IncludeSymbols>
 		<PackageReleaseNotes>
-			3.18.0 Removed dependency to System.IO.Abstractions
+      3.19.1 Refactored CrudPersistenceHelper and added transaction awareness. Added logging
+      3.18.0 Removed dependency to System.IO.Abstractions
 			3.17.0 CrudPersistenceHelperOptions now has a OnlySequential property to enforce non-parallel saves
 			3.16.5 Bump
 			3.16.3 Reset ETag in CrudPersistenceHelper

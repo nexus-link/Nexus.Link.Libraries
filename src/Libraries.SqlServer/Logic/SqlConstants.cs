@@ -11,6 +11,7 @@ namespace Nexus.Link.Libraries.SqlServer.Logic
         /// The comments have been taken from 
         /// SELECT * FROM master.dbo.sysmessages WHERE msglangid = 1033 AND error = nnn
         /// where nnn is the error number.
+        /// They are also documented at https://learn.microsoft.com/en-us/sql/relational-databases/errors-events/database-engine-events-and-errors?view=sql-server-ver16
         /// </remarks>
         public enum SqlErrorEnum
         {
@@ -45,7 +46,17 @@ namespace Nexus.Link.Libraries.SqlServer.Logic
             /// Additional messages in the SQL Server error log and operating system error log may provide more detail.
             /// This is a severe system-level error condition 
             /// </summary>
-            SevereSystemError = 823
+            SevereSystemError = 823,
+
+            /// <summary>
+            /// Resource ID : %d. The %ls limit for the database is %d and has been reached. See 'https://docs.microsoft.com/azure/azure-sql/database/resource-limits-logical-server' for assistance.
+            /// </summary>
+            DatabaseLimit = 10928,
+
+            /// <summary>
+            /// Resource ID : %d. The %ls limit for the elastic pool is %d and has been reached. See 'https://docs.microsoft.com/azure/azure-sql/database/resource-limits-logical-server' for assistance.
+            /// </summary>
+            ElasticPoolLimit = 10936
         }
     }
 }

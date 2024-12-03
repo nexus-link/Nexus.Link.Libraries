@@ -8,6 +8,7 @@ using Newtonsoft.Json.Linq;
 using Nexus.Link.Libraries.Core.Assert;
 using Nexus.Link.Libraries.Core.Error.Logic;
 using Nexus.Link.Libraries.Core.Json;
+using Nexus.Link.Libraries.Core.Logging;
 using Nexus.Link.Libraries.Core.Misc;
 using Nexus.Link.Libraries.Core.Storage.Logic;
 using Nexus.Link.Libraries.Core.Storage.Model;
@@ -26,6 +27,7 @@ namespace Nexus.Link.Libraries.Crud.Helpers
         private readonly CrudPersistenceHelperOptions _options;
         private readonly IComparer<TModel> _saveOrderComparer;
         private readonly ConcurrentDictionary<TId, TModel> _stored = new ConcurrentDictionary<TId, TModel>();
+        private readonly ConcurrentDictionary<TId, TModel> _transactionItems = new ConcurrentDictionary<TId, TModel>();
         private readonly List<TId> _currentInOrder = new List<TId>();
         private readonly ConcurrentDictionary<TId, TModel> _currentDictionary = new ConcurrentDictionary<TId, TModel>();
 
@@ -55,7 +57,7 @@ namespace Nexus.Link.Libraries.Crud.Helpers
         {
             var item = await _readService.ReadAsync(id, cancellationToken);
             if (item == null) return null;
-            AddOrUpdateWithCopy(id, item, true);
+            AddOrUpdateWithCopy(id, item, true, false);
             return item;
         }
 
@@ -64,10 +66,10 @@ namespace Nexus.Link.Libraries.Crud.Helpers
         /// The class will remember its values, so we know how to deal with a later call to <see cref="SaveAsync(TId,TModel,System.Threading.CancellationToken)"/>.
         /// </summary>
         /// <returns>The found item or null.</returns>
-        public void Add(TId id, TModel item, bool stored)
+        public void Add(TId id, TModel item, bool considerAsStored)
         {
             InternalContract.RequireNotNull(item, nameof(item));
-            AddOrUpdateWithCopy(id, item, stored);
+            AddOrUpdateWithCopy(id, item, considerAsStored, false);
         }
 
         public void Forget(TId id)
@@ -96,17 +98,32 @@ namespace Nexus.Link.Libraries.Crud.Helpers
         public async Task SaveAsync(Func<TId, TModel, CancellationToken, Task> handleResultMethod,
             CancellationToken cancellationToken = default)
         {
-            InternalContract.RequireNotNull(handleResultMethod, nameof(handleResultMethod));
+            await PrivateSaveAllAsync(handleResultMethod, false, cancellationToken);
+        }
+
+        public async Task SaveAsTransactionAsync(CancellationToken cancellationToken = default)
+        {
+            await PrivateSaveAllAsync(null, true, cancellationToken);
+        }
+
+        private async Task PrivateSaveAllAsync(Func<TId, TModel, CancellationToken, Task> handleResultMethod, bool transaction, CancellationToken cancellationToken = default)
+        {
+            InternalContract.Require(handleResultMethod == null || !transaction, $"Can't have parameter {nameof(handleResultMethod)} when {nameof(transaction)} is true." +
+                $" It should be used in the {nameof(CommitAsync)} method.");
             var itemTaskList = new List<Task<TModel>>();
-            var items = _currentInOrder.Select(id => {
+            var items = _currentInOrder.Select(id =>
+            {
                 _currentDictionary.TryGetValue(id, out var item);
                 return item;
             }).Where(item => item != null);
             var array = MaybeSort(items);
-            foreach (var item in array)
+            Log.LogInformation($"Saving {array.Length} items.");
+            for (int i = 0; i < array.Length; i++)
             {
-                FulcrumAssert.IsNotNull(item, CodeLocation.AsString());
-                var itemTask = SaveAsync(item.Id, item, cancellationToken);
+                var item = array[i];
+                if (item == null) continue;
+                Log.LogVerbose($"Saving item {i+1} with id {item.Id}.");
+                var itemTask = PrivateSaveItemAsync(item.Id, item, transaction, cancellationToken);
                 if (_options.OnlySequential || _saveOrderComparer != null)
                 {
                     // If the options says so, or if the save order is important, we can't use parallelism
@@ -115,18 +132,25 @@ namespace Nexus.Link.Libraries.Crud.Helpers
                 itemTaskList.Add(itemTask);
             }
 
-            foreach (var itemTask in itemTaskList)
+            if (handleResultMethod == null)
             {
-                var item = await itemTask;
-                FulcrumAssert.IsNotNull(item, CodeLocation.AsString());
-                await handleResultMethod(item.Id, item, cancellationToken);
+                await Task.WhenAll(itemTaskList);
+            }
+            else
+            {
+                foreach (var itemTask in itemTaskList)
+                {
+                    var item = await itemTask;
+                    if (item == null) continue;
+                    await handleResultMethod.Invoke(item.Id, item, cancellationToken);
+                }
             }
         }
 
         private TModel[] MaybeSort(IEnumerable<TModel> items)
         {
-            return _saveOrderComparer == null 
-                ? items.ToArray() 
+            return _saveOrderComparer == null
+                ? items.ToArray()
                 : items.OrderBy(item => item, _saveOrderComparer).ToArray();
         }
 
@@ -151,81 +175,62 @@ namespace Nexus.Link.Libraries.Crud.Helpers
         // </exception>
         public async Task<TModel> SaveAsync(TId id, TModel item, CancellationToken cancellationToken = default)
         {
+            return await PrivateSaveItemAsync(id, item, false, cancellationToken);
+        }
+
+        /// <summary>
+        /// Create or update the <paramref name="item"/>. If there is a conflict, use the strategy from the <see cref="CrudPersistenceHelperOptions"/>.
+        /// </summary>
+        /// <param name="id">How the object to be updated is identified.</param>
+        /// <param name="item">The new version of the item. </param>
+        /// <param name="cancellationToken">Propagates notification that operations should be canceled</param>
+        /// <returns>The updated item as it was saved - or the currently saved item if there was a conflict and the strategy says that we should read.</returns>
+        // <exception cref="FulcrumConflictException">
+        // Thrown if the same item already existed
+        // </exception>
+        public async Task<TModel> SaveAsTransactionAsync(TId id, TModel item, CancellationToken cancellationToken = default)
+        {
+            return await PrivateSaveItemAsync(id, item, true, cancellationToken);
+        }
+
+        /// <summary>
+        /// Create or update the <paramref name="item"/>. If there is a conflict, use the strategy from the <see cref="CrudPersistenceHelperOptions"/>.
+        /// </summary>
+        /// <param name="id">How the object to be updated is identified.</param>
+        /// <param name="item">The new version of the item. </param>
+        /// <param name="transaction">True means that we should see the save as a transaction and the caller will call <see cref="Commit"/> to commit the transaction,
+        /// or <see cref="Rollback"/>  to rollback the transaction.</param>
+        /// <param name="cancellationToken">Propagates notification that operations should be canceled</param>
+        /// <returns>The updated item as it was saved - or the currently saved item if there was a conflict and the strategy says that we should read.</returns>
+        // <exception cref="FulcrumConflictException">
+        // Thrown if the same item already existed
+        // </exception>
+        private async Task<TModel> PrivateSaveItemAsync(TId id, TModel item, bool transaction, CancellationToken cancellationToken = default)
+        {
             InternalContract.RequireNotNull(item, nameof(item));
 
             try
             {
                 var hasId = !Equals(id, default(TId));
+                if (item.Etag == null && hasId && _stored.TryGetValue(id, out var storedValue))
+                {
+                    item.Etag = storedValue.Etag;
+                }
+
+                TModel createdOrUpdatedItem;
                 if (item.Etag == null)
                 {
-                    if (hasId && _stored.ContainsKey(id))
-                    {
-                        throw new FulcrumConflictException(
-                            $"{nameof(item.Etag)} == null which should indicate that this is a new item, but it has previously been successfully read from persistence.");
-                    }
-
-                    if (hasId) item.Id = id;
-
-                    item.Etag = "ignore";
-                    TModel result = null;
-                    if (_crudService is ICreateWithSpecifiedIdAndReturn<TModelCreate, TModel, TId> service1 && hasId)
-                    {
-                        result = await service1.CreateWithSpecifiedIdAndReturnAsync(id, item, cancellationToken);
-                    }
-                    else if (_crudService is ICreateWithSpecifiedIdNoReturn<TModelCreate, TModel, TId> service2 &&
-                             hasId)
-                    {
-                        await service2.CreateWithSpecifiedIdAsync(id, item, cancellationToken);
-                        result = await _readService.ReadAsync(id, cancellationToken);
-                    }
-                    else if (_crudService is ICreateAndReturn<TModelCreate, TModel, TId> service3 && !hasId)
-                    {
-                        result = await service3.CreateAndReturnAsync(item, cancellationToken);
-                        id = result.Id;
-                    }
-                    else if (_crudService is ICreate<TModelCreate, TModel, TId> service4 && !hasId)
-                    {
-                        id = await service4.CreateAsync(item, cancellationToken);
-                        result = await _readService.ReadAsync(id, cancellationToken);
-                    }
-                    else
-                    {
-                        InternalContract.Require(false,
-                            "The CRUD service must implement"
-                            + $" {nameof(ICreateWithSpecifiedIdAndReturn<TModelCreate, TModel, TId>)}"
-                            + $" or {nameof(ICreateWithSpecifiedId<TModelCreate, TModel, TId>)}"
-                            + $" or {nameof(ICreateAndReturn<TModelCreate, TModel, TId>)}"
-                            + $" or {nameof(ICreate<TModelCreate, TModel, TId>)}");
-                    }
-
-                    AddOrUpdateWithCopy(id, result, true);
-                    return result;
+                    createdOrUpdatedItem = await CreateInDatabaseAsync(hasId);
                 }
                 else
                 {
-                    if (!HasChanged(id, item)) return item;
-                    TModel result = null;
-                    if (_crudService is IUpdateAndReturn<TModel, TId> service1)
-                    {
-                        result = await service1.UpdateAndReturnAsync(id, item, cancellationToken);
-                    }
-                    else if (_crudService is IUpdate<TModel, TId> service2)
-                    {
-                        await service2.UpdateAsync(id, item, cancellationToken);
-                        result = await _readService.ReadAsync(id, cancellationToken);
-                    }
-                    else
-                    {
-                        InternalContract.Require(false,
-                            $"The CRUD service must implement {nameof(IUpdateAndReturn<TModel, TId>)} or {nameof(IUpdate<TModel, TId>)}");
-                    }
-
-                    AddOrUpdateWithCopy(id, result, true);
-                    return result;
+                    createdOrUpdatedItem = await UpdateInDatabaseAsync();
                 }
+                return createdOrUpdatedItem;
             }
-            catch (FulcrumContractException)
+            catch (FulcrumConflictException ex)
             {
+                Log.LogWarning($"Conflict for {id}, will use conflict strategy {_options.ConflictStrategy}", ex);
                 switch (_options.ConflictStrategy)
                 {
                     case PersistenceConflictStrategyEnum.Throw:
@@ -233,16 +238,139 @@ namespace Nexus.Link.Libraries.Crud.Helpers
                     case PersistenceConflictStrategyEnum.ReturnNew:
                         var result = await _readService.ReadAsync(id, cancellationToken);
                         if (result == null) return null;
-                        AddOrUpdateWithCopy(id, result, true);
+                        AddOrUpdateWithCopy(id, result, true, transaction);
                         return result;
                     default:
-                        FulcrumAssert.Fail($"Unexpected enum value: {_options.ConflictStrategy}");
-                        throw new ArgumentOutOfRangeException();
+                        throw new FulcrumAssertionFailedException($"Unexpected enum value: {_options.ConflictStrategy}");
                 }
             }
-            finally
+
+            async Task<TModel> CreateInDatabaseAsync(bool hasId)
             {
-                if (item.Etag == "ignore") item.Etag = null;
+                try
+                {
+                    TModel createdItem;
+                    item.Etag = "ignore";
+                    if (hasId)
+                    {
+                        item.Id = id;
+                        createdItem = await CreateWithSpecifiedIdAsync();
+                    }
+                    else
+                    {
+                        (id, createdItem) = await CreateWithNewIdAsync();
+                    }
+                    AddOrUpdateWithCopy(id, createdItem, true, transaction);
+                    return createdItem;
+                }
+                finally
+                {
+                    item.Etag = null;
+                }
+            }
+
+            async Task<TModel> UpdateInDatabaseAsync()
+            {
+                if (!HasChanged(id, item))
+                {
+                    Log.LogVerbose($"Already up to date: {id})");
+                    return item;
+                }
+                var updatedItem = await UpdateAsync();
+
+                AddOrUpdateWithCopy(id, updatedItem, true, transaction);
+                return updatedItem;
+            }
+
+            async Task<TModel> CreateWithSpecifiedIdAsync()
+            {
+                switch (_crudService)
+                {
+                    case ICreateWithSpecifiedIdAndReturn<TModelCreate, TModel, TId>
+                        cwsiarService:
+                        {
+                            var result = await cwsiarService.CreateWithSpecifiedIdAndReturnAsync(id, item, cancellationToken);
+                            Log.LogVerbose($"Success: CreateWithSpecifiedIdAndReturnAsync({id})");
+                            return result;
+                        }
+                    case ICreateWithSpecifiedIdNoReturn<TModelCreate, TModel, TId>
+                        cwsinrService:
+                        {
+                            await cwsinrService.CreateWithSpecifiedIdAsync(id, item, cancellationToken);
+                            Log.LogVerbose($"Success: CreateWithSpecifiedIdAsync({id})");
+                            var result = await _readService.ReadAsync(id, cancellationToken);
+                            Log.LogVerbose($"Success: ReadAsync({id})");
+                            return result;
+                        }
+                    default:
+                        {
+                            const string message = "The CRUD service must implement"
+                                                   + $" {nameof(ICreateWithSpecifiedIdAndReturn<TModelCreate, TModel, TId>)}"
+                                                   + $" or {nameof(ICreateWithSpecifiedId<TModelCreate, TModel, TId>)}";
+                            var fulcrumContractException = new FulcrumContractException(message);
+                            Log.LogError(message, fulcrumContractException);
+                            throw fulcrumContractException;
+                        }
+                }
+            }
+
+            async Task<(TId, TModel)> CreateWithNewIdAsync()
+            {
+                switch (_crudService)
+                {
+                    case ICreateAndReturn<TModelCreate, TModel, TId> carService:
+                        {
+                            var result = await carService.CreateAndReturnAsync(item, cancellationToken);
+                            Log.LogVerbose($"Success: CreateAndReturnAsync() => {result.Id}");
+                            id = result.Id;
+                            return (id, result);
+                        }
+                    case ICreate<TModelCreate, TModel, TId> cService:
+                        {
+                            id = await cService.CreateAsync(item, cancellationToken);
+                            Log.LogVerbose($"Success: CreateAsync() => {id}");
+                            var result = await _readService.ReadAsync(id, cancellationToken);
+                            Log.LogVerbose($"Success: ReadAsync({id})");
+                            return (id, result);
+                        }
+                    default:
+                        {
+                            const string message = "The CRUD service must implement"
+                                                   + $" {nameof(ICreateAndReturn<TModelCreate, TModel, TId>)}"
+                                                   + $" or {nameof(ICreate<TModelCreate, TModel, TId>)}";
+                            var fulcrumContractException = new FulcrumContractException(message);
+                            Log.LogError(message, fulcrumContractException);
+                            throw fulcrumContractException;
+                        }
+                }
+            }
+
+            async Task<TModel> UpdateAsync()
+            {
+                switch (_crudService)
+                {
+                    case IUpdateAndReturn<TModel, TId> service1:
+                        {
+                            var result = await service1.UpdateAndReturnAsync(id, item, cancellationToken);
+                            Log.LogVerbose($"Success: UpdateAndReturnAsync({id})");
+                            return result;
+                        }
+                    case IUpdate<TModel, TId> service2:
+                        {
+                            await service2.UpdateAsync(id, item, cancellationToken);
+                            Log.LogVerbose($"Success: UpdateAsync({id})");
+                            var result = await _readService.ReadAsync(id, cancellationToken);
+                            Log.LogVerbose($"Success: ReadAsync({id})");
+                            return result;
+                        }
+                    default:
+                        {
+                            const string message = $"The CRUD service must implement {nameof(IUpdateAndReturn<TModel, TId>)} or {nameof(IUpdate<TModel, TId>)}";
+                            var fulcrumContractException = new FulcrumContractException(message);
+                            Log.LogError(message, fulcrumContractException);
+                            throw fulcrumContractException;
+                        }
+                }
             }
         }
 
@@ -253,21 +381,78 @@ namespace Nexus.Link.Libraries.Crud.Helpers
             return SaveAsync(id, item, cancellationToken);
         }
 
-        private void AddOrUpdateWithCopy(TId id, TModel item, bool copyAsStored)
+        public Task<TModel> SaveAsTransactionAsync(TModel item, CancellationToken cancellationToken = default)
         {
             InternalContract.RequireNotNull(item, nameof(item));
-            lock (_currentInOrder)
+            var id = item.GetPrimaryKey<TModel, TId>();
+            return PrivateSaveItemAsync(id, item, true, cancellationToken);
+        }
+
+        public async Task CommitAsync(Func<TId, TModel, CancellationToken, Task> handleResultMethod, CancellationToken cancellationToken = default)
+        {
+            await Task.CompletedTask;
+            foreach (var valuePair in _transactionItems)
             {
-                _currentDictionary.AddOrUpdate(id, i =>
-                {
-                    _currentInOrder.Add(id);
-                    return item;
-                }, (i, oldValue) => item);
+                AddOrUpdateWithCopy(valuePair.Key, valuePair.Value, false, false);
             }
 
-            if (!copyAsStored) return;
+            if (handleResultMethod != null)
+            {
+                foreach (var valuePair in _transactionItems)
+                {
+                    await handleResultMethod.Invoke(valuePair.Key, valuePair.Value, cancellationToken);
+                }
+            }
+            _transactionItems.Clear();
+        }
+
+        public void Commit(Action<TId, TModel> handleResultMethod)
+        {
+            foreach (var valuePair in _transactionItems)
+            {
+                AddOrUpdateWithCopy(valuePair.Key, valuePair.Value, true, false);
+            }
+
+            if (handleResultMethod != null)
+            {
+                foreach (var valuePair in _transactionItems)
+                {
+                    handleResultMethod.Invoke(valuePair.Key, valuePair.Value);
+                }
+            }
+            _transactionItems.Clear();
+        }
+
+        public void Rollback()
+        {
+            _transactionItems.Clear();
+        }
+
+        private void AddOrUpdateWithCopy(TId id, TModel item, bool considerAsStored, bool transaction)
+        {
+            InternalContract.RequireNotNull(item, nameof(item));
+            if (!transaction)
+            {
+                lock (_currentInOrder)
+                {
+                    _currentDictionary.AddOrUpdate(id, i =>
+                    {
+                        _currentInOrder.Add(id);
+                        return item;
+                    }, (i, oldValue) => item);
+                }
+            }
+
+            if (!considerAsStored) return;
             var copy = item.AsCopy();
-            _stored.AddOrUpdate(id, i => copy, (i, oldValue) => copy);
+            if (transaction)
+            {
+                _transactionItems.AddOrUpdate(id, i => copy, (i, oldValue) => copy);
+            }
+            else
+            {
+                _stored.AddOrUpdate(id, i => copy, (i, oldValue) => copy);
+            }
         }
 
         private bool HasChanged(TId id, TModel item)

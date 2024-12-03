@@ -203,6 +203,8 @@ public class SqlExecution
         if (e is not SqlException sqlException) return;
         switch (sqlException.Number)
         {
+            case (int) SqlConstants.SqlErrorEnum.ElasticPoolLimit:
+            case (int) SqlConstants.SqlErrorEnum.DatabaseLimit:
             case (int)SqlConstants.SqlErrorEnum.Deadlock:
                 throw new FulcrumTryAgainException(sqlException.Message, sqlException);
             // https://stackoverflow.com/questions/6483699/unique-key-violation-in-sql-server-is-it-safe-to-assume-error-2627

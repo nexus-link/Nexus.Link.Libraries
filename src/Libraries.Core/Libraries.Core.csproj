@@ -18,6 +18,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="3.1.32" />
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1" PrivateAssets="All" />
     <PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="2.1.23" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
@@ -42,7 +43,7 @@
 
   <PropertyGroup>
     <PackageId>Nexus.Link.Libraries.Core</PackageId>
-    <Version>5.31.0</Version>
+    <Version>5.32.0</Version>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <PackageTags>nexus;link;fulcrum;lever</PackageTags>
     <Authors>XLENT Link</Authors>
@@ -52,6 +53,7 @@
     <Copyright>Copyright ©2024 Xlent Link AB</Copyright>
     <IncludeSymbols>true</IncludeSymbols>
     <PackageReleaseNotes>
+      5.32.0 Added MsExtensionLogger
       5.31.0 Added possibilty to choose SequentialGuids for Ids
       5.30.0 Added RequestStopwatch to NexusContext
       5.29.7 Added try-catch when copying from FulrcumException from IFulcrumError
