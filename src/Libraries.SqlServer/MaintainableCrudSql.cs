@@ -86,7 +86,7 @@ public class MaintainableCrudSql<TDatabaseItemCreate, TDatabaseItem> : CrudSql<T
     {
         var sql = "EXEC sp_updatestats";
         using var connection = await Database.NewSqlConnectionAsync();
-        await connection.ExecuteAsync(sql);
+        await connection.ExecuteAsync(sql, commandTimeout: 270);
     }
 
     /// <summary>
