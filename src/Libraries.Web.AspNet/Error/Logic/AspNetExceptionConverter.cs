@@ -175,7 +175,8 @@ namespace Nexus.Link.Libraries.Web.AspNet.Error.Logic
 #pragma warning restore CS0618
                             TryAgainAfterMinimumSeconds = seconds,
                             WaitingForRequestIds = postponedException.WaitingForRequestIds,
-                            ReentryAuthentication = postponedException.ReentryAuthentication
+                            ReentryAuthentication = postponedException.ReentryAuthentication,
+                            Backoff = postponedException.Backoff
                         };
                         FulcrumAssert.IsValidated(postponedContent, CodeLocation.AsString());
                         return new StatusAndContent

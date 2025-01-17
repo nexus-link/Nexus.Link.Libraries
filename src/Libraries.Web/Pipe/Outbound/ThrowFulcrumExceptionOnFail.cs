@@ -76,7 +76,8 @@ namespace Nexus.Link.Libraries.Web.Pipe.Outbound
                         var exception =  new InternalRequestPostponedException(postponeInfo?.WaitingForRequestIds)
                         {
                             TryAgainAfterMinimumTimeSpan = timeSpan,
-                            ReentryAuthentication = postponeInfo.ReentryAuthentication
+                            ReentryAuthentication = postponeInfo.ReentryAuthentication,
+                            Backoff = postponeInfo.Backoff
                         };
                         throw exception;
                     }

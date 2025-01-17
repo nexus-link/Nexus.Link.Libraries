@@ -60,6 +60,12 @@ public abstract class RequestPostponedException : Exception
     public string ReentryAuthentication { get; set; }
 
     /// <summary>
+    /// If this is true, then we should back off, using <see cref="TryAgainAfterMinimumTimeSpan"/> as a starting point.
+    /// Back off means that we should resend the request with longer and longer intervals, just as with temporary errors.
+    /// </summary>
+    public bool Backoff { get; set; }
+
+    /// <summary>
     /// Add requests that we are waiting for.
     /// </summary>
     /// <param name="waitingForRequestIds">Requests that we are waiting for</param>

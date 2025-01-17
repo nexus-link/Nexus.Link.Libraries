@@ -24,6 +24,12 @@ namespace Nexus.Link.Libraries.Web.Error
         /// </summary>
         [Validation.NotNull]
         public IEnumerable<string> WaitingForRequestIds { get; set; } = new List<string>();
+
+        /// <summary>
+        /// If this is true, then we should back off, using <see cref="TryAgainAfterMinimumSeconds"/> as a starting point.
+        /// Back off means that we should resend the request with longer and longer intervals, just as with temporary errors.
+        /// </summary>
+        public bool Backoff { get; set; }
         
         /// <summary>
         /// This value can be used instead of normal authentication to continue a postponed execution.
