@@ -142,7 +142,13 @@ namespace Nexus.Link.Libraries.Web.Tests.Clients
         public void ConfigurationFromJsonFile()
         {
             // https://docs.nexus.link/docs/client-authentication-methods
-            LeverConfiguration = new MockLeverConfiguration(JObject.Parse(File.ReadAllText($"{AppDomain.CurrentDomain.BaseDirectory}\\Clients\\client-config.json")));
+#if NETCOREAPP
+            var path = $"{AppDomain.CurrentDomain.BaseDirectory}Clients/client-config.json";
+#else
+            var path = $"{AppDomain.CurrentDomain.BaseDirectory}/Clients/client-config.json";
+#endif
+            var text = File.ReadAllText(path);
+            LeverConfiguration = new MockLeverConfiguration(JObject.Parse(text));
 
             var config = ClientConfigurationHelper.GetConfigurationForClient(LeverConfiguration, "client-a");
             Assert.IsNotNull(config?.RequestHeaders);

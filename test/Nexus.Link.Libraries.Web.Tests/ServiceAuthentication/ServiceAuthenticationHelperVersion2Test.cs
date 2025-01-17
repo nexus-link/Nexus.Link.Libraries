@@ -414,9 +414,9 @@ namespace Nexus.Link.Libraries.Web.Tests.ServiceAuthentication
         {
             // https://docs.nexus.link/docs/client-authentication-methods
 #if NETCOREAPP
-            var configAsJson = await File.ReadAllTextAsync($"{AppDomain.CurrentDomain.BaseDirectory}\\ServiceAuthentication\\auth-config.json");
+            var configAsJson = await File.ReadAllTextAsync($"{AppDomain.CurrentDomain.BaseDirectory}ServiceAuthentication//auth-config.json");
 #else
-            var configAsJson = File.ReadAllText($"{AppDomain.CurrentDomain.BaseDirectory}\\ServiceAuthentication\\auth-config.json");
+            var configAsJson = File.ReadAllText($"{AppDomain.CurrentDomain.BaseDirectory}/ServiceAuthentication/auth-config.json");
 #endif
             LeverConfiguration = new MockLeverConfiguration(JObject.Parse(configAsJson));
 

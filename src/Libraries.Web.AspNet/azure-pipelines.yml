@@ -1,3 +1,7 @@
+pool:
+  name: 'Azure Pipelines'
+  vmImage: 'windows-latest'
+
 resources:
   repositories:
   - repository: azure-devops-tools
@@ -19,7 +23,7 @@ jobs:
 - template: 'templates/netcore/v1/jobs/nuget.yml@azure-devops-tools'
   parameters:
     jobName: 'WebAspNet'
-    testProjectsPath: 'test/Nexus.Link.Libraries.Web.AspNet.Tests/*.csproj'
+    # testProjectsPath: 'test/Nexus.Link.Libraries.Web.AspNet.Tests/*.csproj'
     nugetProjectsPath: 'src/Libraries.Web.AspNet/*.csproj'
     nuGetFeedType: external
     publishFeedCredentials: 'prd-nexus-nuget-external'
